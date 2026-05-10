@@ -98,7 +98,7 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
       role="dialog"
       aria-modal="true"
       aria-labelledby="match-title"
-      className="fixed inset-0 z-40 flex items-start sm:items-center justify-center bg-black/50 p-2 sm:p-4 overflow-y-auto"
+      className="fixed inset-0 z-40 flex items-start sm:items-center justify-center bg-black/50 p-2 sm:p-4 pb-28 sm:pb-28 overflow-y-auto"
       onClick={onClose}
     >
       <div
