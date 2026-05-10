@@ -8,7 +8,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg'],
+      includeAssets: ['favicon.svg', 'og-image.png'],
       manifest: {
         name: 'ピンポン対戦管理',
         short_name: 'ピンポン',
