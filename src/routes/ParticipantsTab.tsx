@@ -40,7 +40,9 @@ export const ParticipantsTab = () => {
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="名前"
-          onKeyDown={(e) => e.key === 'Enter' && submit()}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') e.preventDefault();
+          }}
           className="flex-1 min-w-[200px] min-h-input border-2 border-line rounded-xl px-3 text-lg"
         />
         <BigButton onClick={submit} disabled={!name.trim()}>追加</BigButton>
