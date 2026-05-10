@@ -1,9 +1,10 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAppStore } from '../store/useAppStore';
 import { BigButton } from '../components/BigButton';
 import { MatchModal } from '../components/MatchModal';
 import { matchSummary } from '../domain/match';
+import { saveAsImage } from '../lib/saveAsImage';
 import type { Match, MatchSide } from '../store/types';
 
 const sideMembers = (s: MatchSide) =>
@@ -23,12 +24,29 @@ export const MatrixTab = () => {
   const addManualMatch = useAppStore((s) => s.addManualMatch);
 
   const [openMatchId, setOpenMatchId] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const captureRef = useRef<HTMLDivElement>(null);
   const [doublesForm, setDoublesForm] = useState({
     l1: '',
     l2: '',
     r1: '',
     r2: '',
   });
+
+  const handleSaveImage = async () => {
+    if (!captureRef.current || !tournament) return;
+    setSaving(true);
+    try {
+      const date = new Date().toISOString().slice(0, 10);
+      const filename = `対戦表_${tournament.name}_${date}.png`;
+      await saveAsImage(captureRef.current, filename);
+    } catch (e) {
+      console.error(e);
+      alert('画像の保存に失敗しました。');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const list = tournament?.matchIds.map((id) => matches[id]).filter(Boolean) ?? [];
   const ps = tournament?.participantIds.map((id) => participants[id]).filter(Boolean) ?? [];
@@ -63,6 +81,11 @@ export const MatrixTab = () => {
               </ul>
             </div>
             <div className="overflow-x-auto">
+            <div ref={captureRef} className="bg-white p-3 space-y-2 inline-block align-top min-w-full">
+            <div className="border-b-2 border-line pb-2">
+              <div className="text-xl font-extrabold">{tournament.name}</div>
+              <div className="text-sm text-sub">{tournament.date}</div>
+            </div>
             <table className="matrix border-collapse w-full">
               <thead>
                 <tr>
@@ -145,17 +168,14 @@ export const MatrixTab = () => {
                             aria-label={`${row.name} 対 ${col.name} ${rowWins}-${colWins} 編集`}
                           >
                             {hasScore ? (
-                              <>
-                                <span className="absolute top-1 right-1 text-xs text-sub" aria-hidden>✎</span>
-                                <span>
-                                  {rowWins}-{colWins}
-                                  {finished && (
-                                    <span className="block text-sm">
-                                      {rowWon ? '勝' : '負'}
-                                    </span>
-                                  )}
-                                </span>
-                              </>
+                              <span>
+                                {rowWins}-{colWins}
+                                {finished && (
+                                  <span className="block text-sm">
+                                    {rowWon ? '勝' : '負'}
+                                  </span>
+                                )}
+                              </span>
                             ) : (
                               <span className="flex flex-col items-center justify-center gap-0.5 text-sub">
                                 <span className="text-2xl leading-none">＋</span>
@@ -171,6 +191,10 @@ export const MatrixTab = () => {
               </tbody>
             </table>
             </div>
+            </div>
+            <BigButton onClick={handleSaveImage} disabled={saving}>
+              {saving ? '保存中…' : '対戦表の画像を保存'}
+            </BigButton>
           </>
         )}
 
@@ -255,6 +279,11 @@ export const MatrixTab = () => {
         </div>
       )}
 
+      <div ref={captureRef} className="bg-white p-3 space-y-2">
+      <div className="border-b-2 border-line pb-2">
+        <div className="text-xl font-extrabold">{tournament.name}</div>
+        <div className="text-sm text-sub">{tournament.date}</div>
+      </div>
       <ul className="divide-y-2 divide-line border-2 border-line rounded-2xl overflow-hidden">
         {list.length === 0 ? (
           <li className="p-4 text-sub text-base">まだ試合がありません。</li>
@@ -286,6 +315,13 @@ export const MatrixTab = () => {
           })
         )}
       </ul>
+      </div>
+
+      {ps.length >= 4 && list.length > 0 && (
+        <BigButton onClick={handleSaveImage} disabled={saving}>
+          {saving ? '保存中…' : '対戦表の画像を保存'}
+        </BigButton>
+      )}
 
       {openMatchId && (
         <MatchModal

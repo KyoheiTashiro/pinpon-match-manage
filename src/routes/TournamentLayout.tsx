@@ -58,7 +58,7 @@ export const TournamentLayout = () => {
 
       <nav
         aria-label="メインタブ"
-        className="fixed bottom-0 inset-x-0 bg-white border-t-4 border-line grid grid-cols-4"
+        className="fixed bottom-0 inset-x-0 z-50 bg-white border-t-4 border-line grid grid-cols-4"
       >
         {tabs.map((t) => (
           <NavLink
