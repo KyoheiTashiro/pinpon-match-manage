@@ -8,7 +8,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg', 'og-image.png', 'icons/icon-192.png', 'icons/icon-512.png'],
+      includeAssets: ['og-image.png', 'icons/icon-192.png', 'icons/icon-512.png'],
       manifest: {
         name: '卓ログ',
         short_name: '卓ログ',
