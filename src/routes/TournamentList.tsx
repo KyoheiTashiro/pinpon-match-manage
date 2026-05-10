@@ -24,7 +24,7 @@ export const TournamentList = () => {
   const share = async () => {
     const url = window.location.origin + window.location.pathname;
     const data = {
-      title: 'ピンポン 対戦管理',
+      title: '卓ログ',
       text: '卓球の対戦管理アプリ',
       url,
     };
@@ -63,7 +63,7 @@ export const TournamentList = () => {
   return (
     <div className="min-h-screen bg-white text-ink">
       <header className="bg-primary text-white p-4 flex items-center justify-between flex-wrap gap-3">
-        <h1 className="text-2xl font-extrabold">ピンポン 対戦管理</h1>
+        <h1 className="text-2xl font-extrabold">卓ログ</h1>
         <FontSizeToggle />
       </header>
 

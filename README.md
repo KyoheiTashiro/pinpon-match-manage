@@ -1,4 +1,4 @@
-# ピンポン対戦管理 (pinpon-match-manage)
+# 卓ログ (pinpon-match-manage)
 
 卓球の総当たり戦の対戦結果を管理するWebアプリ。シングルス/ダブルス対応・LocalStorage保存・PWA対応・GitHub Pagesホスティング。
 
