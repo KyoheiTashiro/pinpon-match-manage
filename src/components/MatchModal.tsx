@@ -105,7 +105,17 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
         className="bg-white rounded-2xl p-4 sm:p-6 w-full max-w-2xl border-4 border-line my-4"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 id="match-title" className="text-xl font-extrabold mb-4">試合の入力</h2>
+        <div className="flex items-start justify-between gap-3 mb-4">
+          <h2 id="match-title" className="text-xl font-extrabold">試合の入力</h2>
+          <button
+            type="button"
+            onClick={save}
+            aria-label="閉じる（保存）"
+            className="min-h-btn min-w-btn rounded-xl border-2 border-line bg-white text-ink text-2xl font-extrabold leading-none hover:bg-bg active:scale-95 transition"
+          >
+            ✕
+          </button>
+        </div>
 
         <div className="text-2xl font-extrabold text-center mb-4">
           {sideLabel(match.leftSide, participants)}
