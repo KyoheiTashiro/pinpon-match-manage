@@ -56,10 +56,12 @@ export const MatrixTab = () => {
           <p className="text-sub">参加者を2人以上 登録してください。</p>
         ) : (
           <>
-            <p className="text-sub text-base flex items-center gap-2 bg-bg border-2 border-line rounded-xl px-3 py-2">
-              <span aria-hidden>👆</span>
-              <span>マスをタップ → 点数入力</span>
-            </p>
+            <div className="text-sub text-base bg-bg border-2 border-line rounded-xl px-3 py-2">
+              <h3 className="font-bold mb-1">使い方</h3>
+              <ul className="list-disc list-inside space-y-0.5">
+                <li>マスをタップ → 点数入力</li>
+              </ul>
+            </div>
             <div className="overflow-x-auto">
             <table className="matrix border-collapse w-full">
               <thead>
