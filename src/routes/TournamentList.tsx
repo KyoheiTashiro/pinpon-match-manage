@@ -4,6 +4,7 @@ import { useAppStore } from '../store/useAppStore';
 import { BigButton } from '../components/BigButton';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { FontSizeToggle } from '../components/FontSizeToggle';
+import { InstallAppButton } from '../components/InstallAppButton';
 import { formatDate } from '../lib/time';
 import type { Format } from '../store/types';
 
@@ -153,6 +154,7 @@ export const TournamentList = () => {
         </section>
 
         <div className="pt-6 border-t-2 border-line space-y-3">
+          <InstallAppButton />
           <BigButton variant="secondary" className="w-full" onClick={share}>
             📤 このアプリを共有
           </BigButton>
