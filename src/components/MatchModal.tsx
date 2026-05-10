@@ -190,7 +190,7 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
                 }`}
               >
                 <div className="flex items-center justify-between mb-2">
-                  <span className="font-extrabold text-lg">ゲーム{i + 1}</span>
+                  <span className="font-extrabold text-lg text-center bg-blue-500 text-white px-3 py-1 rounded">ゲーム{i + 1}</span>
                   {locked && <span className="text-base font-bold text-danger">入力不可</span>}
                 </div>
                 <div className="flex flex-col sm:flex-row items-center justify-around gap-3 sm:flex-wrap">
