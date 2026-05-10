@@ -10,7 +10,6 @@ import type {
   Tournament,
 } from './types';
 import { uid } from '../lib/id';
-import { roundRobinPairs } from '../domain/matchup';
 import { matchSummary } from '../domain/match';
 
 type Actions = {
@@ -26,7 +25,6 @@ type Actions = {
   updateParticipant: (id: string, patch: Partial<Participant>) => void;
   removeParticipant: (tournamentId: string, id: string) => void;
 
-  generateRoundRobin: (tournamentId: string) => void;
   addManualMatch: (tournamentId: string, left: MatchSide, right: MatchSide) => string;
   updateMatch: (id: string, patch: Partial<Match>) => void;
   deleteMatch: (id: string) => void;
@@ -176,47 +174,6 @@ export const useAppStore = create<AppState & Actions>()(
             },
           };
         }),
-
-      generateRoundRobin: (tournamentId) => {
-        const st = get();
-        const t = st.tournaments[tournamentId];
-        if (!t || t.format !== 'singles') return;
-        const ids = t.participantIds;
-        if (ids.length < 2) return;
-        const existing = new Set(
-          t.matchIds
-            .map((mid) => st.matches[mid])
-            .filter(Boolean)
-            .map((m) => {
-              const a = m.leftSide.kind === 'single' ? m.leftSide.participantId : '';
-              const b = m.rightSide.kind === 'single' ? m.rightSide.participantId : '';
-              return [a, b].sort().join('|');
-            }),
-        );
-        const newMatches: Record<string, Match> = {};
-        const newIds: string[] = [];
-        for (const [a, b] of roundRobinPairs(ids)) {
-          const key = [a, b].sort().join('|');
-          if (existing.has(key)) continue;
-          const id = uid();
-          newMatches[id] = {
-            id,
-            tournamentId,
-            leftSide: { kind: 'single', participantId: a },
-            rightSide: { kind: 'single', participantId: b },
-            games: [],
-            status: 'scheduled',
-          };
-          newIds.push(id);
-        }
-        set({
-          matches: { ...st.matches, ...newMatches },
-          tournaments: {
-            ...st.tournaments,
-            [tournamentId]: { ...t, matchIds: [...t.matchIds, ...newIds] },
-          },
-        });
-      },
 
       addManualMatch: (tournamentId, left, right) => {
         const id = uid();

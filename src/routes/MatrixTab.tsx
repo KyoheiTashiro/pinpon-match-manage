@@ -20,7 +20,6 @@ export const MatrixTab = () => {
   );
   const participants = useAppStore((s) => s.participants);
   const matches = useAppStore((s) => s.matches);
-  const generate = useAppStore((s) => s.generateRoundRobin);
   const addManualMatch = useAppStore((s) => s.addManualMatch);
 
   const [openMatchId, setOpenMatchId] = useState<string | null>(null);
@@ -51,12 +50,7 @@ export const MatrixTab = () => {
   if (tournament.format === 'singles') {
     return (
       <div className="space-y-4">
-        <div className="flex items-center justify-between flex-wrap gap-3">
-          <h2 className="text-xl font-extrabold">対戦表</h2>
-          <BigButton onClick={() => generate(tournamentId)} disabled={ps.length < 2}>
-            総当たりを作る
-          </BigButton>
-        </div>
+        <h2 className="text-xl font-extrabold">対戦表</h2>
 
         {ps.length < 2 ? (
           <p className="text-sub">参加者を2人以上 登録してください。</p>
