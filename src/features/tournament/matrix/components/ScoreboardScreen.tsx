@@ -283,7 +283,7 @@ const ScoreColumn = ({
 
       <div className="flex-1 min-h-0 flex items-center justify-center py-1">
         <div
-          className={`relative h-full aspect-square max-w-full rounded-2xl overflow-hidden border-2 ${
+          className={`relative h-full aspect-[5/4] max-w-full rounded-2xl overflow-hidden border-2 ${
             isMatchWinner ? 'bg-success/20 border-success' : 'bg-neutral-900 border-white/30'
           }`}
         >
