@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import type { Game } from '../domain/match';
-import { gameWinner, isGameFinished, matchSummary } from '../domain/match';
-import { ConfirmDialog } from './ConfirmDialog';
+import type { Game } from '../../../../domain/match';
+import { gameWinner, isGameFinished, matchSummary } from '../../../../domain/match';
+import { ConfirmDialog } from '../../../../components/ui/ConfirmDialog';
 
 type Props = {
   leftName: string;

@@ -1,64 +1,29 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAppStore } from '../store/useAppStore';
-import { BigButton } from '../components/BigButton';
-import { ConfirmDialog } from '../components/ConfirmDialog';
-import { FontSizeToggle } from '../components/FontSizeToggle';
-import { InstallAppButton } from '../components/InstallAppButton';
-import { formatDate } from '../lib/time';
-import type { Format } from '../store/types';
+import { useAppStore } from '../../store/useAppStore';
+import { BigButton } from '../../components/ui/BigButton';
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
+import { FontSizeToggle } from '../../components/ui/FontSizeToggle';
+import { InstallAppButton } from '../../components/ui/InstallAppButton';
+import { formatDate } from '../../lib/time';
+import type { Format } from '../../store/types';
+import {
+  useCreateTournamentForm,
+  useShareApp,
+  useSortedTournaments,
+} from './hooks';
 
 export const TournamentList = () => {
   const navigate = useNavigate();
-  const tournaments = useAppStore((s) => s.tournaments);
-  const createTournament = useAppStore((s) => s.createTournament);
   const resetAll = useAppStore((s) => s.resetAll);
 
-  const [creating, setCreating] = useState(false);
-  const [name, setName] = useState('');
-  const [format, setFormat] = useState<Format>('singles');
-  const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
-  const [confirmReset, setConfirmReset] = useState(false);
-  const [shareMsg, setShareMsg] = useState<string | null>(null);
-
-  const share = async () => {
-    const url = window.location.origin + window.location.pathname;
-    const data = {
-      title: '卓ログ',
-      text: '卓球の対戦管理アプリ',
-      url,
-    };
-    const canNativeShare =
-      typeof navigator !== 'undefined' &&
-      typeof navigator.share === 'function' &&
-      (typeof navigator.canShare !== 'function' || navigator.canShare(data));
-    if (canNativeShare) {
-      try {
-        await navigator.share(data);
-        return;
-      } catch (e) {
-        if ((e as Error)?.name === 'AbortError') return;
-      }
-    }
-    try {
-      await navigator.clipboard.writeText(url);
-      setShareMsg('URLをコピーしました');
-    } catch {
-      setShareMsg('コピー失敗。手動でコピー: ' + url);
-    }
-    window.setTimeout(() => setShareMsg(null), 2500);
-  };
-
-  const list = Object.values(tournaments).sort(
-    (a, b) => (b.date ?? '').localeCompare(a.date ?? '') ||
-      b.createdAt.localeCompare(a.createdAt),
+  const list = useSortedTournaments();
+  const { share, shareMsg } = useShareApp();
+  const form = useCreateTournamentForm((id) =>
+    navigate(`/t/${id}/participants`),
   );
 
-  const submit = () => {
-    if (!name.trim()) return;
-    const id = createTournament(name.trim(), format, date);
-    navigate(`/t/${id}/participants`);
-  };
+  const [confirmReset, setConfirmReset] = useState(false);
 
   return (
     <div className="min-h-screen bg-white text-ink">
@@ -68,8 +33,8 @@ export const TournamentList = () => {
       </header>
 
       <main className="max-w-3xl mx-auto p-4 space-y-6">
-        {!creating ? (
-          <BigButton variant="primary" className="w-full !min-h-[72px] text-xl" onClick={() => setCreating(true)}>
+        {!form.creating ? (
+          <BigButton variant="primary" className="w-full !min-h-[72px] text-xl" onClick={() => form.setCreating(true)}>
             ＋ あたらしい大会をつくる
           </BigButton>
         ) : (
@@ -78,8 +43,8 @@ export const TournamentList = () => {
             <label className="flex flex-col gap-1">
               <span className="font-bold">大会名</span>
               <input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                value={form.name}
+                onChange={(e) => form.setName(e.target.value)}
                 placeholder="例: 春の大会"
                 className="min-h-input border-2 border-line rounded-xl px-3 text-lg"
               />
@@ -91,7 +56,7 @@ export const TournamentList = () => {
                   <label
                     key={f}
                     className={`flex items-center gap-2 px-4 min-h-btn rounded-xl border-2 cursor-pointer ${
-                      format === f
+                      form.format === f
                         ? 'bg-primary text-white border-primary'
                         : 'bg-white text-ink border-line'
                     }`}
@@ -99,8 +64,8 @@ export const TournamentList = () => {
                     <input
                       type="radio"
                       name="format"
-                      checked={format === f}
-                      onChange={() => setFormat(f)}
+                      checked={form.format === f}
+                      onChange={() => form.setFormat(f)}
                       className="w-5 h-5"
                     />
                     <span className="text-lg font-bold">
@@ -114,14 +79,14 @@ export const TournamentList = () => {
               <span className="font-bold">開催日</span>
               <input
                 type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
+                value={form.date}
+                onChange={(e) => form.setDate(e.target.value)}
                 className="min-h-input border-2 border-line rounded-xl px-3 text-lg"
               />
             </label>
             <div className="flex gap-3 justify-end flex-wrap">
-              <BigButton variant="secondary" onClick={() => setCreating(false)}>キャンセル</BigButton>
-              <BigButton variant="primary" onClick={submit} disabled={!name.trim()}>つくる</BigButton>
+              <BigButton variant="secondary" onClick={() => form.setCreating(false)}>キャンセル</BigButton>
+              <BigButton variant="primary" onClick={form.submit} disabled={!form.name.trim()}>つくる</BigButton>
             </div>
           </div>
         )}

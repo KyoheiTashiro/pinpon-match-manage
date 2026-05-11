@@ -1,33 +1,26 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useAppStore } from '../store/useAppStore';
-import { BigButton } from '../components/BigButton';
-import { ConfirmDialog } from '../components/ConfirmDialog';
+import { BigButton } from '../../../components/ui/BigButton';
+import { ConfirmDialog } from '../../../components/ui/ConfirmDialog';
+import { useParticipants } from './hooks';
 
 export const ParticipantsTab = () => {
   const { tournamentId } = useParams<{ tournamentId: string }>();
-  const tournament = useAppStore((s) =>
-    tournamentId ? s.tournaments[tournamentId] : undefined,
-  );
-  const participants = useAppStore((s) => s.participants);
-  const addParticipant = useAppStore((s) => s.addParticipant);
-  const updateParticipant = useAppStore((s) => s.updateParticipant);
-  const removeParticipant = useAppStore((s) => s.removeParticipant);
+  if (!tournamentId) return null;
+  return <ParticipantsView tournamentId={tournamentId} />;
+};
+
+const ParticipantsView = ({ tournamentId }: { tournamentId: string }) => {
+  const { list, add, rename, remove } = useParticipants(tournamentId);
 
   const [name, setName] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
   const [removeTarget, setRemoveTarget] = useState<string | null>(null);
 
-  if (!tournament || !tournamentId) return null;
-
-  const list = tournament.participantIds
-    .map((id) => participants[id])
-    .filter(Boolean);
-
   const submit = () => {
     if (!name.trim()) return;
-    addParticipant(tournamentId, name);
+    add(name);
     setName('');
   };
 
@@ -65,7 +58,7 @@ export const ParticipantsTab = () => {
                   <BigButton
                     variant="primary"
                     onClick={() => {
-                      if (editName.trim()) updateParticipant(p.id, { name: editName });
+                      if (editName.trim()) rename(p.id, editName);
                       setEditingId(null);
                     }}
                   >
@@ -103,7 +96,7 @@ export const ParticipantsTab = () => {
         cancelLabel="やめる"
         destructive
         onConfirm={() => {
-          if (removeTarget) removeParticipant(tournamentId, removeTarget);
+          if (removeTarget) remove(removeTarget);
           setRemoveTarget(null);
         }}
         onCancel={() => setRemoveTarget(null)}

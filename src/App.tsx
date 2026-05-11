@@ -1,10 +1,10 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { TournamentList } from './routes/TournamentList';
-import { TournamentLayout } from './routes/TournamentLayout';
-import { ParticipantsTab } from './routes/ParticipantsTab';
-import { MatchMatrixTab } from './routes/MatchMatrixTab';
-import { RankingTab } from './routes/RankingTab';
-import { SettingsTab } from './routes/SettingsTab';
+import { TournamentList } from './features/tournament-list';
+import { TournamentLayout } from './features/tournament/layout';
+import { ParticipantsTab } from './features/tournament/participants';
+import { MatchMatrixTab } from './features/tournament/matrix';
+import { RankingTab } from './features/tournament/ranking';
+import { SettingsTab } from './features/tournament/settings';
 
 export default function App() {
   return (

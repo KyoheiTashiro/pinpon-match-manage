@@ -1,7 +1,7 @@
 import { NavLink, Outlet, useNavigate, useParams } from 'react-router-dom';
 import { useEffect } from 'react';
-import { useAppStore } from '../store/useAppStore';
-import { FontSizeToggle } from '../components/FontSizeToggle';
+import { useAppStore } from '../../store/useAppStore';
+import { FontSizeToggle } from '../../components/ui/FontSizeToggle';
 
 const tabs = [
   { to: 'participants', label: '参加者', icon: '👥' },

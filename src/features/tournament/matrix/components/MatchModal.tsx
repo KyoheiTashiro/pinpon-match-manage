@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import type { Match, Participant } from '../store/types';
-import type { Game } from '../domain/match';
-import { matchSummary, isGameFinished, gameWinner } from '../domain/match';
-import { useAppStore } from '../store/useAppStore';
-import { BigButton } from './BigButton';
-import { ConfirmDialog } from './ConfirmDialog';
+import type { Match, Participant } from '../../../../store/types';
+import type { Game } from '../../../../domain/match';
+import { matchSummary, isGameFinished, gameWinner } from '../../../../domain/match';
+import { useAppStore } from '../../../../store/useAppStore';
+import { BigButton } from '../../../../components/ui/BigButton';
+import { ConfirmDialog } from '../../../../components/ui/ConfirmDialog';
 import { ScoreboardScreen } from './ScoreboardScreen';
 
 type Props = {
