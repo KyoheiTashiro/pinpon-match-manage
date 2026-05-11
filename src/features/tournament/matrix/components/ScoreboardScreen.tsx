@@ -64,6 +64,17 @@ export const ScoreboardScreen = ({
       ? currentServer(current, gameFirstServer(matchFirstServer, idx))
       : null;
   const displayServer = swapped ? flip(rawServer) : rawServer;
+  const isGamePoint = (s: number, o: number) => {
+    const ns = s + 1;
+    return ns >= 11 && ns - o >= 2;
+  };
+  const gameOpen = current ? !isGameFinished(current) && !rawMatchWinner : false;
+  const leftMatchPoint =
+    gameOpen && current ? isGamePoint(current.leftScore, current.rightScore) : false;
+  const rightMatchPoint =
+    gameOpen && current ? isGamePoint(current.rightScore, current.leftScore) : false;
+  const displayLeftMatchPoint = swapped ? rightMatchPoint : leftMatchPoint;
+  const displayRightMatchPoint = swapped ? leftMatchPoint : rightMatchPoint;
   const currentFinished = current ? isGameFinished(current) : false;
   const nextIdx = idx + 1;
   const canAdvance = !rawMatchWinner && nextIdx < games.length && nextIdx < lockedFromIndex;
@@ -159,6 +170,7 @@ export const ScoreboardScreen = ({
           gameWins={displayLeftWins}
           isGameWinner={winner === 'L'}
           isMatchWinner={matchWinner === 'L'}
+          isMatchPoint={displayLeftMatchPoint}
           isServing={displayServer === 'L'}
           disabled={locked}
           onAdd={() => setScore('L', displayLeftScore + 1)}
@@ -194,6 +206,7 @@ export const ScoreboardScreen = ({
           gameWins={displayRightWins}
           isGameWinner={winner === 'R'}
           isMatchWinner={matchWinner === 'R'}
+          isMatchPoint={displayRightMatchPoint}
           isServing={displayServer === 'R'}
           disabled={locked}
           onAdd={() => setScore('R', displayRightScore + 1)}
@@ -228,6 +241,7 @@ type ColProps = {
   gameWins: number;
   isGameWinner: boolean;
   isMatchWinner: boolean;
+  isMatchPoint: boolean;
   isServing: boolean;
   disabled: boolean;
   onAdd: () => void;
@@ -239,12 +253,18 @@ const ScoreColumn = ({
   score,
   isGameWinner,
   isMatchWinner,
+  isMatchPoint,
   isServing,
   disabled,
   onAdd,
   onSub,
 }: ColProps) => {
   const highlight = isGameWinner || isMatchWinner;
+  const scoreColor = highlight
+    ? 'text-success'
+    : isMatchPoint
+      ? 'text-yellow-400'
+      : 'text-white';
 
   return (
     <div
@@ -283,9 +303,7 @@ const ScoreColumn = ({
           />
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
             <span
-              className={`text-[clamp(6rem,44vh,28rem)] leading-none font-extrabold tabular-nums ${
-                highlight ? 'text-success' : 'text-white'
-              }`}
+              className={`text-[clamp(6rem,44vh,28rem)] leading-none font-extrabold tabular-nums ${scoreColor}`}
             >
               {score}
             </span>
