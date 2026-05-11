@@ -26,6 +26,7 @@ export const ScoreboardScreen = ({
   const [idx, setIdx] = useState(initialGameIndex);
   const [isPortrait, setIsPortrait] = useState(false);
   const [nextDialogOpen, setNextDialogOpen] = useState(false);
+  const [swapped, setSwapped] = useState(false);
   const dismissedRef = useRef<Set<number>>(new Set());
 
   useEffect(() => {
@@ -39,27 +40,37 @@ export const ScoreboardScreen = ({
   const current = games[idx];
   const locked = idx >= lockedFromIndex;
   const sm = matchSummary(games);
-  const winner = current ? gameWinner(current) : null;
-  const matchWinner = sm.winner;
+  const rawWinner = current ? gameWinner(current) : null;
+  const rawMatchWinner = sm.winner;
+  const flip = (s: 'L' | 'R' | null) => (s === 'L' ? 'R' : s === 'R' ? 'L' : null);
+  const winner = swapped ? flip(rawWinner) : rawWinner;
+  const matchWinner = swapped ? flip(rawMatchWinner) : rawMatchWinner;
+  const displayLeftName = swapped ? rightName : leftName;
+  const displayRightName = swapped ? leftName : rightName;
+  const displayLeftScore = swapped ? (current?.rightScore ?? 0) : (current?.leftScore ?? 0);
+  const displayRightScore = swapped ? (current?.leftScore ?? 0) : (current?.rightScore ?? 0);
+  const displayLeftWins = swapped ? sm.rightWins : sm.leftWins;
+  const displayRightWins = swapped ? sm.leftWins : sm.rightWins;
   const currentFinished = current ? isGameFinished(current) : false;
   const nextIdx = idx + 1;
-  const canAdvance = !matchWinner && nextIdx < games.length && nextIdx < lockedFromIndex;
+  const canAdvance = !rawMatchWinner && nextIdx < games.length && nextIdx < lockedFromIndex;
 
   useEffect(() => {
-    if (currentFinished && winner && canAdvance && !dismissedRef.current.has(idx)) {
+    if (currentFinished && rawWinner && canAdvance && !dismissedRef.current.has(idx)) {
       setNextDialogOpen(true);
     } else {
       setNextDialogOpen(false);
     }
-  }, [currentFinished, winner, canAdvance, idx]);
+  }, [currentFinished, rawWinner, canAdvance, idx]);
 
-  const setScore = (side: 'L' | 'R', next: number) => {
+  const setScore = (displaySide: 'L' | 'R', next: number) => {
     if (locked) return;
+    const actualSide = swapped ? (displaySide === 'L' ? 'R' : 'L') : displaySide;
     const clamped = Math.max(0, Math.min(30, next));
     setGames(
       games.map((g, i) =>
         i === idx
-          ? side === 'L'
+          ? actualSide === 'L'
             ? { ...g, leftScore: clamped }
             : { ...g, rightScore: clamped }
           : g,
@@ -130,46 +141,55 @@ export const ScoreboardScreen = ({
 
       <div className="flex-1 min-h-0 grid grid-cols-[1fr_auto_1fr] items-stretch">
         <ScoreColumn
-          name={leftName}
-          score={current?.leftScore ?? 0}
-          gameWins={sm.leftWins}
+          name={displayLeftName}
+          score={displayLeftScore}
+          gameWins={displayLeftWins}
           isGameWinner={winner === 'L'}
           isMatchWinner={matchWinner === 'L'}
           disabled={locked}
-          onAdd={() => setScore('L', (current?.leftScore ?? 0) + 1)}
-          onSub={() => setScore('L', (current?.leftScore ?? 0) - 1)}
+          onAdd={() => setScore('L', displayLeftScore + 1)}
+          onSub={() => setScore('L', displayLeftScore - 1)}
         />
 
         <div className="flex flex-col items-center justify-center px-1 sm:px-3 border-x border-white/20 min-w-[56px]">
           <div className="text-xs sm:text-base text-white/60 font-bold">ゲーム {idx + 1}</div>
           <div className="text-3xl sm:text-5xl font-extrabold mt-2">
-            <span className={matchWinner === 'L' ? 'text-success' : ''}>{sm.leftWins}</span>
+            <span className={matchWinner === 'L' ? 'text-success' : ''}>{displayLeftWins}</span>
             <span className="mx-2 text-white/40">-</span>
-            <span className={matchWinner === 'R' ? 'text-success' : ''}>{sm.rightWins}</span>
+            <span className={matchWinner === 'R' ? 'text-success' : ''}>{displayRightWins}</span>
           </div>
           {locked && (
             <div className="mt-3 text-xs sm:text-sm font-extrabold text-amber-300">
               入力不可
             </div>
           )}
+          <button
+            type="button"
+            onClick={() => setSwapped((s) => !s)}
+            aria-label="左右を入れ替える"
+            aria-pressed={swapped}
+            className="mt-3 px-2 py-1 text-xs sm:text-sm font-extrabold rounded-lg border-2 border-white/60 hover:bg-white/10 active:scale-95 transition"
+          >
+            ⇄ 入替
+          </button>
         </div>
 
         <ScoreColumn
-          name={rightName}
-          score={current?.rightScore ?? 0}
-          gameWins={sm.rightWins}
+          name={displayRightName}
+          score={displayRightScore}
+          gameWins={displayRightWins}
           isGameWinner={winner === 'R'}
           isMatchWinner={matchWinner === 'R'}
           disabled={locked}
-          onAdd={() => setScore('R', (current?.rightScore ?? 0) + 1)}
-          onSub={() => setScore('R', (current?.rightScore ?? 0) - 1)}
+          onAdd={() => setScore('R', displayRightScore + 1)}
+          onSub={() => setScore('R', displayRightScore - 1)}
         />
       </div>
 
       <ConfirmDialog
         open={nextDialogOpen}
         title={`ゲーム${idx + 1} 終了`}
-        message={`${winner === 'L' ? leftName : rightName} の勝利！`}
+        message={`${winner === 'L' ? displayLeftName : displayRightName} の勝利！`}
         confirmLabel="次のゲームへ"
         cancelLabel="キャンセル"
         onConfirm={() => {
