@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import type { Game } from '../domain/match';
 import { gameWinner, isGameFinished, matchSummary } from '../domain/match';
 
@@ -52,7 +53,7 @@ export const ScoreboardScreen = ({
     );
   };
 
-  return (
+  return createPortal(
     <div
       role="dialog"
       aria-modal="true"
@@ -141,7 +142,8 @@ export const ScoreboardScreen = ({
           onSub={() => setScore('R', (current?.rightScore ?? 0) - 1)}
         />
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 };
 
