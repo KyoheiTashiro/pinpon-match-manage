@@ -134,14 +134,13 @@ export const ScoreboardScreen = ({
           onSub={() => setScore('L', (current?.leftScore ?? 0) - 1)}
         />
 
-        <div className="flex flex-col items-center justify-center px-2 sm:px-6 border-x border-white/20 min-w-[72px]">
+        <div className="flex flex-col items-center justify-center px-1 sm:px-3 border-x border-white/20 min-w-[56px]">
           <div className="text-xs sm:text-base text-white/60 font-bold">ゲーム {idx + 1}</div>
           <div className="text-3xl sm:text-5xl font-extrabold mt-2">
             <span className={matchWinner === 'L' ? 'text-success' : ''}>{sm.leftWins}</span>
             <span className="mx-2 text-white/40">-</span>
             <span className={matchWinner === 'R' ? 'text-success' : ''}>{sm.rightWins}</span>
           </div>
-          <div className="text-xs sm:text-sm text-white/60 mt-1">取得ゲーム数</div>
           {locked && (
             <div className="mt-3 text-xs sm:text-sm font-extrabold text-amber-300">
               入力不可
@@ -206,7 +205,7 @@ const ScoreColumn = ({
 
   return (
     <div
-      className={`flex flex-col items-stretch min-h-0 p-3 sm:p-6 ${
+      className={`flex flex-col items-stretch min-h-0 p-1 sm:p-2 ${
         isMatchWinner ? 'bg-success/20' : ''
       }`}
     >
@@ -219,9 +218,9 @@ const ScoreColumn = ({
         {name}
       </div>
 
-      <div className="flex-1 min-h-0 flex items-center justify-center py-2">
+      <div className="flex-1 min-h-0 flex items-center justify-center py-1">
         <div
-          className={`relative h-full aspect-[3/4] max-w-full rounded-2xl overflow-hidden border-2 ${
+          className={`relative h-full aspect-square max-w-full rounded-2xl overflow-hidden border-2 ${
             isMatchWinner ? 'bg-success/20 border-success' : 'bg-neutral-900 border-white/30'
           }`}
         >
@@ -241,7 +240,7 @@ const ScoreColumn = ({
           />
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
             <span
-              className={`text-[clamp(4rem,32vh,22rem)] leading-none font-extrabold tabular-nums ${
+              className={`text-[clamp(6rem,44vh,28rem)] leading-none font-extrabold tabular-nums ${
                 highlight ? 'text-success' : 'text-white'
               }`}
             >

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import type { Match, Participant } from '../store/types';
 import type { Game } from '../domain/match';
 import { matchSummary, isGameFinished, gameWinner } from '../domain/match';
@@ -85,12 +86,12 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
         ? `${sideLabel(match.rightSide, participants)} の勝ち`
         : '';
 
-  return (
+  return createPortal(
     <div
       role="dialog"
       aria-modal="true"
       aria-labelledby="match-title"
-      className="fixed inset-0 z-40 flex items-start sm:items-center justify-center bg-black/50 p-2 sm:p-4 pb-28 sm:pb-28 overflow-y-auto"
+      className="fixed inset-0 z-40 flex items-start justify-center bg-black/50 p-2 sm:p-4 pb-28 sm:pb-28 overflow-y-auto"
       onClick={onClose}
     >
       <div
@@ -224,7 +225,8 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
         }}
         onCancel={() => setConfirmDelete(false)}
       />
-    </div>
+    </div>,
+    document.body,
   );
 };
 
