@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { TournamentList } from './features/tournament-list';
+import { Home } from './features/home';
 import { TournamentLayout } from './features/tournament/layout';
 import { ParticipantsTab } from './features/tournament/participants';
 import { MatchMatrixTab } from './features/tournament/matrix';
@@ -9,7 +9,7 @@ import { SettingsTab } from './features/tournament/settings';
 export default function App() {
   return (
     <Routes>
-      <Route path="/" element={<TournamentList />} />
+      <Route path="/" element={<Home />} />
       <Route path="/t/:tournamentId" element={<TournamentLayout />}>
         <Route index element={<Navigate to="participants" replace />} />
         <Route path="participants" element={<ParticipantsTab />} />

@@ -13,7 +13,7 @@ import {
   useSortedTournaments,
 } from './hooks';
 
-export const TournamentList = () => {
+export const Home = () => {
   const navigate = useNavigate();
   const resetAll = useAppStore((s) => s.resetAll);
 
