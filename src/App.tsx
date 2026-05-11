@@ -2,7 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { TournamentList } from './routes/TournamentList';
 import { TournamentLayout } from './routes/TournamentLayout';
 import { ParticipantsTab } from './routes/ParticipantsTab';
-import { MatrixTab } from './routes/MatrixTab';
+import { MatchMatrixTab } from './routes/MatchMatrixTab';
 import { RankingTab } from './routes/RankingTab';
 import { SettingsTab } from './routes/SettingsTab';
 
@@ -13,7 +13,7 @@ export default function App() {
       <Route path="/t/:tournamentId" element={<TournamentLayout />}>
         <Route index element={<Navigate to="participants" replace />} />
         <Route path="participants" element={<ParticipantsTab />} />
-        <Route path="matrix" element={<MatrixTab />} />
+        <Route path="matrix" element={<MatchMatrixTab />} />
         <Route path="ranking" element={<RankingTab />} />
         <Route path="settings" element={<SettingsTab />} />
       </Route>

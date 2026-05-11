@@ -14,7 +14,7 @@ const involvesSingle = (m: Match, id: string) =>
   (m.leftSide.kind === 'single' && m.leftSide.participantId === id) ||
   (m.rightSide.kind === 'single' && m.rightSide.participantId === id);
 
-export const MatrixTab = () => {
+export const MatchMatrixTab = () => {
   const { tournamentId } = useParams<{ tournamentId: string }>();
   const tournament = useAppStore((s) =>
     tournamentId ? s.tournaments[tournamentId] : undefined,
