@@ -87,13 +87,14 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
       >
         <div className="flex items-start justify-between gap-3 mb-4">
           <h2 id="match-title" className="text-xl font-extrabold">試合の入力</h2>
-          <BigButton
-            variant="primary"
-            onClick={save}
-            aria-label="保存して閉じる"
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="閉じる"
+            className="w-10 h-10 rounded-lg bg-white border-2 border-line text-2xl font-extrabold leading-none flex items-center justify-center hover:bg-bg active:scale-95 transition"
           >
-            保存
-          </BigButton>
+            ×
+          </button>
         </div>
 
         <div className="text-2xl font-extrabold text-center mb-4">
