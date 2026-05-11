@@ -114,8 +114,11 @@ export const ScoreboardScreen = ({
       </div>
 
       {isPortrait && (
-        <div className="bg-amber-500 text-black text-center text-sm font-extrabold py-1">
+        <div className="bg-amber-500 text-black text-center text-sm font-extrabold py-1 px-2 leading-tight">
           端末を横向きにしてください
+          <span className="block text-xs font-bold">
+            （画面の回転ロックがオンの場合は、解除してください）
+          </span>
         </div>
       )}
 
