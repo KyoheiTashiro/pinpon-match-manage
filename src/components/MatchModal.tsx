@@ -37,11 +37,11 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
 
   const summary = matchSummary(games.filter((g) => g.leftScore !== 0 || g.rightScore !== 0));
 
-  const lockedFromIndex = (() => {
+  const computeLockedFromIndex = (src: Game[]): number => {
     let lw = 0;
     let rw = 0;
-    for (let i = 0; i < games.length; i++) {
-      const g = games[i];
+    for (let i = 0; i < src.length; i++) {
+      const g = src[i];
       if (g.leftScore === 0 && g.rightScore === 0) continue;
       if (!isGameFinished(g)) continue;
       if (g.leftScore > g.rightScore) lw++;
@@ -49,18 +49,30 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
       if (lw === 3 || rw === 3) return i + 1;
     }
     return 5;
-  })();
+  };
+
+  const lockedFromIndex = computeLockedFromIndex(games);
+
+  const trimGames = (src: Game[], lockIdx: number): Game[] => {
+    const out: Game[] = [];
+    for (let i = 0; i < src.length; i++) {
+      const g = src[i];
+      const empty = g.leftScore === 0 && g.rightScore === 0;
+      if (empty && i >= lockIdx) continue;
+      if (i < lockIdx || !empty) out.push(g);
+    }
+    return out;
+  };
+
+  const persistGames = (next: Game[]) => {
+    setGames(next);
+    const lockIdx = computeLockedFromIndex(next);
+    updateMatch(match.id, { games: trimGames(next, lockIdx) });
+  };
 
   const save = () => {
-    const trimmed: Game[] = [];
-    for (let i = 0; i < games.length; i++) {
-      const g = games[i];
-      const empty = g.leftScore === 0 && g.rightScore === 0;
-      if (empty && i >= lockedFromIndex) continue;
-      if (i < lockedFromIndex || !empty) trimmed.push(g);
-    }
     updateMatch(match.id, {
-      games: trimmed,
+      games: trimGames(games, lockedFromIndex),
       note: note || undefined,
     });
     onClose();
@@ -178,7 +190,7 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
           leftName={sideLabel(match.leftSide, participants)}
           rightName={sideLabel(match.rightSide, participants)}
           games={games}
-          setGames={setGames}
+          setGames={persistGames}
           lockedFromIndex={lockedFromIndex}
           initialGameIndex={Math.max(
             0,
