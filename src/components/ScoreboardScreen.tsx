@@ -56,7 +56,7 @@ export const ScoreboardScreen = ({
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-50 bg-black text-white flex flex-col select-none"
+      className="fixed inset-0 z-[60] bg-black text-white flex flex-col select-none"
       style={{ touchAction: 'none' }}
     >
       <div className="flex items-center justify-between px-3 py-2 border-b border-white/20 shrink-0">
