@@ -141,11 +141,6 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
                       <span className={w === 'L' ? 'text-success' : ''}>{g.leftScore}</span>
                       <span className="mx-2 text-sub">-</span>
                       <span className={w === 'R' ? 'text-success' : ''}>{g.rightScore}</span>
-                      {w && (
-                        <span className="ml-2 text-sm font-bold text-success">
-                          ({w === 'L' ? '左勝' : '右勝'})
-                        </span>
-                      )}
                       {!w && !empty && !isGameFinished(g) && (
                         <span className="ml-2 text-sm font-bold text-sub">(進行中)</span>
                       )}
