@@ -1,4 +1,4 @@
-import type { Game } from '../domain/match';
+import type { Game, Side } from '../domain/match';
 
 export type Format = 'singles' | 'doubles';
 
@@ -32,6 +32,7 @@ export type Match = {
   games: Game[];
   note?: string;
   status: MatchStatus;
+  firstServer?: Side;
 };
 
 export type FontSize = 'normal' | 'large' | 'xlarge';

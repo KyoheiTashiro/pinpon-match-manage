@@ -1,7 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import type { Game } from '../../../../domain/match';
-import { gameWinner, isGameFinished, matchSummary } from '../../../../domain/match';
+import type { Game, Side } from '../../../../domain/match';
+import {
+  gameWinner,
+  isGameFinished,
+  matchSummary,
+  gameFirstServer,
+  currentServer,
+} from '../../../../domain/match';
 import { ConfirmDialog } from '../../../../components/ui/ConfirmDialog';
 
 type Props = {
@@ -11,6 +17,7 @@ type Props = {
   setGames: (games: Game[]) => void;
   lockedFromIndex: number;
   initialGameIndex: number;
+  matchFirstServer?: Side;
   onBack: () => void;
 };
 
@@ -21,6 +28,7 @@ export const ScoreboardScreen = ({
   setGames,
   lockedFromIndex,
   initialGameIndex,
+  matchFirstServer,
   onBack,
 }: Props) => {
   const [idx, setIdx] = useState(initialGameIndex);
@@ -51,6 +59,11 @@ export const ScoreboardScreen = ({
   const displayRightScore = swapped ? (current?.leftScore ?? 0) : (current?.rightScore ?? 0);
   const displayLeftWins = swapped ? sm.rightWins : sm.leftWins;
   const displayRightWins = swapped ? sm.leftWins : sm.rightWins;
+  const rawServer: Side | null =
+    matchFirstServer && current
+      ? currentServer(current, gameFirstServer(matchFirstServer, idx))
+      : null;
+  const displayServer = swapped ? flip(rawServer) : rawServer;
   const currentFinished = current ? isGameFinished(current) : false;
   const nextIdx = idx + 1;
   const canAdvance = !rawMatchWinner && nextIdx < games.length && nextIdx < lockedFromIndex;
@@ -146,6 +159,7 @@ export const ScoreboardScreen = ({
           gameWins={displayLeftWins}
           isGameWinner={winner === 'L'}
           isMatchWinner={matchWinner === 'L'}
+          isServing={displayServer === 'L'}
           disabled={locked}
           onAdd={() => setScore('L', displayLeftScore + 1)}
           onSub={() => setScore('L', displayLeftScore - 1)}
@@ -180,6 +194,7 @@ export const ScoreboardScreen = ({
           gameWins={displayRightWins}
           isGameWinner={winner === 'R'}
           isMatchWinner={matchWinner === 'R'}
+          isServing={displayServer === 'R'}
           disabled={locked}
           onAdd={() => setScore('R', displayRightScore + 1)}
           onSub={() => setScore('R', displayRightScore - 1)}
@@ -213,6 +228,7 @@ type ColProps = {
   gameWins: number;
   isGameWinner: boolean;
   isMatchWinner: boolean;
+  isServing: boolean;
   disabled: boolean;
   onAdd: () => void;
   onSub: () => void;
@@ -223,6 +239,7 @@ const ScoreColumn = ({
   score,
   isGameWinner,
   isMatchWinner,
+  isServing,
   disabled,
   onAdd,
   onSub,
@@ -276,6 +293,13 @@ const ScoreColumn = ({
           <div className="pointer-events-none absolute inset-x-0 top-1/2 h-[3px] -translate-y-1/2 bg-black z-10" />
         </div>
       </div>
+
+      <div
+        className={`shrink-0 h-2 sm:h-3 rounded-full mx-2 sm:mx-4 mt-1 transition-colors ${
+          isServing ? 'bg-orange-500' : 'bg-transparent'
+        }`}
+        aria-label={isServing ? 'サーブ権あり' : undefined}
+      />
 
       {disabled && (
         <div className="shrink-0 text-center text-xs sm:text-sm text-white/50">入力不可</div>

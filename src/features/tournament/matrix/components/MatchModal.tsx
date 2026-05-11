@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { Match, Participant } from '../../../../store/types';
-import type { Game } from '../../../../domain/match';
+import type { Game, Side } from '../../../../domain/match';
 import { matchSummary, isGameFinished, gameWinner } from '../../../../domain/match';
 import { useAppStore } from '../../../../store/useAppStore';
 import { BigButton } from '../../../../components/ui/BigButton';
@@ -27,6 +27,7 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
     padGames(match?.games ?? []),
   );
   const [note, setNote] = useState(match?.note ?? '');
+  const firstServer: Side | undefined = match?.firstServer;
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [scoreboardOpen, setScoreboardOpen] = useState(false);
 
@@ -79,6 +80,10 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
     onClose();
   };
 
+  const setFirstServer = (side: Side) => {
+    updateMatch(match.id, { firstServer: side });
+  };
+
   const winnerLabel =
     summary.winner === 'L'
       ? `${sideLabel(match.leftSide, participants)} の勝ち`
@@ -115,6 +120,42 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
           <span className="mx-3 text-line">対</span>
           {sideLabel(match.rightSide, participants)}
         </div>
+
+        <fieldset className="mb-4 border-2 border-line rounded-xl p-3">
+          <legend className="px-2 font-bold">最初のサーブ</legend>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <label
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg border-2 cursor-pointer flex-1 ${
+                firstServer === 'L' ? 'border-orange-500 bg-orange-50' : 'border-line bg-white'
+              }`}
+            >
+              <input
+                type="radio"
+                name="first-server"
+                value="L"
+                checked={firstServer === 'L'}
+                onChange={() => setFirstServer('L')}
+                className="w-5 h-5 accent-orange-500"
+              />
+              <span className="font-bold">{sideLabel(match.leftSide, participants)}</span>
+            </label>
+            <label
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg border-2 cursor-pointer flex-1 ${
+                firstServer === 'R' ? 'border-orange-500 bg-orange-50' : 'border-line bg-white'
+              }`}
+            >
+              <input
+                type="radio"
+                name="first-server"
+                value="R"
+                checked={firstServer === 'R'}
+                onChange={() => setFirstServer('R')}
+                className="w-5 h-5 accent-orange-500"
+              />
+              <span className="font-bold">{sideLabel(match.rightSide, participants)}</span>
+            </label>
+          </div>
+        </fieldset>
 
         <div className="mb-4">
           <BigButton
@@ -193,6 +234,7 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
           games={games}
           setGames={persistGames}
           lockedFromIndex={lockedFromIndex}
+          matchFirstServer={firstServer}
           initialGameIndex={Math.max(
             0,
             Math.min(

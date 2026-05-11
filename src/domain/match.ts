@@ -12,6 +12,17 @@ export const gameWinner = (g: Game): Side | null => {
   return g.leftScore > g.rightScore ? 'L' : 'R';
 };
 
+const opposite = (s: Side): Side => (s === 'L' ? 'R' : 'L');
+
+export const gameFirstServer = (matchFirstServer: Side, gameIndex: number): Side =>
+  gameIndex % 2 === 0 ? matchFirstServer : opposite(matchFirstServer);
+
+export const currentServer = (g: Game, firstServerOfGame: Side): Side => {
+  const total = g.leftScore + g.rightScore;
+  const switches = total < 20 ? Math.floor(total / 2) : 10 + (total - 20);
+  return switches % 2 === 0 ? firstServerOfGame : opposite(firstServerOfGame);
+};
+
 export const matchSummary = (games: Game[]) => {
   let leftWins = 0;
   let rightWins = 0;
