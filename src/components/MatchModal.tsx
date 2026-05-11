@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import type { Match, Participant } from '../store/types';
 import type { Game } from '../domain/match';
-import { matchSummary, isGameFinished } from '../domain/match';
+import { matchSummary, isGameFinished, gameWinner } from '../domain/match';
 import { useAppStore } from '../store/useAppStore';
 import { BigButton } from './BigButton';
-import { ScoreInput } from './ScoreInput';
 import { ConfirmDialog } from './ConfirmDialog';
+import { ScoreboardScreen } from './ScoreboardScreen';
 import { fromLocalInputValue, toLocalInputValue, nowJstHHMM } from '../lib/time';
 import { TimePickerModal } from './TimePickerModal';
 
@@ -32,12 +32,12 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
     padGames(match?.games ?? []),
   );
   const [refereeId, setRefereeId] = useState(match?.refereeId ?? '');
-  const [scorerId, setScorerId] = useState(match?.scorerId ?? '');
   const [startAt, setStartAt] = useState(toLocalInputValue(match?.startAt));
   const [endAt, setEndAt] = useState(toLocalInputValue(match?.endAt));
   const [note, setNote] = useState(match?.note ?? '');
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [pickerOpen, setPickerOpen] = useState<null | 'start' | 'end'>(null);
+  const [scoreboardOpen, setScoreboardOpen] = useState(false);
 
   useEffect(() => {
     if (!match) onClose();
@@ -63,10 +63,6 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
     return 5;
   })();
 
-  const setGame = (i: number, patch: Partial<Game>) => {
-    setGames((prev) => prev.map((g, idx) => (idx === i ? { ...g, ...patch } : g)));
-  };
-
   const save = () => {
     const trimmed: Game[] = [];
     for (let i = 0; i < games.length; i++) {
@@ -78,7 +74,7 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
     updateMatch(match.id, {
       games: trimmed,
       refereeId: refereeId || undefined,
-      scorerId: scorerId || undefined,
+      scorerId: undefined,
       startAt: fromLocalInputValue(startAt),
       endAt: fromLocalInputValue(endAt),
       note: note || undefined,
@@ -107,14 +103,13 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
       >
         <div className="flex items-start justify-between gap-3 mb-4">
           <h2 id="match-title" className="text-xl font-extrabold">試合の入力</h2>
-          <button
-            type="button"
+          <BigButton
+            variant="primary"
             onClick={save}
-            aria-label="閉じる（保存）"
-            className="min-h-btn min-w-btn rounded-xl border-2 border-line bg-white text-ink text-2xl font-extrabold leading-none hover:bg-bg active:scale-95 transition"
+            aria-label="保存して閉じる"
           >
-            ✕
-          </button>
+            保存
+          </BigButton>
         </div>
 
         <div className="text-2xl font-extrabold text-center mb-4">
@@ -129,19 +124,6 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
             <select
               value={refereeId}
               onChange={(e) => setRefereeId(e.target.value)}
-              className="min-h-input border-2 border-line rounded-xl px-3 text-lg bg-white"
-            >
-              <option value="">— なし —</option>
-              {candidates.map((p) => (
-                <option key={p.id} value={p.id}>{p.name}</option>
-              ))}
-            </select>
-          </label>
-          <label className="flex flex-col gap-1">
-            <span className="font-bold">記録</span>
-            <select
-              value={scorerId}
-              onChange={(e) => setScorerId(e.target.value)}
               className="min-h-input border-2 border-line rounded-xl px-3 text-lg bg-white"
             >
               <option value="">— なし —</option>
@@ -178,48 +160,59 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
           </div>
         </div>
 
-        <div className="space-y-3 mb-4">
+        <div className="mb-4">
+          <BigButton
+            variant="primary"
+            className="w-full"
+            onClick={() => setScoreboardOpen(true)}
+          >
+            ▶ スコアボードを開く
+          </BigButton>
+          <p className="text-sub text-sm mt-2">
+            ゲームごとの点数加減はスコアボード画面で行います。
+          </p>
+        </div>
+
+        <ul className="space-y-2 mb-4 border-2 border-line rounded-xl divide-y-2 divide-line overflow-hidden">
           {games.map((g, i) => {
             const locked = i >= lockedFromIndex;
-            const winner = isGameFinished(g) ? (g.leftScore > g.rightScore ? 'L' : 'R') : null;
+            const empty = g.leftScore === 0 && g.rightScore === 0;
+            const w = gameWinner(g);
             return (
-              <div
+              <li
                 key={i}
-                className={`rounded-xl border-2 p-3 ${
-                  locked ? 'bg-bg border-line opacity-60' : 'bg-white border-line'
+                className={`flex items-center justify-between px-3 py-2 ${
+                  locked ? 'bg-bg opacity-60' : 'bg-white'
                 }`}
               >
-                <div className="flex items-center justify-between mb-2">
-                  <span className="font-extrabold text-lg text-center bg-blue-500 text-white px-3 py-1 rounded">ゲーム{i + 1}</span>
-                  {locked && <span className="text-base font-bold text-danger">入力不可</span>}
-                </div>
-                <div className="flex flex-col sm:flex-row items-center justify-around gap-3 sm:flex-wrap">
-                  <ScoreInput
-                    label={sideLabel(match.leftSide, participants)}
-                    value={g.leftScore}
-                    onChange={(n) => setGame(i, { leftScore: n })}
-                    disabled={locked}
-                  />
-                  <span className="text-xl sm:text-2xl font-extrabold text-sub">対</span>
-                  <ScoreInput
-                    label={sideLabel(match.rightSide, participants)}
-                    value={g.rightScore}
-                    onChange={(n) => setGame(i, { rightScore: n })}
-                    disabled={locked}
-                  />
-                </div>
-                {winner && (
-                  <div className="mt-2 text-base font-bold text-center text-success">
-                    {(winner === 'L'
-                      ? sideLabel(match.leftSide, participants)
-                      : sideLabel(match.rightSide, participants))}
-                    {' の勝ち'}
-                  </div>
-                )}
-              </div>
+                <span className="font-extrabold text-base bg-blue-500 text-white px-3 py-1 rounded">
+                  ゲーム{i + 1}
+                </span>
+                <span className="text-xl font-extrabold tabular-nums">
+                  {locked && empty ? (
+                    <span className="text-sub text-base font-bold">入力不可</span>
+                  ) : empty ? (
+                    <span className="text-sub text-base font-bold">未入力</span>
+                  ) : (
+                    <>
+                      <span className={w === 'L' ? 'text-success' : ''}>{g.leftScore}</span>
+                      <span className="mx-2 text-sub">-</span>
+                      <span className={w === 'R' ? 'text-success' : ''}>{g.rightScore}</span>
+                      {w && (
+                        <span className="ml-2 text-sm font-bold text-success">
+                          ({w === 'L' ? '左勝' : '右勝'})
+                        </span>
+                      )}
+                      {!w && !empty && !isGameFinished(g) && (
+                        <span className="ml-2 text-sm font-bold text-sub">(進行中)</span>
+                      )}
+                    </>
+                  )}
+                </span>
+              </li>
             );
           })}
-        </div>
+        </ul>
 
         {winnerLabel && (
           <div className="text-2xl font-extrabold text-success text-center mb-4">
@@ -237,11 +230,35 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
         </label>
 
         <div className="flex flex-wrap gap-3 justify-end">
-          <BigButton variant="secondary" onClick={onClose}>キャンセル</BigButton>
           <BigButton variant="danger" onClick={() => setConfirmDelete(true)}>削除</BigButton>
           <BigButton variant="primary" onClick={save}>保存</BigButton>
         </div>
       </div>
+
+      {scoreboardOpen && (
+        <ScoreboardScreen
+          leftName={sideLabel(match.leftSide, participants)}
+          rightName={sideLabel(match.rightSide, participants)}
+          games={games}
+          setGames={setGames}
+          lockedFromIndex={lockedFromIndex}
+          initialGameIndex={Math.max(
+            0,
+            Math.min(
+              4,
+              (() => {
+                for (let i = 0; i < games.length; i++) {
+                  if (i >= lockedFromIndex) break;
+                  const g = games[i];
+                  if (!isGameFinished(g)) return i;
+                }
+                return Math.max(0, lockedFromIndex - 1);
+              })(),
+            ),
+          )}
+          onBack={() => setScoreboardOpen(false)}
+        />
+      )}
 
       <TimePickerModal
         open={pickerOpen !== null}
