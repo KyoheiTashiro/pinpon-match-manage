@@ -34,8 +34,10 @@ export const ScoreboardScreen = ({
   const [idx, setIdx] = useState(initialGameIndex);
   const [isPortrait, setIsPortrait] = useState(false);
   const [nextDialogOpen, setNextDialogOpen] = useState(false);
+  const [matchEndDialogOpen, setMatchEndDialogOpen] = useState(false);
   const [swapped, setSwapped] = useState(false);
   const dismissedRef = useRef<Set<number>>(new Set());
+  const matchEndDismissedRef = useRef(false);
 
   useEffect(() => {
     const mq = window.matchMedia('(orientation: portrait) and (max-width: 900px)');
@@ -86,6 +88,14 @@ export const ScoreboardScreen = ({
       setNextDialogOpen(false);
     }
   }, [currentFinished, rawWinner, canAdvance, idx]);
+
+  useEffect(() => {
+    if (rawMatchWinner && !matchEndDismissedRef.current) {
+      setMatchEndDialogOpen(true);
+    } else {
+      setMatchEndDialogOpen(false);
+    }
+  }, [rawMatchWinner]);
 
   const setScore = (displaySide: 'L' | 'R', next: number) => {
     if (locked) return;
@@ -228,6 +238,23 @@ export const ScoreboardScreen = ({
         onCancel={() => {
           dismissedRef.current.add(idx);
           setNextDialogOpen(false);
+        }}
+      />
+
+      <ConfirmDialog
+        open={matchEndDialogOpen}
+        title="試合終了"
+        message={`${matchWinner === 'L' ? displayLeftName : displayRightName} の勝利！ (${displayLeftWins} - ${displayRightWins})`}
+        confirmLabel="試合一覧へ戻る"
+        cancelLabel="閉じる"
+        onConfirm={() => {
+          matchEndDismissedRef.current = true;
+          setMatchEndDialogOpen(false);
+          onBack();
+        }}
+        onCancel={() => {
+          matchEndDismissedRef.current = true;
+          setMatchEndDialogOpen(false);
         }}
       />
     </div>,
