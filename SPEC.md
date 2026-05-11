@@ -55,8 +55,6 @@ HashRouter採用理由: GH Pagesは任意パスへのフォールバック設定
 | 項目 | 型 | 必須 |
 |------|-----|------|
 | 対戦者 (左/右) | participantId or pairIds[2] | 必須 |
-| 開始時刻 | datetime-local | 任意 |
-| 終了時刻 | datetime-local | 任意 |
 | ゲーム1〜5 点数 | { left: int, right: int } × 最大5 | 1ゲーム以上 |
 | メモ | string | 任意 |
 
@@ -152,10 +150,6 @@ type Match = {
   leftSide: { kind: 'single'; participantId: string }
           | { kind: 'pair'; memberIds: [string, string] };
   rightSide: same as leftSide;
-  refereeId?: string;
-  scorerId?: string;
-  startAt?: string;     // ISO
-  endAt?: string;       // ISO
   games: Game[];        // 最大5
   note?: string;
   status: 'scheduled' | 'in_progress' | 'finished';
@@ -233,7 +227,6 @@ WCAG AAA基準（白背景でコントラスト比7:1以上）。
 
 - ゲーム点数: テンキー風 `<input type="number" inputmode="numeric">` + **大型 +/− ボタン**併設（タップ操作優先）
 - 11点先取なので 0〜13 の選択ボタンを並べる方式も用意（ピル型ボタン群）
-- 日時: ネイティブ `datetime-local` のみ（カスタムカレンダー禁止 = 操作既知性優先）
 
 ### 6.6 マトリクス表の視認性
 
@@ -363,7 +356,6 @@ UIは大型化前提。下記ワイヤーは縮尺イメージ（実機ではボ
 │                                  │
 │   田中    対    佐藤             │ ← 28px
 │                                  │
-│ 開始:  [ 14:00 ]                 │ ← 56px高
 │ 終了:  [ 14:25 ]                 │
 │                                  │
 │ ┃ ゲーム1 ┃ 11 - 5  (勝)         │ ← 表示のみ

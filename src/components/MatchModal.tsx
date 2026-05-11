@@ -6,8 +6,6 @@ import { useAppStore } from '../store/useAppStore';
 import { BigButton } from './BigButton';
 import { ConfirmDialog } from './ConfirmDialog';
 import { ScoreboardScreen } from './ScoreboardScreen';
-import { fromLocalInputValue, toLocalInputValue, nowJstHHMM } from '../lib/time';
-import { TimePickerModal } from './TimePickerModal';
 
 type Props = {
   matchId: string;
@@ -27,11 +25,8 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
   const [games, setGames] = useState<Game[]>(() =>
     padGames(match?.games ?? []),
   );
-  const [startAt, setStartAt] = useState(toLocalInputValue(match?.startAt));
-  const [endAt, setEndAt] = useState(toLocalInputValue(match?.endAt));
   const [note, setNote] = useState(match?.note ?? '');
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const [pickerOpen, setPickerOpen] = useState<null | 'start' | 'end'>(null);
   const [scoreboardOpen, setScoreboardOpen] = useState(false);
 
   useEffect(() => {
@@ -66,10 +61,6 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
     }
     updateMatch(match.id, {
       games: trimmed,
-      refereeId: undefined,
-      scorerId: undefined,
-      startAt: fromLocalInputValue(startAt),
-      endAt: fromLocalInputValue(endAt),
       note: note || undefined,
     });
     onClose();
@@ -109,35 +100,6 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
           {sideLabel(match.leftSide, participants)}
           <span className="mx-3 text-line">対</span>
           {sideLabel(match.rightSide, participants)}
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-          <div className="flex flex-col gap-1">
-            <span className="font-bold">開始時刻</span>
-            <button
-              type="button"
-              onClick={() => {
-                if (!startAt) setStartAt(nowJstHHMM());
-                setPickerOpen('start');
-              }}
-              className="min-h-input border-2 border-line rounded-xl px-4 py-2 text-3xl font-extrabold bg-white text-left hover:bg-bg active:scale-[0.98] transition"
-            >
-              {startAt || <span className="text-sub">--:--</span>}
-            </button>
-          </div>
-          <div className="flex flex-col gap-1">
-            <span className="font-bold">終了時刻</span>
-            <button
-              type="button"
-              onClick={() => {
-                if (!endAt) setEndAt(nowJstHHMM());
-                setPickerOpen('end');
-              }}
-              className="min-h-input border-2 border-line rounded-xl px-4 py-2 text-3xl font-extrabold bg-white text-left hover:bg-bg active:scale-[0.98] transition"
-            >
-              {endAt || <span className="text-sub">--:--</span>}
-            </button>
-          </div>
         </div>
 
         <div className="mb-4">
@@ -239,17 +201,6 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
           onBack={() => setScoreboardOpen(false)}
         />
       )}
-
-      <TimePickerModal
-        open={pickerOpen !== null}
-        value={pickerOpen === 'start' ? startAt : pickerOpen === 'end' ? endAt : ''}
-        title={pickerOpen === 'start' ? '開始時刻' : '終了時刻'}
-        onChange={(v) => {
-          if (pickerOpen === 'start') setStartAt(v);
-          else if (pickerOpen === 'end') setEndAt(v);
-        }}
-        onClose={() => setPickerOpen(null)}
-      />
 
       <ConfirmDialog
         open={confirmDelete}

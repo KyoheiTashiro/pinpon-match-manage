@@ -29,10 +29,6 @@ export type Match = {
   tournamentId: string;
   leftSide: MatchSide;
   rightSide: MatchSide;
-  refereeId?: string;
-  scorerId?: string;
-  startAt?: string;
-  endAt?: string;
   games: Game[];
   note?: string;
   status: MatchStatus;
