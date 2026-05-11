@@ -24,14 +24,9 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
   const match = useAppStore((s) => s.matches[matchId]);
   const updateMatch = useAppStore((s) => s.updateMatch);
   const deleteMatch = useAppStore((s) => s.deleteMatch);
-  const tournament = useAppStore((s) =>
-    match ? s.tournaments[match.tournamentId] : undefined,
-  );
-
   const [games, setGames] = useState<Game[]>(() =>
     padGames(match?.games ?? []),
   );
-  const [refereeId, setRefereeId] = useState(match?.refereeId ?? '');
   const [startAt, setStartAt] = useState(toLocalInputValue(match?.startAt));
   const [endAt, setEndAt] = useState(toLocalInputValue(match?.endAt));
   const [note, setNote] = useState(match?.note ?? '');
@@ -46,8 +41,6 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
   if (!match) return null;
 
   const summary = matchSummary(games.filter((g) => g.leftScore !== 0 || g.rightScore !== 0));
-  const candidates =
-    tournament?.participantIds.map((id) => participants[id]).filter(Boolean) ?? [];
 
   const lockedFromIndex = (() => {
     let lw = 0;
@@ -73,7 +66,7 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
     }
     updateMatch(match.id, {
       games: trimmed,
-      refereeId: refereeId || undefined,
+      refereeId: undefined,
       scorerId: undefined,
       startAt: fromLocalInputValue(startAt),
       endAt: fromLocalInputValue(endAt),
@@ -119,19 +112,6 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-          <label className="flex flex-col gap-1">
-            <span className="font-bold">審判</span>
-            <select
-              value={refereeId}
-              onChange={(e) => setRefereeId(e.target.value)}
-              className="min-h-input border-2 border-line rounded-xl px-3 text-lg bg-white"
-            >
-              <option value="">— なし —</option>
-              {candidates.map((p) => (
-                <option key={p.id} value={p.id}>{p.name}</option>
-              ))}
-            </select>
-          </label>
           <div className="flex flex-col gap-1">
             <span className="font-bold">開始時刻</span>
             <button
