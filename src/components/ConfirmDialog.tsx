@@ -38,7 +38,7 @@ export const ConfirmDialog = ({
       onClick={onCancel}
     >
       <div
-        className="bg-white rounded-2xl p-6 max-w-md w-full border-4 border-line"
+        className="bg-white text-ink rounded-2xl p-6 max-w-md w-full border-4 border-line"
         onClick={(e) => e.stopPropagation()}
       >
         <h2 id="confirm-title" className="text-xl font-extrabold mb-4">

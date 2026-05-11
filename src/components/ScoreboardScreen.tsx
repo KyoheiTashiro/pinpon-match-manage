@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { Game } from '../domain/match';
 import { gameWinner, isGameFinished, matchSummary } from '../domain/match';
+import { ConfirmDialog } from './ConfirmDialog';
 
 type Props = {
   leftName: string;
@@ -24,6 +25,8 @@ export const ScoreboardScreen = ({
 }: Props) => {
   const [idx, setIdx] = useState(initialGameIndex);
   const [isPortrait, setIsPortrait] = useState(false);
+  const [nextDialogOpen, setNextDialogOpen] = useState(false);
+  const dismissedRef = useRef<Set<number>>(new Set());
 
   useEffect(() => {
     const mq = window.matchMedia('(orientation: portrait) and (max-width: 900px)');
@@ -38,6 +41,17 @@ export const ScoreboardScreen = ({
   const sm = matchSummary(games);
   const winner = current ? gameWinner(current) : null;
   const matchWinner = sm.winner;
+  const currentFinished = current ? isGameFinished(current) : false;
+  const nextIdx = idx + 1;
+  const canAdvance = !matchWinner && nextIdx < games.length && nextIdx < lockedFromIndex;
+
+  useEffect(() => {
+    if (currentFinished && winner && canAdvance && !dismissedRef.current.has(idx)) {
+      setNextDialogOpen(true);
+    } else {
+      setNextDialogOpen(false);
+    }
+  }, [currentFinished, winner, canAdvance, idx]);
 
   const setScore = (side: 'L' | 'R', next: number) => {
     if (locked) return;
@@ -59,6 +73,7 @@ export const ScoreboardScreen = ({
       aria-modal="true"
       className="fixed inset-0 z-[60] bg-black text-white flex flex-col select-none"
       style={{ touchAction: 'none' }}
+      onClick={(e) => e.stopPropagation()}
     >
       <div className="flex items-center justify-between px-3 py-2 border-b border-white/20 shrink-0">
         <button
@@ -104,7 +119,7 @@ export const ScoreboardScreen = ({
         </div>
       )}
 
-      <div className="flex-1 grid grid-cols-[1fr_auto_1fr] items-stretch">
+      <div className="flex-1 min-h-0 grid grid-cols-[1fr_auto_1fr] items-stretch">
         <ScoreColumn
           name={leftName}
           score={current?.leftScore ?? 0}
@@ -142,6 +157,23 @@ export const ScoreboardScreen = ({
           onSub={() => setScore('R', (current?.rightScore ?? 0) - 1)}
         />
       </div>
+
+      <ConfirmDialog
+        open={nextDialogOpen}
+        title={`ゲーム${idx + 1} 終了`}
+        message={`${winner === 'L' ? leftName : rightName} の勝利！`}
+        confirmLabel="次のゲームへ"
+        cancelLabel="キャンセル"
+        onConfirm={() => {
+          dismissedRef.current.add(idx);
+          setNextDialogOpen(false);
+          setIdx(nextIdx);
+        }}
+        onCancel={() => {
+          dismissedRef.current.add(idx);
+          setNextDialogOpen(false);
+        }}
+      />
     </div>,
     document.body,
   );
@@ -158,8 +190,6 @@ type ColProps = {
   onSub: () => void;
 };
 
-const SWIPE_THRESHOLD = 40;
-
 const ScoreColumn = ({
   name,
   score,
@@ -169,42 +199,16 @@ const ScoreColumn = ({
   onAdd,
   onSub,
 }: ColProps) => {
-  const startY = useRef<number | null>(null);
-  const accum = useRef(0);
-
-  const onTouchStart = (e: React.TouchEvent) => {
-    if (disabled) return;
-    startY.current = e.touches[0].clientY;
-    accum.current = 0;
-  };
-  const onTouchMove = (e: React.TouchEvent) => {
-    if (disabled || startY.current == null) return;
-    const dy = startY.current - e.touches[0].clientY;
-    const delta = dy - accum.current;
-    if (Math.abs(delta) >= SWIPE_THRESHOLD) {
-      if (delta > 0) onAdd();
-      else onSub();
-      accum.current = dy;
-    }
-  };
-  const onTouchEnd = () => {
-    startY.current = null;
-    accum.current = 0;
-  };
-
   const highlight = isGameWinner || isMatchWinner;
 
   return (
     <div
-      className={`flex flex-col items-stretch justify-between p-3 sm:p-6 ${
+      className={`flex flex-col items-stretch min-h-0 p-3 sm:p-6 ${
         isMatchWinner ? 'bg-success/20' : ''
       }`}
-      onTouchStart={onTouchStart}
-      onTouchMove={onTouchMove}
-      onTouchEnd={onTouchEnd}
     >
       <div
-        className={`text-center text-base sm:text-2xl font-extrabold truncate ${
+        className={`shrink-0 text-center text-base sm:text-2xl font-extrabold truncate ${
           highlight ? 'text-success' : ''
         }`}
         title={name}
@@ -212,39 +216,42 @@ const ScoreColumn = ({
         {name}
       </div>
 
-      <div className="flex-1 flex flex-col items-center justify-center gap-2">
-        <button
-          type="button"
-          aria-label={`${name} を1増やす`}
-          onClick={onAdd}
-          disabled={disabled || score >= 30}
-          className="w-14 h-14 sm:w-20 sm:h-20 rounded-full border-4 border-white/60 text-3xl sm:text-5xl font-extrabold leading-none disabled:opacity-30 hover:bg-white/10 active:scale-95 transition"
-        >
-          ＋
-        </button>
-
+      <div className="flex-1 min-h-0 flex items-center justify-center py-2">
         <div
-          className={`text-[20vh] sm:text-[28vh] leading-none font-extrabold tabular-nums ${
-            highlight ? 'text-success' : ''
+          className={`relative h-full aspect-[3/4] max-w-full rounded-2xl overflow-hidden border-2 ${
+            isMatchWinner ? 'bg-success/20 border-success' : 'bg-neutral-900 border-white/30'
           }`}
         >
-          {score}
+          <button
+            type="button"
+            aria-label={`${name} を1増やす`}
+            onClick={onAdd}
+            disabled={disabled || score >= 30}
+            className="absolute inset-x-0 top-0 h-1/2 w-full hover:bg-white/5 active:bg-white/10 disabled:opacity-40 disabled:hover:bg-transparent transition"
+          />
+          <button
+            type="button"
+            aria-label={`${name} を1減らす`}
+            onClick={onSub}
+            disabled={disabled || score <= 0}
+            className="absolute inset-x-0 bottom-0 h-1/2 w-full hover:bg-white/5 active:bg-white/10 disabled:opacity-40 disabled:hover:bg-transparent transition"
+          />
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+            <span
+              className={`text-[clamp(4rem,32vh,22rem)] leading-none font-extrabold tabular-nums ${
+                highlight ? 'text-success' : 'text-white'
+              }`}
+            >
+              {score}
+            </span>
+          </div>
+          <div className="pointer-events-none absolute inset-x-0 top-1/2 h-[3px] -translate-y-1/2 bg-black z-10" />
         </div>
-
-        <button
-          type="button"
-          aria-label={`${name} を1減らす`}
-          onClick={onSub}
-          disabled={disabled || score <= 0}
-          className="w-14 h-14 sm:w-20 sm:h-20 rounded-full border-4 border-white/60 text-3xl sm:text-5xl font-extrabold leading-none disabled:opacity-30 hover:bg-white/10 active:scale-95 transition"
-        >
-          −
-        </button>
       </div>
 
-      <div className="text-center text-xs sm:text-sm text-white/50">
-        {disabled ? '入力不可' : '上下スワイプでも加減できます'}
-      </div>
+      {disabled && (
+        <div className="shrink-0 text-center text-xs sm:text-sm text-white/50">入力不可</div>
+      )}
     </div>
   );
 };
