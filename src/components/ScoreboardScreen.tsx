@@ -72,7 +72,13 @@ export const ScoreboardScreen = ({
       role="dialog"
       aria-modal="true"
       className="fixed inset-0 z-[60] bg-black text-white flex flex-col select-none"
-      style={{ touchAction: 'none' }}
+      style={{
+        touchAction: 'none',
+        paddingTop: 'env(safe-area-inset-top)',
+        paddingBottom: 'env(safe-area-inset-bottom)',
+        paddingLeft: 'env(safe-area-inset-left)',
+        paddingRight: 'env(safe-area-inset-right)',
+      }}
       onClick={(e) => e.stopPropagation()}
     >
       <div className="flex items-center justify-between px-3 py-2 border-b border-white/20 shrink-0">
