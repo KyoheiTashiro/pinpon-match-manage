@@ -35,6 +35,12 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
     if (!match) onClose();
   }, [match, onClose]);
 
+  useEffect(() => {
+    if (match && !match.firstServer) {
+      updateMatch(match.id, { firstServer: 'L' });
+    }
+  }, [match, updateMatch]);
+
   if (!match) return null;
 
   const summary = matchSummary(games.filter((g) => g.leftScore !== 0 || g.rightScore !== 0));
