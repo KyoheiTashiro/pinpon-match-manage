@@ -237,6 +237,7 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
             ),
           )}
           onBack={() => setScoreboardOpen(false)}
+          onCloseAll={onClose}
         />
       )}
 

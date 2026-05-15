@@ -18,6 +18,7 @@ type Props = {
   initialGameIndex: number;
   matchFirstServer?: Side;
   onBack: () => void;
+  onCloseAll?: () => void;
 };
 
 export const ScoreboardScreen = ({
@@ -29,6 +30,7 @@ export const ScoreboardScreen = ({
   initialGameIndex,
   matchFirstServer,
   onBack,
+  onCloseAll,
 }: Props) => {
   const [idx, setIdx] = useState(initialGameIndex);
   const [isPortrait, setIsPortrait] = useState(false);
@@ -167,7 +169,10 @@ export const ScoreboardScreen = ({
           {showBackBtn && (
             <button
               type="button"
-              onClick={onBack}
+              onClick={() => {
+                onBack();
+                onCloseAll?.();
+              }}
               className="px-4 py-2 text-base font-extrabold rounded-lg border-2 border-success bg-success text-white hover:brightness-110 active:scale-95 transition"
             >
               対戦表に戻る
