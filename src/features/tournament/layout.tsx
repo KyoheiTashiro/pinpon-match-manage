@@ -6,7 +6,7 @@ import { FontSizeToggle } from '../../components/ui/FontSizeToggle';
 const tabs = [
   { to: 'participants', label: '参加者', icon: '👥' },
   { to: 'matrix', label: '対戦表', icon: '🏓' },
-  { to: 'ranking', label: '順位', icon: '🏆' },
+  { to: 'ranking', label: '結果', icon: '🏆' },
   { to: 'settings', label: '設定', icon: '⚙' },
 ];
 

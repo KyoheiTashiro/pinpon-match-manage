@@ -10,14 +10,14 @@ export const RankingTab = () => {
 };
 
 const RankingView = ({ tournamentId }: { tournamentId: string }) => {
-  const { rows, tournament } = useRankingRows(tournamentId);
-  const { ref, saving, save } = useImageCapture('順位', tournament?.name);
+  const { rows, matchResults, tournament } = useRankingRows(tournamentId);
+  const { ref, saving, save } = useImageCapture('結果', tournament?.name);
 
   if (!tournament) return null;
 
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-extrabold">順位</h2>
+      <h2 className="text-xl font-extrabold">結果</h2>
 
       {rows.length === 0 ? (
         <p className="text-sub">参加者を登録してください。</p>
@@ -69,10 +69,89 @@ const RankingView = ({ tournamentId }: { tournamentId: string }) => {
               ))}
             </tbody>
           </table>
+          {matchResults.length > 0 && (
+            <div className="space-y-2 pt-2">
+              <div className="text-base font-extrabold">対戦結果</div>
+              <table className="w-full border-2 border-line border-collapse">
+                <thead>
+                  <tr className="bg-bg">
+                    <th className="border-2 border-line p-2 text-base text-left">対戦</th>
+                    <th className="border-2 border-line p-2 text-base">G1</th>
+                    <th className="border-2 border-line p-2 text-base">G2</th>
+                    <th className="border-2 border-line p-2 text-base">G3</th>
+                    <th className="border-2 border-line p-2 text-base">G4</th>
+                    <th className="border-2 border-line p-2 text-base">G5</th>
+                    <th className="border-2 border-line p-2 text-base">セット</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {matchResults.map((m) => (
+                    <tr key={m.id}>
+                      <td className="border-2 border-line p-2 text-base">
+                        <span
+                          className={
+                            m.winner === 'L' ? 'font-extrabold' : 'text-sub'
+                          }
+                        >
+                          {m.leftName}
+                        </span>
+                        <span className="text-sub"> vs </span>
+                        <span
+                          className={
+                            m.winner === 'R' ? 'font-extrabold' : 'text-sub'
+                          }
+                        >
+                          {m.rightName}
+                        </span>
+                      </td>
+                      {[0, 1, 2, 3, 4].map((i) => {
+                        const g = m.games[i];
+                        if (!g) {
+                          return (
+                            <td
+                              key={i}
+                              className="border-2 border-line p-2 text-base text-center text-sub"
+                            >
+                              -
+                            </td>
+                          );
+                        }
+                        return (
+                          <td
+                            key={i}
+                            className="border-2 border-line p-2 text-base text-center whitespace-nowrap"
+                          >
+                            <span
+                              className={
+                                g.leftScore > g.rightScore ? 'font-extrabold' : ''
+                              }
+                            >
+                              {g.leftScore}
+                            </span>
+                            <span className="text-sub">-</span>
+                            <span
+                              className={
+                                g.rightScore > g.leftScore ? 'font-extrabold' : ''
+                              }
+                            >
+                              {g.rightScore}
+                            </span>
+                          </td>
+                        );
+                      })}
+                      <td className="border-2 border-line p-2 text-base text-center font-bold whitespace-nowrap">
+                        {m.leftWins}-{m.rightWins}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
         </div>
         <BigButton onClick={save} disabled={saving}>
-          {saving ? '保存中…' : '順位表の画像を保存'}
+          {saving ? '保存中…' : '結果の画像を保存'}
         </BigButton>
         </>
       )}
