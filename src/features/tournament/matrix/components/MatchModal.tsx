@@ -77,13 +77,6 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
     updateMatch(match.id, { games: trimGames(next, lockIdx) });
   };
 
-  const save = () => {
-    updateMatch(match.id, {
-      games: trimGames(games, lockedFromIndex),
-    });
-    onClose();
-  };
-
   const setFirstServer = (side: Side) => {
     updateMatch(match.id, { firstServer: side });
   };
@@ -217,8 +210,7 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
         )}
 
         <div className="flex flex-wrap gap-3 justify-end">
-          <BigButton variant="danger" onClick={() => setConfirmDelete(true)}>削除</BigButton>
-          <BigButton variant="primary" onClick={save}>保存</BigButton>
+          <BigButton variant="danger" onClick={() => setConfirmDelete(true)}>この対戦のデータを削除</BigButton>
         </div>
       </div>
 
