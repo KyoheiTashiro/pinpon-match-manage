@@ -26,7 +26,6 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
   const [games, setGames] = useState<Game[]>(() =>
     padGames(match?.games ?? []),
   );
-  const [note, setNote] = useState(match?.note ?? '');
   const firstServer: Side | undefined = match?.firstServer;
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [scoreboardOpen, setScoreboardOpen] = useState(false);
@@ -81,7 +80,6 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
   const save = () => {
     updateMatch(match.id, {
       games: trimGames(games, lockedFromIndex),
-      note: note || undefined,
     });
     onClose();
   };
@@ -188,7 +186,7 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
                   locked ? 'bg-bg opacity-60' : 'bg-white'
                 }`}
               >
-                <span className="font-extrabold text-base bg-blue-500 text-white px-3 py-1 rounded">
+                <span className="font-extrabold text-base px-3 py-1">
                   ゲーム{i + 1}
                 </span>
                 <span className="text-xl font-extrabold tabular-nums">
@@ -217,15 +215,6 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
             {winnerLabel}
           </div>
         )}
-
-        <label className="flex flex-col gap-1 mb-4">
-          <span className="font-bold">メモ</span>
-          <textarea
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            className="border-2 border-line rounded-xl p-3 text-base bg-white min-h-[80px]"
-          />
-        </label>
 
         <div className="flex flex-wrap gap-3 justify-end">
           <BigButton variant="danger" onClick={() => setConfirmDelete(true)}>削除</BigButton>
