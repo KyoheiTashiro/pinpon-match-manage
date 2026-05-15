@@ -183,6 +183,7 @@ export const ScoreboardScreen = ({
           isMatchPoint={displayLeftMatchPoint}
           isServing={displayServer === 'L'}
           disabled={locked}
+          disableAdd={winner === 'L'}
           onAdd={() => setScore('L', displayLeftScore + 1)}
           onSub={() => setScore('L', displayLeftScore - 1)}
         />
@@ -219,6 +220,7 @@ export const ScoreboardScreen = ({
           isMatchPoint={displayRightMatchPoint}
           isServing={displayServer === 'R'}
           disabled={locked}
+          disableAdd={winner === 'R'}
           onAdd={() => setScore('R', displayRightScore + 1)}
           onSub={() => setScore('R', displayRightScore - 1)}
         />
@@ -238,6 +240,7 @@ type ColProps = {
   isMatchPoint: boolean;
   isServing: boolean;
   disabled: boolean;
+  disableAdd?: boolean;
   onAdd: () => void;
   onSub: () => void;
 };
@@ -250,6 +253,7 @@ const ScoreColumn = ({
   isMatchPoint,
   isServing,
   disabled,
+  disableAdd,
   onAdd,
   onSub,
 }: ColProps) => {
@@ -285,7 +289,7 @@ const ScoreColumn = ({
             type="button"
             aria-label={`${name} を1増やす`}
             onClick={onAdd}
-            disabled={disabled || score >= 30}
+            disabled={disabled || disableAdd || score >= 30}
             className="absolute inset-x-0 top-0 h-1/2 w-full hover:bg-white/5 active:bg-white/10 disabled:opacity-40 disabled:hover:bg-transparent transition"
           />
           <button
