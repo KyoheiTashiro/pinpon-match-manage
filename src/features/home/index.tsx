@@ -9,7 +9,6 @@ import { formatDate } from '../../lib/time';
 import type { Format } from '../../store/types';
 import {
   useCreateTournamentForm,
-  useShareApp,
   useSortedTournaments,
 } from './hooks';
 
@@ -18,7 +17,6 @@ export const Home = () => {
   const resetAll = useAppStore((s) => s.resetAll);
 
   const list = useSortedTournaments();
-  const { share, shareMsg } = useShareApp();
   const form = useCreateTournamentForm((id) =>
     navigate(`/t/${id}/participants`),
   );
@@ -120,18 +118,6 @@ export const Home = () => {
 
         <div className="pt-6 border-t-2 border-line space-y-3">
           <InstallAppButton />
-          <BigButton variant="secondary" className="w-full" onClick={share}>
-            📤 このアプリを共有
-          </BigButton>
-          {shareMsg && (
-            <p
-              role="status"
-              aria-live="polite"
-              className="text-base text-success font-bold text-center"
-            >
-              {shareMsg}
-            </p>
-          )}
         </div>
 
         <div className="pt-6 border-t-2 border-line">
