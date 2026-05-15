@@ -152,7 +152,7 @@ export const ScoreboardScreen = ({
               onClick={() => setIdx(nextIdx)}
               className="px-4 py-2 text-base font-extrabold rounded-lg border-2 border-success bg-success text-white hover:brightness-110 active:scale-95 transition"
             >
-              次のゲームへ →
+              次に進む
             </button>
           )}
           {showResultBtn && (
@@ -161,7 +161,7 @@ export const ScoreboardScreen = ({
               onClick={() => setShowResult(true)}
               className="px-4 py-2 text-base font-extrabold rounded-lg border-2 border-success bg-success text-white hover:brightness-110 active:scale-95 transition"
             >
-              結果を見る →
+              結果を見る
             </button>
           )}
           {showBackBtn && (
@@ -170,7 +170,7 @@ export const ScoreboardScreen = ({
               onClick={onBack}
               className="px-4 py-2 text-base font-extrabold rounded-lg border-2 border-success bg-success text-white hover:brightness-110 active:scale-95 transition"
             >
-              試合一覧へ戻る →
+              対戦表に戻る
             </button>
           )}
         </div>
