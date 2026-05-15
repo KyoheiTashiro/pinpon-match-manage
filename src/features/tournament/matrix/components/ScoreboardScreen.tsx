@@ -188,9 +188,8 @@ export const ScoreboardScreen = ({
           onSub={() => setScore('L', displayLeftScore - 1)}
         />
 
-        <div className="flex flex-col items-center justify-center px-1 sm:px-3 border-x border-white/20 min-w-[56px]">
-          <div className="text-xs sm:text-base text-white/60 font-bold">ゲーム {idx + 1}</div>
-          <div className="text-3xl sm:text-5xl font-extrabold mt-2">
+        <div className="flex flex-col items-center justify-center px-1 sm:px-2 border-x border-white/20 min-w-[140px]">
+          <div className="text-xl sm:text-5xl font-extrabold mt-2">
             <span className={matchWinner === 'L' ? 'text-success' : ''}>{displayLeftWins}</span>
             <span className="mx-2 text-white/40">-</span>
             <span className={matchWinner === 'R' ? 'text-success' : ''}>{displayRightWins}</span>
@@ -205,7 +204,7 @@ export const ScoreboardScreen = ({
             onClick={() => setSwapped((s) => !s)}
             aria-label="左右を入れ替える"
             aria-pressed={swapped}
-            className="mt-3 px-2 py-1 text-xs sm:text-sm font-extrabold rounded-lg border-2 border-white/60 hover:bg-white/10 active:scale-95 transition"
+            className="mt-3 px-2 py-2 text-base sm:text-lg font-extrabold rounded-lg border-2 border-white/60 hover:bg-white/10 active:scale-95 transition"
           >
             ⇄ 入替
           </button>
