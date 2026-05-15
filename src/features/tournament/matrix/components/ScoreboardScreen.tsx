@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { Game, Side } from '../../../../domain/match';
 import {
@@ -8,7 +8,6 @@ import {
   gameFirstServer,
   currentServer,
 } from '../../../../domain/match';
-import { ConfirmDialog } from '../../../../components/ui/ConfirmDialog';
 
 type Props = {
   leftName: string;
@@ -33,11 +32,7 @@ export const ScoreboardScreen = ({
 }: Props) => {
   const [idx, setIdx] = useState(initialGameIndex);
   const [isPortrait, setIsPortrait] = useState(false);
-  const [nextDialogOpen, setNextDialogOpen] = useState(false);
-  const [matchEndDialogOpen, setMatchEndDialogOpen] = useState(false);
   const [swapped, setSwapped] = useState(false);
-  const dismissedRef = useRef<Set<number>>(new Set());
-  const matchEndDismissedRef = useRef(false);
 
   useEffect(() => {
     const mq = window.matchMedia('(orientation: portrait) and (max-width: 900px)');
@@ -80,22 +75,8 @@ export const ScoreboardScreen = ({
   const currentFinished = current ? isGameFinished(current) : false;
   const nextIdx = idx + 1;
   const canAdvance = !rawMatchWinner && nextIdx < games.length && nextIdx < lockedFromIndex;
-
-  useEffect(() => {
-    if (currentFinished && rawWinner && canAdvance && !dismissedRef.current.has(idx)) {
-      setNextDialogOpen(true);
-    } else {
-      setNextDialogOpen(false);
-    }
-  }, [currentFinished, rawWinner, canAdvance, idx]);
-
-  useEffect(() => {
-    if (rawMatchWinner && !matchEndDismissedRef.current) {
-      setMatchEndDialogOpen(true);
-    } else {
-      setMatchEndDialogOpen(false);
-    }
-  }, [rawMatchWinner]);
+  const showNextGameBtn = currentFinished && !!rawWinner && canAdvance;
+  const showBackBtn = !!rawMatchWinner;
 
   const setScore = (displaySide: 'L' | 'R', next: number) => {
     if (locked) return;
@@ -161,7 +142,26 @@ export const ScoreboardScreen = ({
             );
           })}
         </div>
-        <div className="w-[110px]" />
+        <div className="min-w-[110px] flex justify-end">
+          {showNextGameBtn && (
+            <button
+              type="button"
+              onClick={() => setIdx(nextIdx)}
+              className="px-4 py-2 text-base font-extrabold rounded-lg border-2 border-success bg-success text-white hover:brightness-110 active:scale-95 transition"
+            >
+              次のゲームへ →
+            </button>
+          )}
+          {showBackBtn && (
+            <button
+              type="button"
+              onClick={onBack}
+              className="px-4 py-2 text-base font-extrabold rounded-lg border-2 border-success bg-success text-white hover:brightness-110 active:scale-95 transition"
+            >
+              試合一覧へ戻る →
+            </button>
+          )}
+        </div>
       </div>
 
       {isPortrait && (
@@ -224,39 +224,6 @@ export const ScoreboardScreen = ({
         />
       </div>
 
-      <ConfirmDialog
-        open={nextDialogOpen}
-        title={`ゲーム${idx + 1} 終了`}
-        message={`${winner === 'L' ? displayLeftName : displayRightName} の勝利！`}
-        confirmLabel="次のゲームへ"
-        cancelLabel="キャンセル"
-        onConfirm={() => {
-          dismissedRef.current.add(idx);
-          setNextDialogOpen(false);
-          setIdx(nextIdx);
-        }}
-        onCancel={() => {
-          dismissedRef.current.add(idx);
-          setNextDialogOpen(false);
-        }}
-      />
-
-      <ConfirmDialog
-        open={matchEndDialogOpen}
-        title="試合終了"
-        message={`${matchWinner === 'L' ? displayLeftName : displayRightName} の勝利！ (${displayLeftWins} - ${displayRightWins})`}
-        confirmLabel="試合一覧へ戻る"
-        cancelLabel="閉じる"
-        onConfirm={() => {
-          matchEndDismissedRef.current = true;
-          setMatchEndDialogOpen(false);
-          onBack();
-        }}
-        onCancel={() => {
-          matchEndDismissedRef.current = true;
-          setMatchEndDialogOpen(false);
-        }}
-      />
     </div>,
     document.body,
   );
