@@ -189,9 +189,9 @@ export const ScoreboardScreen = ({
         />
 
         <div className="flex flex-col items-center justify-center px-1 sm:px-2 border-x border-white/20 min-w-[140px]">
-          <div className="text-xl sm:text-5xl font-extrabold mt-2">
+          <div className="text-[clamp(3rem,12vw,9rem)] leading-none font-extrabold mt-2 tabular-nums">
             <span className={matchWinner === 'L' ? 'text-success' : ''}>{displayLeftWins}</span>
-            <span className="mx-2 text-white/40">-</span>
+            <span className="mx-1 text-white/40">-</span>
             <span className={matchWinner === 'R' ? 'text-success' : ''}>{displayRightWins}</span>
           </div>
           {locked && (
