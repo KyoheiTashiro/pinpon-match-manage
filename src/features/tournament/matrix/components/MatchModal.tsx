@@ -214,7 +214,7 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
 
         {winnerLabel && (
           <div className="text-2xl font-extrabold text-success text-center mb-4">
-            {winnerLabel}（{summary.leftWins} - {summary.rightWins}）
+            {winnerLabel}
           </div>
         )}
 
