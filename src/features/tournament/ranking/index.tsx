@@ -29,6 +29,7 @@ const RankingView = ({ tournamentId }: { tournamentId: string }) => {
           <div className="text-xl font-extrabold">{tournament.name}</div>
           <div className="text-sm text-sub">{tournament.date}</div>
         </div>
+          <div className="text-base font-extrabold">順位</div>
           <table className="w-full border-2 border-line border-collapse">
             <thead>
               <tr className="bg-bg">
