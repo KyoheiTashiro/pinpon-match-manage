@@ -38,10 +38,10 @@ export const SettingsTab = () => {
 
       <div className="border-t-2 border-line pt-4 space-y-3">
         <BigButton variant="danger" onClick={() => setConfirmReset(true)}>
-          試合結果をリセット
+          試合結果を削除
         </BigButton>
         <p className="text-sm text-sub">
-          大会・参加者は残し、試合の記録だけをリセットします。
+          大会・参加者は残し、試合の記録だけを削除します。
         </p>
       </div>
 
@@ -56,9 +56,9 @@ export const SettingsTab = () => {
 
       <ConfirmDialog
         open={confirmReset}
-        title="試合結果をリセット"
+        title="試合結果を削除"
         message="この大会の試合記録をすべて削除します。参加者は残ります。"
-        confirmLabel="リセットする"
+        confirmLabel="削除する"
         cancelLabel="やめる"
         destructive
         onConfirm={() => {

@@ -210,7 +210,7 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
         )}
 
         <div className="flex flex-wrap gap-3 justify-end">
-          <BigButton variant="danger" onClick={() => setConfirmDelete(true)}>この試合結果をリセット</BigButton>
+          <BigButton variant="danger" onClick={() => setConfirmDelete(true)}>試合結果を削除</BigButton>
         </div>
       </div>
 
@@ -243,8 +243,8 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
 
       <ConfirmDialog
         open={confirmDelete}
-        title="試合を削除"
-        message="この試合の記録を削除します。取り消せません。"
+        title="試合結果を削除"
+        message="この試合結果を削除します。取り消せません。"
         confirmLabel="削除する"
         cancelLabel="やめる"
         destructive
