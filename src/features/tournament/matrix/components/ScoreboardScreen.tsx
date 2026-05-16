@@ -1,13 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { Game, Side } from '../../../../domain/match';
-import {
-  gameWinner,
-  isGameFinished,
-  matchSummary,
-  gameFirstServer,
-  currentServer,
-} from '../../../../domain/match';
+import { usePortrait } from './scoreboard/useOrientation';
+import { useDisplayMapping } from './scoreboard/useDisplayMapping';
+import { ScoreboardHeader } from './scoreboard/ScoreboardHeader';
+import { ScoreInputView } from './scoreboard/ScoreInputView';
+import { MatchResultView } from './scoreboard/MatchResultView';
 
 type Props = {
   leftName: string;
@@ -33,56 +31,27 @@ export const ScoreboardScreen = ({
   onCloseAll,
 }: Props) => {
   const [idx, setIdx] = useState(initialGameIndex);
-  const [isPortrait, setIsPortrait] = useState(false);
   const [swapped, setSwapped] = useState(false);
   const [showResult, setShowResult] = useState(false);
+  const isPortrait = usePortrait();
 
-  useEffect(() => {
-    const mq = window.matchMedia('(orientation: portrait) and (max-width: 900px)');
-    const update = () => setIsPortrait(mq.matches);
-    update();
-    mq.addEventListener('change', update);
-    return () => mq.removeEventListener('change', update);
-  }, []);
+  const d = useDisplayMapping({
+    leftName,
+    rightName,
+    games,
+    idx,
+    swapped,
+    matchFirstServer,
+  });
 
-  const current = games[idx];
   const locked = idx >= lockedFromIndex;
-  const sm = matchSummary(games);
-  const rawWinner = current ? gameWinner(current) : null;
-  const rawMatchWinner = sm.winner;
-  const flip = (s: 'L' | 'R' | null) => (s === 'L' ? 'R' : s === 'R' ? 'L' : null);
-  const winner = swapped ? flip(rawWinner) : rawWinner;
-  const matchWinner = swapped ? flip(rawMatchWinner) : rawMatchWinner;
-  const displayLeftName = swapped ? rightName : leftName;
-  const displayRightName = swapped ? leftName : rightName;
-  const displayLeftScore = swapped ? (current?.rightScore ?? 0) : (current?.leftScore ?? 0);
-  const displayRightScore = swapped ? (current?.leftScore ?? 0) : (current?.rightScore ?? 0);
-  const displayLeftWins = swapped ? sm.rightWins : sm.leftWins;
-  const displayRightWins = swapped ? sm.leftWins : sm.rightWins;
-  const rawServer: Side | null =
-    matchFirstServer && current
-      ? currentServer(current, gameFirstServer(matchFirstServer, idx))
-      : null;
-  const displayServer = swapped ? flip(rawServer) : rawServer;
-  const isGamePoint = (s: number, o: number) => {
-    const ns = s + 1;
-    return ns >= 11 && ns - o >= 2;
-  };
-  const gameOpen = current ? !isGameFinished(current) && !rawMatchWinner : false;
-  const leftMatchPoint =
-    gameOpen && current ? isGamePoint(current.leftScore, current.rightScore) : false;
-  const rightMatchPoint =
-    gameOpen && current ? isGamePoint(current.rightScore, current.leftScore) : false;
-  const displayLeftMatchPoint = swapped ? rightMatchPoint : leftMatchPoint;
-  const displayRightMatchPoint = swapped ? leftMatchPoint : rightMatchPoint;
-  const currentFinished = current ? isGameFinished(current) : false;
   const nextIdx = idx + 1;
-  const canAdvance = !rawMatchWinner && nextIdx < games.length && nextIdx < lockedFromIndex;
-  const showNextGameBtn = currentFinished && !!rawWinner && canAdvance && !showResult;
-  const showResultBtn = !!rawMatchWinner && !showResult;
-  const showBackBtn = !!rawMatchWinner && showResult;
+  const canAdvance = !d.rawMatchWinner && nextIdx < games.length && nextIdx < lockedFromIndex;
+  const showNextGameBtn = d.currentFinished && !!d.rawWinner && canAdvance && !showResult;
+  const showResultBtn = !!d.rawMatchWinner && !showResult;
+  const showBackBtn = !!d.rawMatchWinner && showResult;
 
-  const setScore = (displaySide: 'L' | 'R', next: number) => {
+  const setScore = (displaySide: Side, next: number) => {
     if (locked) return;
     const actualSide = swapped ? (displaySide === 'L' ? 'R' : 'L') : displaySide;
     const clamped = Math.max(0, Math.min(30, next));
@@ -111,75 +80,20 @@ export const ScoreboardScreen = ({
       }}
       onClick={(e) => e.stopPropagation()}
     >
-      <div className="flex items-center justify-between px-3 py-2 border-b border-white/20 shrink-0">
-        <button
-          type="button"
-          onClick={onBack}
-          aria-label="もどる"
-          className="px-4 py-2 text-base font-extrabold rounded-lg border-2 border-white/60 hover:bg-white/10 active:scale-95 transition"
-        >
-          ← もどる
-        </button>
-        <div className="flex gap-1 flex-wrap justify-center">
-          {!showResult &&
-            games.map((g, i) => {
-              const empty = g.leftScore === 0 && g.rightScore === 0;
-              const done = isGameFinished(g);
-              const isLocked = i >= lockedFromIndex;
-              return (
-                <button
-                  key={i}
-                  type="button"
-                  onClick={() => setIdx(i)}
-                  disabled={isLocked && empty}
-                  className={`min-w-[44px] px-2 py-1 text-sm font-extrabold rounded border-2 ${
-                    i === idx
-                      ? 'bg-white text-black border-white'
-                      : done
-                        ? 'border-success text-green-500'
-                        : isLocked && empty
-                          ? 'border-white/20 text-white/30'
-                          : 'border-white/60 text-white'
-                  }`}
-                >
-                  G{i + 1}
-                </button>
-              );
-            })}
-        </div>
-        <div className="min-w-[110px] flex justify-end">
-          {showNextGameBtn && (
-            <button
-              type="button"
-              onClick={() => setIdx(nextIdx)}
-              className="px-4 py-2 text-base font-extrabold rounded-lg border-2 border-success bg-success text-white hover:brightness-110 active:scale-95 transition"
-            >
-              次に進む
-            </button>
-          )}
-          {showResultBtn && (
-            <button
-              type="button"
-              onClick={() => setShowResult(true)}
-              className="px-4 py-2 text-base font-extrabold rounded-lg border-2 border-success bg-success text-white hover:brightness-110 active:scale-95 transition"
-            >
-              結果を見る
-            </button>
-          )}
-          {showBackBtn && (
-            <button
-              type="button"
-              onClick={() => {
-                onBack();
-                onCloseAll?.();
-              }}
-              className="px-4 py-2 text-base font-extrabold rounded-lg border-2 border-success bg-success text-white hover:brightness-110 active:scale-95 transition"
-            >
-              対戦表に戻る
-            </button>
-          )}
-        </div>
-      </div>
+      <ScoreboardHeader
+        games={games}
+        idx={idx}
+        setIdx={setIdx}
+        lockedFromIndex={lockedFromIndex}
+        showResult={showResult}
+        showNextGameBtn={showNextGameBtn}
+        showResultBtn={showResultBtn}
+        showBackBtn={showBackBtn}
+        nextIdx={nextIdx}
+        onBack={onBack}
+        onShowResult={() => setShowResult(true)}
+        onCloseAll={onCloseAll}
+      />
 
       {isPortrait && (
         <div className="bg-amber-500 text-black text-center text-sm font-extrabold py-1 px-2 leading-tight">
@@ -192,237 +106,37 @@ export const ScoreboardScreen = ({
 
       {showResult ? (
         <MatchResultView
-          leftName={displayLeftName}
-          rightName={displayRightName}
-          leftWins={displayLeftWins}
-          rightWins={displayRightWins}
-          matchWinner={matchWinner}
+          leftName={d.leftName}
+          rightName={d.rightName}
+          leftWins={d.leftWins}
+          rightWins={d.rightWins}
+          matchWinner={d.matchWinner}
           games={games}
           swapped={swapped}
         />
       ) : (
-        <div className="flex-1 min-h-0 grid grid-cols-[1fr_auto_1fr] items-stretch">
-          <ScoreColumn
-            name={displayLeftName}
-            score={displayLeftScore}
-            gameWins={displayLeftWins}
-            isGameWinner={winner === 'L'}
-            isMatchWinner={matchWinner === 'L'}
-            isMatchPoint={displayLeftMatchPoint}
-            isServing={displayServer === 'L'}
-            disabled={locked}
-            disableAdd={winner === 'L'}
-            onAdd={() => setScore('L', displayLeftScore + 1)}
-            onSub={() => setScore('L', displayLeftScore - 1)}
-          />
-
-          <div className="flex flex-col items-center justify-center px-1 sm:px-2 border-x border-white/20 min-w-[140px]">
-            <div className="text-[clamp(3rem,12vw,9rem)] leading-none font-extrabold mt-2 tabular-nums">
-              <span className={matchWinner === 'L' ? 'text-green-500' : ''}>{displayLeftWins}</span>
-              <span className="mx-1 text-white/40">-</span>
-              <span className={matchWinner === 'R' ? 'text-green-500' : ''}>{displayRightWins}</span>
-            </div>
-            {locked && (
-              <div className="mt-3 text-xs sm:text-sm font-extrabold text-amber-300">
-                入力不可
-              </div>
-            )}
-            <button
-              type="button"
-              onClick={() => setSwapped((s) => !s)}
-              aria-label="左右を入れ替える"
-              aria-pressed={swapped}
-              className="mt-3 px-2 py-2 text-base sm:text-lg font-extrabold rounded-lg border-2 border-white/60 hover:bg-white/10 active:scale-95 transition"
-            >
-              ⇄ 入替
-            </button>
-          </div>
-
-          <ScoreColumn
-            name={displayRightName}
-            score={displayRightScore}
-            gameWins={displayRightWins}
-            isGameWinner={winner === 'R'}
-            isMatchWinner={matchWinner === 'R'}
-            isMatchPoint={displayRightMatchPoint}
-            isServing={displayServer === 'R'}
-            disabled={locked}
-            disableAdd={winner === 'R'}
-            onAdd={() => setScore('R', displayRightScore + 1)}
-            onSub={() => setScore('R', displayRightScore - 1)}
-          />
-        </div>
+        <ScoreInputView
+          leftName={d.leftName}
+          rightName={d.rightName}
+          leftScore={d.leftScore}
+          rightScore={d.rightScore}
+          leftWins={d.leftWins}
+          rightWins={d.rightWins}
+          winner={d.winner}
+          matchWinner={d.matchWinner}
+          leftMatchPoint={d.leftMatchPoint}
+          rightMatchPoint={d.rightMatchPoint}
+          server={d.server}
+          locked={locked}
+          swapped={swapped}
+          onSwap={() => setSwapped((s) => !s)}
+          onAddLeft={() => setScore('L', d.leftScore + 1)}
+          onSubLeft={() => setScore('L', d.leftScore - 1)}
+          onAddRight={() => setScore('R', d.rightScore + 1)}
+          onSubRight={() => setScore('R', d.rightScore - 1)}
+        />
       )}
-
     </div>,
     document.body,
-  );
-};
-
-type MatchResultViewProps = {
-  leftName: string;
-  rightName: string;
-  leftWins: number;
-  rightWins: number;
-  matchWinner: 'L' | 'R' | null;
-  games: Game[];
-  swapped: boolean;
-};
-
-const MatchResultView = ({
-  leftName,
-  rightName,
-  leftWins,
-  rightWins,
-  matchWinner,
-  games,
-  swapped,
-}: MatchResultViewProps) => {
-  const playedGames = games
-    .map((g, i) => ({ g, i }))
-    .filter(({ g }) => isGameFinished(g) || g.leftScore > 0 || g.rightScore > 0);
-
-  return (
-    <div className="flex-1 min-h-0 overflow-auto px-4 py-6 flex flex-col items-center justify-center">
-      <div className="w-full max-w-6xl grid grid-cols-[1fr_auto_auto_auto_1fr] items-center gap-x-6 sm:gap-x-10 gap-y-4">
-        <div
-          className={`text-right text-[clamp(2rem,5vw,5rem)] font-extrabold truncate ${
-            matchWinner === 'L' ? 'text-green-500' : ''
-          }`}
-          title={leftName}
-        >
-          {leftName}
-        </div>
-        <div
-          className={`text-[clamp(4rem,12vw,12rem)] leading-none font-extrabold tabular-nums ${
-            matchWinner === 'L' ? 'text-green-500' : ''
-          }`}
-        >
-          {leftWins}
-        </div>
-        <div className="flex flex-col gap-2 sm:gap-3 text-[clamp(1.75rem,4vw,3.5rem)] font-extrabold tabular-nums">
-          {playedGames.map(({ g, i }) => {
-            const l = swapped ? g.rightScore : g.leftScore;
-            const r = swapped ? g.leftScore : g.rightScore;
-            return (
-              <div key={i} className="flex items-center justify-center gap-3 sm:gap-5">
-                <span className="text-right min-w-[2ch]">{l}</span>
-                <span className="text-white/40">-</span>
-                <span className="text-left min-w-[2ch]">{r}</span>
-              </div>
-            );
-          })}
-        </div>
-        <div
-          className={`text-[clamp(4rem,12vw,12rem)] leading-none font-extrabold tabular-nums ${
-            matchWinner === 'R' ? 'text-green-500' : ''
-          }`}
-        >
-          {rightWins}
-        </div>
-        <div
-          className={`text-left text-[clamp(2rem,5vw,5rem)] font-extrabold truncate ${
-            matchWinner === 'R' ? 'text-green-500' : ''
-          }`}
-          title={rightName}
-        >
-          {rightName}
-        </div>
-      </div>
-
-    </div>
-  );
-};
-
-type ColProps = {
-  name: string;
-  score: number;
-  gameWins: number;
-  isGameWinner: boolean;
-  isMatchWinner: boolean;
-  isMatchPoint: boolean;
-  isServing: boolean;
-  disabled: boolean;
-  disableAdd?: boolean;
-  onAdd: () => void;
-  onSub: () => void;
-};
-
-const ScoreColumn = ({
-  name,
-  score,
-  isGameWinner,
-  isMatchWinner,
-  isMatchPoint,
-  isServing,
-  disabled,
-  disableAdd,
-  onAdd,
-  onSub,
-}: ColProps) => {
-  const highlight = isGameWinner || isMatchWinner;
-  const scoreColor = highlight
-    ? 'text-green-500'
-    : isMatchPoint
-      ? 'text-yellow-400'
-      : 'text-white';
-
-  return (
-    <div
-      className={`flex flex-col items-stretch min-h-0 p-1 sm:p-2 ${
-        isMatchWinner ? 'bg-success/20' : ''
-      }`}
-    >
-      <div
-        className={`shrink-0 text-center text-base sm:text-2xl font-extrabold truncate ${
-          highlight ? 'text-green-500' : ''
-        }`}
-        title={name}
-      >
-        {name}
-      </div>
-
-      <div className="flex-1 min-h-0 flex items-center justify-center py-1">
-        <div
-          className={`relative h-full aspect-[5/4] max-w-full rounded-2xl overflow-hidden border-2 ${
-            isMatchWinner ? 'bg-success/20 border-success' : 'bg-neutral-900 border-white/30'
-          }`}
-        >
-          <button
-            type="button"
-            aria-label={`${name} を1増やす`}
-            onClick={onAdd}
-            disabled={disabled || disableAdd || score >= 30}
-            className="absolute inset-x-0 top-0 h-1/2 w-full hover:bg-white/5 active:bg-white/10 disabled:opacity-40 disabled:hover:bg-transparent transition"
-          />
-          <button
-            type="button"
-            aria-label={`${name} を1減らす`}
-            onClick={onSub}
-            disabled={disabled || score <= 0}
-            className="absolute inset-x-0 bottom-0 h-1/2 w-full hover:bg-white/5 active:bg-white/10 disabled:opacity-40 disabled:hover:bg-transparent transition"
-          />
-          <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-            <span
-              className={`text-[clamp(6rem,44vh,28rem)] leading-none font-extrabold tabular-nums ${scoreColor}`}
-            >
-              {score}
-            </span>
-          </div>
-          <div className="pointer-events-none absolute inset-x-0 top-1/2 h-[3px] -translate-y-1/2 bg-black z-10" />
-        </div>
-      </div>
-
-      <div
-        className={`shrink-0 h-2 sm:h-3 rounded-full mx-2 sm:mx-4 mt-1 transition-colors ${
-          isServing ? 'bg-orange-500' : 'bg-transparent'
-        }`}
-        aria-label={isServing ? 'サーブ権あり' : undefined}
-      />
-
-      {disabled && (
-        <div className="shrink-0 text-center text-xs sm:text-sm text-white/50">入力不可</div>
-      )}
-    </div>
   );
 };
