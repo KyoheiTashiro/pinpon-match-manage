@@ -1,13 +1,21 @@
 import { NavLink, Outlet, useNavigate, useParams } from 'react-router-dom';
+import type { ComponentType, SVGProps } from 'react';
 import { useEffect } from 'react';
 import { useAppStore } from '../../store/useAppStore';
 import { FontSizeToggle } from '../../components/ui/FontSizeToggle';
+import { UsersIcon, PaddleIcon, TrophyIcon, GearIcon } from '../../components/icons';
 
-const tabs = [
-  { to: 'participants', label: '参加者', icon: '👥' },
-  { to: 'matrix', label: '対戦表', icon: '🏓' },
-  { to: 'ranking', label: '結果', icon: '🏆' },
-  { to: 'settings', label: '設定', icon: '⚙' },
+type Tab = {
+  to: string;
+  label: string;
+  Icon: ComponentType<SVGProps<SVGSVGElement>>;
+};
+
+const tabs: Tab[] = [
+  { to: 'participants', label: '参加者', Icon: UsersIcon },
+  { to: 'matrix', label: '対戦表', Icon: PaddleIcon },
+  { to: 'ranking', label: '結果', Icon: TrophyIcon },
+  { to: 'settings', label: '設定', Icon: GearIcon },
 ];
 
 export const TournamentLayout = () => {
@@ -60,18 +68,18 @@ export const TournamentLayout = () => {
         aria-label="メインタブ"
         className="fixed bottom-0 inset-x-0 z-50 bg-white border-t-4 border-line grid grid-cols-4"
       >
-        {tabs.map((t) => (
+        {tabs.map(({ to, label, Icon }) => (
           <NavLink
-            key={t.to}
-            to={t.to}
+            key={to}
+            to={to}
             className={({ isActive }) =>
               `flex flex-col items-center justify-center min-h-[72px] py-2 font-bold ${
                 isActive ? 'bg-primary text-white' : 'bg-white text-ink'
               }`
             }
           >
-            <span className="text-2xl" aria-hidden>{t.icon}</span>
-            <span className="text-base">{t.label}</span>
+            <Icon className="text-2xl" />
+            <span className="text-base">{label}</span>
           </NavLink>
         ))}
       </nav>
