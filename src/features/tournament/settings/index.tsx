@@ -41,7 +41,7 @@ export const SettingsTab = () => {
           試合結果をリセット
         </BigButton>
         <p className="text-sm text-sub">
-          参加者は残し、試合の記録だけを削除します。
+          大会・参加者は残し、試合の記録だけをリセットします。
         </p>
       </div>
 
