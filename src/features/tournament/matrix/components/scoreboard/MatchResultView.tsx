@@ -28,10 +28,9 @@ export const MatchResultView = ({
     <div className="flex-1 min-h-0 overflow-auto px-4 py-6 flex flex-col items-center justify-center">
       <div className="w-full max-w-6xl grid grid-cols-[1fr_auto_auto_auto_1fr] items-center gap-x-6 sm:gap-x-10 gap-y-4">
         <div
-          className={`text-right text-[clamp(2rem,5vw,5rem)] font-extrabold truncate ${
+          className={`text-right text-[clamp(2rem,5vw,5rem)] font-extrabold break-words ${
             matchWinner === 'L' ? 'text-green-500' : ''
           }`}
-          title={leftName}
         >
           {leftName}
         </div>
@@ -63,10 +62,9 @@ export const MatchResultView = ({
           {rightWins}
         </div>
         <div
-          className={`text-left text-[clamp(2rem,5vw,5rem)] font-extrabold truncate ${
+          className={`text-left text-[clamp(2rem,5vw,5rem)] font-extrabold break-words ${
             matchWinner === 'R' ? 'text-green-500' : ''
           }`}
-          title={rightName}
         >
           {rightName}
         </div>

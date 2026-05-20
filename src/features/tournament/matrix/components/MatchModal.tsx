@@ -2,12 +2,7 @@ import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { Match, Participant } from '../../../../store/types';
 import type { Game, Side } from '../../../../domain/match';
-import {
-  matchSummary,
-  isGameFinished,
-  gameWinner,
-  realGames,
-} from '../../../../domain/match';
+import { isGameFinished, gameWinner } from '../../../../domain/match';
 import { useAppStore } from '../../../../store/useAppStore';
 import { BigButton } from '../../../../components/ui/BigButton';
 import { ConfirmDialog } from '../../../../components/ui/ConfirmDialog';
@@ -40,8 +35,6 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
   }, [match, onClose]);
 
   if (!match) return null;
-
-  const summary = matchSummary(realGames(games));
 
   const computeLockedFromIndex = (src: Game[]): number => {
     let lw = 0;
@@ -79,13 +72,6 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
   const setFirstServer = (side: Side) => {
     updateMatch(match.id, { firstServer: side });
   };
-
-  const winnerLabel =
-    summary.winner === 'L'
-      ? `${sideLabel(match.leftSide, participants)} の勝ち`
-      : summary.winner === 'R'
-        ? `${sideLabel(match.rightSide, participants)} の勝ち`
-        : '';
 
   return createPortal(
     <div
@@ -201,12 +187,6 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
             );
           })}
         </ul>
-
-        {winnerLabel && (
-          <div className="text-2xl font-extrabold text-success text-center mb-4">
-            {winnerLabel}
-          </div>
-        )}
 
         <div className="flex flex-wrap gap-3 justify-end">
           <BigButton variant="danger" onClick={() => setConfirmDelete(true)}>試合結果を削除</BigButton>
