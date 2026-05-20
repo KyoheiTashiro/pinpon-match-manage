@@ -14,7 +14,8 @@ export default function App() {
         <Route index element={<Navigate to="participants" replace />} />
         <Route path="participants" element={<ParticipantsTab />} />
         <Route path="matrix" element={<MatchMatrixTab />} />
-        <Route path="ranking" element={<RankingTab />} />
+        {/* TODO: Resultとかに修正 */}
+        <Route path="ranking" element={<RankingTab />} /> 
         <Route path="settings" element={<SettingsTab />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

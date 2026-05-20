@@ -14,6 +14,7 @@ export type Tournament = {
 
 export type Participant = {
   id: string;
+  tournamentId: string;
   name: string;
   affiliation?: string;
 };
@@ -22,8 +23,6 @@ export type SingleSide = { kind: 'single'; participantId: string };
 export type PairSide = { kind: 'pair'; memberIds: [string, string] };
 export type MatchSide = SingleSide | PairSide;
 
-export type MatchStatus = 'scheduled' | 'in_progress' | 'finished';
-
 export type Match = {
   id: string;
   tournamentId: string;
@@ -31,8 +30,7 @@ export type Match = {
   rightSide: MatchSide;
   games: Game[];
   note?: string;
-  status: MatchStatus;
-  firstServer?: Side;
+  firstServer: Side;
 };
 
 export type FontSize = 'normal' | 'large' | 'xlarge';

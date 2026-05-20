@@ -42,11 +42,10 @@ HashRouter採用理由: GH Pagesは任意パスへのフォールバック設定
 - ダブルスでも個人登録 → 対戦時にペア指定
 
 ### 3.3 組合せ生成
-- 参加者確定後「総当たり生成」ボタン
-- シングルス: 全参加者ペア生成（n人 → nC2試合）
+- 参加者確定後 シングルスはマトリクス表セルから対戦追加、ダブルスは試合フォームから追加
+- シングルス: 同組合せは1試合のみ（重複追加時 既存試合を返す）
 - ダブルス: 対戦時に左右ペア（各2名）を選択。事前のペア固定なし
-  - 注: ダブルスは試合数が爆発するため、ユーザーが対戦を手動で追加する方式とする
-  - シングルスは自動全生成、ダブルスは手動追加（または「ペアテンプレート」を作成しテンプレ間総当たり）
+  - ダブルスは試合数が爆発するため ユーザー手動追加方式
 - 組合せはマトリクス表のセルとして表示
 
 ### 3.4 試合詳細入力
@@ -124,53 +123,54 @@ HashRouter採用理由: GH Pagesは任意パスへのフォールバック設定
 ## 5. データモデル
 
 ```ts
+type Side = 'L' | 'R';
+
 type Tournament = {
   id: string;            // uuid
   name: string;
   format: 'singles' | 'doubles';
+  date: string;          // 開催日 YYYY-MM-DD
   createdAt: string;     // ISO
   participantIds: string[];
-  pairIds?: string[];    // doubles時のテンプレペア
   matchIds: string[];
 };
 
 type Participant = {
   id: string;
+  tournamentId: string;  // 専属大会
   name: string;
   affiliation?: string;
 };
 
-type Pair = {           // doubles テンプレペア
-  id: string;
-  name: string;         // 表示名 任意
-  memberIds: [string, string];
-};
-
 type Game = {
-  leftScore: number;
+  leftScore: number;     // 0 を未入力センチネルとして扱う（永続化時は trim）
   rightScore: number;
 };
 
 type Match = {
   id: string;
   tournamentId: string;
-  // singles: participantId / doubles: pairId or memberIds[2]
   leftSide: { kind: 'single'; participantId: string }
           | { kind: 'pair'; memberIds: [string, string] };
   rightSide: same as leftSide;
-  games: Game[];        // 最大5
+  games: Game[];         // 永続化は実プレイ分のみ・最大5
   note?: string;
-  status: 'scheduled' | 'in_progress' | 'finished';
+  firstServer: Side;     // 試合初手サーブ
 };
+
+type FontSize = 'normal' | 'large' | 'xlarge';
 
 type AppState = {
   tournaments: Record<string, Tournament>;
   participants: Record<string, Participant>;
-  pairs: Record<string, Pair>;
   matches: Record<string, Match>;
   currentTournamentId: string | null;
+  fontSize: FontSize;
 };
 ```
+
+- 試合進行状態は `matchSummary(games)` から派生（永続化しない）
+- ダブルスのペアはエンティティ化せず `memberIds[2]` のみ。同ペアの再結成は識別不可
 
 LocalStorageキー: `pinpon-match-manage:v1`。スキーマ変更時は `:v2` 等にバンプし旧キーから移行関数で吸収。
 
@@ -434,7 +434,7 @@ pointsFor, pointsAgainst → pointDiff = for - against
 ```
 ソート: `[-wins, -gameDiff, -pointDiff, name]`
 
-ダブルスでテンプレペア運用時はペア単位で集計。手動ダブルス（ペア未テンプレ）の順位は個人単位で集計（メンバー2人それぞれに勝敗加算）。
+ダブルスはメンバー個人単位で集計（メンバー2人それぞれに勝敗加算）。
 
 ## 9. ディレクトリ構成
 
@@ -455,7 +455,7 @@ src/
 │   ├── FontSizeToggle.tsx      // 大/特大切替
 │   └── InstallAppButton.tsx
 ├── features/tournament/matrix/components/
-│   ├── MatchModal.tsx          // 右上=青保存ボタン (×なし)・点数加減UIなし
+│   ├── MatchModal.tsx          // 試合詳細・点数加減UIはScoreboardへ
 │   ├── PairSelect.tsx          // ダブルス用ペア選択
 │   └── ScoreboardScreen.tsx    // 横向き専用・青背景・上下半分タップで±
 ├── store/

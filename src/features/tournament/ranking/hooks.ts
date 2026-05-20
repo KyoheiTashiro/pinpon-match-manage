@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useAppStore } from '../../../store/useAppStore';
 import { computeRanking } from '../../../domain/ranking';
-import { matchSummary } from '../../../domain/match';
+import { matchSummary, realGames } from '../../../domain/match';
 import type { Game } from '../../../domain/match';
 import type { Match, MatchSide, Participant } from '../../../store/types';
 
@@ -24,7 +24,7 @@ const buildMatchResult = (
   m: Match,
   participants: Record<string, Participant>,
 ): MatchResultRow => {
-  const games = m.games.filter((g) => g.leftScore !== 0 || g.rightScore !== 0);
+  const games = realGames(m.games);
   const s = matchSummary(games);
   return {
     id: m.id,
@@ -58,7 +58,7 @@ export const useRankingRows = (tournamentId: string) => {
     return tournament.matchIds
       .map((id) => matches[id])
       .filter(Boolean)
-      .filter((m) => m.games.some((g) => g.leftScore !== 0 || g.rightScore !== 0))
+      .filter((m) => realGames(m.games).length > 0)
       .map((m) => buildMatchResult(m, participants));
   }, [tournament, matches, participants]);
 

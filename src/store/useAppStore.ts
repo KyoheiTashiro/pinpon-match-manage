@@ -10,7 +10,6 @@ import type {
   Tournament,
 } from './types';
 import { uid } from '../lib/id';
-import { matchSummary } from '../domain/match';
 
 type Actions = {
   setFontSize: (s: FontSize) => void;
@@ -25,7 +24,11 @@ type Actions = {
   updateParticipant: (id: string, patch: Partial<Participant>) => void;
   removeParticipant: (tournamentId: string, id: string) => void;
 
-  addManualMatch: (tournamentId: string, left: MatchSide, right: MatchSide) => string;
+  addManualMatch: (
+    tournamentId: string,
+    left: MatchSide,
+    right: MatchSide,
+  ) => string;
   updateMatch: (id: string, patch: Partial<Match>) => void;
   deleteMatch: (id: string) => void;
 };
@@ -72,12 +75,7 @@ export const useAppStore = create<AppState & Actions>()(
           const matches = { ...st.matches };
           for (const mid of t.matchIds) delete matches[mid];
           const participants = { ...st.participants };
-          for (const pid of t.participantIds) {
-            const stillUsed = Object.values(tournaments).some((other) =>
-              other.participantIds.includes(pid),
-            );
-            if (!stillUsed) delete participants[pid];
-          }
+          for (const pid of t.participantIds) delete participants[pid];
           return {
             tournaments,
             matches,
@@ -110,7 +108,7 @@ export const useAppStore = create<AppState & Actions>()(
 
       addParticipant: (tournamentId, name, affiliation) => {
         const id = uid();
-        const p: Participant = { id, name: name.trim(), affiliation };
+        const p: Participant = { id, tournamentId, name: name.trim(), affiliation };
         set((st) => {
           const t = st.tournaments[tournamentId];
           if (!t) return st;
@@ -176,6 +174,21 @@ export const useAppStore = create<AppState & Actions>()(
         }),
 
       addManualMatch: (tournamentId, left, right) => {
+        if (left.kind === 'single' && right.kind === 'single') {
+          const t = get().tournaments[tournamentId];
+          if (t) {
+            const a = left.participantId;
+            const b = right.participantId;
+            for (const mid of t.matchIds) {
+              const m = get().matches[mid];
+              if (!m) continue;
+              if (m.leftSide.kind !== 'single' || m.rightSide.kind !== 'single') continue;
+              const x = m.leftSide.participantId;
+              const y = m.rightSide.participantId;
+              if ((x === a && y === b) || (x === b && y === a)) return mid;
+            }
+          }
+        }
         const id = uid();
         const m: Match = {
           id,
@@ -183,7 +196,7 @@ export const useAppStore = create<AppState & Actions>()(
           leftSide: left,
           rightSide: right,
           games: [],
-          status: 'scheduled',
+          firstServer: 'L',
         };
         set((st) => {
           const t = st.tournaments[tournamentId];
@@ -203,10 +216,7 @@ export const useAppStore = create<AppState & Actions>()(
         set((st) => {
           const cur = st.matches[id];
           if (!cur) return st;
-          const next = { ...cur, ...patch };
-          const sm = matchSummary(next.games);
-          next.status = sm.finished ? 'finished' : next.games.length > 0 ? 'in_progress' : 'scheduled';
-          return { matches: { ...st.matches, [id]: next } };
+          return { matches: { ...st.matches, [id]: { ...cur, ...patch } } };
         }),
 
       deleteMatch: (id) =>

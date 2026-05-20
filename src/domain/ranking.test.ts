@@ -13,7 +13,7 @@ const make = (
   leftSide: { kind: 'single', participantId: l },
   rightSide: { kind: 'single', participantId: r },
   games,
-  status: 'finished',
+  firstServer: 'L',
 });
 
 describe('computeRanking', () => {

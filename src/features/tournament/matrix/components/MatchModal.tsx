@@ -2,7 +2,12 @@ import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { Match, Participant } from '../../../../store/types';
 import type { Game, Side } from '../../../../domain/match';
-import { matchSummary, isGameFinished, gameWinner } from '../../../../domain/match';
+import {
+  matchSummary,
+  isGameFinished,
+  gameWinner,
+  realGames,
+} from '../../../../domain/match';
 import { useAppStore } from '../../../../store/useAppStore';
 import { BigButton } from '../../../../components/ui/BigButton';
 import { ConfirmDialog } from '../../../../components/ui/ConfirmDialog';
@@ -34,15 +39,9 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
     if (!match) onClose();
   }, [match, onClose]);
 
-  useEffect(() => {
-    if (match && !match.firstServer) {
-      updateMatch(match.id, { firstServer: 'L' });
-    }
-  }, [match, updateMatch]);
-
   if (!match) return null;
 
-  const summary = matchSummary(games.filter((g) => g.leftScore !== 0 || g.rightScore !== 0));
+  const summary = matchSummary(realGames(games));
 
   const computeLockedFromIndex = (src: Game[]): number => {
     let lw = 0;

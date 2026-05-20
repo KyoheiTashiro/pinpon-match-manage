@@ -2,6 +2,12 @@ export type Game = { leftScore: number; rightScore: number };
 
 export type Side = 'L' | 'R';
 
+export const isGameEmpty = (g: Game): boolean =>
+  g.leftScore === 0 && g.rightScore === 0;
+
+export const realGames = (games: Game[]): Game[] =>
+  games.filter((g) => !isGameEmpty(g));
+
 export const isGameFinished = (g: Game): boolean => {
   const { leftScore: l, rightScore: r } = g;
   return Math.max(l, r) >= 11 && Math.abs(l - r) >= 2;
