@@ -1,16 +1,16 @@
 import { useParams } from 'react-router-dom';
 import { BigButton } from '../../../components/ui/BigButton';
 import { useImageCapture } from '../../../lib/useImageCapture';
-import { useRankingRows } from './hooks';
+import { useResultRows } from './hooks';
 
-export const RankingTab = () => {
+export const ResultTab = () => {
   const { tournamentId } = useParams<{ tournamentId: string }>();
   if (!tournamentId) return null;
   return <RankingView tournamentId={tournamentId} />;
 };
 
 const RankingView = ({ tournamentId }: { tournamentId: string }) => {
-  const { rows, matchResults, tournament } = useRankingRows(tournamentId);
+  const { rows, matchResults, tournament } = useResultRows(tournamentId);
   const { ref, saving, save } = useImageCapture('結果', tournament?.name);
 
   if (!tournament) return null;

@@ -42,7 +42,7 @@ const buildMatchResult = (
   };
 };
 
-export const useRankingRows = (tournamentId: string) => {
+export const useResultRows = (tournamentId: string) => {
   const tournament = useAppStore((s) => s.tournaments[tournamentId]);
   const matches = useAppStore((s) => s.matches);
   const participants = useAppStore((s) => s.participants);

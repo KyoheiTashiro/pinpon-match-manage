@@ -3,7 +3,7 @@ import { Home } from './features/home';
 import { TournamentLayout } from './features/tournament/layout';
 import { ParticipantsTab } from './features/tournament/participants';
 import { MatchMatrixTab } from './features/tournament/matrix';
-import { RankingTab } from './features/tournament/ranking';
+import { ResultTab } from './features/tournament/ranking';
 import { SettingsTab } from './features/tournament/settings';
 
 export default function App() {
@@ -14,8 +14,7 @@ export default function App() {
         <Route index element={<Navigate to="participants" replace />} />
         <Route path="participants" element={<ParticipantsTab />} />
         <Route path="matrix" element={<MatchMatrixTab />} />
-        {/* TODO: Resultとかに修正 */}
-        <Route path="ranking" element={<RankingTab />} /> 
+        <Route path="result" element={<ResultTab />} /> 
         <Route path="settings" element={<SettingsTab />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
