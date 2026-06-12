@@ -31,15 +31,24 @@ export const ConfirmDialog = ({
   if (!open) return null;
   return (
     <div
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="confirm-title"
+      role="button"
+      tabIndex={-1}
+      aria-label="閉じる"
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
       onClick={onCancel}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === 'Escape') onCancel();
+      }}
     >
+      {/* oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- role="dialog" はランドマークだがstopPropagationが必要 */}
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="confirm-title"
+        tabIndex={-1}
         className="bg-white text-ink rounded-2xl p-6 max-w-md w-full border-4 border-line"
         onClick={(e) => e.stopPropagation()}
+        onKeyDown={(e) => e.stopPropagation()}
       >
         <h2 id="confirm-title" className="text-xl font-extrabold mb-4">
           {title}

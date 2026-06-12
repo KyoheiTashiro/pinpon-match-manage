@@ -83,15 +83,24 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
 
   return createPortal(
     <div
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="match-title"
+      role="button"
+      tabIndex={-1}
+      aria-label="閉じる"
       className="fixed inset-0 z-40 flex items-start justify-center bg-black/50 p-2 sm:p-4 pb-28 sm:pb-28 overflow-y-auto"
       onClick={onClose}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === 'Escape') onClose();
+      }}
     >
+      {/* oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- role="dialog" はランドマークだがstopPropagationが必要 */}
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="match-title"
+        tabIndex={-1}
         className="bg-white rounded-2xl p-4 sm:p-6 w-full max-w-2xl border-4 border-line my-4"
         onClick={(e) => e.stopPropagation()}
+        onKeyDown={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-3 mb-4">
           <h2 id="match-title" className="text-xl font-extrabold">試合の入力</h2>
@@ -125,6 +134,7 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
                 value="L"
                 checked={firstServer === 'L'}
                 onChange={() => setFirstServer('L')}
+                aria-label={`最初のサーブ: ${sideLabel(match.leftSide, participants)}`}
                 className="w-5 h-5 accent-orange-500"
               />
               <span className="font-bold">{sideLabel(match.leftSide, participants)}</span>
@@ -140,6 +150,7 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
                 value="R"
                 checked={firstServer === 'R'}
                 onChange={() => setFirstServer('R')}
+                aria-label={`最初のサーブ: ${sideLabel(match.rightSide, participants)}`}
                 className="w-5 h-5 accent-orange-500"
               />
               <span className="font-bold">{sideLabel(match.rightSide, participants)}</span>

@@ -40,7 +40,7 @@ export const SinglesMatrix = ({ tournamentId }: { tournamentId: string }) => {
           <table className="matrix border-collapse w-full">
             <thead>
               <tr>
-                <th className="sticky left-0 bg-white z-10 border-2 border-line p-2 min-w-cell"></th>
+                <th className="sticky left-0 bg-white z-10 border-2 border-line p-2 min-w-cell" aria-label="対戦表の行列ヘッダー"></th>
                 {ps.map((p) => (
                   <th
                     key={p.id}

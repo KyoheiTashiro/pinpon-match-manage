@@ -1,0 +1,67 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": [
+    "typescript",
+    "unicorn",
+    "oxc",
+    "react",
+    "react-perf",
+    "jsx-a11y",
+    "import"
+  ],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn",
+    "perf": "warn"
+  },
+  "env": {
+    "browser": true,
+    "es2024": true
+  },
+  "settings": {
+    "react": {
+      "version": "18.3"
+    }
+  },
+  "rules": {
+    "react/react-in-jsx-scope": "off",
+    "import/no-cycle": "error",
+    "import/no-self-import": "error"
+  },
+  "ignorePatterns": [
+    "dist",
+    "dev-dist",
+    "node_modules",
+    "**/*.config.{ts,js}"
+  ],
+  "overrides": [
+    {
+      "files": [
+        "**/*.test.{ts,tsx}",
+        "**/*.spec.{ts,tsx}"
+      ],
+      "plugins": ["vitest"],
+      "rules": {
+        "vitest/no-disabled-tests": "warn",
+        "vitest/no-focused-tests": "error"
+      }
+    },
+    {
+      // prefer-tag-over-role を off にするファイル群:
+      // - モーダルコンテナに role="dialog" を使っているが、<dialog> ネイティブ要素への移行は
+      //   showModal() 制御が必要で挙動が変わるため行わない。
+      // - FontSizeToggle の role="radio" ボタンも、ネイティブ <input type="radio"> 化は
+      //   カスタムスタイルが壊れるため行わない。
+      "files": [
+        "src/components/ui/ConfirmDialog.tsx",
+        "src/components/ui/FontSizeToggle.tsx",
+        "src/components/ui/InstallAppButton.tsx",
+        "src/features/tournament/matrix/components/MatchModal.tsx",
+        "src/features/tournament/matrix/components/ScoreboardScreen.tsx"
+      ],
+      "rules": {
+        "jsx-a11y/prefer-tag-over-role": "off"
+      }
+    }
+  ]
+}

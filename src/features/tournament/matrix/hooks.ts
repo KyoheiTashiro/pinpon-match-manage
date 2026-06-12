@@ -16,8 +16,10 @@ export const useMatrix = (tournamentId: string) => {
   const participants = useAppStore((s) => s.participants);
   const matches = useAppStore((s) => s.matches);
 
-  const list =
-    tournament?.matchIds.map((id) => matches[id]).filter(Boolean) ?? [];
+  const list = useMemo(
+    () => tournament?.matchIds.map((id) => matches[id]).filter(Boolean) ?? [],
+    [tournament?.matchIds, matches],
+  );
   const ps =
     tournament?.participantIds
       .map((id) => participants[id])

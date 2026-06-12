@@ -40,6 +40,7 @@ export const Home = () => {
                 value={form.name}
                 onChange={(e) => form.setName(e.target.value)}
                 placeholder="例: 春の大会"
+                aria-label="大会名"
                 className="min-h-input border-2 border-line rounded-xl px-3 text-lg"
               />
             </label>
@@ -60,6 +61,7 @@ export const Home = () => {
                       name="format"
                       checked={form.format === f}
                       onChange={() => form.setFormat(f)}
+                      aria-label={f === 'singles' ? 'シングルス' : 'ダブルス'}
                       className="w-5 h-5"
                     />
                     <span className="text-lg font-bold">
@@ -86,6 +88,7 @@ export const Home = () => {
                       name="bestOf"
                       checked={form.bestOf === n}
                       onChange={() => form.setBestOf(n)}
+                      aria-label={`${n}ゲーム制`}
                       className="w-5 h-5"
                     />
                     <span className="text-lg font-bold">{n}ゲーム制</span>
@@ -99,6 +102,7 @@ export const Home = () => {
                 type="date"
                 value={form.date}
                 onChange={(e) => form.setDate(e.target.value)}
+                aria-label="開催日"
                 className="min-h-input border-2 border-line rounded-xl px-3 text-lg"
               />
             </label>

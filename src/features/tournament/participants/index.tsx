@@ -33,6 +33,7 @@ const ParticipantsView = ({ tournamentId }: { tournamentId: string }) => {
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="名前"
+          aria-label="参加者名"
           onKeyDown={(e) => {
             if (e.key === 'Enter') e.preventDefault();
           }}
@@ -53,6 +54,7 @@ const ParticipantsView = ({ tournamentId }: { tournamentId: string }) => {
                   <input
                     value={editName}
                     onChange={(e) => setEditName(e.target.value)}
+                    aria-label="参加者名を編集"
                     className="flex-1 min-w-[160px] min-h-input border-2 border-line rounded-xl px-3 text-lg"
                   />
                   <BigButton

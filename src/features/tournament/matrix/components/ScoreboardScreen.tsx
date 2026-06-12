@@ -70,9 +70,11 @@ export const ScoreboardScreen = ({
   };
 
   return createPortal(
+    // oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- role="dialog" はランドマークだがstopPropagationが必要
     <div
       role="dialog"
       aria-modal="true"
+      tabIndex={-1}
       className="fixed inset-0 z-[60] bg-blue-800 text-white flex flex-col select-none overflow-x-hidden"
       style={{
         touchAction: 'none',
@@ -82,6 +84,7 @@ export const ScoreboardScreen = ({
         paddingRight: 'env(safe-area-inset-right)',
       }}
       onClick={(e) => e.stopPropagation()}
+      onKeyDown={(e) => e.stopPropagation()}
     >
       <ScoreboardHeader
         games={games}

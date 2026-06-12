@@ -64,15 +64,24 @@ export const InstallAppButton = () => {
 
       {showIOSGuide && (
         <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="install-guide-title"
+          role="button"
+          tabIndex={-1}
+          aria-label="閉じる"
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
           onClick={() => setShowIOSGuide(false)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === 'Escape') setShowIOSGuide(false);
+          }}
         >
+          {/* oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- role="dialog" はランドマークだがstopPropagationが必要 */}
           <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="install-guide-title"
+            tabIndex={-1}
             className="bg-white rounded-2xl p-6 max-w-md w-full border-4 border-line"
             onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => e.stopPropagation()}
           >
             <h2 id="install-guide-title" className="text-xl font-extrabold mb-4">
               ホーム画面に追加
