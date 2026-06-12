@@ -2,8 +2,16 @@ import { useState } from 'react';
 import { useAppStore } from '../../store/useAppStore';
 import type { BestOf, Format } from '../../store/types';
 
-export const useCreateTournamentForm = (onCreated: (id: string) => void) => {
+export const useHome = (onCreated: (id: string) => void) => {
+  const tournaments = useAppStore((s) => s.tournaments);
   const createTournament = useAppStore((s) => s.createTournament);
+
+  const list = Object.values(tournaments).sort(
+    (a, b) =>
+      (b.date ?? '').localeCompare(a.date ?? '') ||
+      b.createdAt.localeCompare(a.createdAt),
+  );
+
   const [creating, setCreating] = useState(false);
   const [name, setName] = useState('');
   const [format, setFormat] = useState<Format>('singles');
@@ -17,25 +25,19 @@ export const useCreateTournamentForm = (onCreated: (id: string) => void) => {
   };
 
   return {
-    creating,
-    setCreating,
-    name,
-    setName,
-    format,
-    setFormat,
-    bestOf,
-    setBestOf,
-    date,
-    setDate,
-    submit,
+    list,
+    form: {
+      creating,
+      setCreating,
+      name,
+      setName,
+      format,
+      setFormat,
+      bestOf,
+      setBestOf,
+      date,
+      setDate,
+      submit,
+    },
   };
-};
-
-export const useSortedTournaments = () => {
-  const tournaments = useAppStore((s) => s.tournaments);
-  return Object.values(tournaments).sort(
-    (a, b) =>
-      (b.date ?? '').localeCompare(a.date ?? '') ||
-      b.createdAt.localeCompare(a.createdAt),
-  );
 };

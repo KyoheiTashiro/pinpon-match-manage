@@ -4,15 +4,11 @@ import { BigButton } from '../../../components/ui/BigButton';
 import { useImageCapture } from '../../../lib/useImageCapture';
 import { matchSummary, winsNeededForBestOf } from '../../../domain/match';
 import { MatchModal } from './components/MatchModal';
-import {
-  involvesSingle,
-  useMatrixData,
-  useSinglesCellMap,
-} from './hooks';
+import { involvesSingle, useMatrix } from './hooks';
 
 export const SinglesMatrix = ({ tournamentId }: { tournamentId: string }) => {
-  const { tournament, participants, list, ps } = useMatrixData(tournamentId);
-  const singlesCellMatch = useSinglesCellMap(list);
+  const { tournament, participants, ps, singlesCellMatch } =
+    useMatrix(tournamentId);
 
   const { ref, saving, save } = useImageCapture('対戦表', tournament?.name);
   const [openMatchId, setOpenMatchId] = useState<string | null>(null);

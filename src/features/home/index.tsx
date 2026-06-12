@@ -7,17 +7,13 @@ import { FontSizeToggle } from '../../components/ui/FontSizeToggle';
 import { InstallAppButton } from '../../components/ui/InstallAppButton';
 import { formatDate } from '../../lib/time';
 import type { BestOf, Format } from '../../store/types';
-import {
-  useCreateTournamentForm,
-  useSortedTournaments,
-} from './hooks';
+import { useHome } from './hooks';
 
 export const Home = () => {
   const navigate = useNavigate();
   const resetAll = useAppStore((s) => s.resetAll);
 
-  const list = useSortedTournaments();
-  const form = useCreateTournamentForm((id) =>
+  const { list, form } = useHome((id) =>
     navigate(`/t/${id}/participants`),
   );
 

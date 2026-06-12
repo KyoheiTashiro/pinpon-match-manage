@@ -9,7 +9,9 @@ export const involvesSingle = (m: Match, id: string) =>
   (m.leftSide.kind === 'single' && m.leftSide.participantId === id) ||
   (m.rightSide.kind === 'single' && m.rightSide.participantId === id);
 
-export const useMatrixData = (tournamentId: string) => {
+const emptyDoublesForm = { l1: '', l2: '', r1: '', r2: '' };
+
+export const useMatrix = (tournamentId: string) => {
   const tournament = useAppStore((s) => s.tournaments[tournamentId]);
   const participants = useAppStore((s) => s.participants);
   const matches = useAppStore((s) => s.matches);
@@ -21,11 +23,7 @@ export const useMatrixData = (tournamentId: string) => {
       .map((id) => participants[id])
       .filter(Boolean) ?? [];
 
-  return { tournament, participants, list, ps };
-};
-
-export const useSinglesCellMap = (list: Match[]) =>
-  useMemo(() => {
+  const singlesCellMatch = useMemo(() => {
     const map = new Map<string, Match>();
     for (const m of list) {
       if (m.leftSide.kind !== 'single' || m.rightSide.kind !== 'single') continue;
@@ -37,9 +35,6 @@ export const useSinglesCellMap = (list: Match[]) =>
     return map;
   }, [list]);
 
-const emptyDoublesForm = { l1: '', l2: '', r1: '', r2: '' };
-
-export const useDoublesForm = () => {
   const [form, setForm] = useState(emptyDoublesForm);
   const canAdd =
     !!form.l1 &&
@@ -47,7 +42,13 @@ export const useDoublesForm = () => {
     !!form.r1 &&
     !!form.r2 &&
     new Set(Object.values(form)).size === 4;
+
   return {
+    tournament,
+    participants,
+    list,
+    ps,
+    singlesCellMatch,
     form,
     setForm,
     canAdd,

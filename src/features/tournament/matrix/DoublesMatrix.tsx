@@ -5,13 +5,13 @@ import { useImageCapture } from '../../../lib/useImageCapture';
 import { matchSummary, winsNeededForBestOf } from '../../../domain/match';
 import { MatchModal } from './components/MatchModal';
 import { PairSelect } from './components/PairSelect';
-import { sideMembers, useDoublesForm, useMatrixData } from './hooks';
+import { sideMembers, useMatrix } from './hooks';
 
 export const DoublesMatrix = ({ tournamentId }: { tournamentId: string }) => {
-  const { tournament, participants, list, ps } = useMatrixData(tournamentId);
+  const { tournament, participants, list, ps, form, setForm, canAdd, reset } =
+    useMatrix(tournamentId);
   const addManualMatch = useAppStore((s) => s.addManualMatch);
   const { ref, saving, save } = useImageCapture('対戦表', tournament?.name);
-  const { form, setForm, canAdd, reset } = useDoublesForm();
   const [openMatchId, setOpenMatchId] = useState<string | null>(null);
 
   if (!tournament) return null;
