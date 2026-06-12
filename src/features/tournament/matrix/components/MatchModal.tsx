@@ -2,7 +2,11 @@ import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { Match, Participant } from '../../../../store/types';
 import type { Game, Side } from '../../../../domain/match';
-import { isGameFinished, gameWinner } from '../../../../domain/match';
+import {
+  isGameFinished,
+  gameWinner,
+  winsNeededForBestOf,
+} from '../../../../domain/match';
 import { useAppStore } from '../../../../store/useAppStore';
 import { BigButton } from '../../../../components/ui/BigButton';
 import { ConfirmDialog } from '../../../../components/ui/ConfirmDialog';
@@ -23,8 +27,12 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
   const match = useAppStore((s) => s.matches[matchId]);
   const updateMatch = useAppStore((s) => s.updateMatch);
   const deleteMatch = useAppStore((s) => s.deleteMatch);
+  const bestOf = useAppStore((s) =>
+    match ? (s.tournaments[match.tournamentId]?.bestOf ?? 5) : 5,
+  );
+  const wins = winsNeededForBestOf(bestOf);
   const [games, setGames] = useState<Game[]>(() =>
-    padGames(match?.games ?? []),
+    padGames(match?.games ?? [], bestOf),
   );
   const firstServer: Side | undefined = match?.firstServer;
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -45,9 +53,9 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
       if (!isGameFinished(g)) continue;
       if (g.leftScore > g.rightScore) lw++;
       else rw++;
-      if (lw === 3 || rw === 3) return i + 1;
+      if (lw === wins || rw === wins) return i + 1;
     }
-    return 5;
+    return bestOf;
   };
 
   const lockedFromIndex = computeLockedFromIndex(games);
@@ -200,11 +208,12 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
           games={games}
           setGames={persistGames}
           lockedFromIndex={lockedFromIndex}
+          winsNeeded={wins}
           matchFirstServer={firstServer}
           initialGameIndex={Math.max(
             0,
             Math.min(
-              4,
+              bestOf - 1,
               (() => {
                 for (let i = 0; i < games.length; i++) {
                   if (i >= lockedFromIndex) break;
@@ -239,8 +248,8 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
   );
 };
 
-const padGames = (games: Game[]): Game[] => {
+const padGames = (games: Game[], totalGames: number): Game[] => {
   const out: Game[] = [...games];
-  while (out.length < 5) out.push({ leftScore: 0, rightScore: 0 });
-  return out.slice(0, 5);
+  while (out.length < totalGames) out.push({ leftScore: 0, rightScore: 0 });
+  return out.slice(0, totalGames);
 };

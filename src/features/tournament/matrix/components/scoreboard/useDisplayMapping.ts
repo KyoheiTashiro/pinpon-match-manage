@@ -13,6 +13,7 @@ type Params = {
   games: Game[];
   idx: number;
   swapped: boolean;
+  winsNeeded: number;
   matchFirstServer?: Side;
 };
 
@@ -29,10 +30,11 @@ export const useDisplayMapping = ({
   games,
   idx,
   swapped,
+  winsNeeded,
   matchFirstServer,
 }: Params) => {
   const current = games[idx];
-  const sm = matchSummary(games);
+  const sm = matchSummary(games, winsNeeded);
   const rawWinner = current ? gameWinner(current) : null;
   const rawMatchWinner = sm.winner;
 

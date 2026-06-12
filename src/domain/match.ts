@@ -29,7 +29,11 @@ export const currentServer = (g: Game, firstServerOfGame: Side): Side => {
   return switches % 2 === 0 ? firstServerOfGame : opposite(firstServerOfGame);
 };
 
-export const matchSummary = (games: Game[]) => {
+/** ゲーム数(3/5/7)から先取ゲーム数を求める。 */
+export const winsNeededForBestOf = (bestOf: number): number =>
+  Math.floor(bestOf / 2) + 1;
+
+export const matchSummary = (games: Game[], winsNeeded = 3) => {
   let leftWins = 0;
   let rightWins = 0;
   let leftPoints = 0;
@@ -41,7 +45,8 @@ export const matchSummary = (games: Game[]) => {
     if (w === 'L') leftWins++;
     else if (w === 'R') rightWins++;
   }
-  const finished = leftWins === 3 || rightWins === 3;
-  const winner: Side | null = leftWins === 3 ? 'L' : rightWins === 3 ? 'R' : null;
+  const finished = leftWins >= winsNeeded || rightWins >= winsNeeded;
+  const winner: Side | null =
+    leftWins >= winsNeeded ? 'L' : rightWins >= winsNeeded ? 'R' : null;
   return { leftWins, rightWins, leftPoints, rightPoints, finished, winner };
 };

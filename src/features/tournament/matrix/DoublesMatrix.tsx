@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useAppStore } from '../../../store/useAppStore';
 import { BigButton } from '../../../components/ui/BigButton';
 import { useImageCapture } from '../../../lib/useImageCapture';
-import { matchSummary } from '../../../domain/match';
+import { matchSummary, winsNeededForBestOf } from '../../../domain/match';
 import { MatchModal } from './components/MatchModal';
 import { PairSelect } from './components/PairSelect';
 import { sideMembers, useDoublesForm, useMatrixData } from './hooks';
@@ -15,6 +15,8 @@ export const DoublesMatrix = ({ tournamentId }: { tournamentId: string }) => {
   const [openMatchId, setOpenMatchId] = useState<string | null>(null);
 
   if (!tournament) return null;
+
+  const wins = winsNeededForBestOf(tournament.bestOf);
 
   return (
     <div className="space-y-4">
@@ -88,7 +90,7 @@ export const DoublesMatrix = ({ tournamentId }: { tournamentId: string }) => {
           <li className="p-4 text-sub text-base">まだ試合がありません。</li>
         ) : (
           list.map((m) => {
-            const sm = matchSummary(m.games);
+            const sm = matchSummary(m.games, wins);
             const lname = sideMembers(m.leftSide).map((id) => participants[id]?.name ?? '?').join(' / ');
             const rname = sideMembers(m.rightSide).map((id) => participants[id]?.name ?? '?').join(' / ');
             return (

@@ -6,7 +6,7 @@ import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { FontSizeToggle } from '../../components/ui/FontSizeToggle';
 import { InstallAppButton } from '../../components/ui/InstallAppButton';
 import { formatDate } from '../../lib/time';
-import type { Format } from '../../store/types';
+import type { BestOf, Format } from '../../store/types';
 import {
   useCreateTournamentForm,
   useSortedTournaments,
@@ -69,6 +69,30 @@ export const Home = () => {
                     <span className="text-lg font-bold">
                       {f === 'singles' ? 'シングルス' : 'ダブルス'}
                     </span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+            <fieldset className="flex flex-col gap-2">
+              <legend className="font-bold mb-1">ゲーム数</legend>
+              <div className="flex gap-3 flex-wrap">
+                {([3, 5, 7] as BestOf[]).map((n) => (
+                  <label
+                    key={n}
+                    className={`flex items-center gap-2 px-4 min-h-btn rounded-xl border-2 cursor-pointer ${
+                      form.bestOf === n
+                        ? 'bg-primary text-white border-primary'
+                        : 'bg-white text-ink border-line'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="bestOf"
+                      checked={form.bestOf === n}
+                      onChange={() => form.setBestOf(n)}
+                      className="w-5 h-5"
+                    />
+                    <span className="text-lg font-bold">{n}ゲーム制</span>
                   </label>
                 ))}
               </div>

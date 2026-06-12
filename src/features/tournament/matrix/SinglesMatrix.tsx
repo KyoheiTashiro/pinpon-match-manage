@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useAppStore } from '../../../store/useAppStore';
 import { BigButton } from '../../../components/ui/BigButton';
 import { useImageCapture } from '../../../lib/useImageCapture';
-import { matchSummary } from '../../../domain/match';
+import { matchSummary, winsNeededForBestOf } from '../../../domain/match';
 import { MatchModal } from './components/MatchModal';
 import {
   involvesSingle,
@@ -18,6 +18,8 @@ export const SinglesMatrix = ({ tournamentId }: { tournamentId: string }) => {
   const [openMatchId, setOpenMatchId] = useState<string | null>(null);
 
   if (!tournament) return null;
+
+  const wins = winsNeededForBestOf(tournament.bestOf);
 
   return (
     <div className="space-y-4">
@@ -100,7 +102,7 @@ export const SinglesMatrix = ({ tournamentId }: { tournamentId: string }) => {
                         </td>
                       );
                     }
-                    const sm = matchSummary(m.games);
+                    const sm = matchSummary(m.games, wins);
                     const rowIsLeft = involvesSingle(m, row.id) && m.leftSide.kind === 'single' && m.leftSide.participantId === row.id;
                     const rowWins = rowIsLeft ? sm.leftWins : sm.rightWins;
                     const colWins = rowIsLeft ? sm.rightWins : sm.leftWins;

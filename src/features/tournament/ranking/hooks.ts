@@ -1,7 +1,11 @@
 import { useMemo } from 'react';
 import { useAppStore } from '../../../store/useAppStore';
 import { computeRanking } from '../../../domain/ranking';
-import { matchSummary, realGames } from '../../../domain/match';
+import {
+  matchSummary,
+  realGames,
+  winsNeededForBestOf,
+} from '../../../domain/match';
 import type { Game } from '../../../domain/match';
 import type { Match, MatchSide, Participant } from '../../../store/types';
 
@@ -23,9 +27,10 @@ export type MatchResultRow = {
 const buildMatchResult = (
   m: Match,
   participants: Record<string, Participant>,
+  winsNeeded: number,
 ): MatchResultRow => {
   const games = realGames(m.games);
-  const s = matchSummary(games);
+  const s = matchSummary(games, winsNeeded);
   return {
     id: m.id,
     leftName: sideLabel(m.leftSide, participants),
@@ -50,7 +55,7 @@ export const useRankingRows = (tournamentId: string) => {
       if (p) names[id] = p.name;
     }
     const ms = tournament.matchIds.map((id) => matches[id]).filter(Boolean);
-    return computeRanking(ms, names);
+    return computeRanking(ms, names, winsNeededForBestOf(tournament.bestOf));
   }, [tournament, matches, participants]);
 
   const matchResults = useMemo<MatchResultRow[]>(() => {
@@ -59,7 +64,9 @@ export const useRankingRows = (tournamentId: string) => {
       .map((id) => matches[id])
       .filter(Boolean)
       .filter((m) => realGames(m.games).length > 0)
-      .map((m) => buildMatchResult(m, participants));
+      .map((m) =>
+        buildMatchResult(m, participants, winsNeededForBestOf(tournament.bestOf)),
+      );
   }, [tournament, matches, participants]);
 
   return { rows, matchResults, tournament };

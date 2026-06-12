@@ -14,6 +14,7 @@ type Props = {
   setGames: (games: Game[]) => void;
   lockedFromIndex: number;
   initialGameIndex: number;
+  winsNeeded: number;
   matchFirstServer?: Side;
   onBack: () => void;
   onCloseAll?: () => void;
@@ -26,6 +27,7 @@ export const ScoreboardScreen = ({
   setGames,
   lockedFromIndex,
   initialGameIndex,
+  winsNeeded,
   matchFirstServer,
   onBack,
   onCloseAll,
@@ -41,6 +43,7 @@ export const ScoreboardScreen = ({
     games,
     idx,
     swapped,
+    winsNeeded,
     matchFirstServer,
   });
 

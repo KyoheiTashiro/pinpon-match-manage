@@ -2,10 +2,14 @@ import type { Game, Side } from '../domain/match';
 
 export type Format = 'singles' | 'doubles';
 
+/** 1試合のゲーム数。先取は (bestOf + 1) / 2。 */
+export type BestOf = 3 | 5 | 7;
+
 export type Tournament = {
   id: string;
   name: string;
   format: Format;
+  bestOf: BestOf;
   date: string;
   createdAt: string;
   participantIds: string[];

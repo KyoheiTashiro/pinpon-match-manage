@@ -22,6 +22,7 @@ const sideMembers = (side: Match['leftSide']): string[] =>
 export const computeRanking = (
   matches: Match[],
   participantNames: Record<string, string>,
+  winsNeeded = 3,
 ): RankingRow[] => {
   const stats = new Map<string, Omit<RankingRow, 'rank'>>();
 
@@ -45,7 +46,7 @@ export const computeRanking = (
   };
 
   for (const m of matches) {
-    const summary = matchSummary(m.games);
+    const summary = matchSummary(m.games, winsNeeded);
     if (!summary.finished) continue;
     const leftIds = sideMembers(m.leftSide);
     const rightIds = sideMembers(m.rightSide);

@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type {
   AppState,
+  BestOf,
   FontSize,
   Format,
   Match,
@@ -14,7 +15,12 @@ import { uid } from '../lib/id';
 type Actions = {
   setFontSize: (s: FontSize) => void;
 
-  createTournament: (name: string, format: Format, date: string) => string;
+  createTournament: (
+    name: string,
+    format: Format,
+    date: string,
+    bestOf: BestOf,
+  ) => string;
   deleteTournament: (id: string) => void;
   setCurrentTournament: (id: string | null) => void;
   resetTournament: (id: string) => void;
@@ -48,12 +54,13 @@ export const useAppStore = create<AppState & Actions>()(
 
       setFontSize: (s) => set({ fontSize: s }),
 
-      createTournament: (name, format, date) => {
+      createTournament: (name, format, date, bestOf) => {
         const id = uid();
         const t: Tournament = {
           id,
           name,
           format,
+          bestOf,
           date,
           createdAt: new Date().toISOString(),
           participantIds: [],
@@ -242,7 +249,19 @@ export const useAppStore = create<AppState & Actions>()(
     }),
     {
       name: 'pinpon-match-manage:v1',
-      version: 1,
+      version: 2,
+      migrate: (persisted, version) => {
+        const st = persisted as AppState;
+        if (version < 2 && st?.tournaments) {
+          // v1は5ゲーム制固定だった。既存大会へ bestOf:5 を付与。
+          const tournaments: Record<string, Tournament> = {};
+          for (const [id, t] of Object.entries(st.tournaments)) {
+            tournaments[id] = { ...t, bestOf: t.bestOf ?? 5 };
+          }
+          st.tournaments = tournaments;
+        }
+        return st;
+      },
     },
   ),
 );
