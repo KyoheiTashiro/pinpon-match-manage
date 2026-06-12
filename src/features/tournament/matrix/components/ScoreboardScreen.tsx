@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { Game, Side } from '../../../../domain/match';
+import { addPointToGame, undoLastPoint, lastScorer } from '../../../../domain/match';
 import { usePortrait } from './scoreboard/useOrientation';
 import { useDisplayMapping } from './scoreboard/useDisplayMapping';
 import { ScoreboardHeader } from './scoreboard/ScoreboardHeader';
@@ -54,20 +55,27 @@ export const ScoreboardScreen = ({
   const showResultBtn = !!d.rawMatchWinner && !showResult;
   const showBackBtn = !!d.rawMatchWinner && showResult;
 
-  const setScore = (displaySide: Side, next: number) => {
+  const addPoint = (displaySide: Side) => {
     if (locked) return;
-    const actualSide = swapped ? (displaySide === 'L' ? 'R' : 'L') : displaySide;
-    const clamped = Math.max(0, Math.min(30, next));
-    setGames(
-      games.map((g, i) =>
-        i === idx
-          ? actualSide === 'L'
-            ? { ...g, leftScore: clamped }
-            : { ...g, rightScore: clamped }
-          : g,
-      ),
-    );
+    const actualSide: Side = swapped ? (displaySide === 'L' ? 'R' : 'L') : displaySide;
+    setGames(games.map((g, i) => (i === idx ? addPointToGame(g, actualSide) : g)));
   };
+
+  const undoPoint = (displaySide: Side) => {
+    if (locked) return;
+    const actualSide: Side = swapped ? (displaySide === 'L' ? 'R' : 'L') : displaySide;
+    const current = games[idx];
+    if (!current) return;
+    if (lastScorer(current) !== actualSide) return;
+    setGames(games.map((g, i) => (i === idx ? undoLastPoint(g) : g)));
+  };
+
+  const currentGame = games[idx];
+  const rawLastScorer = lastScorer(currentGame ?? { leftScore: 0, rightScore: 0 });
+  const actualLeft: Side = swapped ? 'R' : 'L';
+  const actualRight: Side = swapped ? 'L' : 'R';
+  const canSubLeft = rawLastScorer === actualLeft;
+  const canSubRight = rawLastScorer === actualRight;
 
   return createPortal(
     // oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- role="dialog" はランドマークだがstopPropagationが必要
@@ -136,10 +144,12 @@ export const ScoreboardScreen = ({
           locked={locked}
           swapped={swapped}
           onSwap={() => setSwapped((s) => !s)}
-          onAddLeft={() => setScore('L', d.leftScore + 1)}
-          onSubLeft={() => setScore('L', d.leftScore - 1)}
-          onAddRight={() => setScore('R', d.rightScore + 1)}
-          onSubRight={() => setScore('R', d.rightScore - 1)}
+          onAddLeft={() => addPoint('L')}
+          onSubLeft={() => undoPoint('L')}
+          onAddRight={() => addPoint('R')}
+          onSubRight={() => undoPoint('R')}
+          canSubLeft={canSubLeft}
+          canSubRight={canSubRight}
         />
       )}
     </div>,

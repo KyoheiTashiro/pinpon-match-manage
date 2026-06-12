@@ -7,6 +7,7 @@ type Props = {
   isServing: boolean;
   disabled: boolean;
   disableAdd?: boolean;
+  canSub?: boolean;
   onAdd: () => void;
   onSub: () => void;
 };
@@ -20,6 +21,7 @@ export const ScoreColumn = ({
   isServing,
   disabled,
   disableAdd,
+  canSub,
   onAdd,
   onSub,
 }: Props) => {
@@ -62,7 +64,7 @@ export const ScoreColumn = ({
             type="button"
             aria-label={`${name} を1減らす`}
             onClick={onSub}
-            disabled={disabled || score <= 0}
+            disabled={disabled || score <= 0 || canSub === false}
             className="absolute inset-x-0 bottom-0 h-1/2 w-full hover:bg-white/5 active:bg-white/10 disabled:opacity-40 disabled:hover:bg-transparent transition"
           />
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center">

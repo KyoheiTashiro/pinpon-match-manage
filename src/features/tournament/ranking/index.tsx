@@ -1,6 +1,7 @@
 import { useParams } from 'react-router-dom';
 import { BigButton } from '../../../components/ui/BigButton';
 import { useImageCapture } from '../../../lib/useImageCapture';
+import { ScoreProgressChart } from '../matrix/components/scoreboard/ScoreProgressChart';
 import { useResultRows } from './hooks';
 
 export const ResultTab = () => {
@@ -149,6 +150,23 @@ const RankingView = ({ tournamentId }: { tournamentId: string }) => {
               </table>
             </div>
           )}
+          {matchResults.map((m) => {
+            const hasLog = m.games.some((g) => g.pointLog && g.pointLog.length > 0);
+            if (!hasLog) return null;
+            return (
+              <div key={m.id} className="pt-2">
+                <div className="text-base font-extrabold mb-1">
+                  {m.leftName} vs {m.rightName}
+                </div>
+                <ScoreProgressChart
+                  games={m.games}
+                  leftName={m.leftName}
+                  rightName={m.rightName}
+                  matchFirstServer={m.firstServer}
+                />
+              </div>
+            );
+          })}
         </div>
         </div>
         <BigButton onClick={save} disabled={saving}>

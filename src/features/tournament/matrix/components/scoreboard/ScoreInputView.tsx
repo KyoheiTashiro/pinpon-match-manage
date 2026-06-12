@@ -20,6 +20,8 @@ type Props = {
   onSubLeft: () => void;
   onAddRight: () => void;
   onSubRight: () => void;
+  canSubLeft: boolean;
+  canSubRight: boolean;
 };
 
 export const ScoreInputView = ({
@@ -41,6 +43,8 @@ export const ScoreInputView = ({
   onSubLeft,
   onAddRight,
   onSubRight,
+  canSubLeft,
+  canSubRight,
 }: Props) => {
   return (
     <div className="flex-1 min-h-0 grid grid-cols-[1fr_auto_1fr] items-stretch">
@@ -53,6 +57,7 @@ export const ScoreInputView = ({
         isServing={server === 'L'}
         disabled={locked}
         disableAdd={winner === 'L'}
+        canSub={canSubLeft}
         onAdd={onAddLeft}
         onSub={onSubLeft}
       />
@@ -86,6 +91,7 @@ export const ScoreInputView = ({
         isServing={server === 'R'}
         disabled={locked}
         disableAdd={winner === 'R'}
+        canSub={canSubRight}
         onAdd={onAddRight}
         onSub={onSubRight}
       />

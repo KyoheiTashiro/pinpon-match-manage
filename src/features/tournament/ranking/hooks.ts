@@ -6,7 +6,7 @@ import {
   realGames,
   winsNeededForBestOf,
 } from '../../../domain/match';
-import type { Game } from '../../../domain/match';
+import type { Game, Side } from '../../../domain/match';
 import type { Match, MatchSide, Participant } from '../../../store/types';
 
 const sideLabel = (side: MatchSide, participants: Record<string, Participant>) => {
@@ -22,6 +22,7 @@ export type MatchResultRow = {
   leftWins: number;
   rightWins: number;
   winner: 'L' | 'R' | null;
+  firstServer: Side;
 };
 
 const buildMatchResult = (
@@ -39,6 +40,7 @@ const buildMatchResult = (
     leftWins: s.leftWins,
     rightWins: s.rightWins,
     winner: s.winner,
+    firstServer: m.firstServer,
   };
 };
 

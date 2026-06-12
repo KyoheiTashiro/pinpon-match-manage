@@ -1,4 +1,4 @@
-export type Game = { leftScore: number; rightScore: number };
+export type Game = { leftScore: number; rightScore: number; pointLog?: Side[] };
 
 export type Side = 'L' | 'R';
 
@@ -49,4 +49,27 @@ export const matchSummary = (games: Game[], winsNeeded = 3) => {
   const winner: Side | null =
     leftWins >= winsNeeded ? 'L' : rightWins >= winsNeeded ? 'R' : null;
   return { leftWins, rightWins, leftPoints, rightPoints, finished, winner };
+};
+
+export const scoresFromLog = (log: Side[]): { leftScore: number; rightScore: number } => ({
+  leftScore: log.filter((s) => s === 'L').length,
+  rightScore: log.filter((s) => s === 'R').length,
+});
+
+export const addPointToGame = (g: Game, side: Side): Game => {
+  const log = [...(g.pointLog ?? []), side];
+  return { ...g, ...scoresFromLog(log), pointLog: log };
+};
+
+export const undoLastPoint = (g: Game): Game => {
+  const log = g.pointLog;
+  if (!log || log.length === 0) return g;
+  const newLog = log.slice(0, -1);
+  return { ...g, ...scoresFromLog(newLog), pointLog: newLog };
+};
+
+export const lastScorer = (g: Game): Side | null => {
+  const log = g.pointLog;
+  if (!log || log.length === 0) return null;
+  return log[log.length - 1] ?? null;
 };

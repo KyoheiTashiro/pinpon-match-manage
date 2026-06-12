@@ -34,6 +34,7 @@ HashRouter採用理由: GH Pagesは任意パスへのフォールバック設定
 - 大会管理（作成/切替/削除/全リセット） → [docs/features/home.md](docs/features/home.md)、[docs/features/settings.md](docs/features/settings.md)
 - 参加者管理 → [docs/features/participants.md](docs/features/participants.md)
 - 組合せ生成・試合詳細・マトリクス・スコアボード → [docs/features/matrix.md](docs/features/matrix.md)
+- 点数進行グラフ（結果画面） → [docs/features/result-graph.md](docs/features/result-graph.md)
 - 順位表 → [docs/features/ranking.md](docs/features/ranking.md)
 - リセット → [docs/features/settings.md](docs/features/settings.md)
 
