@@ -73,7 +73,7 @@ export const ScoreboardScreen = ({
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-[60] bg-blue-800 text-white flex flex-col select-none"
+      className="fixed inset-0 z-[60] bg-blue-800 text-white flex flex-col select-none overflow-x-hidden"
       style={{
         touchAction: 'none',
         paddingTop: 'env(safe-area-inset-top)',

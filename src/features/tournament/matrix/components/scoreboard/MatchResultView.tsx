@@ -26,20 +26,22 @@ export const MatchResultView = ({
 
   return (
     <div className="flex-1 min-h-0 overflow-auto px-4 py-6 flex flex-col items-center justify-center">
-      <div className="w-full max-w-6xl grid grid-cols-[1fr_auto_auto_auto_1fr] items-center gap-x-6 sm:gap-x-10 gap-y-4">
-        <div
-          className={`text-right text-[clamp(2rem,5vw,5rem)] font-extrabold break-words ${
-            matchWinner === 'L' ? 'text-green-500' : ''
-          }`}
-        >
-          {leftName}
-        </div>
-        <div
-          className={`text-[clamp(4rem,12vw,12rem)] leading-none font-extrabold tabular-nums ${
-            matchWinner === 'L' ? 'text-green-500' : ''
-          }`}
-        >
-          {leftWins}
+      <div className="w-full max-w-6xl grid grid-cols-3 items-center gap-x-6 sm:gap-x-10 gap-y-4">
+        <div className="flex flex-col items-center gap-4">
+          <div
+            className={`text-[clamp(4rem,12vw,12rem)] leading-none font-extrabold tabular-nums ${
+              matchWinner === 'L' ? 'text-green-500' : ''
+            }`}
+          >
+            {leftWins}
+          </div>
+          <div
+            className={`text-center text-[clamp(2rem,5vw,5rem)] font-extrabold break-words ${
+              matchWinner === 'L' ? 'text-green-500' : ''
+            }`}
+          >
+            {leftName}
+          </div>
         </div>
         <div className="flex flex-col gap-2 sm:gap-3 text-[clamp(1.75rem,4vw,3.5rem)] font-extrabold tabular-nums">
           {playedGames.map(({ g, i }) => {
@@ -54,19 +56,21 @@ export const MatchResultView = ({
             );
           })}
         </div>
-        <div
-          className={`text-[clamp(4rem,12vw,12rem)] leading-none font-extrabold tabular-nums ${
-            matchWinner === 'R' ? 'text-green-500' : ''
-          }`}
-        >
-          {rightWins}
-        </div>
-        <div
-          className={`text-left text-[clamp(2rem,5vw,5rem)] font-extrabold break-words ${
-            matchWinner === 'R' ? 'text-green-500' : ''
-          }`}
-        >
-          {rightName}
+        <div className="flex flex-col items-center gap-4">
+          <div
+            className={`text-[clamp(4rem,12vw,12rem)] leading-none font-extrabold tabular-nums ${
+              matchWinner === 'R' ? 'text-green-500' : ''
+            }`}
+          >
+            {rightWins}
+          </div>
+          <div
+            className={`text-center text-[clamp(2rem,5vw,5rem)] font-extrabold break-words ${
+              matchWinner === 'R' ? 'text-green-500' : ''
+            }`}
+          >
+            {rightName}
+          </div>
         </div>
       </div>
     </div>
