@@ -16,7 +16,7 @@ type Props = {
   lockedFromIndex: number;
   initialGameIndex: number;
   winsNeeded: number;
-  matchFirstServer?: Side;
+  matchFirstServer: Side;
   onBack: () => void;
   onCloseAll?: () => void;
 };
@@ -33,44 +33,48 @@ export const ScoreboardScreen = ({
   onBack,
   onCloseAll,
 }: Props) => {
-  const [idx, setIdx] = useState(initialGameIndex);
+  const [gameIndex, setGameIndex] = useState(initialGameIndex);
   const [swapped, setSwapped] = useState(false);
   const [showResult, setShowResult] = useState(false);
   const isPortrait = usePortrait();
 
-  const d = useDisplayMapping({
+  const display = useDisplayMapping({
     leftName,
     rightName,
     games,
-    idx,
+    gameIndex,
     swapped,
     winsNeeded,
     matchFirstServer,
   });
 
-  const locked = idx >= lockedFromIndex;
-  const nextIdx = idx + 1;
-  const canAdvance = !d.rawMatchWinner && nextIdx < games.length && nextIdx < lockedFromIndex;
-  const showNextGameBtn = d.currentFinished && !!d.rawWinner && canAdvance && !showResult;
-  const showResultBtn = !!d.rawMatchWinner && !showResult;
-  const showBackBtn = !!d.rawMatchWinner && showResult;
+  const locked = gameIndex >= lockedFromIndex;
+  const nextGameIndex = gameIndex + 1;
+  const canAdvance =
+    !display.rawMatchWinner && nextGameIndex < games.length && nextGameIndex < lockedFromIndex;
+  const showNextGameBtn =
+    display.currentFinished && !!display.rawWinner && canAdvance && !showResult;
+  const showResultBtn = !!display.rawMatchWinner && !showResult;
+  const showBackBtn = !!display.rawMatchWinner && showResult;
 
   const addPoint = (displaySide: Side) => {
     if (locked) return;
     const actualSide: Side = swapped ? (displaySide === "L" ? "R" : "L") : displaySide;
-    setGames(games.map((g, i) => (i === idx ? addPointToGame(g, actualSide) : g)));
+    setGames(
+      games.map((game, index) => (index === gameIndex ? addPointToGame(game, actualSide) : game)),
+    );
   };
 
   const undoPoint = (displaySide: Side) => {
     if (locked) return;
     const actualSide: Side = swapped ? (displaySide === "L" ? "R" : "L") : displaySide;
-    const current = games[idx];
+    const current = games[gameIndex];
     if (!current) return;
     if (lastScorer(current) !== actualSide) return;
-    setGames(games.map((g, i) => (i === idx ? undoLastPoint(g) : g)));
+    setGames(games.map((game, index) => (index === gameIndex ? undoLastPoint(game) : game)));
   };
 
-  const currentGame = games[idx];
+  const currentGame = games[gameIndex];
   const rawLastScorer = lastScorer(currentGame ?? { leftScore: 0, rightScore: 0 });
   const actualLeft: Side = swapped ? "R" : "L";
   const actualRight: Side = swapped ? "L" : "R";
@@ -91,19 +95,19 @@ export const ScoreboardScreen = ({
         paddingLeft: "env(safe-area-inset-left)",
         paddingRight: "env(safe-area-inset-right)",
       }}
-      onClick={(e) => e.stopPropagation()}
-      onKeyDown={(e) => e.stopPropagation()}
+      onClick={(event) => event.stopPropagation()}
+      onKeyDown={(event) => event.stopPropagation()}
     >
       <ScoreboardHeader
         games={games}
-        idx={idx}
-        setIdx={setIdx}
+        gameIndex={gameIndex}
+        setGameIndex={setGameIndex}
         lockedFromIndex={lockedFromIndex}
         showResult={showResult}
         showNextGameBtn={showNextGameBtn}
         showResultBtn={showResultBtn}
         showBackBtn={showBackBtn}
-        nextIdx={nextIdx}
+        nextGameIndex={nextGameIndex}
         onBack={onBack}
         onShowResult={() => setShowResult(true)}
         onCloseAll={onCloseAll}
@@ -120,30 +124,30 @@ export const ScoreboardScreen = ({
 
       {showResult ? (
         <MatchResultView
-          leftName={d.leftName}
-          rightName={d.rightName}
-          leftWins={d.leftWins}
-          rightWins={d.rightWins}
-          matchWinner={d.matchWinner}
+          leftName={display.leftName}
+          rightName={display.rightName}
+          leftWins={display.leftWins}
+          rightWins={display.rightWins}
+          matchWinner={display.matchWinner}
           games={games}
           swapped={swapped}
         />
       ) : (
         <ScoreInputView
-          leftName={d.leftName}
-          rightName={d.rightName}
-          leftScore={d.leftScore}
-          rightScore={d.rightScore}
-          leftWins={d.leftWins}
-          rightWins={d.rightWins}
-          winner={d.winner}
-          matchWinner={d.matchWinner}
-          leftMatchPoint={d.leftMatchPoint}
-          rightMatchPoint={d.rightMatchPoint}
-          server={d.server}
+          leftName={display.leftName}
+          rightName={display.rightName}
+          leftScore={display.leftScore}
+          rightScore={display.rightScore}
+          leftWins={display.leftWins}
+          rightWins={display.rightWins}
+          winner={display.winner}
+          matchWinner={display.matchWinner}
+          leftMatchPoint={display.leftMatchPoint}
+          rightMatchPoint={display.rightMatchPoint}
+          server={display.server}
           locked={locked}
           swapped={swapped}
-          onSwap={() => setSwapped((s) => !s)}
+          onSwap={() => setSwapped((previous) => !previous)}
           onAddLeft={() => addPoint("L")}
           onSubLeft={() => undoPoint("L")}
           onAddRight={() => addPoint("R")}

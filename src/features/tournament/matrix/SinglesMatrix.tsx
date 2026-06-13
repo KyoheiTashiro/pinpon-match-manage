@@ -1,13 +1,88 @@
 import { useState } from "react";
 import { useAppStore } from "@/store/useAppStore";
+import type { Match } from "@/store/types";
 import { BigButton } from "@/components/ui/BigButton";
 import { useImageCapture } from "@/lib/useImageCapture";
 import { matchSummary, winsNeededForBestOf } from "@/domain/match";
 import { MatchModal } from "@/features/tournament/matrix/components/MatchModal";
 import { involvesSingle, useMatrix } from "@/features/tournament/matrix/hooks";
 
+type Player = { id: string; name: string };
+
+type MatrixCellProps = {
+  row: Player;
+  column: Player;
+  match: Match | undefined;
+  winsNeeded: number;
+  onCreate: () => void;
+  onOpen: (matchId: string) => void;
+};
+
+const MatrixCell = ({ row, column, match, winsNeeded, onCreate, onOpen }: MatrixCellProps) => {
+  if (row.id === column.id) {
+    return (
+      <td className="border-2 border-line bg-bg min-h-cell min-w-cell" aria-label="自分">
+        <div className="w-full h-16 bg-[repeating-linear-gradient(45deg,#cbd5e1_0_8px,#94a3b8_8px_16px)]" />
+      </td>
+    );
+  }
+
+  if (!match) {
+    return (
+      <td className="border-2 border-dashed border-line text-center text-sub min-h-cell min-w-cell p-1">
+        <button
+          className="w-full h-full min-h-cell text-base flex flex-col items-center justify-center gap-0.5 cursor-pointer hover:bg-bg active:scale-95 transition"
+          aria-label={`${row.name} 対 ${column.name} 対戦追加`}
+          onClick={onCreate}
+        >
+          <span className="text-2xl leading-none">＋</span>
+          <span className="text-xs leading-none">対戦</span>
+        </button>
+      </td>
+    );
+  }
+
+  const summary = matchSummary(match.games, winsNeeded);
+  const rowIsLeft =
+    involvesSingle(match, row.id) &&
+    match.leftSide.kind === "single" &&
+    match.leftSide.participantId === row.id;
+  const rowWins = rowIsLeft ? summary.leftWins : summary.rightWins;
+  const columnWins = rowIsLeft ? summary.rightWins : summary.leftWins;
+  const rowWon = summary.finished && (rowIsLeft ? summary.winner === "L" : summary.winner === "R");
+  const rowLost = summary.finished && !rowWon;
+  const hasScore = summary.finished || match.games.length > 0;
+
+  return (
+    <td
+      className={`border-2 ${hasScore ? "border-line" : "border-dashed border-line"} text-center min-h-cell min-w-cell p-0 ${
+        rowWon ? "bg-winBg" : rowLost ? "bg-loseBg" : ""
+      }`}
+    >
+      <button
+        onClick={() => onOpen(match.id)}
+        className="relative w-full h-full min-h-cell text-lg font-extrabold p-2 cursor-pointer hover:bg-bg active:scale-95 transition"
+        aria-label={`${row.name} 対 ${column.name} ${rowWins}-${columnWins} 編集`}
+      >
+        {hasScore ? (
+          <span>
+            {rowWins}-{columnWins}
+            {summary.finished && <span className="block text-sm">{rowWon ? "勝" : "負"}</span>}
+          </span>
+        ) : (
+          <span className="flex flex-col items-center justify-center gap-0.5 text-sub">
+            <span className="text-2xl leading-none">＋</span>
+            <span className="text-xs leading-none">点数入力</span>
+          </span>
+        )}
+      </button>
+    </td>
+  );
+};
+
 export const SinglesMatrix = ({ tournamentId }: { tournamentId: string }) => {
-  const { tournament, participants, ps, singlesCellMatch } = useMatrix(tournamentId);
+  const { tournament, participants, players, singlesCellMatch } = useMatrix(tournamentId);
+  const addManualMatch = useAppStore((state) => state.addManualMatch);
 
   const { ref, saving, save } = useImageCapture("対戦表", tournament?.name);
   const [openMatchId, setOpenMatchId] = useState<string | null>(null);
@@ -20,7 +95,7 @@ export const SinglesMatrix = ({ tournamentId }: { tournamentId: string }) => {
     <div className="space-y-4">
       <h2 className="text-xl font-extrabold">対戦表</h2>
 
-      {ps.length < 2 ? (
+      {players.length < 2 ? (
         <p className="text-sub">参加者を2人以上 登録してください。</p>
       ) : (
         <>
@@ -43,18 +118,18 @@ export const SinglesMatrix = ({ tournamentId }: { tournamentId: string }) => {
                       className="sticky left-0 bg-white z-10 border-2 border-line p-2 min-w-cell"
                       aria-label="対戦表の行列ヘッダー"
                     ></th>
-                    {ps.map((p) => (
+                    {players.map((player) => (
                       <th
-                        key={p.id}
+                        key={player.id}
                         className="border-2 border-line p-2 text-base font-bold min-w-cell"
                       >
-                        {p.name}
+                        {player.name}
                       </th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {ps.map((row) => (
+                  {players.map((row) => (
                     <tr key={row.id}>
                       <th
                         scope="row"
@@ -62,87 +137,24 @@ export const SinglesMatrix = ({ tournamentId }: { tournamentId: string }) => {
                       >
                         {row.name}
                       </th>
-                      {ps.map((col) => {
-                        if (row.id === col.id) {
-                          return (
-                            <td
-                              key={col.id}
-                              className="border-2 border-line bg-bg min-h-cell min-w-cell"
-                              aria-label="自分"
-                            >
-                              <div className="w-full h-16 bg-[repeating-linear-gradient(45deg,#cbd5e1_0_8px,#94a3b8_8px_16px)]" />
-                            </td>
-                          );
-                        }
-                        const key = [row.id, col.id].sort().join("|");
-                        const m = singlesCellMatch.get(key);
-                        if (!m) {
-                          return (
-                            <td
-                              key={col.id}
-                              className="border-2 border-dashed border-line text-center text-sub min-h-cell min-w-cell p-1"
-                            >
-                              <button
-                                className="w-full h-full min-h-cell text-base flex flex-col items-center justify-center gap-0.5 cursor-pointer hover:bg-bg active:scale-95 transition"
-                                aria-label={`${row.name} 対 ${col.name} 対戦追加`}
-                                onClick={() => {
-                                  const id = useAppStore
-                                    .getState()
-                                    .addManualMatch(
-                                      tournamentId,
-                                      { kind: "single", participantId: row.id },
-                                      { kind: "single", participantId: col.id },
-                                    );
-                                  setOpenMatchId(id);
-                                }}
-                              >
-                                <span className="text-2xl leading-none">＋</span>
-                                <span className="text-xs leading-none">対戦</span>
-                              </button>
-                            </td>
-                          );
-                        }
-                        const sm = matchSummary(m.games, wins);
-                        const rowIsLeft =
-                          involvesSingle(m, row.id) &&
-                          m.leftSide.kind === "single" &&
-                          m.leftSide.participantId === row.id;
-                        const rowWins = rowIsLeft ? sm.leftWins : sm.rightWins;
-                        const colWins = rowIsLeft ? sm.rightWins : sm.leftWins;
-                        const finished = sm.finished;
-                        const rowWon =
-                          finished && (rowIsLeft ? sm.winner === "L" : sm.winner === "R");
-                        const rowLost = finished && !rowWon;
-                        const hasScore = finished || m.games.length > 0;
-                        return (
-                          <td
-                            key={col.id}
-                            className={`border-2 ${hasScore ? "border-line" : "border-dashed border-line"} text-center min-h-cell min-w-cell p-0 ${
-                              rowWon ? "bg-winBg" : rowLost ? "bg-loseBg" : ""
-                            }`}
-                          >
-                            <button
-                              onClick={() => setOpenMatchId(m.id)}
-                              className="relative w-full h-full min-h-cell text-lg font-extrabold p-2 cursor-pointer hover:bg-bg active:scale-95 transition"
-                              aria-label={`${row.name} 対 ${col.name} ${rowWins}-${colWins} 編集`}
-                            >
-                              {hasScore ? (
-                                <span>
-                                  {rowWins}-{colWins}
-                                  {finished && (
-                                    <span className="block text-sm">{rowWon ? "勝" : "負"}</span>
-                                  )}
-                                </span>
-                              ) : (
-                                <span className="flex flex-col items-center justify-center gap-0.5 text-sub">
-                                  <span className="text-2xl leading-none">＋</span>
-                                  <span className="text-xs leading-none">点数入力</span>
-                                </span>
-                              )}
-                            </button>
-                          </td>
-                        );
-                      })}
+                      {players.map((column) => (
+                        <MatrixCell
+                          key={column.id}
+                          row={row}
+                          column={column}
+                          match={singlesCellMatch.get([row.id, column.id].sort().join("|"))}
+                          winsNeeded={wins}
+                          onCreate={() => {
+                            const id = addManualMatch(
+                              tournamentId,
+                              { kind: "single", participantId: row.id },
+                              { kind: "single", participantId: column.id },
+                            );
+                            setOpenMatchId(id);
+                          }}
+                          onOpen={setOpenMatchId}
+                        />
+                      ))}
                     </tr>
                   ))}
                 </tbody>

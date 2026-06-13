@@ -22,38 +22,38 @@ export type MatchResultRow = {
 };
 
 const buildMatchResult = (
-  m: Match,
+  match: Match,
   participants: Record<string, Participant>,
   winsNeeded: number,
 ): MatchResultRow => {
-  const games = realGames(m.games);
-  const s = matchSummary(games, winsNeeded);
+  const games = realGames(match.games);
+  const summary = matchSummary(games, winsNeeded);
   return {
-    id: m.id,
-    leftName: sideLabel(m.leftSide, participants),
-    rightName: sideLabel(m.rightSide, participants),
+    id: match.id,
+    leftName: sideLabel(match.leftSide, participants),
+    rightName: sideLabel(match.rightSide, participants),
     games,
-    leftWins: s.leftWins,
-    rightWins: s.rightWins,
-    winner: s.winner,
-    firstServer: m.firstServer,
+    leftWins: summary.leftWins,
+    rightWins: summary.rightWins,
+    winner: summary.winner,
+    firstServer: match.firstServer,
   };
 };
 
 export const useResultRows = (tournamentId: string) => {
-  const tournament = useAppStore((s) => s.tournaments[tournamentId]);
-  const matches = useAppStore((s) => s.matches);
-  const participants = useAppStore((s) => s.participants);
+  const tournament = useAppStore((state) => state.tournaments[tournamentId]);
+  const matches = useAppStore((state) => state.matches);
+  const participants = useAppStore((state) => state.participants);
 
   const rows = useMemo(() => {
     if (!tournament) return [];
     const names: Record<string, string> = {};
     for (const id of tournament.participantIds) {
-      const p = participants[id];
-      if (p) names[id] = p.name;
+      const participant = participants[id];
+      if (participant) names[id] = participant.name;
     }
-    const ms = tournament.matchIds.map((id) => matches[id]).filter(Boolean);
-    return computeRanking(ms, names, winsNeededForBestOf(tournament.bestOf));
+    const matchList = tournament.matchIds.map((id) => matches[id]).filter(Boolean);
+    return computeRanking(matchList, names, winsNeededForBestOf(tournament.bestOf));
   }, [tournament, matches, participants]);
 
   const matchResults = useMemo<MatchResultRow[]>(() => {
@@ -61,8 +61,10 @@ export const useResultRows = (tournamentId: string) => {
     return tournament.matchIds
       .map((id) => matches[id])
       .filter(Boolean)
-      .filter((m) => realGames(m.games).length > 0)
-      .map((m) => buildMatchResult(m, participants, winsNeededForBestOf(tournament.bestOf)));
+      .filter((match) => realGames(match.games).length > 0)
+      .map((match) =>
+        buildMatchResult(match, participants, winsNeededForBestOf(tournament.bestOf)),
+      );
   }, [tournament, matches, participants]);
 
   return { rows, matchResults, tournament };

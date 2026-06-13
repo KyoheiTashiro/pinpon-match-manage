@@ -1,15 +1,13 @@
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 
-export const usePortrait = () => {
-  const [isPortrait, setIsPortrait] = useState(false);
+const PORTRAIT_QUERY = "(orientation: portrait) and (max-width: 900px)";
 
-  useEffect(() => {
-    const mq = window.matchMedia("(orientation: portrait) and (max-width: 900px)");
-    const update = () => setIsPortrait(mq.matches);
-    update();
-    mq.addEventListener("change", update);
-    return () => mq.removeEventListener("change", update);
-  }, []);
-
-  return isPortrait;
+const subscribe = (onChange: () => void) => {
+  const mediaQuery = window.matchMedia(PORTRAIT_QUERY);
+  mediaQuery.addEventListener("change", onChange);
+  return () => mediaQuery.removeEventListener("change", onChange);
 };
+
+const getSnapshot = () => window.matchMedia(PORTRAIT_QUERY).matches;
+
+export const usePortrait = (): boolean => useSyncExternalStore(subscribe, getSnapshot);

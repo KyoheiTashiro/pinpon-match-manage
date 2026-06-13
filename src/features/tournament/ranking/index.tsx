@@ -67,7 +67,7 @@ const RankingView = ({ tournamentId }: { tournamentId: string }) => {
               </div>
 
               {mode === "table" ? (
-                <TableMode rows={rows} matchResults={matchResults} />
+                <TableMode rows={rows} matchResults={matchResults} bestOf={tournament.bestOf} />
               ) : (
                 <GraphMode matchResults={matchResults} />
               )}
@@ -87,9 +87,10 @@ const RankingView = ({ tournamentId }: { tournamentId: string }) => {
 type TableModeProps = {
   rows: ReturnType<typeof useResultRows>["rows"];
   matchResults: MatchResultRow[];
+  bestOf: number;
 };
 
-const TableMode = ({ rows, matchResults }: TableModeProps) => (
+const TableMode = ({ rows, matchResults, bestOf }: TableModeProps) => (
   <>
     <div className="text-base font-extrabold">順位</div>
     <table className="w-full border-2 border-line border-collapse">
@@ -105,25 +106,25 @@ const TableMode = ({ rows, matchResults }: TableModeProps) => (
         </tr>
       </thead>
       <tbody>
-        {rows.map((r) => (
-          <tr key={r.participantId} className="text-center">
-            <td className="border-2 border-line p-2 text-2xl font-extrabold">{r.rank}</td>
-            <td className="border-2 border-line p-2 text-lg font-bold text-left">{r.name}</td>
-            <td className="border-2 border-line p-2 text-lg">{r.played}</td>
-            <td className="border-2 border-line p-2 text-lg text-success font-bold">{r.wins}</td>
-            <td className="border-2 border-line p-2 text-lg text-danger font-bold">{r.losses}</td>
+        {rows.map((row) => (
+          <tr key={row.participantId} className="text-center">
+            <td className="border-2 border-line p-2 text-2xl font-extrabold">{row.rank}</td>
+            <td className="border-2 border-line p-2 text-lg font-bold text-left">{row.name}</td>
+            <td className="border-2 border-line p-2 text-lg">{row.played}</td>
+            <td className="border-2 border-line p-2 text-lg text-success font-bold">{row.wins}</td>
+            <td className="border-2 border-line p-2 text-lg text-danger font-bold">{row.losses}</td>
             <td className="border-2 border-line p-2 text-lg">
-              {signed(r.gameDiff)}
+              {signed(row.gameDiff)}
               <span className="text-sub text-base">
                 {" "}
-                ({r.gamesWon}/{r.gamesLost})
+                ({row.gamesWon}/{row.gamesLost})
               </span>
             </td>
             <td className="border-2 border-line p-2 text-lg">
-              {signed(r.pointDiff)}
+              {signed(row.pointDiff)}
               <span className="text-sub text-base">
                 {" "}
-                ({r.pointsFor}/{r.pointsAgainst})
+                ({row.pointsFor}/{row.pointsAgainst})
               </span>
             </td>
           </tr>
@@ -137,32 +138,32 @@ const TableMode = ({ rows, matchResults }: TableModeProps) => (
           <thead>
             <tr className="bg-bg">
               <th className="border-2 border-line p-2 text-base text-left">対戦</th>
-              <th className="border-2 border-line p-2 text-base">G1</th>
-              <th className="border-2 border-line p-2 text-base">G2</th>
-              <th className="border-2 border-line p-2 text-base">G3</th>
-              <th className="border-2 border-line p-2 text-base">G4</th>
-              <th className="border-2 border-line p-2 text-base">G5</th>
+              {Array.from({ length: bestOf }, (_, index) => (
+                <th key={index} className="border-2 border-line p-2 text-base">
+                  G{index + 1}
+                </th>
+              ))}
               <th className="border-2 border-line p-2 text-base">セット</th>
             </tr>
           </thead>
           <tbody>
-            {matchResults.map((m) => (
-              <tr key={m.id}>
+            {matchResults.map((match) => (
+              <tr key={match.id}>
                 <td className="border-2 border-line p-2 text-base">
-                  <span className={m.winner === "L" ? "font-extrabold" : "text-sub"}>
-                    {m.leftName}
+                  <span className={match.winner === "L" ? "font-extrabold" : "text-sub"}>
+                    {match.leftName}
                   </span>
                   <span className="text-sub"> vs </span>
-                  <span className={m.winner === "R" ? "font-extrabold" : "text-sub"}>
-                    {m.rightName}
+                  <span className={match.winner === "R" ? "font-extrabold" : "text-sub"}>
+                    {match.rightName}
                   </span>
                 </td>
-                {[0, 1, 2, 3, 4].map((i) => {
-                  const g = m.games[i];
-                  if (!g) {
+                {Array.from({ length: bestOf }, (_, gameIndex) => {
+                  const game = match.games[gameIndex];
+                  if (!game) {
                     return (
                       <td
-                        key={i}
+                        key={gameIndex}
                         className="border-2 border-line p-2 text-base text-center text-sub"
                       >
                         -
@@ -171,21 +172,21 @@ const TableMode = ({ rows, matchResults }: TableModeProps) => (
                   }
                   return (
                     <td
-                      key={i}
+                      key={gameIndex}
                       className="border-2 border-line p-2 text-base text-center whitespace-nowrap"
                     >
-                      <span className={g.leftScore > g.rightScore ? "font-extrabold" : ""}>
-                        {g.leftScore}
+                      <span className={game.leftScore > game.rightScore ? "font-extrabold" : ""}>
+                        {game.leftScore}
                       </span>
                       <span className="text-sub">-</span>
-                      <span className={g.rightScore > g.leftScore ? "font-extrabold" : ""}>
-                        {g.rightScore}
+                      <span className={game.rightScore > game.leftScore ? "font-extrabold" : ""}>
+                        {game.rightScore}
                       </span>
                     </td>
                   );
                 })}
                 <td className="border-2 border-line p-2 text-base text-center font-bold whitespace-nowrap">
-                  {m.leftWins}-{m.rightWins}
+                  {match.leftWins}-{match.rightWins}
                 </td>
               </tr>
             ))}
@@ -208,23 +209,25 @@ const GraphMode = ({ matchResults }: GraphModeProps) => {
 
   return (
     <div className="space-y-6">
-      {matchResults.map((m) => {
-        const hasLog = m.games.some((g) => g.pointLog && g.pointLog.length > 0);
+      {matchResults.map((match) => {
+        const hasLog = match.games.some((game) => game.pointLog && game.pointLog.length > 0);
         return (
-          <div key={m.id} className="pt-2">
+          <div key={match.id} className="pt-2">
             <div className="text-base mb-1">
-              <span className={m.winner === "L" ? "font-extrabold" : "text-sub"}>{m.leftName}</span>
+              <span className={match.winner === "L" ? "font-extrabold" : "text-sub"}>
+                {match.leftName}
+              </span>
               <span className="text-sub"> vs </span>
-              <span className={m.winner === "R" ? "font-extrabold" : "text-sub"}>
-                {m.rightName}
+              <span className={match.winner === "R" ? "font-extrabold" : "text-sub"}>
+                {match.rightName}
               </span>
             </div>
             {hasLog ? (
               <ScoreProgressChart
-                games={m.games}
-                leftName={m.leftName}
-                rightName={m.rightName}
-                matchFirstServer={m.firstServer}
+                games={match.games}
+                leftName={match.leftName}
+                rightName={match.rightName}
+                matchFirstServer={match.firstServer}
               />
             ) : (
               <p className="text-sub">得点記録なし</p>
@@ -236,4 +239,4 @@ const GraphMode = ({ matchResults }: GraphModeProps) => {
   );
 };
 
-const signed = (n: number) => (n > 0 ? `+${n}` : `${n}`);
+const signed = (value: number) => (value > 0 ? `+${value}` : `${value}`);

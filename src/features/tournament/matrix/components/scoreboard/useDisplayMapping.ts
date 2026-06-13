@@ -11,37 +11,36 @@ type Params = {
   leftName: string;
   rightName: string;
   games: Game[];
-  idx: number;
+  gameIndex: number;
   swapped: boolean;
   winsNeeded: number;
-  matchFirstServer?: Side;
+  matchFirstServer: Side;
 };
 
-const flip = (s: Side | null): Side | null => (s === "L" ? "R" : s === "R" ? "L" : null);
+const flip = (side: Side | null): Side | null => (side === "L" ? "R" : side === "R" ? "L" : null);
 
-const isGamePoint = (s: number, o: number) => {
-  const ns = s + 1;
-  return ns >= 11 && ns - o >= 2;
+const isGamePoint = (score: number, opponent: number) => {
+  const nextScore = score + 1;
+  return nextScore >= 11 && nextScore - opponent >= 2;
 };
 
 export const useDisplayMapping = ({
   leftName,
   rightName,
   games,
-  idx,
+  gameIndex,
   swapped,
   winsNeeded,
   matchFirstServer,
 }: Params) => {
-  const current = games[idx];
-  const sm = matchSummary(games, winsNeeded);
+  const current = games[gameIndex];
+  const summary = matchSummary(games, winsNeeded);
   const rawWinner = current ? gameWinner(current) : null;
-  const rawMatchWinner = sm.winner;
+  const rawMatchWinner = summary.winner;
 
-  const rawServer: Side | null =
-    matchFirstServer && current
-      ? currentServer(current, gameFirstServer(matchFirstServer, idx))
-      : null;
+  const rawServer: Side | null = current
+    ? currentServer(current, gameFirstServer(matchFirstServer, gameIndex))
+    : null;
 
   const gameOpen = current ? !isGameFinished(current) && !rawMatchWinner : false;
   const leftMatchPoint =
@@ -59,8 +58,8 @@ export const useDisplayMapping = ({
     rightName: swapped ? leftName : rightName,
     leftScore: swapped ? (current?.rightScore ?? 0) : (current?.leftScore ?? 0),
     rightScore: swapped ? (current?.leftScore ?? 0) : (current?.rightScore ?? 0),
-    leftWins: swapped ? sm.rightWins : sm.leftWins,
-    rightWins: swapped ? sm.leftWins : sm.rightWins,
+    leftWins: swapped ? summary.rightWins : summary.leftWins,
+    rightWins: swapped ? summary.leftWins : summary.rightWins,
     server: swapped ? flip(rawServer) : rawServer,
     leftMatchPoint: swapped ? rightMatchPoint : leftMatchPoint,
     rightMatchPoint: swapped ? leftMatchPoint : rightMatchPoint,

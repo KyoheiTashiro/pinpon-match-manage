@@ -1,7 +1,7 @@
 import type { StateCreator } from "zustand";
 import type { MatchSide, Participant } from "@/store/types";
 import type { StoreState } from "@/store/useAppStore";
-import { uid } from "@/lib/id";
+import { generateId } from "@/lib/id";
 
 export type ParticipantSlice = {
   participants: Record<string, Participant>;
@@ -20,18 +20,18 @@ export const createParticipantSlice: StateCreator<StoreState, [], [], Participan
   ...participantInitial,
 
   addParticipant: (tournamentId, name, affiliation) => {
-    const id = uid();
-    const p: Participant = { id, tournamentId, name: name.trim(), affiliation };
-    set((st) => {
-      const t = st.tournaments[tournamentId];
-      if (!t) return st;
+    const id = generateId();
+    const participant: Participant = { id, tournamentId, name: name.trim(), affiliation };
+    set((state) => {
+      const tournament = state.tournaments[tournamentId];
+      if (!tournament) return state;
       return {
-        participants: { ...st.participants, [id]: p },
+        participants: { ...state.participants, [id]: participant },
         tournaments: {
-          ...st.tournaments,
+          ...state.tournaments,
           [tournamentId]: {
-            ...t,
-            participantIds: [...t.participantIds, id],
+            ...tournament,
+            participantIds: [...tournament.participantIds, id],
           },
         },
       };
@@ -40,44 +40,46 @@ export const createParticipantSlice: StateCreator<StoreState, [], [], Participan
   },
 
   updateParticipant: (id, patch) =>
-    set((st) => {
-      const cur = st.participants[id];
-      if (!cur) return st;
+    set((state) => {
+      const current = state.participants[id];
+      if (!current) return state;
       return {
         participants: {
-          ...st.participants,
-          [id]: { ...cur, ...patch, name: (patch.name ?? cur.name).trim() },
+          ...state.participants,
+          [id]: { ...current, ...patch, name: (patch.name ?? current.name).trim() },
         },
       };
     }),
 
   removeParticipant: (tournamentId, id) =>
-    set((st) => {
-      const t = st.tournaments[tournamentId];
-      if (!t) return st;
-      const participants = { ...st.participants };
+    set((state) => {
+      const tournament = state.tournaments[tournamentId];
+      if (!tournament) return state;
+      const participants = { ...state.participants };
       delete participants[id];
-      const matches = { ...st.matches };
+      const matches = { ...state.matches };
       const remainingMatchIds: string[] = [];
-      for (const mid of t.matchIds) {
-        const m = matches[mid];
-        if (!m) continue;
-        const involves = (s: MatchSide) =>
-          s.kind === "single" ? s.participantId === id : s.memberIds.includes(id);
-        if (involves(m.leftSide) || involves(m.rightSide)) {
-          delete matches[mid];
+      for (const matchId of tournament.matchIds) {
+        const match = matches[matchId];
+        if (!match) continue;
+        const involves = (side: MatchSide) =>
+          side.kind === "single" ? side.participantId === id : side.memberIds.includes(id);
+        if (involves(match.leftSide) || involves(match.rightSide)) {
+          delete matches[matchId];
         } else {
-          remainingMatchIds.push(mid);
+          remainingMatchIds.push(matchId);
         }
       }
       return {
         participants,
         matches,
         tournaments: {
-          ...st.tournaments,
+          ...state.tournaments,
           [tournamentId]: {
-            ...t,
-            participantIds: t.participantIds.filter((p) => p !== id),
+            ...tournament,
+            participantIds: tournament.participantIds.filter(
+              (participantId) => participantId !== id,
+            ),
             matchIds: remainingMatchIds,
           },
         },

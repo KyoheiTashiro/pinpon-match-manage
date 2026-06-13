@@ -2,27 +2,27 @@ export type Game = { leftScore: number; rightScore: number; pointLog?: Side[] };
 
 export type Side = "L" | "R";
 
-export const isGameEmpty = (g: Game): boolean => g.leftScore === 0 && g.rightScore === 0;
+export const isGameEmpty = (game: Game): boolean => game.leftScore === 0 && game.rightScore === 0;
 
-export const realGames = (games: Game[]): Game[] => games.filter((g) => !isGameEmpty(g));
+export const realGames = (games: Game[]): Game[] => games.filter((game) => !isGameEmpty(game));
 
-export const isGameFinished = (g: Game): boolean => {
-  const { leftScore: l, rightScore: r } = g;
-  return Math.max(l, r) >= 11 && Math.abs(l - r) >= 2;
+export const isGameFinished = (game: Game): boolean => {
+  const { leftScore, rightScore } = game;
+  return Math.max(leftScore, rightScore) >= 11 && Math.abs(leftScore - rightScore) >= 2;
 };
 
-export const gameWinner = (g: Game): Side | null => {
-  if (!isGameFinished(g)) return null;
-  return g.leftScore > g.rightScore ? "L" : "R";
+export const gameWinner = (game: Game): Side | null => {
+  if (!isGameFinished(game)) return null;
+  return game.leftScore > game.rightScore ? "L" : "R";
 };
 
-const opposite = (s: Side): Side => (s === "L" ? "R" : "L");
+const opposite = (side: Side): Side => (side === "L" ? "R" : "L");
 
 export const gameFirstServer = (matchFirstServer: Side, gameIndex: number): Side =>
   gameIndex % 2 === 0 ? matchFirstServer : opposite(matchFirstServer);
 
-export const currentServer = (g: Game, firstServerOfGame: Side): Side => {
-  const total = g.leftScore + g.rightScore;
+export const currentServer = (game: Game, firstServerOfGame: Side): Side => {
+  const total = game.leftScore + game.rightScore;
   const switches = total < 20 ? Math.floor(total / 2) : 10 + (total - 20);
   return switches % 2 === 0 ? firstServerOfGame : opposite(firstServerOfGame);
 };
@@ -35,12 +35,12 @@ export const matchSummary = (games: Game[], winsNeeded = 3) => {
   let rightWins = 0;
   let leftPoints = 0;
   let rightPoints = 0;
-  for (const g of games) {
-    leftPoints += g.leftScore;
-    rightPoints += g.rightScore;
-    const w = gameWinner(g);
-    if (w === "L") leftWins++;
-    else if (w === "R") rightWins++;
+  for (const game of games) {
+    leftPoints += game.leftScore;
+    rightPoints += game.rightScore;
+    const winner = gameWinner(game);
+    if (winner === "L") leftWins++;
+    else if (winner === "R") rightWins++;
   }
   const finished = leftWins >= winsNeeded || rightWins >= winsNeeded;
   const winner: Side | null = leftWins >= winsNeeded ? "L" : rightWins >= winsNeeded ? "R" : null;
@@ -48,24 +48,24 @@ export const matchSummary = (games: Game[], winsNeeded = 3) => {
 };
 
 export const scoresFromLog = (log: Side[]): { leftScore: number; rightScore: number } => ({
-  leftScore: log.filter((s) => s === "L").length,
-  rightScore: log.filter((s) => s === "R").length,
+  leftScore: log.filter((side) => side === "L").length,
+  rightScore: log.filter((side) => side === "R").length,
 });
 
-export const addPointToGame = (g: Game, side: Side): Game => {
-  const log = [...(g.pointLog ?? []), side];
-  return { ...g, ...scoresFromLog(log), pointLog: log };
+export const addPointToGame = (game: Game, side: Side): Game => {
+  const log = [...(game.pointLog ?? []), side];
+  return { ...game, ...scoresFromLog(log), pointLog: log };
 };
 
-export const undoLastPoint = (g: Game): Game => {
-  const log = g.pointLog;
-  if (!log || log.length === 0) return g;
+export const undoLastPoint = (game: Game): Game => {
+  const log = game.pointLog;
+  if (!log || log.length === 0) return game;
   const newLog = log.slice(0, -1);
-  return { ...g, ...scoresFromLog(newLog), pointLog: newLog };
+  return { ...game, ...scoresFromLog(newLog), pointLog: newLog };
 };
 
-export const lastScorer = (g: Game): Side | null => {
-  const log = g.pointLog;
+export const lastScorer = (game: Game): Side | null => {
+  const log = game.pointLog;
   if (!log || log.length === 0) return null;
   return log[log.length - 1] ?? null;
 };

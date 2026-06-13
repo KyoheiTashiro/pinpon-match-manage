@@ -1,123 +1,151 @@
 import type { Game, Side } from "@/domain/match";
 import { gameFirstServer, realGames } from "@/domain/match";
-import { gameProgress } from "@/domain/scoreProgress";
+import { gameProgress, type ProgressPoint } from "@/domain/scoreProgress";
 
-// Display mapping: left=top, right=bottom (no swap)
-const displayScorer = (p: { scorer: Side }): "top" | "bot" => (p.scorer === "L" ? "top" : "bot");
+type Row = "top" | "bot";
 
-const displayServer = (p: { server: Side }): "top" | "bot" => (p.server === "L" ? "top" : "bot");
-
-const topScore = (p: { left: number; right: number }) => p.left;
-const botScore = (p: { left: number; right: number }) => p.right;
+// 表示マッピング: 左=上段, 右=下段（入れ替えなし）
+const displayScorer = (point: ProgressPoint): Row => (point.scorer === "L" ? "top" : "bot");
+const displayServer = (point: ProgressPoint): Row => (point.server === "L" ? "top" : "bot");
+const topScore = (point: { left: number }) => point.left;
+const botScore = (point: { right: number }) => point.right;
 
 type Props = {
   games: Game[];
   leftName: string;
   rightName: string;
-  matchFirstServer?: Side;
+  matchFirstServer: Side;
 };
 
-const COL_WIDTH = 44; // px per rally column
-const ROW_HEIGHT = 56; // px per player row (circle + padding)
-const CIRCLE_SIZE = 36; // diameter px
-// Center Y of top row and bottom row within a 2-row block
-const TOP_CY = ROW_HEIGHT / 2; // 28
-const BOT_CY = ROW_HEIGHT + ROW_HEIGHT / 2; // 84
-const SVG_HEIGHT = ROW_HEIGHT * 2; // 112
+const COL_WIDTH = 44; // ラリー1列あたりの幅(px)
+const ROW_HEIGHT = 56; // プレイヤー1行あたりの高さ(円 + 余白)(px)
+const CIRCLE_SIZE = 36; // 円の直径(px)
+const SVG_HEIGHT = ROW_HEIGHT * 2; // 上下2行ぶん
+
+type CircleVariant = "active" | "inactive" | "finalWinner" | "finalLoser";
+
+const circleClassName: Record<CircleVariant, string> = {
+  active: "bg-blue-500 text-white",
+  inactive: "bg-neutral-200 text-neutral-700",
+  finalWinner: "bg-amber-300 text-green-800",
+  finalLoser: "bg-amber-300 text-neutral-700",
+};
+
+const ScoreCircle = ({
+  value,
+  variant,
+  serving,
+}: {
+  value: number;
+  variant: CircleVariant;
+  serving: boolean;
+}) => (
+  <div
+    className="relative flex items-center justify-center"
+    style={{ height: ROW_HEIGHT, width: COL_WIDTH }}
+  >
+    <div
+      className={`flex items-center justify-center rounded-full font-bold text-sm select-none ${circleClassName[variant]}`}
+      style={{ width: CIRCLE_SIZE, height: CIRCLE_SIZE }}
+    >
+      {value}
+    </div>
+    {serving && (
+      <div
+        className="absolute bg-orange-500 rounded-full"
+        style={{ width: 20, height: 4, bottom: 6, left: "50%", transform: "translateX(-50%)" }}
+      />
+    )}
+  </div>
+);
+
+type ColumnCell = { value: number; variant: CircleVariant; serving: boolean };
+
+const Column = ({ left, top, bottom }: { left: number; top: ColumnCell; bottom: ColumnCell }) => (
+  <div
+    className="absolute flex flex-col items-center"
+    style={{ left, width: COL_WIDTH, height: SVG_HEIGHT }}
+  >
+    <ScoreCircle value={top.value} variant={top.variant} serving={top.serving} />
+    <ScoreCircle value={bottom.value} variant={bottom.variant} serving={bottom.serving} />
+  </div>
+);
+
+const rallyCell = (point: ProgressPoint, row: Row): ColumnCell => ({
+  value: row === "top" ? topScore(point) : botScore(point),
+  variant: displayScorer(point) === row ? "active" : "inactive",
+  serving: displayServer(point) === row,
+});
+
+const finalCell = (value: number, opponent: number): ColumnCell => ({
+  value,
+  variant: value > opponent ? "finalWinner" : "finalLoser",
+  serving: false,
+});
+
+const rowCenterY = (row: Row) => (row === "top" ? ROW_HEIGHT / 2 : ROW_HEIGHT + ROW_HEIGHT / 2);
 
 export const ScoreProgressChart = ({ games, leftName, rightName, matchFirstServer }: Props) => {
-  // Filter to games with pointLog
-  const allReal = realGames(games);
-  // Map to {gameNumber (1-based within realGames), originalIndex, game}
-  const chartGames = allReal
-    .map((g, realIdx) => ({
-      g,
-      realIdx, // index within realGames (used for gameFirstServer)
-      gameNumber: realIdx + 1,
-    }))
-    .filter(({ g }) => g.pointLog && g.pointLog.length > 0);
+  const chartGames = realGames(games)
+    .map((game, realIndex) => ({ game, realIndex, gameNumber: realIndex + 1 }))
+    .filter(({ game }) => game.pointLog && game.pointLog.length > 0);
 
   if (chartGames.length === 0) return null;
-
-  // Result tab: left = top, right = bottom (no swap)
-  const topName = leftName;
-  const botName = rightName;
 
   return (
     <div className="w-full mt-6 px-2">
       <h3 className="text-center text-lg font-bold mb-4 text-ink">点数進行</h3>
       <div className="flex flex-col gap-8">
-        {chartGames.map(({ g, realIdx, gameNumber }) => {
-          const log = g.pointLog!;
-          // Determine firstServer for this game
-          const firstServer: Side | undefined = matchFirstServer
-            ? gameFirstServer(matchFirstServer, realIdx)
-            : undefined;
+        {chartGames.map(({ game, realIndex, gameNumber }) => {
+          const points = gameProgress(game.pointLog!, gameFirstServer(matchFirstServer, realIndex));
+          const columnCount = points.length;
+          const svgWidth = (columnCount + 1) * COL_WIDTH; // ラリー列 + 最終スコア列
 
-          const points = firstServer ? gameProgress(log, firstServer) : gameProgress(log, "L"); // fallback; server display skipped if matchFirstServer absent
-
-          const colCount = points.length;
-          // SVG width covers all rally columns + 1 final score column
-          const totalCols = colCount + 1;
-          const svgWidth = totalCols * COL_WIDTH;
-
-          // Final scores
           const lastPoint = points[points.length - 1];
           const finalTop = lastPoint ? topScore(lastPoint) : 0;
           const finalBot = lastPoint ? botScore(lastPoint) : 0;
 
-          // Build SVG lines: connect consecutive rally dots
-          const lines: { x1: number; y1: number; x2: number; y2: number }[] = [];
-          for (let i = 1; i < points.length; i++) {
-            const prev = points[i - 1]!;
-            const curr = points[i]!;
-            const prevCY = displayScorer(prev) === "top" ? TOP_CY : BOT_CY;
-            const currCY = displayScorer(curr) === "top" ? TOP_CY : BOT_CY;
-            const prevCX = (i - 1) * COL_WIDTH + COL_WIDTH / 2;
-            const currCX = i * COL_WIDTH + COL_WIDTH / 2;
-            lines.push({ x1: prevCX, y1: prevCY, x2: currCX, y2: currCY });
-          }
+          // 連続するラリーの得点者ドットを結ぶ線分
+          const lines = points.slice(1).map((point, index) => ({
+            x1: index * COL_WIDTH + COL_WIDTH / 2,
+            y1: rowCenterY(displayScorer(points[index]!)),
+            x2: (index + 1) * COL_WIDTH + COL_WIDTH / 2,
+            y2: rowCenterY(displayScorer(point)),
+          }));
 
           return (
             <div key={gameNumber}>
-              {/* Game header */}
               <div className="text-center font-bold text-base text-ink mb-2">Game {gameNumber}</div>
-
-              {/* Name labels + chart (no overflow-x-auto: full width for image capture) */}
               <div className="flex items-stretch">
-                {/* Player name column */}
+                {/* プレイヤー名の列 */}
                 <div className="flex flex-col shrink-0" style={{ width: 64, height: SVG_HEIGHT }}>
-                  <div
-                    className="flex items-center justify-end pr-2 text-sm font-bold text-ink truncate"
-                    style={{ height: ROW_HEIGHT }}
-                  >
-                    {topName}
-                  </div>
-                  <div
-                    className="flex items-center justify-end pr-2 text-sm font-bold text-ink truncate"
-                    style={{ height: ROW_HEIGHT }}
-                  >
-                    {botName}
-                  </div>
+                  {[leftName, rightName].map((name, row) => (
+                    <div
+                      key={row}
+                      className="flex items-center justify-end pr-2 text-sm font-bold text-ink truncate"
+                      style={{ height: ROW_HEIGHT }}
+                    >
+                      {name}
+                    </div>
+                  ))}
                 </div>
 
-                {/* Chart: no overflow-x-auto so full width renders for image capture */}
+                {/* チャート本体（画像取得のため overflow-x-auto は付けず全幅描画） */}
                 <div className="flex-1 min-w-0">
                   <div className="relative" style={{ width: svgWidth, height: SVG_HEIGHT }}>
-                    {/* SVG overlay for lines */}
                     <svg
                       className="absolute inset-0 pointer-events-none"
                       width={svgWidth}
                       height={SVG_HEIGHT}
                       style={{ overflow: "visible" }}
                     >
-                      {lines.map((ln, li) => (
+                      {lines.map((line, index) => (
                         <line
-                          key={li}
-                          x1={ln.x1}
-                          y1={ln.y1}
-                          x2={ln.x2}
-                          y2={ln.y2}
+                          key={index}
+                          x1={line.x1}
+                          y1={line.y1}
+                          x2={line.x2}
+                          y2={line.y2}
                           stroke="#3b82f6"
                           strokeWidth={3}
                           strokeLinecap="round"
@@ -125,114 +153,20 @@ export const ScoreProgressChart = ({ games, leftName, rightName, matchFirstServe
                       ))}
                     </svg>
 
-                    {/* Rally columns */}
-                    {points.map((pt, colIdx) => {
-                      const scorer = displayScorer(pt);
-                      const server = matchFirstServer ? displayServer(pt) : null;
-                      const tScore = topScore(pt);
-                      const bScore = botScore(pt);
-                      const left = colIdx * COL_WIDTH;
+                    {points.map((point, index) => (
+                      <Column
+                        key={index}
+                        left={index * COL_WIDTH}
+                        top={rallyCell(point, "top")}
+                        bottom={rallyCell(point, "bot")}
+                      />
+                    ))}
 
-                      return (
-                        <div
-                          key={colIdx}
-                          className="absolute flex flex-col items-center"
-                          style={{ left, width: COL_WIDTH, height: SVG_HEIGHT }}
-                        >
-                          {/* Top row */}
-                          <div
-                            className="relative flex items-center justify-center"
-                            style={{ height: ROW_HEIGHT, width: COL_WIDTH }}
-                          >
-                            <div
-                              className={`flex items-center justify-center rounded-full font-bold text-sm select-none ${
-                                scorer === "top"
-                                  ? "bg-blue-500 text-white"
-                                  : "bg-neutral-200 text-neutral-700"
-                              }`}
-                              style={{ width: CIRCLE_SIZE, height: CIRCLE_SIZE }}
-                            >
-                              {tScore}
-                            </div>
-                            {server === "top" && (
-                              <div
-                                className="absolute bg-orange-500 rounded-full"
-                                style={{
-                                  width: 20,
-                                  height: 4,
-                                  bottom: 6,
-                                  left: "50%",
-                                  transform: "translateX(-50%)",
-                                }}
-                              />
-                            )}
-                          </div>
-                          {/* Bottom row */}
-                          <div
-                            className="relative flex items-center justify-center"
-                            style={{ height: ROW_HEIGHT, width: COL_WIDTH }}
-                          >
-                            <div
-                              className={`flex items-center justify-center rounded-full font-bold text-sm select-none ${
-                                scorer === "bot"
-                                  ? "bg-blue-500 text-white"
-                                  : "bg-neutral-200 text-neutral-700"
-                              }`}
-                              style={{ width: CIRCLE_SIZE, height: CIRCLE_SIZE }}
-                            >
-                              {bScore}
-                            </div>
-                            {server === "bot" && (
-                              <div
-                                className="absolute bg-orange-500 rounded-full"
-                                style={{
-                                  width: 20,
-                                  height: 4,
-                                  bottom: 6,
-                                  left: "50%",
-                                  transform: "translateX(-50%)",
-                                }}
-                              />
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
-
-                    {/* Final score column */}
-                    <div
-                      className="absolute flex flex-col items-center"
-                      style={{ left: colCount * COL_WIDTH, width: COL_WIDTH, height: SVG_HEIGHT }}
-                    >
-                      {/* Top final */}
-                      <div
-                        className="flex items-center justify-center"
-                        style={{ height: ROW_HEIGHT, width: COL_WIDTH }}
-                      >
-                        <div
-                          className={`flex items-center justify-center rounded-full font-bold text-sm bg-amber-300 select-none ${
-                            finalTop > finalBot ? "text-green-800" : "text-neutral-700"
-                          }`}
-                          style={{ width: CIRCLE_SIZE, height: CIRCLE_SIZE }}
-                        >
-                          {finalTop}
-                        </div>
-                      </div>
-                      {/* Bottom final */}
-                      <div
-                        className="flex items-center justify-center"
-                        style={{ height: ROW_HEIGHT, width: COL_WIDTH }}
-                      >
-                        <div
-                          className={`flex items-center justify-center rounded-full font-bold text-sm bg-amber-300 select-none ${
-                            finalBot > finalTop ? "text-green-800" : "text-neutral-700"
-                          }`}
-                          style={{ width: CIRCLE_SIZE, height: CIRCLE_SIZE }}
-                        >
-                          {finalBot}
-                        </div>
-                      </div>
-                    </div>
+                    <Column
+                      left={columnCount * COL_WIDTH}
+                      top={finalCell(finalTop, finalBot)}
+                      bottom={finalCell(finalBot, finalTop)}
+                    />
                   </div>
                 </div>
               </div>

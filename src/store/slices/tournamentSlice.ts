@@ -1,7 +1,7 @@
 import type { StateCreator } from "zustand";
 import type { BestOf, Format, Tournament } from "@/store/types";
 import type { StoreState } from "@/store/useAppStore";
-import { uid } from "@/lib/id";
+import { generateId } from "@/lib/id";
 import { participantInitial } from "@/store/slices/participantSlice";
 import { matchInitial } from "@/store/slices/matchSlice";
 
@@ -24,8 +24,8 @@ export const createTournamentSlice: StateCreator<StoreState, [], [], TournamentS
   ...tournamentInitial,
 
   createTournament: (name, format, date, bestOf) => {
-    const id = uid();
-    const t: Tournament = {
+    const id = generateId();
+    const tournament: Tournament = {
       id,
       name,
       format,
@@ -35,28 +35,28 @@ export const createTournamentSlice: StateCreator<StoreState, [], [], TournamentS
       participantIds: [],
       matchIds: [],
     };
-    set((st) => ({
-      tournaments: { ...st.tournaments, [id]: t },
+    set((state) => ({
+      tournaments: { ...state.tournaments, [id]: tournament },
       currentTournamentId: id,
     }));
     return id;
   },
 
   deleteTournament: (id) => {
-    set((st) => {
-      const t = st.tournaments[id];
-      if (!t) return st;
-      const tournaments = { ...st.tournaments };
+    set((state) => {
+      const tournament = state.tournaments[id];
+      if (!tournament) return state;
+      const tournaments = { ...state.tournaments };
       delete tournaments[id];
-      const matches = { ...st.matches };
-      for (const mid of t.matchIds) delete matches[mid];
-      const participants = { ...st.participants };
-      for (const pid of t.participantIds) delete participants[pid];
+      const matches = { ...state.matches };
+      for (const matchId of tournament.matchIds) delete matches[matchId];
+      const participants = { ...state.participants };
+      for (const participantId of tournament.participantIds) delete participants[participantId];
       return {
         tournaments,
         matches,
         participants,
-        currentTournamentId: st.currentTournamentId === id ? null : st.currentTournamentId,
+        currentTournamentId: state.currentTournamentId === id ? null : state.currentTournamentId,
       };
     });
   },
@@ -64,16 +64,16 @@ export const createTournamentSlice: StateCreator<StoreState, [], [], TournamentS
   setCurrentTournament: (id) => set({ currentTournamentId: id }),
 
   resetTournament: (id) => {
-    set((st) => {
-      const t = st.tournaments[id];
-      if (!t) return st;
-      const matches = { ...st.matches };
-      for (const mid of t.matchIds) delete matches[mid];
+    set((state) => {
+      const tournament = state.tournaments[id];
+      if (!tournament) return state;
+      const matches = { ...state.matches };
+      for (const matchId of tournament.matchIds) delete matches[matchId];
       return {
         matches,
         tournaments: {
-          ...st.tournaments,
-          [id]: { ...t, matchIds: [] },
+          ...state.tournaments,
+          [id]: { ...tournament, matchIds: [] },
         },
       };
     });

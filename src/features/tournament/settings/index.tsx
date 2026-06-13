@@ -8,9 +8,11 @@ import { formatDate } from "@/lib/time";
 export const SettingsTab = () => {
   const { tournamentId } = useParams<{ tournamentId: string }>();
   const navigate = useNavigate();
-  const tournament = useAppStore((s) => (tournamentId ? s.tournaments[tournamentId] : undefined));
-  const resetTournament = useAppStore((s) => s.resetTournament);
-  const deleteTournament = useAppStore((s) => s.deleteTournament);
+  const tournament = useAppStore((state) =>
+    tournamentId ? state.tournaments[tournamentId] : undefined,
+  );
+  const resetTournament = useAppStore((state) => state.resetTournament);
+  const deleteTournament = useAppStore((state) => state.deleteTournament);
 
   const [confirmReset, setConfirmReset] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);

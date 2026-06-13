@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useId, useRef } from "react";
 import { BigButton } from "@/components/ui/BigButton";
 
 type Props = {
@@ -23,6 +23,7 @@ export const ConfirmDialog = ({
   onCancel,
 }: Props) => {
   const cancelRef = useRef<HTMLButtonElement>(null);
+  const titleId = useId();
 
   useEffect(() => {
     if (open) cancelRef.current?.focus();
@@ -36,21 +37,21 @@ export const ConfirmDialog = ({
       aria-label="閉じる"
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
       onClick={onCancel}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === "Escape") onCancel();
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === "Escape") onCancel();
       }}
     >
       {/* oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- role="dialog" はランドマークだがstopPropagationが必要 */}
       <div
         role="dialog"
         aria-modal="true"
-        aria-labelledby="confirm-title"
+        aria-labelledby={titleId}
         tabIndex={-1}
         className="bg-white text-ink rounded-2xl p-6 max-w-md w-full border-4 border-line"
-        onClick={(e) => e.stopPropagation()}
-        onKeyDown={(e) => e.stopPropagation()}
+        onClick={(event) => event.stopPropagation()}
+        onKeyDown={(event) => event.stopPropagation()}
       >
-        <h2 id="confirm-title" className="text-xl font-extrabold mb-4">
+        <h2 id={titleId} className="text-xl font-extrabold mb-4">
           {title}
         </h2>
         <p className="text-base mb-6 leading-relaxed">{message}</p>

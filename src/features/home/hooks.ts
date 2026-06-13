@@ -3,11 +3,13 @@ import { useAppStore } from "@/store/useAppStore";
 import type { BestOf, Format } from "@/store/types";
 
 export const useHome = (onCreated: (id: string) => void) => {
-  const tournaments = useAppStore((s) => s.tournaments);
-  const createTournament = useAppStore((s) => s.createTournament);
+  const tournaments = useAppStore((state) => state.tournaments);
+  const createTournament = useAppStore((state) => state.createTournament);
 
   const list = Object.values(tournaments).sort(
-    (a, b) => (b.date ?? "").localeCompare(a.date ?? "") || b.createdAt.localeCompare(a.createdAt),
+    (tournamentA, tournamentB) =>
+      (tournamentB.date ?? "").localeCompare(tournamentA.date ?? "") ||
+      tournamentB.createdAt.localeCompare(tournamentA.createdAt),
   );
 
   const [creating, setCreating] = useState(false);

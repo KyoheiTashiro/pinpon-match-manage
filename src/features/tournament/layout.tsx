@@ -21,8 +21,10 @@ const tabs: Tab[] = [
 export const TournamentLayout = () => {
   const { tournamentId } = useParams<{ tournamentId: string }>();
   const navigate = useNavigate();
-  const tournament = useAppStore((s) => (tournamentId ? s.tournaments[tournamentId] : undefined));
-  const setCurrent = useAppStore((s) => s.setCurrentTournament);
+  const tournament = useAppStore((state) =>
+    tournamentId ? state.tournaments[tournamentId] : undefined,
+  );
+  const setCurrent = useAppStore((state) => state.setCurrentTournament);
 
   useEffect(() => {
     if (tournamentId) setCurrent(tournamentId);

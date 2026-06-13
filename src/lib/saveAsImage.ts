@@ -14,21 +14,23 @@ export const saveAsImage = async (node: HTMLElement, filename: string) => {
   const blob = await (await fetch(dataUrl)).blob();
   const file = new File([blob], filename, { type: "image/png" });
 
-  const nav = navigator as Navigator & { canShare?: (data: ShareData) => boolean };
-  if (nav.canShare?.({ files: [file] })) {
+  const navigatorWithShare = navigator as Navigator & {
+    canShare?: (data: ShareData) => boolean;
+  };
+  if (navigatorWithShare.canShare?.({ files: [file] })) {
     try {
-      await nav.share({ files: [file] } as ShareData);
+      await navigatorWithShare.share({ files: [file] } as ShareData);
       return;
-    } catch (e) {
-      if ((e as Error).name === "AbortError") return;
+    } catch (error) {
+      if ((error as Error).name === "AbortError") return;
     }
   }
   const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  document.body.append(a);
-  a.click();
-  a.remove();
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = filename;
+  document.body.append(anchor);
+  anchor.click();
+  anchor.remove();
   URL.revokeObjectURL(url);
 };

@@ -1,8 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { createPortal } from "react-dom";
 import type { Match, Participant } from "@/store/types";
 import type { Game, Side } from "@/domain/match";
 import { isGameFinished, gameWinner, winsNeededForBestOf } from "@/domain/match";
+import {
+  padGames,
+  trimTrailingEmptyGames,
+  lockedGameStartIndex,
+  firstPlayableGameIndex,
+} from "@/domain/matchGames";
 import { useAppStore } from "@/store/useAppStore";
 import { BigButton } from "@/components/ui/BigButton";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
@@ -19,27 +25,18 @@ const sideLabel = (side: Match["leftSide"], participants: Record<string, Partici
   return side.memberIds.map((id) => participants[id]?.name ?? "?").join(" / ");
 };
 
-const trimGames = (src: Game[], lockIdx: number): Game[] => {
-  const out: Game[] = [];
-  for (let i = 0; i < src.length; i++) {
-    const g = src[i];
-    const empty = g.leftScore === 0 && g.rightScore === 0;
-    if (empty && i >= lockIdx) continue;
-    if (i < lockIdx || !empty) out.push(g);
-  }
-  return out;
-};
-
 export const MatchModal = ({ matchId, participants, onClose }: Props) => {
-  const match = useAppStore((s) => s.matches[matchId]);
-  const updateMatch = useAppStore((s) => s.updateMatch);
-  const deleteMatch = useAppStore((s) => s.deleteMatch);
-  const bestOf = useAppStore((s) => (match ? (s.tournaments[match.tournamentId]?.bestOf ?? 5) : 5));
+  const match = useAppStore((state) => state.matches[matchId]);
+  const updateMatch = useAppStore((state) => state.updateMatch);
+  const deleteMatch = useAppStore((state) => state.deleteMatch);
+  const bestOf = useAppStore((state) =>
+    match ? (state.tournaments[match.tournamentId]?.bestOf ?? 5) : 5,
+  );
   const wins = winsNeededForBestOf(bestOf);
   const [games, setGames] = useState<Game[]>(() => padGames(match?.games ?? [], bestOf));
-  const firstServer: Side | undefined = match?.firstServer;
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [scoreboardOpen, setScoreboardOpen] = useState(false);
+  const titleId = useId();
 
   useEffect(() => {
     if (!match) onClose();
@@ -47,26 +44,13 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
 
   if (!match) return null;
 
-  const computeLockedFromIndex = (src: Game[]): number => {
-    let lw = 0;
-    let rw = 0;
-    for (let i = 0; i < src.length; i++) {
-      const g = src[i];
-      if (g.leftScore === 0 && g.rightScore === 0) continue;
-      if (!isGameFinished(g)) continue;
-      if (g.leftScore > g.rightScore) lw++;
-      else rw++;
-      if (lw === wins || rw === wins) return i + 1;
-    }
-    return bestOf;
-  };
-
-  const lockedFromIndex = computeLockedFromIndex(games);
+  const firstServer: Side = match.firstServer;
+  const lockedFromIndex = lockedGameStartIndex(games, wins, bestOf);
 
   const persistGames = (next: Game[]) => {
     setGames(next);
-    const lockIdx = computeLockedFromIndex(next);
-    updateMatch(match.id, { games: trimGames(next, lockIdx) });
+    const lockedStartIndex = lockedGameStartIndex(next, wins, bestOf);
+    updateMatch(match.id, { games: trimTrailingEmptyGames(next, lockedStartIndex) });
   };
 
   const setFirstServer = (side: Side) => {
@@ -80,22 +64,22 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
       aria-label="閉じる"
       className="fixed inset-0 z-40 flex items-start justify-center bg-black/50 p-2 sm:p-4 pb-28 sm:pb-28 overflow-y-auto"
       onClick={onClose}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === "Escape") onClose();
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === "Escape") onClose();
       }}
     >
       {/* oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- role="dialog" はランドマークだがstopPropagationが必要 */}
       <div
         role="dialog"
         aria-modal="true"
-        aria-labelledby="match-title"
+        aria-labelledby={titleId}
         tabIndex={-1}
         className="bg-white rounded-2xl p-4 sm:p-6 w-full max-w-2xl border-4 border-line my-4"
-        onClick={(e) => e.stopPropagation()}
-        onKeyDown={(e) => e.stopPropagation()}
+        onClick={(event) => event.stopPropagation()}
+        onKeyDown={(event) => event.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-3 mb-4">
-          <h2 id="match-title" className="text-xl font-extrabold">
+          <h2 id={titleId} className="text-xl font-extrabold">
             試合の入力
           </h2>
           <button
@@ -117,38 +101,28 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
         <fieldset className="mb-4 border-2 border-line rounded-xl p-3">
           <legend className="px-2 font-bold">最初のサーブ</legend>
           <div className="flex flex-col sm:flex-row gap-2">
-            <label
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg border-2 cursor-pointer flex-1 ${
-                firstServer === "L" ? "border-orange-500 bg-orange-50" : "border-line bg-white"
-              }`}
-            >
-              <input
-                type="radio"
-                name="first-server"
-                value="L"
-                checked={firstServer === "L"}
-                onChange={() => setFirstServer("L")}
-                aria-label={`最初のサーブ: ${sideLabel(match.leftSide, participants)}`}
-                className="w-5 h-5 accent-orange-500"
-              />
-              <span className="font-bold">{sideLabel(match.leftSide, participants)}</span>
-            </label>
-            <label
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg border-2 cursor-pointer flex-1 ${
-                firstServer === "R" ? "border-orange-500 bg-orange-50" : "border-line bg-white"
-              }`}
-            >
-              <input
-                type="radio"
-                name="first-server"
-                value="R"
-                checked={firstServer === "R"}
-                onChange={() => setFirstServer("R")}
-                aria-label={`最初のサーブ: ${sideLabel(match.rightSide, participants)}`}
-                className="w-5 h-5 accent-orange-500"
-              />
-              <span className="font-bold">{sideLabel(match.rightSide, participants)}</span>
-            </label>
+            {(["L", "R"] as Side[]).map((side) => {
+              const name = sideLabel(side === "L" ? match.leftSide : match.rightSide, participants);
+              return (
+                <label
+                  key={side}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg border-2 cursor-pointer flex-1 ${
+                    firstServer === side ? "border-orange-500 bg-orange-50" : "border-line bg-white"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="first-server"
+                    value={side}
+                    checked={firstServer === side}
+                    onChange={() => setFirstServer(side)}
+                    aria-label={`最初のサーブ: ${name}`}
+                    className="w-5 h-5 accent-orange-500"
+                  />
+                  <span className="font-bold">{name}</span>
+                </label>
+              );
+            })}
           </div>
         </fieldset>
 
@@ -162,18 +136,18 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
         </div>
 
         <ul className="space-y-2 mb-4 border-2 border-line rounded-xl divide-y-2 divide-line overflow-hidden">
-          {games.map((g, i) => {
-            const locked = i >= lockedFromIndex;
-            const empty = g.leftScore === 0 && g.rightScore === 0;
-            const w = gameWinner(g);
+          {games.map((game, gameIndex) => {
+            const locked = gameIndex >= lockedFromIndex;
+            const empty = game.leftScore === 0 && game.rightScore === 0;
+            const winner = gameWinner(game);
             return (
               <li
-                key={i}
+                key={gameIndex}
                 className={`flex items-center justify-between px-3 py-2 ${
                   locked ? "bg-bg opacity-60" : "bg-white"
                 }`}
               >
-                <span className="font-extrabold text-base px-3 py-1">ゲーム{i + 1}</span>
+                <span className="font-extrabold text-base px-3 py-1">ゲーム{gameIndex + 1}</span>
                 <span className="text-xl font-extrabold tabular-nums">
                   {locked && empty ? (
                     <span className="text-sub text-base font-bold">入力不可</span>
@@ -181,10 +155,12 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
                     <span className="text-sub text-base font-bold">未入力</span>
                   ) : (
                     <>
-                      <span className={w === "L" ? "text-success" : ""}>{g.leftScore}</span>
+                      <span className={winner === "L" ? "text-success" : ""}>{game.leftScore}</span>
                       <span className="mx-2 text-sub">-</span>
-                      <span className={w === "R" ? "text-success" : ""}>{g.rightScore}</span>
-                      {!w && !empty && !isGameFinished(g) && (
+                      <span className={winner === "R" ? "text-success" : ""}>
+                        {game.rightScore}
+                      </span>
+                      {!winner && !empty && !isGameFinished(game) && (
                         <span className="ml-2 text-sm font-bold text-sub">(進行中)</span>
                       )}
                     </>
@@ -211,20 +187,7 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
           lockedFromIndex={lockedFromIndex}
           winsNeeded={wins}
           matchFirstServer={firstServer}
-          initialGameIndex={Math.max(
-            0,
-            Math.min(
-              bestOf - 1,
-              (() => {
-                for (let i = 0; i < games.length; i++) {
-                  if (i >= lockedFromIndex) break;
-                  const g = games[i];
-                  if (!isGameFinished(g)) return i;
-                }
-                return Math.max(0, lockedFromIndex - 1);
-              })(),
-            ),
-          )}
+          initialGameIndex={firstPlayableGameIndex(games, lockedFromIndex, bestOf)}
           onBack={() => setScoreboardOpen(false)}
           onCloseAll={onClose}
         />
@@ -247,10 +210,4 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
     </div>,
     document.body,
   );
-};
-
-const padGames = (games: Game[], totalGames: number): Game[] => {
-  const out: Game[] = [...games];
-  while (out.length < totalGames) out.push({ leftScore: 0, rightScore: 0 });
-  return out.slice(0, totalGames);
 };

@@ -42,36 +42,36 @@ describe("gameWinner", () => {
 
 describe("matchSummary", () => {
   it("3-0 finished", () => {
-    const s = matchSummary([
+    const summary = matchSummary([
       { leftScore: 11, rightScore: 5 },
       { leftScore: 11, rightScore: 8 },
       { leftScore: 11, rightScore: 9 },
     ]);
-    expect(s.finished).toBe(true);
-    expect(s.winner).toBe("L");
-    expect(s.leftWins).toBe(3);
+    expect(summary.finished).toBe(true);
+    expect(summary.winner).toBe("L");
+    expect(summary.leftWins).toBe(3);
   });
   it("3-2 finished", () => {
-    const s = matchSummary([
+    const summary = matchSummary([
       { leftScore: 11, rightScore: 9 },
       { leftScore: 8, rightScore: 11 },
       { leftScore: 11, rightScore: 7 },
       { leftScore: 6, rightScore: 11 },
       { leftScore: 11, rightScore: 9 },
     ]);
-    expect(s.winner).toBe("L");
-    expect(s.leftWins).toBe(3);
-    expect(s.rightWins).toBe(2);
+    expect(summary.winner).toBe("L");
+    expect(summary.leftWins).toBe(3);
+    expect(summary.rightWins).toBe(2);
   });
   it("2-2 ongoing", () => {
-    const s = matchSummary([
+    const summary = matchSummary([
       { leftScore: 11, rightScore: 9 },
       { leftScore: 8, rightScore: 11 },
       { leftScore: 11, rightScore: 7 },
       { leftScore: 6, rightScore: 11 },
     ]);
-    expect(s.finished).toBe(false);
-    expect(s.winner).toBeNull();
+    expect(summary.finished).toBe(false);
+    expect(summary.winner).toBeNull();
   });
 });
 
@@ -89,15 +89,15 @@ describe("scoresFromLog", () => {
 
 describe("addPointToGame", () => {
   it("adds to pointLog and recalculates scores", () => {
-    const g = { leftScore: 1, rightScore: 0, pointLog: ["L" as const] };
-    const result = addPointToGame(g, "R");
+    const game = { leftScore: 1, rightScore: 0, pointLog: ["L" as const] };
+    const result = addPointToGame(game, "R");
     expect(result.pointLog).toEqual(["L", "R"]);
     expect(result.leftScore).toBe(1);
     expect(result.rightScore).toBe(1);
   });
   it("starts from empty log when pointLog is undefined", () => {
-    const g = { leftScore: 0, rightScore: 0 };
-    const result = addPointToGame(g, "L");
+    const game = { leftScore: 0, rightScore: 0 };
+    const result = addPointToGame(game, "L");
     expect(result.pointLog).toEqual(["L"]);
     expect(result.leftScore).toBe(1);
     expect(result.rightScore).toBe(0);
@@ -106,26 +106,26 @@ describe("addPointToGame", () => {
 
 describe("undoLastPoint", () => {
   it("removes last entry and recalculates", () => {
-    const g = { leftScore: 2, rightScore: 1, pointLog: ["L", "R", "L"] as Side[] };
-    const result = undoLastPoint(g);
+    const game = { leftScore: 2, rightScore: 1, pointLog: ["L", "R", "L"] as Side[] };
+    const result = undoLastPoint(game);
     expect(result.pointLog).toEqual(["L", "R"]);
     expect(result.leftScore).toBe(1);
     expect(result.rightScore).toBe(1);
   });
   it("returns unchanged when pointLog is empty", () => {
-    const g = { leftScore: 0, rightScore: 0, pointLog: [] as Side[] };
-    expect(undoLastPoint(g)).toBe(g);
+    const game = { leftScore: 0, rightScore: 0, pointLog: [] as Side[] };
+    expect(undoLastPoint(game)).toBe(game);
   });
   it("returns unchanged when pointLog is undefined", () => {
-    const g = { leftScore: 0, rightScore: 0 };
-    expect(undoLastPoint(g)).toBe(g);
+    const game = { leftScore: 0, rightScore: 0 };
+    expect(undoLastPoint(game)).toBe(game);
   });
 });
 
 describe("lastScorer", () => {
   it("returns last element of pointLog", () => {
-    const g = { leftScore: 2, rightScore: 1, pointLog: ["L", "R", "L"] as Side[] };
-    expect(lastScorer(g)).toBe("L");
+    const game = { leftScore: 2, rightScore: 1, pointLog: ["L", "R", "L"] as Side[] };
+    expect(lastScorer(game)).toBe("L");
   });
   it("returns null when pointLog is empty", () => {
     expect(lastScorer({ leftScore: 0, rightScore: 0, pointLog: [] })).toBeNull();

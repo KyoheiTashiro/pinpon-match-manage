@@ -45,32 +45,32 @@ export const computeRanking = (
     return stats.get(id)!;
   };
 
-  for (const m of matches) {
-    const summary = matchSummary(m.games, winsNeeded);
+  for (const match of matches) {
+    const summary = matchSummary(match.games, winsNeeded);
     if (!summary.finished) continue;
-    const leftIds = sideMembers(m.leftSide);
-    const rightIds = sideMembers(m.rightSide);
+    const leftIds = sideMembers(match.leftSide);
+    const rightIds = sideMembers(match.rightSide);
     const leftWon = summary.winner === "L";
 
     for (const id of leftIds) {
-      const s = ensure(id);
-      s.played++;
-      if (leftWon) s.wins++;
-      else s.losses++;
-      s.gamesWon += summary.leftWins;
-      s.gamesLost += summary.rightWins;
-      s.pointsFor += summary.leftPoints;
-      s.pointsAgainst += summary.rightPoints;
+      const stat = ensure(id);
+      stat.played++;
+      if (leftWon) stat.wins++;
+      else stat.losses++;
+      stat.gamesWon += summary.leftWins;
+      stat.gamesLost += summary.rightWins;
+      stat.pointsFor += summary.leftPoints;
+      stat.pointsAgainst += summary.rightPoints;
     }
     for (const id of rightIds) {
-      const s = ensure(id);
-      s.played++;
-      if (leftWon) s.losses++;
-      else s.wins++;
-      s.gamesWon += summary.rightWins;
-      s.gamesLost += summary.leftWins;
-      s.pointsFor += summary.rightPoints;
-      s.pointsAgainst += summary.leftPoints;
+      const stat = ensure(id);
+      stat.played++;
+      if (leftWon) stat.losses++;
+      else stat.wins++;
+      stat.gamesWon += summary.rightWins;
+      stat.gamesLost += summary.leftWins;
+      stat.pointsFor += summary.rightPoints;
+      stat.pointsAgainst += summary.leftPoints;
     }
   }
 
@@ -80,35 +80,30 @@ export const computeRanking = (
   // directly to avoid the spread overhead flagged by oxc/no-map-spread, then cast to
   // RankingRow (rank will be filled in below).
   const rows = Array.from(stats.values()) as RankingRow[];
-  for (const s of rows) {
-    s.gameDiff = s.gamesWon - s.gamesLost;
-    s.pointDiff = s.pointsFor - s.pointsAgainst;
-    s.rank = 0;
+  for (const row of rows) {
+    row.gameDiff = row.gamesWon - row.gamesLost;
+    row.pointDiff = row.pointsFor - row.pointsAgainst;
+    row.rank = 0;
   }
 
-  rows.sort((a, b) => {
-    if (b.wins !== a.wins) return b.wins - a.wins;
-    if (b.gameDiff !== a.gameDiff) return b.gameDiff - a.gameDiff;
-    if (b.pointDiff !== a.pointDiff) return b.pointDiff - a.pointDiff;
-    return a.name.localeCompare(b.name, "ja");
+  rows.sort((rowA, rowB) => {
+    if (rowB.wins !== rowA.wins) return rowB.wins - rowA.wins;
+    if (rowB.gameDiff !== rowA.gameDiff) return rowB.gameDiff - rowA.gameDiff;
+    if (rowB.pointDiff !== rowA.pointDiff) return rowB.pointDiff - rowA.pointDiff;
+    return rowA.name.localeCompare(rowB.name, "ja");
   });
 
   // rows elements are locally owned objects; assign rank directly instead of spreading.
+  // 同順位（wins/gameDiff/pointDiff が同値）は同じ rank、次の異なる行で順位が飛ぶ（1,2,2,4 形式）。
   let rank = 0;
-  let prevKey = "";
-  let sameCount = 0;
-  for (let i = 0; i < rows.length; i++) {
-    const r = rows[i]!;
-    const key = `${r.wins}-${r.gameDiff}-${r.pointDiff}`;
-    if (key === prevKey) {
-      sameCount++;
-    } else {
-      rank = i + 1;
-      sameCount = 1;
+  let previousKey = "";
+  rows.forEach((row, index) => {
+    const key = `${row.wins}-${row.gameDiff}-${row.pointDiff}`;
+    if (key !== previousKey) {
+      rank = index + 1;
+      previousKey = key;
     }
-    prevKey = key;
-    void sameCount;
-    r.rank = rank;
-  }
+    row.rank = rank;
+  });
   return rows;
 };

@@ -5,7 +5,9 @@ import { DoublesMatrix } from "@/features/tournament/matrix/DoublesMatrix";
 
 export const MatchMatrixTab = () => {
   const { tournamentId } = useParams<{ tournamentId: string }>();
-  const tournament = useAppStore((s) => (tournamentId ? s.tournaments[tournamentId] : undefined));
+  const tournament = useAppStore((state) =>
+    tournamentId ? state.tournaments[tournamentId] : undefined,
+  );
 
   if (!tournament || !tournamentId) return null;
 

@@ -1,25 +1,25 @@
 const JST = "Asia/Tokyo";
 
-const jstParts = (d: Date) => {
-  const fmt = new Intl.DateTimeFormat("ja-JP", {
+const jstParts = (date: Date) => {
+  const formatter = new Intl.DateTimeFormat("ja-JP", {
     timeZone: JST,
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
     hour12: false,
   });
-  const parts = fmt.formatToParts(d);
-  const get = (t: string) => parts.find((p) => p.type === t)?.value ?? "";
+  const parts = formatter.formatToParts(date);
+  const partValue = (type: string) => parts.find((part) => part.type === type)?.value ?? "";
   return {
-    year: get("year"),
-    month: get("month"),
-    day: get("day"),
+    year: partValue("year"),
+    month: partValue("month"),
+    day: partValue("day"),
   };
 };
 
 export const formatDate = (iso: string): string => {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "";
-  const p = jstParts(d);
-  return `${p.year}年${Number(p.month)}月${Number(p.day)}日`;
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "";
+  const parts = jstParts(date);
+  return `${parts.year}年${Number(parts.month)}月${Number(parts.day)}日`;
 };

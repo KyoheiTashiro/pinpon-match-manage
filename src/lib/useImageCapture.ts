@@ -11,8 +11,8 @@ export const useImageCapture = (filenamePrefix: string, tournamentName: string |
     try {
       const date = new Date().toISOString().slice(0, 10);
       await saveAsImage(ref.current, `${filenamePrefix}_${tournamentName}_${date}.png`);
-    } catch (e) {
-      console.error(e);
+    } catch (error) {
+      console.error(error);
       alert("画像の保存に失敗しました。");
     } finally {
       setSaving(false);

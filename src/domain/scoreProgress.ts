@@ -10,13 +10,13 @@ export type ProgressPoint = {
 };
 
 export const gameProgress = (pointLog: Side[], firstServerOfGame: Side): ProgressPoint[] =>
-  pointLog.map((scorer, i) => {
-    const preLog = pointLog.slice(0, i);
-    const left = preLog.filter((s) => s === "L").length;
-    const right = preLog.filter((s) => s === "R").length;
+  pointLog.map((scorer, index) => {
+    const preLog = pointLog.slice(0, index);
+    const left = preLog.filter((side) => side === "L").length;
+    const right = preLog.filter((side) => side === "R").length;
     const server = currentServer({ leftScore: left, rightScore: right }, firstServerOfGame);
     return {
-      index: i + 1,
+      index: index + 1,
       scorer,
       left: left + (scorer === "L" ? 1 : 0),
       right: right + (scorer === "R" ? 1 : 0),

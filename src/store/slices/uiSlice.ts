@@ -4,10 +4,10 @@ import type { StoreState } from "@/store/useAppStore";
 
 export type UiSlice = {
   fontSize: FontSize;
-  setFontSize: (s: FontSize) => void;
+  setFontSize: (size: FontSize) => void;
 };
 
 export const createUiSlice: StateCreator<StoreState, [], [], UiSlice> = (set) => ({
   fontSize: "normal",
-  setFontSize: (s) => set({ fontSize: s }),
+  setFontSize: (size) => set({ fontSize: size }),
 });

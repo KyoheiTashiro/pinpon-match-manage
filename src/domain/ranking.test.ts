@@ -4,14 +4,14 @@ import type { Match } from "@/store/types";
 
 const make = (
   id: string,
-  l: string,
-  r: string,
+  leftId: string,
+  rightId: string,
   games: { leftScore: number; rightScore: number }[],
 ): Match => ({
   id,
   tournamentId: "t",
-  leftSide: { kind: "single", participantId: l },
-  rightSide: { kind: "single", participantId: r },
+  leftSide: { kind: "single", participantId: leftId },
+  rightSide: { kind: "single", participantId: rightId },
   games,
   firstServer: "L",
 });
@@ -47,8 +47,8 @@ describe("computeRanking", () => {
   it("ignores unfinished matches", () => {
     const matches: Match[] = [make("1", "A", "B", [{ leftScore: 11, rightScore: 9 }])];
     const rows = computeRanking(matches, { A: "A", B: "B" });
-    expect(rows.every((r) => r.wins === 0)).toBe(true);
-    expect(rows.every((r) => r.losses === 0)).toBe(true);
+    expect(rows.every((row) => row.wins === 0)).toBe(true);
+    expect(rows.every((row) => row.losses === 0)).toBe(true);
   });
 
   it("lists participants with no matches", () => {

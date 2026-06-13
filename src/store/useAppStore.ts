@@ -20,16 +20,16 @@ export const useAppStore = create<StoreState>()(
       name: "pinpon-match-manage:v1",
       version: 2,
       migrate: (persisted, version) => {
-        const st = persisted as AppState;
-        if (version < 2 && st?.tournaments) {
+        const state = persisted as AppState;
+        if (version < 2 && state?.tournaments) {
           // v1は5ゲーム制固定だった。既存大会へ bestOf:5 を付与。
           const tournaments: Record<string, Tournament> = {};
-          for (const [id, t] of Object.entries(st.tournaments)) {
-            tournaments[id] = { ...t, bestOf: t.bestOf ?? 5 };
+          for (const [id, tournament] of Object.entries(state.tournaments)) {
+            tournaments[id] = { ...tournament, bestOf: tournament.bestOf ?? 5 };
           }
-          st.tournaments = tournaments;
+          state.tournaments = tournaments;
         }
-        return st;
+        return state;
       },
     },
   ),

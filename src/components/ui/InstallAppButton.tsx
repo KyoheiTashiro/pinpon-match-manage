@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { BigButton } from "@/components/ui/BigButton";
 
 type BeforeInstallPromptEvent = Event & {
@@ -17,15 +17,16 @@ export const InstallAppButton = () => {
   const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(null);
   const [installed, setInstalled] = useState(false);
   const [showIOSGuide, setShowIOSGuide] = useState(false);
+  const guideTitleId = useId();
 
   useEffect(() => {
     if (isStandalone()) {
       setInstalled(true);
       return;
     }
-    const onBeforeInstall = (e: Event) => {
-      e.preventDefault();
-      setDeferred(e as BeforeInstallPromptEvent);
+    const onBeforeInstall = (event: Event) => {
+      event.preventDefault();
+      setDeferred(event as BeforeInstallPromptEvent);
     };
     const onInstalled = () => {
       setInstalled(true);
@@ -69,21 +70,21 @@ export const InstallAppButton = () => {
           aria-label="閉じる"
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
           onClick={() => setShowIOSGuide(false)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === "Escape") setShowIOSGuide(false);
+          onKeyDown={(event) => {
+            if (event.key === "Enter" || event.key === "Escape") setShowIOSGuide(false);
           }}
         >
           {/* oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- role="dialog" はランドマークだがstopPropagationが必要 */}
           <div
             role="dialog"
             aria-modal="true"
-            aria-labelledby="install-guide-title"
+            aria-labelledby={guideTitleId}
             tabIndex={-1}
             className="bg-white rounded-2xl p-6 max-w-md w-full border-4 border-line"
-            onClick={(e) => e.stopPropagation()}
-            onKeyDown={(e) => e.stopPropagation()}
+            onClick={(event) => event.stopPropagation()}
+            onKeyDown={(event) => event.stopPropagation()}
           >
-            <h2 id="install-guide-title" className="text-xl font-extrabold mb-4">
+            <h2 id={guideTitleId} className="text-xl font-extrabold mb-4">
               ホーム画面に追加
             </h2>
             {isIOS() ? (

@@ -21,8 +21,8 @@ export const MatchResultView = ({
   swapped,
 }: Props) => {
   const playedGames = games
-    .map((g, i) => ({ g, i }))
-    .filter(({ g }) => isGameFinished(g) || g.leftScore > 0 || g.rightScore > 0);
+    .map((game, gameIndex) => ({ game, gameIndex }))
+    .filter(({ game }) => isGameFinished(game) || game.leftScore > 0 || game.rightScore > 0);
 
   return (
     <div className="flex-1 min-h-0 overflow-auto px-4 py-6 flex flex-col items-center justify-center">
@@ -44,14 +44,14 @@ export const MatchResultView = ({
           </div>
         </div>
         <div className="flex flex-col gap-2 sm:gap-3 text-[clamp(1.75rem,4vw,3.5rem)] font-extrabold tabular-nums">
-          {playedGames.map(({ g, i }) => {
-            const l = swapped ? g.rightScore : g.leftScore;
-            const r = swapped ? g.leftScore : g.rightScore;
+          {playedGames.map(({ game, gameIndex }) => {
+            const leftScore = swapped ? game.rightScore : game.leftScore;
+            const rightScore = swapped ? game.leftScore : game.rightScore;
             return (
-              <div key={i} className="flex items-center justify-center gap-3 sm:gap-5">
-                <span className="text-right min-w-[2ch]">{l}</span>
+              <div key={gameIndex} className="flex items-center justify-center gap-3 sm:gap-5">
+                <span className="text-right min-w-[2ch]">{leftScore}</span>
                 <span className="text-white/40">-</span>
-                <span className="text-left min-w-[2ch]">{r}</span>
+                <span className="text-left min-w-[2ch]">{rightScore}</span>
               </div>
             );
           })}

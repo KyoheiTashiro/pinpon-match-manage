@@ -5,13 +5,13 @@ import { BigButton } from "@/components/ui/BigButton";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { FontSizeToggle } from "@/components/ui/FontSizeToggle";
 import { InstallAppButton } from "@/components/ui/InstallAppButton";
+import { RadioCardGroup } from "@/components/ui/RadioCardGroup";
 import { formatDate } from "@/lib/time";
-import type { BestOf, Format } from "@/store/types";
 import { useHome } from "@/features/home/hooks";
 
 export const Home = () => {
   const navigate = useNavigate();
-  const resetAll = useAppStore((s) => s.resetAll);
+  const resetAll = useAppStore((state) => state.resetAll);
 
   const { list, form } = useHome((id) => navigate(`/t/${id}/participants`));
 
@@ -32,70 +32,39 @@ export const Home = () => {
               <span className="font-bold">大会名</span>
               <input
                 value={form.name}
-                onChange={(e) => form.setName(e.target.value)}
+                onChange={(event) => form.setName(event.target.value)}
                 placeholder="例: 春の大会"
                 aria-label="大会名"
                 className="min-h-input border-2 border-line rounded-xl px-3 text-lg"
               />
             </label>
-            <fieldset className="flex flex-col gap-2">
-              <legend className="font-bold mb-1">形式</legend>
-              <div className="flex gap-3 flex-wrap">
-                {(["singles", "doubles"] as Format[]).map((f) => (
-                  <label
-                    key={f}
-                    className={`flex items-center gap-2 px-4 min-h-btn rounded-xl border-2 cursor-pointer ${
-                      form.format === f
-                        ? "bg-primary text-white border-primary"
-                        : "bg-white text-ink border-line"
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="format"
-                      checked={form.format === f}
-                      onChange={() => form.setFormat(f)}
-                      aria-label={f === "singles" ? "シングルス" : "ダブルス"}
-                      className="w-5 h-5"
-                    />
-                    <span className="text-lg font-bold">
-                      {f === "singles" ? "シングルス" : "ダブルス"}
-                    </span>
-                  </label>
-                ))}
-              </div>
-            </fieldset>
-            <fieldset className="flex flex-col gap-2">
-              <legend className="font-bold mb-1">ゲーム数</legend>
-              <div className="flex gap-3 flex-wrap">
-                {([3, 5, 7] as BestOf[]).map((n) => (
-                  <label
-                    key={n}
-                    className={`flex items-center gap-2 px-4 min-h-btn rounded-xl border-2 cursor-pointer ${
-                      form.bestOf === n
-                        ? "bg-primary text-white border-primary"
-                        : "bg-white text-ink border-line"
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="bestOf"
-                      checked={form.bestOf === n}
-                      onChange={() => form.setBestOf(n)}
-                      aria-label={`${n}ゲーム制`}
-                      className="w-5 h-5"
-                    />
-                    <span className="text-lg font-bold">{n}ゲーム制</span>
-                  </label>
-                ))}
-              </div>
-            </fieldset>
+            <RadioCardGroup
+              legend="形式"
+              name="format"
+              value={form.format}
+              options={[
+                { value: "singles", label: "シングルス" },
+                { value: "doubles", label: "ダブルス" },
+              ]}
+              onChange={form.setFormat}
+            />
+            <RadioCardGroup
+              legend="ゲーム数"
+              name="bestOf"
+              value={form.bestOf}
+              options={[
+                { value: 3, label: "3ゲーム制" },
+                { value: 5, label: "5ゲーム制" },
+                { value: 7, label: "7ゲーム制" },
+              ]}
+              onChange={form.setBestOf}
+            />
             <label className="flex flex-col gap-1">
               <span className="font-bold">開催日</span>
               <input
                 type="date"
                 value={form.date}
-                onChange={(e) => form.setDate(e.target.value)}
+                onChange={(event) => form.setDate(event.target.value)}
                 aria-label="開催日"
                 className="min-h-input border-2 border-line rounded-xl px-3 text-lg"
               />
@@ -126,17 +95,18 @@ export const Home = () => {
             </p>
           ) : (
             <ul className="divide-y-2 divide-line border-2 border-line rounded-2xl overflow-hidden">
-              {list.map((t) => (
-                <li key={t.id}>
+              {list.map((tournament) => (
+                <li key={tournament.id}>
                   <button
-                    onClick={() => navigate(`/t/${t.id}/participants`)}
+                    onClick={() => navigate(`/t/${tournament.id}/participants`)}
                     className="w-full text-left p-4 min-h-[72px] hover:bg-bg flex items-center justify-between gap-3"
                   >
                     <div>
-                      <div className="text-xl font-extrabold">{t.name}</div>
+                      <div className="text-xl font-extrabold">{tournament.name}</div>
                       <div className="text-base text-sub">
-                        {formatDate(t.date)} ・ {t.format === "singles" ? "シングルス" : "ダブルス"}{" "}
-                        ・ {t.participantIds.length}人
+                        {formatDate(tournament.date)} ・{" "}
+                        {tournament.format === "singles" ? "シングルス" : "ダブルス"} ・{" "}
+                        {tournament.participantIds.length}人
                       </div>
                     </div>
                     <span className="text-2xl" aria-hidden>
