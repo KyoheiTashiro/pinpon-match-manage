@@ -11,7 +11,7 @@ const isStandalone = () =>
   // iOS Safari
   (navigator as unknown as { standalone?: boolean }).standalone === true;
 
-const isIOS = () => /iPad|iPhone|iPod/.test(navigator.userAgent);
+const isIOS = () => /iPad|iPhone|iPod/u.test(navigator.userAgent);
 
 export const InstallAppButton = () => {
   const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(null);

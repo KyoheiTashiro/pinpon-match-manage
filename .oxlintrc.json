@@ -1,18 +1,22 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
+  // react-perf プラグインは外している:
+  // jsx-no-new-{function,object,array}-as-prop / jsx-no-jsx-as-prop は
+  // 子コンポーネントが React.memo されている場合にのみ意味があるが、
+  // このコードベースでは memo を使っていないため全て誤検知になる。
   "plugins": [
     "typescript",
     "unicorn",
     "oxc",
     "react",
-    "react-perf",
     "jsx-a11y",
     "import"
   ],
   "categories": {
     "correctness": "error",
-    "suspicious": "warn",
-    "perf": "warn"
+    "suspicious": "error",
+    "perf": "error",
+    "pedantic": "error"
   },
   "env": {
     "browser": true,
@@ -26,7 +30,22 @@
   "rules": {
     "react/react-in-jsx-scope": "off",
     "import/no-cycle": "error",
-    "import/no-self-import": "error"
+    "import/no-self-import": "error",
+    // CSS の副作用 import (main.tsx の index.css) は意図的なので許可
+    "import/no-unassigned-import": ["warn", { "allow": ["**/*.css"] }],
+    // toSorted() は ES2023 ランタイム API。tsconfig lib が ES2020 のため使えず、
+    // 古い Safari/iPad での実行時クラッシュを避けるため off にする。
+    // sort 利用箇所はコピーしてから sort する（共有配列を直接 mutate しない）こと。
+    "unicorn/no-array-sort": "off",
+    // Array.prototype.at() / String.prototype.at() は ES2022 API。no-array-sort と同じく
+    // tsconfig lib が ES2020 のため使えない。arr[arr.length - 1] のままにする。
+    "unicorn/prefer-at": "off",
+    // max-lines-per-function: 閾値が恣意的で、JSX を返す React コンポーネントは本質的に
+    // 1 関数が長くなる。分割の判断はレビューに委ねるため off。
+    "eslint/max-lines-per-function": "off",
+    // no-inline-comments: 本コードベースは意図・根拠を行末/行内コメントで明示する方針
+    // （この設定ファイル自体もそう）。意図的なスタイルなので off。
+    "eslint/no-inline-comments": "off"
   },
   "ignorePatterns": [
     "dist",
@@ -44,6 +63,20 @@
       "rules": {
         "vitest/no-disabled-tests": "warn",
         "vitest/no-focused-tests": "error"
+      }
+    },
+    {
+      // no-array-index-key を off にするファイル群:
+      // ゲームタブ・ゲーム一覧は「n ゲーム目」という位置そのものが同一性で、
+      // 得点経過チャートのラリー列・SVG 線分は append-only の時系列。
+      // いずれも並べ替え・途中挿入が起きないため index キーが正当。
+      "files": [
+        "src/features/tournament/matrix/components/MatchModal.tsx",
+        "src/features/tournament/matrix/components/scoreboard/ScoreboardHeader.tsx",
+        "src/features/tournament/matrix/components/scoreboard/ScoreProgressChart.tsx"
+      ],
+      "rules": {
+        "react/no-array-index-key": "off"
       }
     },
     {

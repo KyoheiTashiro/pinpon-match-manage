@@ -27,7 +27,7 @@ export const saveAsImage = async (node: HTMLElement, filename: string) => {
   const a = document.createElement('a');
   a.href = url;
   a.download = filename;
-  document.body.appendChild(a);
+  document.body.append(a);
   a.click();
   a.remove();
   URL.revokeObjectURL(url);

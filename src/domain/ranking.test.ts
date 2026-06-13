@@ -49,7 +49,8 @@ describe('computeRanking', () => {
       make('1', 'A', 'B', [{ leftScore: 11, rightScore: 9 }]),
     ];
     const rows = computeRanking(matches, { A: 'A', B: 'B' });
-    expect(rows.every((r) => r.wins === 0 && r.losses === 0)).toBe(true);
+    expect(rows.every((r) => r.wins === 0)).toBe(true);
+    expect(rows.every((r) => r.losses === 0)).toBe(true);
   });
 
   it('lists participants with no matches', () => {

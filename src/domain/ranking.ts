@@ -65,8 +65,8 @@ export const computeRanking = (
     for (const id of rightIds) {
       const s = ensure(id);
       s.played++;
-      if (!leftWon) s.wins++;
-      else s.losses++;
+      if (leftWon) s.losses++;
+      else s.wins++;
       s.gamesWon += summary.rightWins;
       s.gamesLost += summary.leftWins;
       s.pointsFor += summary.rightPoints;
@@ -76,11 +76,15 @@ export const computeRanking = (
 
   for (const id of Object.keys(participantNames)) ensure(id);
 
-  const rows = Array.from(stats.values()).map((s) => ({
-    ...s,
-    gameDiff: s.gamesWon - s.gamesLost,
-    pointDiff: s.pointsFor - s.pointsAgainst,
-  }));
+  // stats values are locally created objects not shared outside computeRanking; mutate
+  // directly to avoid the spread overhead flagged by oxc/no-map-spread, then cast to
+  // RankingRow (rank will be filled in below).
+  const rows = Array.from(stats.values()) as RankingRow[];
+  for (const s of rows) {
+    s.gameDiff = s.gamesWon - s.gamesLost;
+    s.pointDiff = s.pointsFor - s.pointsAgainst;
+    s.rank = 0;
+  }
 
   rows.sort((a, b) => {
     if (b.wins !== a.wins) return b.wins - a.wins;
@@ -89,19 +93,22 @@ export const computeRanking = (
     return a.name.localeCompare(b.name, 'ja');
   });
 
+  // rows elements are locally owned objects; assign rank directly instead of spreading.
   let rank = 0;
   let prevKey = '';
   let sameCount = 0;
-  return rows.map((r, i) => {
+  for (let i = 0; i < rows.length; i++) {
+    const r = rows[i]!;
     const key = `${r.wins}-${r.gameDiff}-${r.pointDiff}`;
-    if (key !== prevKey) {
+    if (key === prevKey) {
+      sameCount++;
+    } else {
       rank = i + 1;
       sameCount = 1;
-    } else {
-      sameCount++;
     }
     prevKey = key;
     void sameCount;
-    return { ...r, rank };
-  });
+    r.rank = rank;
+  }
+  return rows;
 };

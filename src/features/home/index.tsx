@@ -27,11 +27,7 @@ export const Home = () => {
       </header>
 
       <main className="max-w-3xl mx-auto p-4 space-y-6">
-        {!form.creating ? (
-          <BigButton variant="primary" className="w-full !min-h-[72px] text-xl" onClick={() => form.setCreating(true)}>
-            ＋ あたらしい大会をつくる
-          </BigButton>
-        ) : (
+        {form.creating ? (
           <div className="border-4 border-primary rounded-2xl p-4 space-y-4">
             <h2 className="text-xl font-extrabold">新しい大会</h2>
             <label className="flex flex-col gap-1">
@@ -111,6 +107,10 @@ export const Home = () => {
               <BigButton variant="primary" onClick={form.submit} disabled={!form.name.trim()}>つくる</BigButton>
             </div>
           </div>
+        ) : (
+          <BigButton variant="primary" className="w-full !min-h-[72px] text-xl" onClick={() => form.setCreating(true)}>
+            ＋ あたらしい大会をつくる
+          </BigButton>
         )}
 
         <section aria-label="大会一覧">

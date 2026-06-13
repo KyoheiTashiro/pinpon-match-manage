@@ -13,8 +13,8 @@ export const FontSizeToggle = () => {
   const setFontSize = useAppStore((s) => s.setFontSize);
 
   useEffect(() => {
-    if (fontSize === 'normal') document.documentElement.removeAttribute('data-fs');
-    else document.documentElement.setAttribute('data-fs', fontSize);
+    if (fontSize === 'normal') delete document.documentElement.dataset.fs;
+    else document.documentElement.dataset.fs = fontSize;
   }, [fontSize]);
 
   return (

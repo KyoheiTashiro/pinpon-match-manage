@@ -23,6 +23,17 @@ const sideLabel = (side: Match['leftSide'], participants: Record<string, Partici
   return side.memberIds.map((id) => participants[id]?.name ?? '?').join(' / ');
 };
 
+const trimGames = (src: Game[], lockIdx: number): Game[] => {
+  const out: Game[] = [];
+  for (let i = 0; i < src.length; i++) {
+    const g = src[i];
+    const empty = g.leftScore === 0 && g.rightScore === 0;
+    if (empty && i >= lockIdx) continue;
+    if (i < lockIdx || !empty) out.push(g);
+  }
+  return out;
+};
+
 export const MatchModal = ({ matchId, participants, onClose }: Props) => {
   const match = useAppStore((s) => s.matches[matchId]);
   const updateMatch = useAppStore((s) => s.updateMatch);
@@ -59,17 +70,6 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
   };
 
   const lockedFromIndex = computeLockedFromIndex(games);
-
-  const trimGames = (src: Game[], lockIdx: number): Game[] => {
-    const out: Game[] = [];
-    for (let i = 0; i < src.length; i++) {
-      const g = src[i];
-      const empty = g.leftScore === 0 && g.rightScore === 0;
-      if (empty && i >= lockIdx) continue;
-      if (i < lockIdx || !empty) out.push(g);
-    }
-    return out;
-  };
 
   const persistGames = (next: Game[]) => {
     setGames(next);

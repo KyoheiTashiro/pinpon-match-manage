@@ -2,6 +2,16 @@ import type { Game, Side } from '../../../../../domain/match';
 import { gameFirstServer, realGames } from '../../../../../domain/match';
 import { gameProgress } from '../../../../../domain/scoreProgress';
 
+// Display mapping: left=top, right=bottom (no swap)
+const displayScorer = (p: { scorer: Side }): 'top' | 'bot' =>
+  p.scorer === 'L' ? 'top' : 'bot';
+
+const displayServer = (p: { server: Side }): 'top' | 'bot' =>
+  p.server === 'L' ? 'top' : 'bot';
+
+const topScore = (p: { left: number; right: number }) => p.left;
+const botScore = (p: { left: number; right: number }) => p.right;
+
 type Props = {
   games: Game[];
   leftName: string;
@@ -59,16 +69,6 @@ export const ScoreProgressChart = ({
           // SVG width covers all rally columns + 1 final score column
           const totalCols = colCount + 1;
           const svgWidth = totalCols * COL_WIDTH;
-
-          // left=top, right=bottom (no swap)
-          const displayScorer = (p: { scorer: Side }): 'top' | 'bot' =>
-            p.scorer === 'L' ? 'top' : 'bot';
-
-          const displayServer = (p: { server: Side }): 'top' | 'bot' =>
-            p.server === 'L' ? 'top' : 'bot';
-
-          const topScore = (p: { left: number; right: number }) => p.left;
-          const botScore = (p: { left: number; right: number }) => p.right;
 
           // Final scores
           const lastPoint = points[points.length - 1];

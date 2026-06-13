@@ -28,8 +28,8 @@ describe('gameProgress', () => {
 
   it('deuce: 1-point alternation after 10-10 (total>=20)', () => {
     const buildTo1010: Side[] = [
-      ...Array(10).fill('L'),
-      ...Array(10).fill('R'),
+      ...Array.from({ length: 10 }).fill('L'),
+      ...Array.from({ length: 10 }).fill('R'),
     ] as Side[];
     const log: Side[] = [...buildTo1010, 'L', 'R'];
     const result = gameProgress(log, 'L');
