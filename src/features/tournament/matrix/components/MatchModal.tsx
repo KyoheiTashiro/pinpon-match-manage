@@ -1,16 +1,12 @@
-import { useEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
-import type { Match, Participant } from '../../../../store/types';
-import type { Game, Side } from '../../../../domain/match';
-import {
-  isGameFinished,
-  gameWinner,
-  winsNeededForBestOf,
-} from '../../../../domain/match';
-import { useAppStore } from '../../../../store/useAppStore';
-import { BigButton } from '../../../../components/ui/BigButton';
-import { ConfirmDialog } from '../../../../components/ui/ConfirmDialog';
-import { ScoreboardScreen } from './ScoreboardScreen';
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
+import type { Match, Participant } from "../../../../store/types";
+import type { Game, Side } from "../../../../domain/match";
+import { isGameFinished, gameWinner, winsNeededForBestOf } from "../../../../domain/match";
+import { useAppStore } from "../../../../store/useAppStore";
+import { BigButton } from "../../../../components/ui/BigButton";
+import { ConfirmDialog } from "../../../../components/ui/ConfirmDialog";
+import { ScoreboardScreen } from "./ScoreboardScreen";
 
 type Props = {
   matchId: string;
@@ -18,9 +14,9 @@ type Props = {
   onClose: () => void;
 };
 
-const sideLabel = (side: Match['leftSide'], participants: Record<string, Participant>) => {
-  if (side.kind === 'single') return participants[side.participantId]?.name ?? '?';
-  return side.memberIds.map((id) => participants[id]?.name ?? '?').join(' / ');
+const sideLabel = (side: Match["leftSide"], participants: Record<string, Participant>) => {
+  if (side.kind === "single") return participants[side.participantId]?.name ?? "?";
+  return side.memberIds.map((id) => participants[id]?.name ?? "?").join(" / ");
 };
 
 const trimGames = (src: Game[], lockIdx: number): Game[] => {
@@ -38,13 +34,9 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
   const match = useAppStore((s) => s.matches[matchId]);
   const updateMatch = useAppStore((s) => s.updateMatch);
   const deleteMatch = useAppStore((s) => s.deleteMatch);
-  const bestOf = useAppStore((s) =>
-    match ? (s.tournaments[match.tournamentId]?.bestOf ?? 5) : 5,
-  );
+  const bestOf = useAppStore((s) => (match ? (s.tournaments[match.tournamentId]?.bestOf ?? 5) : 5));
   const wins = winsNeededForBestOf(bestOf);
-  const [games, setGames] = useState<Game[]>(() =>
-    padGames(match?.games ?? [], bestOf),
-  );
+  const [games, setGames] = useState<Game[]>(() => padGames(match?.games ?? [], bestOf));
   const firstServer: Side | undefined = match?.firstServer;
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [scoreboardOpen, setScoreboardOpen] = useState(false);
@@ -89,7 +81,7 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
       className="fixed inset-0 z-40 flex items-start justify-center bg-black/50 p-2 sm:p-4 pb-28 sm:pb-28 overflow-y-auto"
       onClick={onClose}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === 'Escape') onClose();
+        if (e.key === "Enter" || e.key === "Escape") onClose();
       }}
     >
       {/* oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- role="dialog" はランドマークだがstopPropagationが必要 */}
@@ -103,7 +95,9 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
         onKeyDown={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-3 mb-4">
-          <h2 id="match-title" className="text-xl font-extrabold">試合の入力</h2>
+          <h2 id="match-title" className="text-xl font-extrabold">
+            試合の入力
+          </h2>
           <button
             type="button"
             onClick={onClose}
@@ -125,15 +119,15 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
           <div className="flex flex-col sm:flex-row gap-2">
             <label
               className={`flex items-center gap-2 px-3 py-2 rounded-lg border-2 cursor-pointer flex-1 ${
-                firstServer === 'L' ? 'border-orange-500 bg-orange-50' : 'border-line bg-white'
+                firstServer === "L" ? "border-orange-500 bg-orange-50" : "border-line bg-white"
               }`}
             >
               <input
                 type="radio"
                 name="first-server"
                 value="L"
-                checked={firstServer === 'L'}
-                onChange={() => setFirstServer('L')}
+                checked={firstServer === "L"}
+                onChange={() => setFirstServer("L")}
                 aria-label={`最初のサーブ: ${sideLabel(match.leftSide, participants)}`}
                 className="w-5 h-5 accent-orange-500"
               />
@@ -141,15 +135,15 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
             </label>
             <label
               className={`flex items-center gap-2 px-3 py-2 rounded-lg border-2 cursor-pointer flex-1 ${
-                firstServer === 'R' ? 'border-orange-500 bg-orange-50' : 'border-line bg-white'
+                firstServer === "R" ? "border-orange-500 bg-orange-50" : "border-line bg-white"
               }`}
             >
               <input
                 type="radio"
                 name="first-server"
                 value="R"
-                checked={firstServer === 'R'}
-                onChange={() => setFirstServer('R')}
+                checked={firstServer === "R"}
+                onChange={() => setFirstServer("R")}
                 aria-label={`最初のサーブ: ${sideLabel(match.rightSide, participants)}`}
                 className="w-5 h-5 accent-orange-500"
               />
@@ -159,11 +153,7 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
         </fieldset>
 
         <div className="mb-4">
-          <BigButton
-            variant="primary"
-            className="w-full"
-            onClick={() => setScoreboardOpen(true)}
-          >
+          <BigButton variant="primary" className="w-full" onClick={() => setScoreboardOpen(true)}>
             ▶ スコアボードを開く
           </BigButton>
           <p className="text-sub text-sm mt-2">
@@ -180,12 +170,10 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
               <li
                 key={i}
                 className={`flex items-center justify-between px-3 py-2 ${
-                  locked ? 'bg-bg opacity-60' : 'bg-white'
+                  locked ? "bg-bg opacity-60" : "bg-white"
                 }`}
               >
-                <span className="font-extrabold text-base px-3 py-1">
-                  ゲーム{i + 1}
-                </span>
+                <span className="font-extrabold text-base px-3 py-1">ゲーム{i + 1}</span>
                 <span className="text-xl font-extrabold tabular-nums">
                   {locked && empty ? (
                     <span className="text-sub text-base font-bold">入力不可</span>
@@ -193,9 +181,9 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
                     <span className="text-sub text-base font-bold">未入力</span>
                   ) : (
                     <>
-                      <span className={w === 'L' ? 'text-success' : ''}>{g.leftScore}</span>
+                      <span className={w === "L" ? "text-success" : ""}>{g.leftScore}</span>
                       <span className="mx-2 text-sub">-</span>
-                      <span className={w === 'R' ? 'text-success' : ''}>{g.rightScore}</span>
+                      <span className={w === "R" ? "text-success" : ""}>{g.rightScore}</span>
                       {!w && !empty && !isGameFinished(g) && (
                         <span className="ml-2 text-sm font-bold text-sub">(進行中)</span>
                       )}
@@ -208,7 +196,9 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
         </ul>
 
         <div className="flex flex-wrap gap-3 justify-end">
-          <BigButton variant="danger" onClick={() => setConfirmDelete(true)}>試合結果を削除</BigButton>
+          <BigButton variant="danger" onClick={() => setConfirmDelete(true)}>
+            試合結果を削除
+          </BigButton>
         </div>
       </div>
 

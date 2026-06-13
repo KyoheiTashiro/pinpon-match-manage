@@ -1,7 +1,7 @@
-import type { StateCreator } from 'zustand';
-import type { Match, MatchSide } from '../types';
-import type { StoreState } from '../useAppStore';
-import { uid } from '../../lib/id';
+import type { StateCreator } from "zustand";
+import type { Match, MatchSide } from "../types";
+import type { StoreState } from "../useAppStore";
+import { uid } from "../../lib/id";
 
 export type MatchSlice = {
   matches: Record<string, Match>;
@@ -10,7 +10,7 @@ export type MatchSlice = {
   deleteMatch: (id: string) => void;
 };
 
-export const matchInitial: Pick<MatchSlice, 'matches'> = {
+export const matchInitial: Pick<MatchSlice, "matches"> = {
   matches: {},
 };
 
@@ -18,7 +18,7 @@ export const createMatchSlice: StateCreator<StoreState, [], [], MatchSlice> = (s
   ...matchInitial,
 
   addManualMatch: (tournamentId, left, right) => {
-    if (left.kind === 'single' && right.kind === 'single') {
+    if (left.kind === "single" && right.kind === "single") {
       const t = get().tournaments[tournamentId];
       if (t) {
         const a = left.participantId;
@@ -26,7 +26,7 @@ export const createMatchSlice: StateCreator<StoreState, [], [], MatchSlice> = (s
         for (const mid of t.matchIds) {
           const m = get().matches[mid];
           if (!m) continue;
-          if (m.leftSide.kind !== 'single' || m.rightSide.kind !== 'single') continue;
+          if (m.leftSide.kind !== "single" || m.rightSide.kind !== "single") continue;
           const x = m.leftSide.participantId;
           const y = m.rightSide.participantId;
           if ((x === a && y === b) || (x === b && y === a)) return mid;
@@ -40,7 +40,7 @@ export const createMatchSlice: StateCreator<StoreState, [], [], MatchSlice> = (s
       leftSide: left,
       rightSide: right,
       games: [],
-      firstServer: 'L',
+      firstServer: "L",
     };
     set((st) => {
       const t = st.tournaments[tournamentId];

@@ -1,9 +1,9 @@
-import type { StateCreator } from 'zustand';
-import type { BestOf, Format, Tournament } from '../types';
-import type { StoreState } from '../useAppStore';
-import { uid } from '../../lib/id';
-import { participantInitial } from './participantSlice';
-import { matchInitial } from './matchSlice';
+import type { StateCreator } from "zustand";
+import type { BestOf, Format, Tournament } from "../types";
+import type { StoreState } from "../useAppStore";
+import { uid } from "../../lib/id";
+import { participantInitial } from "./participantSlice";
+import { matchInitial } from "./matchSlice";
 
 export type TournamentSlice = {
   tournaments: Record<string, Tournament>;
@@ -15,7 +15,7 @@ export type TournamentSlice = {
   resetAll: () => void;
 };
 
-export const tournamentInitial: Pick<TournamentSlice, 'tournaments' | 'currentTournamentId'> = {
+export const tournamentInitial: Pick<TournamentSlice, "tournaments" | "currentTournamentId"> = {
   tournaments: {},
   currentTournamentId: null,
 };
@@ -56,8 +56,7 @@ export const createTournamentSlice: StateCreator<StoreState, [], [], TournamentS
         tournaments,
         matches,
         participants,
-        currentTournamentId:
-          st.currentTournamentId === id ? null : st.currentTournamentId,
+        currentTournamentId: st.currentTournamentId === id ? null : st.currentTournamentId,
       };
     });
   },

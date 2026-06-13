@@ -1,11 +1,11 @@
-import type { Game, Side } from '../../../../../domain/match';
+import type { Game, Side } from "../../../../../domain/match";
 import {
   gameWinner,
   isGameFinished,
   matchSummary,
   gameFirstServer,
   currentServer,
-} from '../../../../../domain/match';
+} from "../../../../../domain/match";
 
 type Params = {
   leftName: string;
@@ -17,7 +17,7 @@ type Params = {
   matchFirstServer?: Side;
 };
 
-const flip = (s: Side | null): Side | null => (s === 'L' ? 'R' : s === 'R' ? 'L' : null);
+const flip = (s: Side | null): Side | null => (s === "L" ? "R" : s === "R" ? "L" : null);
 
 const isGamePoint = (s: number, o: number) => {
   const ns = s + 1;

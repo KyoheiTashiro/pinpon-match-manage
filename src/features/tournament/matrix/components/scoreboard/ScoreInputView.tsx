@@ -1,5 +1,5 @@
-import type { Side } from '../../../../../domain/match';
-import { ScoreColumn } from './ScoreColumn';
+import type { Side } from "../../../../../domain/match";
+import { ScoreColumn } from "./ScoreColumn";
 
 type Props = {
   leftName: string;
@@ -51,12 +51,12 @@ export const ScoreInputView = ({
       <ScoreColumn
         name={leftName}
         score={leftScore}
-        isGameWinner={winner === 'L'}
-        isMatchWinner={matchWinner === 'L'}
+        isGameWinner={winner === "L"}
+        isMatchWinner={matchWinner === "L"}
         isMatchPoint={leftMatchPoint}
-        isServing={server === 'L'}
+        isServing={server === "L"}
         disabled={locked}
-        disableAdd={winner === 'L'}
+        disableAdd={winner === "L"}
         canSub={canSubLeft}
         onAdd={onAddLeft}
         onSub={onSubLeft}
@@ -64,9 +64,9 @@ export const ScoreInputView = ({
 
       <div className="flex flex-col items-center justify-center px-1 sm:px-2 border-x border-white/20 min-w-[140px]">
         <div className="text-[clamp(3rem,12vw,9rem)] leading-none font-extrabold mt-2 tabular-nums">
-          <span className={matchWinner === 'L' ? 'text-green-500' : ''}>{leftWins}</span>
+          <span className={matchWinner === "L" ? "text-green-500" : ""}>{leftWins}</span>
           <span className="mx-1 text-white/40">-</span>
-          <span className={matchWinner === 'R' ? 'text-green-500' : ''}>{rightWins}</span>
+          <span className={matchWinner === "R" ? "text-green-500" : ""}>{rightWins}</span>
         </div>
         {locked && (
           <div className="mt-3 text-xs sm:text-sm font-extrabold text-amber-300">入力不可</div>
@@ -85,12 +85,12 @@ export const ScoreInputView = ({
       <ScoreColumn
         name={rightName}
         score={rightScore}
-        isGameWinner={winner === 'R'}
-        isMatchWinner={matchWinner === 'R'}
+        isGameWinner={winner === "R"}
+        isMatchWinner={matchWinner === "R"}
         isMatchPoint={rightMatchPoint}
-        isServing={server === 'R'}
+        isServing={server === "R"}
         disabled={locked}
-        disableAdd={winner === 'R'}
+        disableAdd={winner === "R"}
         canSub={canSubRight}
         onAdd={onAddRight}
         onSub={onSubRight}

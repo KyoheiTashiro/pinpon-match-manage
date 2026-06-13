@@ -5,51 +5,51 @@
 ## データモデル
 
 ```ts
-type Side = 'L' | 'R';
+type Side = "L" | "R";
 
 /** 1試合のゲーム数。先取ゲーム数 = floor(bestOf / 2) + 1。 */
 type BestOf = 3 | 5 | 7;
 
 type Tournament = {
-  id: string;              // uuid
+  id: string; // uuid
   name: string;
-  format: 'singles' | 'doubles';
-  bestOf: BestOf;          // 1試合のゲーム数（3 / 5 / 7）
-  date: string;            // 開催日 YYYY-MM-DD
-  createdAt: string;       // ISO
+  format: "singles" | "doubles";
+  bestOf: BestOf; // 1試合のゲーム数（3 / 5 / 7）
+  date: string; // 開催日 YYYY-MM-DD
+  createdAt: string; // ISO
   participantIds: string[];
   matchIds: string[];
 };
 
 type Participant = {
   id: string;
-  tournamentId: string;    // 専属大会
+  tournamentId: string; // 専属大会
   name: string;
   affiliation?: string;
 };
 
 type Game = {
-  leftScore: number;       // 0 を未入力センチネルとして扱う（永続化時は trim）
+  leftScore: number; // 0 を未入力センチネルとして扱う（永続化時は trim）
   rightScore: number;
-  pointLog?: Side[];       // 1ラリーごとの得点側記録（点数進行グラフ用）
-                           // optional: スコアボードを使わず手入力した試合には無い。undefined = グラフ描画不可
+  pointLog?: Side[]; // 1ラリーごとの得点側記録（点数進行グラフ用）
+  // optional: スコアボードを使わず手入力した試合には無い。undefined = グラフ描画不可
 };
 
 type MatchSide =
-  | { kind: 'single'; participantId: string }
-  | { kind: 'pair'; memberIds: [string, string] };
+  | { kind: "single"; participantId: string }
+  | { kind: "pair"; memberIds: [string, string] };
 
 type Match = {
   id: string;
   tournamentId: string;
   leftSide: MatchSide;
   rightSide: MatchSide;
-  games: Game[];           // 永続化は実プレイ分のみ・最大 bestOf ゲーム
+  games: Game[]; // 永続化は実プレイ分のみ・最大 bestOf ゲーム
   note?: string;
-  firstServer: Side;       // 試合初手サーブ
+  firstServer: Side; // 試合初手サーブ
 };
 
-type FontSize = 'normal' | 'large' | 'xlarge';
+type FontSize = "normal" | "large" | "xlarge";
 
 type AppState = {
   tournaments: Record<string, Tournament>;

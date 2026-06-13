@@ -1,12 +1,12 @@
-import type { Game } from '../../../../../domain/match';
-import { isGameFinished } from '../../../../../domain/match';
+import type { Game } from "../../../../../domain/match";
+import { isGameFinished } from "../../../../../domain/match";
 
 type Props = {
   leftName: string;
   rightName: string;
   leftWins: number;
   rightWins: number;
-  matchWinner: 'L' | 'R' | null;
+  matchWinner: "L" | "R" | null;
   games: Game[];
   swapped: boolean;
 };
@@ -30,14 +30,14 @@ export const MatchResultView = ({
         <div className="flex flex-col items-center gap-4">
           <div
             className={`text-[clamp(4rem,12vw,12rem)] leading-none font-extrabold tabular-nums ${
-              matchWinner === 'L' ? 'text-green-500' : ''
+              matchWinner === "L" ? "text-green-500" : ""
             }`}
           >
             {leftWins}
           </div>
           <div
             className={`text-center text-[clamp(2rem,5vw,5rem)] font-extrabold break-words ${
-              matchWinner === 'L' ? 'text-green-500' : ''
+              matchWinner === "L" ? "text-green-500" : ""
             }`}
           >
             {leftName}
@@ -59,14 +59,14 @@ export const MatchResultView = ({
         <div className="flex flex-col items-center gap-4">
           <div
             className={`text-[clamp(4rem,12vw,12rem)] leading-none font-extrabold tabular-nums ${
-              matchWinner === 'R' ? 'text-green-500' : ''
+              matchWinner === "R" ? "text-green-500" : ""
             }`}
           >
             {rightWins}
           </div>
           <div
             className={`text-center text-[clamp(2rem,5vw,5rem)] font-extrabold break-words ${
-              matchWinner === 'R' ? 'text-green-500' : ''
+              matchWinner === "R" ? "text-green-500" : ""
             }`}
           >
             {rightName}

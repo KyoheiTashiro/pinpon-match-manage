@@ -1,5 +1,5 @@
-import type { Match } from '../store/types';
-import { matchSummary } from './match';
+import type { Match } from "../store/types";
+import { matchSummary } from "./match";
 
 export type RankingRow = {
   participantId: string;
@@ -16,21 +16,21 @@ export type RankingRow = {
   rank: number;
 };
 
-const sideMembers = (side: Match['leftSide']): string[] =>
-  side.kind === 'single' ? [side.participantId] : [...side.memberIds];
+const sideMembers = (side: Match["leftSide"]): string[] =>
+  side.kind === "single" ? [side.participantId] : [...side.memberIds];
 
 export const computeRanking = (
   matches: Match[],
   participantNames: Record<string, string>,
   winsNeeded = 3,
 ): RankingRow[] => {
-  const stats = new Map<string, Omit<RankingRow, 'rank'>>();
+  const stats = new Map<string, Omit<RankingRow, "rank">>();
 
   const ensure = (id: string) => {
     if (!stats.has(id)) {
       stats.set(id, {
         participantId: id,
-        name: participantNames[id] ?? '?',
+        name: participantNames[id] ?? "?",
         played: 0,
         wins: 0,
         losses: 0,
@@ -50,7 +50,7 @@ export const computeRanking = (
     if (!summary.finished) continue;
     const leftIds = sideMembers(m.leftSide);
     const rightIds = sideMembers(m.rightSide);
-    const leftWon = summary.winner === 'L';
+    const leftWon = summary.winner === "L";
 
     for (const id of leftIds) {
       const s = ensure(id);
@@ -90,12 +90,12 @@ export const computeRanking = (
     if (b.wins !== a.wins) return b.wins - a.wins;
     if (b.gameDiff !== a.gameDiff) return b.gameDiff - a.gameDiff;
     if (b.pointDiff !== a.pointDiff) return b.pointDiff - a.pointDiff;
-    return a.name.localeCompare(b.name, 'ja');
+    return a.name.localeCompare(b.name, "ja");
   });
 
   // rows elements are locally owned objects; assign rank directly instead of spreading.
   let rank = 0;
-  let prevKey = '';
+  let prevKey = "";
   let sameCount = 0;
   for (let i = 0; i < rows.length; i++) {
     const r = rows[i]!;

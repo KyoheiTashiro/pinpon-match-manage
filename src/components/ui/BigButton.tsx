@@ -1,7 +1,7 @@
-import { forwardRef } from 'react';
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import { forwardRef } from "react";
+import type { ButtonHTMLAttributes, ReactNode } from "react";
 
-type Variant = 'primary' | 'secondary' | 'danger' | 'success' | 'ghost';
+type Variant = "primary" | "secondary" | "danger" | "success" | "ghost";
 
 type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: Variant;
@@ -9,15 +9,15 @@ type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
 };
 
 const styles: Record<Variant, string> = {
-  primary: 'bg-primary text-white hover:brightness-110 active:brightness-95',
-  secondary: 'bg-bg text-ink border-2 border-line hover:bg-slate-200',
-  danger: 'bg-danger text-white hover:brightness-110 active:brightness-95',
-  success: 'bg-success text-white hover:brightness-110 active:brightness-95',
-  ghost: 'bg-transparent text-ink underline underline-offset-4',
+  primary: "bg-primary text-white hover:brightness-110 active:brightness-95",
+  secondary: "bg-bg text-ink border-2 border-line hover:bg-slate-200",
+  danger: "bg-danger text-white hover:brightness-110 active:brightness-95",
+  success: "bg-success text-white hover:brightness-110 active:brightness-95",
+  ghost: "bg-transparent text-ink underline underline-offset-4",
 };
 
 export const BigButton = forwardRef<HTMLButtonElement, Props>(
-  ({ variant = 'primary', className = '', children, ...rest }, ref) => (
+  ({ variant = "primary", className = "", children, ...rest }, ref) => (
     <button
       ref={ref}
       {...rest}
@@ -27,4 +27,4 @@ export const BigButton = forwardRef<HTMLButtonElement, Props>(
     </button>
   ),
 );
-BigButton.displayName = 'BigButton';
+BigButton.displayName = "BigButton";

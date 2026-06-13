@@ -18,7 +18,9 @@ export const PairSelect = ({ value, onChange, options, exclude, label }: Props) 
       {options
         .filter((p) => !exclude.includes(p.id))
         .map((p) => (
-          <option key={p.id} value={p.id}>{p.name}</option>
+          <option key={p.id} value={p.id}>
+            {p.name}
+          </option>
         ))}
     </select>
   </label>

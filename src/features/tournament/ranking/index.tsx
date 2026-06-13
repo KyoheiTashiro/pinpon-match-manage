@@ -1,10 +1,10 @@
-import { useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { BigButton } from '../../../components/ui/BigButton';
-import { useImageCapture } from '../../../lib/useImageCapture';
-import { ScoreProgressChart } from '../matrix/components/scoreboard/ScoreProgressChart';
-import { useResultRows } from './hooks';
-import type { MatchResultRow } from './hooks';
+import { useState } from "react";
+import { useParams } from "react-router-dom";
+import { BigButton } from "../../../components/ui/BigButton";
+import { useImageCapture } from "../../../lib/useImageCapture";
+import { ScoreProgressChart } from "../matrix/components/scoreboard/ScoreProgressChart";
+import { useResultRows } from "./hooks";
+import type { MatchResultRow } from "./hooks";
 
 export const ResultTab = () => {
   const { tournamentId } = useParams<{ tournamentId: string }>();
@@ -12,12 +12,12 @@ export const ResultTab = () => {
   return <RankingView tournamentId={tournamentId} />;
 };
 
-type DisplayMode = 'table' | 'graph';
+type DisplayMode = "table" | "graph";
 
 const RankingView = ({ tournamentId }: { tournamentId: string }) => {
   const { rows, matchResults, tournament } = useResultRows(tournamentId);
-  const { ref, saving, save } = useImageCapture('結果', tournament?.name);
-  const [mode, setMode] = useState<DisplayMode>('table');
+  const { ref, saving, save } = useImageCapture("結果", tournament?.name);
+  const [mode, setMode] = useState<DisplayMode>("table");
 
   if (!tournament) return null;
 
@@ -33,24 +33,24 @@ const RankingView = ({ tournamentId }: { tournamentId: string }) => {
           <div className="flex border-b-2 border-line" role="tablist" aria-label="表示モード">
             <button
               role="tab"
-              aria-selected={mode === 'table'}
-              onClick={() => setMode('table')}
+              aria-selected={mode === "table"}
+              onClick={() => setMode("table")}
               className={`flex-1 min-h-btn text-lg font-bold border-b-4 transition-colors ${
-                mode === 'table'
-                  ? 'border-primary text-primary bg-primary/10'
-                  : 'border-transparent text-ink bg-white'
+                mode === "table"
+                  ? "border-primary text-primary bg-primary/10"
+                  : "border-transparent text-ink bg-white"
               }`}
             >
               点数表
             </button>
             <button
               role="tab"
-              aria-selected={mode === 'graph'}
-              onClick={() => setMode('graph')}
+              aria-selected={mode === "graph"}
+              onClick={() => setMode("graph")}
               className={`flex-1 min-h-btn text-lg font-bold border-b-4 transition-colors ${
-                mode === 'graph'
-                  ? 'border-primary text-primary bg-primary/10'
-                  : 'border-transparent text-ink bg-white'
+                mode === "graph"
+                  ? "border-primary text-primary bg-primary/10"
+                  : "border-transparent text-ink bg-white"
               }`}
             >
               グラフ
@@ -66,7 +66,7 @@ const RankingView = ({ tournamentId }: { tournamentId: string }) => {
                 <div className="text-sm text-sub">{tournament.date}</div>
               </div>
 
-              {mode === 'table' ? (
+              {mode === "table" ? (
                 <TableMode rows={rows} matchResults={matchResults} />
               ) : (
                 <GraphMode matchResults={matchResults} />
@@ -75,7 +75,7 @@ const RankingView = ({ tournamentId }: { tournamentId: string }) => {
           </div>
 
           <BigButton onClick={save} disabled={saving}>
-            {saving ? '保存中…' : '結果の画像を保存'}
+            {saving ? "保存中…" : "結果の画像を保存"}
           </BigButton>
         </>
       )}
@@ -85,7 +85,7 @@ const RankingView = ({ tournamentId }: { tournamentId: string }) => {
 
 // ----- 点数表モード -----
 type TableModeProps = {
-  rows: ReturnType<typeof useResultRows>['rows'];
+  rows: ReturnType<typeof useResultRows>["rows"];
   matchResults: MatchResultRow[];
 };
 
@@ -107,26 +107,24 @@ const TableMode = ({ rows, matchResults }: TableModeProps) => (
       <tbody>
         {rows.map((r) => (
           <tr key={r.participantId} className="text-center">
-            <td className="border-2 border-line p-2 text-2xl font-extrabold">
-              {r.rank}
-            </td>
-            <td className="border-2 border-line p-2 text-lg font-bold text-left">
-              {r.name}
-            </td>
+            <td className="border-2 border-line p-2 text-2xl font-extrabold">{r.rank}</td>
+            <td className="border-2 border-line p-2 text-lg font-bold text-left">{r.name}</td>
             <td className="border-2 border-line p-2 text-lg">{r.played}</td>
-            <td className="border-2 border-line p-2 text-lg text-success font-bold">
-              {r.wins}
-            </td>
-            <td className="border-2 border-line p-2 text-lg text-danger font-bold">
-              {r.losses}
-            </td>
+            <td className="border-2 border-line p-2 text-lg text-success font-bold">{r.wins}</td>
+            <td className="border-2 border-line p-2 text-lg text-danger font-bold">{r.losses}</td>
             <td className="border-2 border-line p-2 text-lg">
               {signed(r.gameDiff)}
-              <span className="text-sub text-base"> ({r.gamesWon}/{r.gamesLost})</span>
+              <span className="text-sub text-base">
+                {" "}
+                ({r.gamesWon}/{r.gamesLost})
+              </span>
             </td>
             <td className="border-2 border-line p-2 text-lg">
               {signed(r.pointDiff)}
-              <span className="text-sub text-base"> ({r.pointsFor}/{r.pointsAgainst})</span>
+              <span className="text-sub text-base">
+                {" "}
+                ({r.pointsFor}/{r.pointsAgainst})
+              </span>
             </td>
           </tr>
         ))}
@@ -151,11 +149,11 @@ const TableMode = ({ rows, matchResults }: TableModeProps) => (
             {matchResults.map((m) => (
               <tr key={m.id}>
                 <td className="border-2 border-line p-2 text-base">
-                  <span className={m.winner === 'L' ? 'font-extrabold' : 'text-sub'}>
+                  <span className={m.winner === "L" ? "font-extrabold" : "text-sub"}>
                     {m.leftName}
                   </span>
                   <span className="text-sub"> vs </span>
-                  <span className={m.winner === 'R' ? 'font-extrabold' : 'text-sub'}>
+                  <span className={m.winner === "R" ? "font-extrabold" : "text-sub"}>
                     {m.rightName}
                   </span>
                 </td>
@@ -176,11 +174,11 @@ const TableMode = ({ rows, matchResults }: TableModeProps) => (
                       key={i}
                       className="border-2 border-line p-2 text-base text-center whitespace-nowrap"
                     >
-                      <span className={g.leftScore > g.rightScore ? 'font-extrabold' : ''}>
+                      <span className={g.leftScore > g.rightScore ? "font-extrabold" : ""}>
                         {g.leftScore}
                       </span>
                       <span className="text-sub">-</span>
-                      <span className={g.rightScore > g.leftScore ? 'font-extrabold' : ''}>
+                      <span className={g.rightScore > g.leftScore ? "font-extrabold" : ""}>
                         {g.rightScore}
                       </span>
                     </td>
@@ -215,11 +213,9 @@ const GraphMode = ({ matchResults }: GraphModeProps) => {
         return (
           <div key={m.id} className="pt-2">
             <div className="text-base mb-1">
-              <span className={m.winner === 'L' ? 'font-extrabold' : 'text-sub'}>
-                {m.leftName}
-              </span>
+              <span className={m.winner === "L" ? "font-extrabold" : "text-sub"}>{m.leftName}</span>
               <span className="text-sub"> vs </span>
-              <span className={m.winner === 'R' ? 'font-extrabold' : 'text-sub'}>
+              <span className={m.winner === "R" ? "font-extrabold" : "text-sub"}>
                 {m.rightName}
               </span>
             </div>

@@ -32,12 +32,12 @@ export type Game = { leftScore: number; rightScore: number };
 各ゲームに、得点したサイドの並び `pointLog: Side[]` を持たせる。
 
 ```ts
-export type Side = 'L' | 'R';
+export type Side = "L" | "R";
 
 export type Game = {
-  leftScore: number;   // 後方互換のため残す（pointLog から導出可能）
+  leftScore: number; // 後方互換のため残す（pointLog から導出可能）
   rightScore: number;
-  pointLog?: Side[];   // 得点順。例: ['R','R','L','R','R','R','L', ...]
+  pointLog?: Side[]; // 得点順。例: ['R','R','L','R','R','R','L', ...]
 };
 ```
 
@@ -84,18 +84,17 @@ export type Game = {
 
 ```ts
 export type ProgressPoint = {
-  index: number;        // ラリー番号（1始まり）
-  scorer: Side;         // このラリーの得点者
-  left: number;         // ラリー後の左累計
-  right: number;        // ラリー後の右累計
-  server: Side;         // このラリー時点のサーバー
+  index: number; // ラリー番号（1始まり）
+  scorer: Side; // このラリーの得点者
+  left: number; // ラリー後の左累計
+  right: number; // ラリー後の右累計
+  server: Side; // このラリー時点のサーバー
 };
 
 // pointLog + そのゲームの先サーバー → 進行点列
-export const gameProgress = (
-  pointLog: Side[],
-  firstServerOfGame: Side,
-): ProgressPoint[] => { /* prefix集計 + currentServer 適用 */ };
+export const gameProgress = (pointLog: Side[], firstServerOfGame: Side): ProgressPoint[] => {
+  /* prefix集計 + currentServer 適用 */
+};
 ```
 
 - サーバーは既存 `currentServer(g, firstServerOfGame)` のロジックを流用。

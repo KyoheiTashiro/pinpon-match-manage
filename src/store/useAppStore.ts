@@ -1,10 +1,10 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import type { AppState, Tournament } from './types';
-import { createUiSlice, type UiSlice } from './slices/uiSlice';
-import { createTournamentSlice, type TournamentSlice } from './slices/tournamentSlice';
-import { createParticipantSlice, type ParticipantSlice } from './slices/participantSlice';
-import { createMatchSlice, type MatchSlice } from './slices/matchSlice';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+import type { AppState, Tournament } from "./types";
+import { createUiSlice, type UiSlice } from "./slices/uiSlice";
+import { createTournamentSlice, type TournamentSlice } from "./slices/tournamentSlice";
+import { createParticipantSlice, type ParticipantSlice } from "./slices/participantSlice";
+import { createMatchSlice, type MatchSlice } from "./slices/matchSlice";
 
 export type StoreState = UiSlice & TournamentSlice & ParticipantSlice & MatchSlice;
 
@@ -17,7 +17,7 @@ export const useAppStore = create<StoreState>()(
       ...createMatchSlice(...a),
     }),
     {
-      name: 'pinpon-match-manage:v1',
+      name: "pinpon-match-manage:v1",
       version: 2,
       migrate: (persisted, version) => {
         const st = persisted as AppState;

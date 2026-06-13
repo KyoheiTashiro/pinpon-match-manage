@@ -1,4 +1,4 @@
-import { useAppStore } from '../../../store/useAppStore';
+import { useAppStore } from "../../../store/useAppStore";
 
 export const useParticipants = (tournamentId: string) => {
   const tournament = useAppStore((s) => s.tournaments[tournamentId]);
@@ -7,10 +7,7 @@ export const useParticipants = (tournamentId: string) => {
   const updateParticipant = useAppStore((s) => s.updateParticipant);
   const removeParticipant = useAppStore((s) => s.removeParticipant);
 
-  const list =
-    tournament?.participantIds
-      .map((id) => participants[id])
-      .filter(Boolean) ?? [];
+  const list = tournament?.participantIds.map((id) => participants[id]).filter(Boolean) ?? [];
 
   return {
     list,

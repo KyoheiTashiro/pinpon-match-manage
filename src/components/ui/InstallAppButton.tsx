@@ -1,13 +1,13 @@
-import { useEffect, useState } from 'react';
-import { BigButton } from './BigButton';
+import { useEffect, useState } from "react";
+import { BigButton } from "./BigButton";
 
 type BeforeInstallPromptEvent = Event & {
   prompt: () => Promise<void>;
-  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 };
 
 const isStandalone = () =>
-  window.matchMedia('(display-mode: standalone)').matches ||
+  window.matchMedia("(display-mode: standalone)").matches ||
   // iOS Safari
   (navigator as unknown as { standalone?: boolean }).standalone === true;
 
@@ -31,11 +31,11 @@ export const InstallAppButton = () => {
       setInstalled(true);
       setDeferred(null);
     };
-    window.addEventListener('beforeinstallprompt', onBeforeInstall);
-    window.addEventListener('appinstalled', onInstalled);
+    window.addEventListener("beforeinstallprompt", onBeforeInstall);
+    window.addEventListener("appinstalled", onInstalled);
     return () => {
-      window.removeEventListener('beforeinstallprompt', onBeforeInstall);
-      window.removeEventListener('appinstalled', onInstalled);
+      window.removeEventListener("beforeinstallprompt", onBeforeInstall);
+      window.removeEventListener("appinstalled", onInstalled);
     };
   }, []);
 
@@ -45,7 +45,7 @@ export const InstallAppButton = () => {
     if (deferred) {
       await deferred.prompt();
       const { outcome } = await deferred.userChoice;
-      if (outcome === 'accepted') setInstalled(true);
+      if (outcome === "accepted") setInstalled(true);
       setDeferred(null);
       return;
     }
@@ -70,7 +70,7 @@ export const InstallAppButton = () => {
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
           onClick={() => setShowIOSGuide(false)}
           onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === 'Escape') setShowIOSGuide(false);
+            if (e.key === "Enter" || e.key === "Escape") setShowIOSGuide(false);
           }}
         >
           {/* oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- role="dialog" はランドマークだがstopPropagationが必要 */}
@@ -89,7 +89,9 @@ export const InstallAppButton = () => {
             {isIOS() ? (
               <ol className="text-base space-y-2 mb-6 list-decimal list-inside leading-relaxed">
                 <li>Safariで このページ を開く</li>
-                <li>下部 共有ボタン <span aria-hidden>⬆️</span> をタップ</li>
+                <li>
+                  下部 共有ボタン <span aria-hidden>⬆️</span> をタップ
+                </li>
                 <li>「ホーム画面に追加」を選択</li>
                 <li>右上「追加」をタップ</li>
               </ol>

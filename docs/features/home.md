@@ -5,10 +5,12 @@
 ## 機能
 
 ### 新規大会作成
+
 - 名称・形式・開催日を入力して大会を作成
 - 形式選択: `singles` | `doubles`
 
 ### 大会切替
+
 - 複数大会を保持し、一覧から選択して切替
 
 ## 一覧ソート仕様
@@ -16,11 +18,10 @@
 開催日の降順 → 同日は `createdAt` 降順。
 
 根拠: `src/features/home/hooks.ts` の `useHome` 実装:
+
 ```ts
 const list = Object.values(tournaments).sort(
-  (a, b) =>
-    (b.date ?? '').localeCompare(a.date ?? '') ||
-    b.createdAt.localeCompare(a.createdAt),
+  (a, b) => (b.date ?? "").localeCompare(a.date ?? "") || b.createdAt.localeCompare(a.createdAt),
 );
 ```
 

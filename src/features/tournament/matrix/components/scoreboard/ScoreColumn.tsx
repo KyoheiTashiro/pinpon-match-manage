@@ -26,21 +26,17 @@ export const ScoreColumn = ({
   onSub,
 }: Props) => {
   const highlight = isGameWinner || isMatchWinner;
-  const scoreColor = highlight
-    ? 'text-green-500'
-    : isMatchPoint
-      ? 'text-yellow-400'
-      : 'text-white';
+  const scoreColor = highlight ? "text-green-500" : isMatchPoint ? "text-yellow-400" : "text-white";
 
   return (
     <div
       className={`flex flex-col items-stretch min-h-0 p-1 sm:p-2 ${
-        isMatchWinner ? 'bg-success/20' : ''
+        isMatchWinner ? "bg-success/20" : ""
       }`}
     >
       <div
         className={`shrink-0 text-center text-base sm:text-2xl font-extrabold truncate ${
-          highlight ? 'text-green-500' : ''
+          highlight ? "text-green-500" : ""
         }`}
         title={name}
       >
@@ -50,7 +46,7 @@ export const ScoreColumn = ({
       <div className="flex-1 min-h-0 flex items-center justify-center py-1">
         <div
           className={`relative h-full aspect-[5/4] max-w-full rounded-2xl overflow-hidden border-2 ${
-            isMatchWinner ? 'bg-success/20 border-success' : 'bg-neutral-900 border-white/30'
+            isMatchWinner ? "bg-success/20 border-success" : "bg-neutral-900 border-white/30"
           }`}
         >
           <button
@@ -80,9 +76,9 @@ export const ScoreColumn = ({
 
       <div
         className={`shrink-0 h-2 sm:h-3 rounded-full mx-2 sm:mx-4 mt-1 transition-colors ${
-          isServing ? 'bg-orange-500' : 'bg-transparent'
+          isServing ? "bg-orange-500" : "bg-transparent"
         }`}
-        aria-label={isServing ? 'サーブ権あり' : undefined}
+        aria-label={isServing ? "サーブ権あり" : undefined}
       />
 
       {disabled && (

@@ -1,17 +1,17 @@
-import type { SVGProps } from 'react';
+import type { SVGProps } from "react";
 
 type IconProps = SVGProps<SVGSVGElement>;
 
 const base: SVGProps<SVGSVGElement> = {
-  width: '1em',
-  height: '1em',
-  viewBox: '0 0 24 24',
-  fill: 'none',
-  stroke: 'currentColor',
+  width: "1em",
+  height: "1em",
+  viewBox: "0 0 24 24",
+  fill: "none",
+  stroke: "currentColor",
   strokeWidth: 2,
-  strokeLinecap: 'round',
-  strokeLinejoin: 'round',
-  'aria-hidden': true,
+  strokeLinecap: "round",
+  strokeLinejoin: "round",
+  "aria-hidden": true,
   focusable: false,
 };
 

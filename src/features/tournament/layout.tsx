@@ -1,9 +1,9 @@
-import { NavLink, Outlet, useNavigate, useParams } from 'react-router-dom';
-import type { ComponentType, SVGProps } from 'react';
-import { useEffect } from 'react';
-import { useAppStore } from '../../store/useAppStore';
-import { FontSizeToggle } from '../../components/ui/FontSizeToggle';
-import { UsersIcon, PaddleIcon, TrophyIcon, GearIcon } from '../../components/icons';
+import { NavLink, Outlet, useNavigate, useParams } from "react-router-dom";
+import type { ComponentType, SVGProps } from "react";
+import { useEffect } from "react";
+import { useAppStore } from "../../store/useAppStore";
+import { FontSizeToggle } from "../../components/ui/FontSizeToggle";
+import { UsersIcon, PaddleIcon, TrophyIcon, GearIcon } from "../../components/icons";
 
 type Tab = {
   to: string;
@@ -12,18 +12,16 @@ type Tab = {
 };
 
 const tabs: Tab[] = [
-  { to: 'participants', label: '参加者', Icon: UsersIcon },
-  { to: 'matrix', label: '対戦表', Icon: PaddleIcon },
-  { to: 'result', label: '結果', Icon: TrophyIcon },
-  { to: 'settings', label: '設定', Icon: GearIcon },
+  { to: "participants", label: "参加者", Icon: UsersIcon },
+  { to: "matrix", label: "対戦表", Icon: PaddleIcon },
+  { to: "result", label: "結果", Icon: TrophyIcon },
+  { to: "settings", label: "設定", Icon: GearIcon },
 ];
 
 export const TournamentLayout = () => {
   const { tournamentId } = useParams<{ tournamentId: string }>();
   const navigate = useNavigate();
-  const tournament = useAppStore((s) =>
-    tournamentId ? s.tournaments[tournamentId] : undefined,
-  );
+  const tournament = useAppStore((s) => (tournamentId ? s.tournaments[tournamentId] : undefined));
   const setCurrent = useAppStore((s) => s.setCurrentTournament);
 
   useEffect(() => {
@@ -34,7 +32,7 @@ export const TournamentLayout = () => {
     return (
       <div className="p-6 text-center">
         <p className="text-lg mb-4">大会が見つかりません。</p>
-        <button onClick={() => navigate('/')} className="text-primary underline text-lg">
+        <button onClick={() => navigate("/")} className="text-primary underline text-lg">
           一覧へ戻る
         </button>
       </div>
@@ -45,7 +43,7 @@ export const TournamentLayout = () => {
     <div className="min-h-screen bg-white text-ink pb-24">
       <header className="bg-primary text-white p-4 flex items-center gap-3 flex-wrap">
         <button
-          onClick={() => navigate('/')}
+          onClick={() => navigate("/")}
           className="min-h-btn px-4 rounded-xl bg-white text-primary font-bold border-2 border-white"
           aria-label="大会一覧へ戻る"
         >
@@ -54,7 +52,7 @@ export const TournamentLayout = () => {
         <div className="flex-1 min-w-0">
           <div className="text-xl font-extrabold truncate">{tournament.name}</div>
           <div className="text-sm">
-            {tournament.format === 'singles' ? 'シングルス' : 'ダブルス'}
+            {tournament.format === "singles" ? "シングルス" : "ダブルス"}
           </div>
         </div>
         <FontSizeToggle />
@@ -74,7 +72,7 @@ export const TournamentLayout = () => {
             to={to}
             className={({ isActive }) =>
               `flex flex-col items-center justify-center min-h-[72px] py-2 font-bold ${
-                isActive ? 'bg-primary text-white' : 'bg-white text-ink'
+                isActive ? "bg-primary text-white" : "bg-white text-ink"
               }`
             }
           >

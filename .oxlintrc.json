@@ -4,14 +4,7 @@
   // jsx-no-new-{function,object,array}-as-prop / jsx-no-jsx-as-prop は
   // 子コンポーネントが React.memo されている場合にのみ意味があるが、
   // このコードベースでは memo を使っていないため全て誤検知になる。
-  "plugins": [
-    "typescript",
-    "unicorn",
-    "oxc",
-    "react",
-    "jsx-a11y",
-    "import"
-  ],
+  "plugins": ["typescript", "unicorn", "oxc", "react", "jsx-a11y", "import"],
   "categories": {
     "correctness": "error",
     "suspicious": "error",
@@ -47,18 +40,10 @@
     // （この設定ファイル自体もそう）。意図的なスタイルなので off。
     "eslint/no-inline-comments": "off"
   },
-  "ignorePatterns": [
-    "dist",
-    "dev-dist",
-    "node_modules",
-    "**/*.config.{ts,js}"
-  ],
+  "ignorePatterns": ["dist", "dev-dist", "node_modules", "**/*.config.{ts,js}"],
   "overrides": [
     {
-      "files": [
-        "**/*.test.{ts,tsx}",
-        "**/*.spec.{ts,tsx}"
-      ],
+      "files": ["**/*.test.{ts,tsx}", "**/*.spec.{ts,tsx}"],
       "plugins": ["vitest"],
       "rules": {
         "vitest/no-disabled-tests": "warn",

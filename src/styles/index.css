@@ -2,25 +2,33 @@
 @tailwind components;
 @tailwind utilities;
 
-html { font-size: 18px; }
-html[data-fs="large"]  { font-size: 20px; }
-html[data-fs="xlarge"] { font-size: 22px; }
+html {
+  font-size: 18px;
+}
+html[data-fs="large"] {
+  font-size: 20px;
+}
+html[data-fs="xlarge"] {
+  font-size: 22px;
+}
 
 body {
-  font-family: theme('fontFamily.sans');
-  color: theme('colors.ink');
+  font-family: theme("fontFamily.sans");
+  color: theme("colors.ink");
   background: #ffffff;
   font-variant-numeric: tabular-nums;
 }
 
 :focus-visible {
-  outline: 4px solid #2563EB;
+  outline: 4px solid #2563eb;
   outline-offset: 2px;
   border-radius: 4px;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }

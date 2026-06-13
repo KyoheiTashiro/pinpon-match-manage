@@ -1,5 +1,5 @@
-import type { Game } from '../../../../../domain/match';
-import { isGameFinished } from '../../../../../domain/match';
+import type { Game } from "../../../../../domain/match";
+import { isGameFinished } from "../../../../../domain/match";
 
 type Props = {
   games: Game[];
@@ -54,12 +54,12 @@ export const ScoreboardHeader = ({
                 disabled={isLocked && empty}
                 className={`min-w-[44px] px-2 py-1 text-sm font-extrabold rounded border-2 ${
                   i === idx
-                    ? 'bg-white text-black border-white'
+                    ? "bg-white text-black border-white"
                     : done
-                      ? 'border-success text-green-500'
+                      ? "border-success text-green-500"
                       : isLocked && empty
-                        ? 'border-white/20 text-white/30'
-                        : 'border-white/60 text-white'
+                        ? "border-white/20 text-white/30"
+                        : "border-white/60 text-white"
                 }`}
               >
                 G{i + 1}

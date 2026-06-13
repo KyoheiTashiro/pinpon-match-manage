@@ -1,21 +1,19 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAppStore } from '../../store/useAppStore';
-import { BigButton } from '../../components/ui/BigButton';
-import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
-import { FontSizeToggle } from '../../components/ui/FontSizeToggle';
-import { InstallAppButton } from '../../components/ui/InstallAppButton';
-import { formatDate } from '../../lib/time';
-import type { BestOf, Format } from '../../store/types';
-import { useHome } from './hooks';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAppStore } from "../../store/useAppStore";
+import { BigButton } from "../../components/ui/BigButton";
+import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
+import { FontSizeToggle } from "../../components/ui/FontSizeToggle";
+import { InstallAppButton } from "../../components/ui/InstallAppButton";
+import { formatDate } from "../../lib/time";
+import type { BestOf, Format } from "../../store/types";
+import { useHome } from "./hooks";
 
 export const Home = () => {
   const navigate = useNavigate();
   const resetAll = useAppStore((s) => s.resetAll);
 
-  const { list, form } = useHome((id) =>
-    navigate(`/t/${id}/participants`),
-  );
+  const { list, form } = useHome((id) => navigate(`/t/${id}/participants`));
 
   const [confirmReset, setConfirmReset] = useState(false);
 
@@ -43,13 +41,13 @@ export const Home = () => {
             <fieldset className="flex flex-col gap-2">
               <legend className="font-bold mb-1">形式</legend>
               <div className="flex gap-3 flex-wrap">
-                {(['singles', 'doubles'] as Format[]).map((f) => (
+                {(["singles", "doubles"] as Format[]).map((f) => (
                   <label
                     key={f}
                     className={`flex items-center gap-2 px-4 min-h-btn rounded-xl border-2 cursor-pointer ${
                       form.format === f
-                        ? 'bg-primary text-white border-primary'
-                        : 'bg-white text-ink border-line'
+                        ? "bg-primary text-white border-primary"
+                        : "bg-white text-ink border-line"
                     }`}
                   >
                     <input
@@ -57,11 +55,11 @@ export const Home = () => {
                       name="format"
                       checked={form.format === f}
                       onChange={() => form.setFormat(f)}
-                      aria-label={f === 'singles' ? 'シングルス' : 'ダブルス'}
+                      aria-label={f === "singles" ? "シングルス" : "ダブルス"}
                       className="w-5 h-5"
                     />
                     <span className="text-lg font-bold">
-                      {f === 'singles' ? 'シングルス' : 'ダブルス'}
+                      {f === "singles" ? "シングルス" : "ダブルス"}
                     </span>
                   </label>
                 ))}
@@ -75,8 +73,8 @@ export const Home = () => {
                     key={n}
                     className={`flex items-center gap-2 px-4 min-h-btn rounded-xl border-2 cursor-pointer ${
                       form.bestOf === n
-                        ? 'bg-primary text-white border-primary'
-                        : 'bg-white text-ink border-line'
+                        ? "bg-primary text-white border-primary"
+                        : "bg-white text-ink border-line"
                     }`}
                   >
                     <input
@@ -103,12 +101,20 @@ export const Home = () => {
               />
             </label>
             <div className="flex gap-3 justify-end flex-wrap">
-              <BigButton variant="secondary" onClick={() => form.setCreating(false)}>キャンセル</BigButton>
-              <BigButton variant="primary" onClick={form.submit} disabled={!form.name.trim()}>つくる</BigButton>
+              <BigButton variant="secondary" onClick={() => form.setCreating(false)}>
+                キャンセル
+              </BigButton>
+              <BigButton variant="primary" onClick={form.submit} disabled={!form.name.trim()}>
+                つくる
+              </BigButton>
             </div>
           </div>
         ) : (
-          <BigButton variant="primary" className="w-full !min-h-[72px] text-xl" onClick={() => form.setCreating(true)}>
+          <BigButton
+            variant="primary"
+            className="w-full !min-h-[72px] text-xl"
+            onClick={() => form.setCreating(true)}
+          >
             ＋ あたらしい大会をつくる
           </BigButton>
         )}
@@ -129,10 +135,13 @@ export const Home = () => {
                     <div>
                       <div className="text-xl font-extrabold">{t.name}</div>
                       <div className="text-base text-sub">
-                        {formatDate(t.date)} ・ {t.format === 'singles' ? 'シングルス' : 'ダブルス'} ・ {t.participantIds.length}人
+                        {formatDate(t.date)} ・ {t.format === "singles" ? "シングルス" : "ダブルス"}{" "}
+                        ・ {t.participantIds.length}人
                       </div>
                     </div>
-                    <span className="text-2xl" aria-hidden>▶</span>
+                    <span className="text-2xl" aria-hidden>
+                      ▶
+                    </span>
                   </button>
                 </li>
               ))}

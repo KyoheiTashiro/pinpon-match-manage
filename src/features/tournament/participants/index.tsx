@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { BigButton } from '../../../components/ui/BigButton';
-import { ConfirmDialog } from '../../../components/ui/ConfirmDialog';
-import { useParticipants } from './hooks';
+import { useState } from "react";
+import { useParams } from "react-router-dom";
+import { BigButton } from "../../../components/ui/BigButton";
+import { ConfirmDialog } from "../../../components/ui/ConfirmDialog";
+import { useParticipants } from "./hooks";
 
 export const ParticipantsTab = () => {
   const { tournamentId } = useParams<{ tournamentId: string }>();
@@ -13,15 +13,15 @@ export const ParticipantsTab = () => {
 const ParticipantsView = ({ tournamentId }: { tournamentId: string }) => {
   const { list, add, rename, remove } = useParticipants(tournamentId);
 
-  const [name, setName] = useState('');
+  const [name, setName] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editName, setEditName] = useState('');
+  const [editName, setEditName] = useState("");
   const [removeTarget, setRemoveTarget] = useState<string | null>(null);
 
   const submit = () => {
     if (!name.trim()) return;
     add(name);
-    setName('');
+    setName("");
   };
 
   return (
@@ -35,11 +35,13 @@ const ParticipantsView = ({ tournamentId }: { tournamentId: string }) => {
           placeholder="名前"
           aria-label="参加者名"
           onKeyDown={(e) => {
-            if (e.key === 'Enter') e.preventDefault();
+            if (e.key === "Enter") e.preventDefault();
           }}
           className="flex-1 min-w-[200px] min-h-input border-2 border-line rounded-xl px-3 text-lg"
         />
-        <BigButton onClick={submit} disabled={!name.trim()}>追加</BigButton>
+        <BigButton onClick={submit} disabled={!name.trim()}>
+          追加
+        </BigButton>
       </div>
 
       {list.length === 0 ? (
@@ -66,7 +68,9 @@ const ParticipantsView = ({ tournamentId }: { tournamentId: string }) => {
                   >
                     保存
                   </BigButton>
-                  <BigButton variant="secondary" onClick={() => setEditingId(null)}>やめる</BigButton>
+                  <BigButton variant="secondary" onClick={() => setEditingId(null)}>
+                    やめる
+                  </BigButton>
                 </>
               ) : (
                 <>

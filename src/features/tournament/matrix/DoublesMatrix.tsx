@@ -1,17 +1,17 @@
-import { useState } from 'react';
-import { useAppStore } from '../../../store/useAppStore';
-import { BigButton } from '../../../components/ui/BigButton';
-import { useImageCapture } from '../../../lib/useImageCapture';
-import { matchSummary, winsNeededForBestOf } from '../../../domain/match';
-import { MatchModal } from './components/MatchModal';
-import { PairSelect } from './components/PairSelect';
-import { sideMembers, useMatrix } from './hooks';
+import { useState } from "react";
+import { useAppStore } from "../../../store/useAppStore";
+import { BigButton } from "../../../components/ui/BigButton";
+import { useImageCapture } from "../../../lib/useImageCapture";
+import { matchSummary, winsNeededForBestOf } from "../../../domain/match";
+import { MatchModal } from "./components/MatchModal";
+import { PairSelect } from "./components/PairSelect";
+import { sideMembers, useMatrix } from "./hooks";
 
 export const DoublesMatrix = ({ tournamentId }: { tournamentId: string }) => {
   const { tournament, participants, list, ps, form, setForm, canAdd, reset } =
     useMatrix(tournamentId);
   const addManualMatch = useAppStore((s) => s.addManualMatch);
-  const { ref, saving, save } = useImageCapture('対戦表', tournament?.name);
+  const { ref, saving, save } = useImageCapture("対戦表", tournament?.name);
   const [openMatchId, setOpenMatchId] = useState<string | null>(null);
 
   if (!tournament) return null;
@@ -68,8 +68,8 @@ export const DoublesMatrix = ({ tournamentId }: { tournamentId: string }) => {
             onClick={() => {
               const id = addManualMatch(
                 tournamentId,
-                { kind: 'pair', memberIds: [form.l1, form.l2] },
-                { kind: 'pair', memberIds: [form.r1, form.r2] },
+                { kind: "pair", memberIds: [form.l1, form.l2] },
+                { kind: "pair", memberIds: [form.r1, form.r2] },
               );
               reset();
               setOpenMatchId(id);
@@ -81,46 +81,52 @@ export const DoublesMatrix = ({ tournamentId }: { tournamentId: string }) => {
       )}
 
       <div ref={ref} className="bg-white p-3 space-y-2">
-      <div className="border-b-2 border-line pb-2">
-        <div className="text-xl font-extrabold">{tournament.name}</div>
-        <div className="text-sm text-sub">{tournament.date}</div>
-      </div>
-      <ul className="divide-y-2 divide-line border-2 border-line rounded-2xl overflow-hidden">
-        {list.length === 0 ? (
-          <li className="p-4 text-sub text-base">まだ試合がありません。</li>
-        ) : (
-          list.map((m) => {
-            const sm = matchSummary(m.games, wins);
-            const lname = sideMembers(m.leftSide).map((id) => participants[id]?.name ?? '?').join(' / ');
-            const rname = sideMembers(m.rightSide).map((id) => participants[id]?.name ?? '?').join(' / ');
-            return (
-              <li key={m.id}>
-                <button
-                  onClick={() => setOpenMatchId(m.id)}
-                  className="w-full text-left p-3 min-h-[64px] hover:bg-bg flex items-center justify-between gap-3"
-                >
-                  <span className="text-lg font-bold flex-1">
-                    {lname} <span className="text-sub">対</span> {rname}
-                  </span>
-                  <span className="text-xl font-extrabold flex flex-col items-end">
-                    <span>{sm.leftWins}-{sm.rightWins}</span>
-                    {sm.finished && (
-                      <span className="text-sm text-success">
-                        {sm.winner === 'L' ? lname : rname} の勝ち
+        <div className="border-b-2 border-line pb-2">
+          <div className="text-xl font-extrabold">{tournament.name}</div>
+          <div className="text-sm text-sub">{tournament.date}</div>
+        </div>
+        <ul className="divide-y-2 divide-line border-2 border-line rounded-2xl overflow-hidden">
+          {list.length === 0 ? (
+            <li className="p-4 text-sub text-base">まだ試合がありません。</li>
+          ) : (
+            list.map((m) => {
+              const sm = matchSummary(m.games, wins);
+              const lname = sideMembers(m.leftSide)
+                .map((id) => participants[id]?.name ?? "?")
+                .join(" / ");
+              const rname = sideMembers(m.rightSide)
+                .map((id) => participants[id]?.name ?? "?")
+                .join(" / ");
+              return (
+                <li key={m.id}>
+                  <button
+                    onClick={() => setOpenMatchId(m.id)}
+                    className="w-full text-left p-3 min-h-[64px] hover:bg-bg flex items-center justify-between gap-3"
+                  >
+                    <span className="text-lg font-bold flex-1">
+                      {lname} <span className="text-sub">対</span> {rname}
+                    </span>
+                    <span className="text-xl font-extrabold flex flex-col items-end">
+                      <span>
+                        {sm.leftWins}-{sm.rightWins}
                       </span>
-                    )}
-                  </span>
-                </button>
-              </li>
-            );
-          })
-        )}
-      </ul>
+                      {sm.finished && (
+                        <span className="text-sm text-success">
+                          {sm.winner === "L" ? lname : rname} の勝ち
+                        </span>
+                      )}
+                    </span>
+                  </button>
+                </li>
+              );
+            })
+          )}
+        </ul>
       </div>
 
       {ps.length >= 4 && list.length > 0 && (
         <BigButton onClick={save} disabled={saving}>
-          {saving ? '保存中…' : '対戦表の画像を保存'}
+          {saving ? "保存中…" : "対戦表の画像を保存"}
         </BigButton>
       )}
 

@@ -1,16 +1,14 @@
-import { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useAppStore } from '../../../store/useAppStore';
-import { BigButton } from '../../../components/ui/BigButton';
-import { ConfirmDialog } from '../../../components/ui/ConfirmDialog';
-import { formatDate } from '../../../lib/time';
+import { useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useAppStore } from "../../../store/useAppStore";
+import { BigButton } from "../../../components/ui/BigButton";
+import { ConfirmDialog } from "../../../components/ui/ConfirmDialog";
+import { formatDate } from "../../../lib/time";
 
 export const SettingsTab = () => {
   const { tournamentId } = useParams<{ tournamentId: string }>();
   const navigate = useNavigate();
-  const tournament = useAppStore((s) =>
-    tournamentId ? s.tournaments[tournamentId] : undefined,
-  );
+  const tournament = useAppStore((s) => (tournamentId ? s.tournaments[tournamentId] : undefined));
   const resetTournament = useAppStore((s) => s.resetTournament);
   const deleteTournament = useAppStore((s) => s.deleteTournament);
 
@@ -27,7 +25,7 @@ export const SettingsTab = () => {
         <dt className="font-bold">大会名</dt>
         <dd>{tournament.name}</dd>
         <dt className="font-bold">形式</dt>
-        <dd>{tournament.format === 'singles' ? 'シングルス' : 'ダブルス'}</dd>
+        <dd>{tournament.format === "singles" ? "シングルス" : "ダブルス"}</dd>
         <dt className="font-bold">開催日</dt>
         <dd>{formatDate(tournament.date)}</dd>
         <dt className="font-bold">参加者</dt>
@@ -40,18 +38,14 @@ export const SettingsTab = () => {
         <BigButton variant="danger" onClick={() => setConfirmReset(true)}>
           試合結果を削除
         </BigButton>
-        <p className="text-sm text-sub">
-          大会・参加者は残し、試合の記録だけを削除します。
-        </p>
+        <p className="text-sm text-sub">大会・参加者は残し、試合の記録だけを削除します。</p>
       </div>
 
       <div className="border-t-2 border-line pt-4 space-y-3">
         <BigButton variant="danger" onClick={() => setConfirmDelete(true)}>
           この大会を削除
         </BigButton>
-        <p className="text-sm text-sub">
-          大会・参加者・試合をすべて削除します。
-        </p>
+        <p className="text-sm text-sub">大会・参加者・試合をすべて削除します。</p>
       </div>
 
       <ConfirmDialog
@@ -78,7 +72,7 @@ export const SettingsTab = () => {
         onConfirm={() => {
           deleteTournament(tournamentId);
           setConfirmDelete(false);
-          navigate('/');
+          navigate("/");
         }}
         onCancel={() => setConfirmDelete(false)}
       />

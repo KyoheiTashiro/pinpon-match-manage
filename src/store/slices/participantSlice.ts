@@ -1,7 +1,7 @@
-import type { StateCreator } from 'zustand';
-import type { MatchSide, Participant } from '../types';
-import type { StoreState } from '../useAppStore';
-import { uid } from '../../lib/id';
+import type { StateCreator } from "zustand";
+import type { MatchSide, Participant } from "../types";
+import type { StoreState } from "../useAppStore";
+import { uid } from "../../lib/id";
 
 export type ParticipantSlice = {
   participants: Record<string, Participant>;
@@ -10,11 +10,13 @@ export type ParticipantSlice = {
   removeParticipant: (tournamentId: string, id: string) => void;
 };
 
-export const participantInitial: Pick<ParticipantSlice, 'participants'> = {
+export const participantInitial: Pick<ParticipantSlice, "participants"> = {
   participants: {},
 };
 
-export const createParticipantSlice: StateCreator<StoreState, [], [], ParticipantSlice> = (set) => ({
+export const createParticipantSlice: StateCreator<StoreState, [], [], ParticipantSlice> = (
+  set,
+) => ({
   ...participantInitial,
 
   addParticipant: (tournamentId, name, affiliation) => {
@@ -61,9 +63,7 @@ export const createParticipantSlice: StateCreator<StoreState, [], [], Participan
         const m = matches[mid];
         if (!m) continue;
         const involves = (s: MatchSide) =>
-          s.kind === 'single'
-            ? s.participantId === id
-            : s.memberIds.includes(id);
+          s.kind === "single" ? s.participantId === id : s.memberIds.includes(id);
         if (involves(m.leftSide) || involves(m.rightSide)) {
           delete matches[mid];
         } else {

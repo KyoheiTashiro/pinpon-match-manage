@@ -1,13 +1,11 @@
-import type { Game, Side } from '../../../../../domain/match';
-import { gameFirstServer, realGames } from '../../../../../domain/match';
-import { gameProgress } from '../../../../../domain/scoreProgress';
+import type { Game, Side } from "../../../../../domain/match";
+import { gameFirstServer, realGames } from "../../../../../domain/match";
+import { gameProgress } from "../../../../../domain/scoreProgress";
 
 // Display mapping: left=top, right=bottom (no swap)
-const displayScorer = (p: { scorer: Side }): 'top' | 'bot' =>
-  p.scorer === 'L' ? 'top' : 'bot';
+const displayScorer = (p: { scorer: Side }): "top" | "bot" => (p.scorer === "L" ? "top" : "bot");
 
-const displayServer = (p: { server: Side }): 'top' | 'bot' =>
-  p.server === 'L' ? 'top' : 'bot';
+const displayServer = (p: { server: Side }): "top" | "bot" => (p.server === "L" ? "top" : "bot");
 
 const topScore = (p: { left: number; right: number }) => p.left;
 const botScore = (p: { left: number; right: number }) => p.right;
@@ -27,12 +25,7 @@ const TOP_CY = ROW_HEIGHT / 2; // 28
 const BOT_CY = ROW_HEIGHT + ROW_HEIGHT / 2; // 84
 const SVG_HEIGHT = ROW_HEIGHT * 2; // 112
 
-export const ScoreProgressChart = ({
-  games,
-  leftName,
-  rightName,
-  matchFirstServer,
-}: Props) => {
+export const ScoreProgressChart = ({ games, leftName, rightName, matchFirstServer }: Props) => {
   // Filter to games with pointLog
   const allReal = realGames(games);
   // Map to {gameNumber (1-based within realGames), originalIndex, game}
@@ -61,9 +54,7 @@ export const ScoreProgressChart = ({
             ? gameFirstServer(matchFirstServer, realIdx)
             : undefined;
 
-          const points = firstServer
-            ? gameProgress(log, firstServer)
-            : gameProgress(log, 'L'); // fallback; server display skipped if matchFirstServer absent
+          const points = firstServer ? gameProgress(log, firstServer) : gameProgress(log, "L"); // fallback; server display skipped if matchFirstServer absent
 
           const colCount = points.length;
           // SVG width covers all rally columns + 1 final score column
@@ -80,8 +71,8 @@ export const ScoreProgressChart = ({
           for (let i = 1; i < points.length; i++) {
             const prev = points[i - 1]!;
             const curr = points[i]!;
-            const prevCY = displayScorer(prev) === 'top' ? TOP_CY : BOT_CY;
-            const currCY = displayScorer(curr) === 'top' ? TOP_CY : BOT_CY;
+            const prevCY = displayScorer(prev) === "top" ? TOP_CY : BOT_CY;
+            const currCY = displayScorer(curr) === "top" ? TOP_CY : BOT_CY;
             const prevCX = (i - 1) * COL_WIDTH + COL_WIDTH / 2;
             const currCX = i * COL_WIDTH + COL_WIDTH / 2;
             lines.push({ x1: prevCX, y1: prevCY, x2: currCX, y2: currCY });
@@ -90,17 +81,12 @@ export const ScoreProgressChart = ({
           return (
             <div key={gameNumber}>
               {/* Game header */}
-              <div className="text-center font-bold text-base text-ink mb-2">
-                Game {gameNumber}
-              </div>
+              <div className="text-center font-bold text-base text-ink mb-2">Game {gameNumber}</div>
 
               {/* Name labels + chart (no overflow-x-auto: full width for image capture) */}
               <div className="flex items-stretch">
                 {/* Player name column */}
-                <div
-                  className="flex flex-col shrink-0"
-                  style={{ width: 64, height: SVG_HEIGHT }}
-                >
+                <div className="flex flex-col shrink-0" style={{ width: 64, height: SVG_HEIGHT }}>
                   <div
                     className="flex items-center justify-end pr-2 text-sm font-bold text-ink truncate"
                     style={{ height: ROW_HEIGHT }}
@@ -123,7 +109,7 @@ export const ScoreProgressChart = ({
                       className="absolute inset-0 pointer-events-none"
                       width={svgWidth}
                       height={SVG_HEIGHT}
-                      style={{ overflow: 'visible' }}
+                      style={{ overflow: "visible" }}
                     >
                       {lines.map((ln, li) => (
                         <line
@@ -160,23 +146,23 @@ export const ScoreProgressChart = ({
                           >
                             <div
                               className={`flex items-center justify-center rounded-full font-bold text-sm select-none ${
-                                scorer === 'top'
-                                  ? 'bg-blue-500 text-white'
-                                  : 'bg-neutral-200 text-neutral-700'
+                                scorer === "top"
+                                  ? "bg-blue-500 text-white"
+                                  : "bg-neutral-200 text-neutral-700"
                               }`}
                               style={{ width: CIRCLE_SIZE, height: CIRCLE_SIZE }}
                             >
                               {tScore}
                             </div>
-                            {server === 'top' && (
+                            {server === "top" && (
                               <div
                                 className="absolute bg-orange-500 rounded-full"
                                 style={{
                                   width: 20,
                                   height: 4,
                                   bottom: 6,
-                                  left: '50%',
-                                  transform: 'translateX(-50%)',
+                                  left: "50%",
+                                  transform: "translateX(-50%)",
                                 }}
                               />
                             )}
@@ -188,23 +174,23 @@ export const ScoreProgressChart = ({
                           >
                             <div
                               className={`flex items-center justify-center rounded-full font-bold text-sm select-none ${
-                                scorer === 'bot'
-                                  ? 'bg-blue-500 text-white'
-                                  : 'bg-neutral-200 text-neutral-700'
+                                scorer === "bot"
+                                  ? "bg-blue-500 text-white"
+                                  : "bg-neutral-200 text-neutral-700"
                               }`}
                               style={{ width: CIRCLE_SIZE, height: CIRCLE_SIZE }}
                             >
                               {bScore}
                             </div>
-                            {server === 'bot' && (
+                            {server === "bot" && (
                               <div
                                 className="absolute bg-orange-500 rounded-full"
                                 style={{
                                   width: 20,
                                   height: 4,
                                   bottom: 6,
-                                  left: '50%',
-                                  transform: 'translateX(-50%)',
+                                  left: "50%",
+                                  transform: "translateX(-50%)",
                                 }}
                               />
                             )}
@@ -225,7 +211,7 @@ export const ScoreProgressChart = ({
                       >
                         <div
                           className={`flex items-center justify-center rounded-full font-bold text-sm bg-amber-300 select-none ${
-                            finalTop > finalBot ? 'text-green-800' : 'text-neutral-700'
+                            finalTop > finalBot ? "text-green-800" : "text-neutral-700"
                           }`}
                           style={{ width: CIRCLE_SIZE, height: CIRCLE_SIZE }}
                         >
@@ -239,7 +225,7 @@ export const ScoreProgressChart = ({
                       >
                         <div
                           className={`flex items-center justify-center rounded-full font-bold text-sm bg-amber-300 select-none ${
-                            finalBot > finalTop ? 'text-green-800' : 'text-neutral-700'
+                            finalBot > finalTop ? "text-green-800" : "text-neutral-700"
                           }`}
                           style={{ width: CIRCLE_SIZE, height: CIRCLE_SIZE }}
                         >

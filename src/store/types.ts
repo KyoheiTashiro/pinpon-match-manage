@@ -1,6 +1,6 @@
-import type { Game, Side } from '../domain/match';
+import type { Game, Side } from "../domain/match";
 
-export type Format = 'singles' | 'doubles';
+export type Format = "singles" | "doubles";
 
 /** 1試合のゲーム数。先取は (bestOf + 1) / 2。 */
 export type BestOf = 3 | 5 | 7;
@@ -23,8 +23,8 @@ export type Participant = {
   affiliation?: string;
 };
 
-export type SingleSide = { kind: 'single'; participantId: string };
-export type PairSide = { kind: 'pair'; memberIds: [string, string] };
+export type SingleSide = { kind: "single"; participantId: string };
+export type PairSide = { kind: "pair"; memberIds: [string, string] };
 export type MatchSide = SingleSide | PairSide;
 
 export type Match = {
@@ -37,7 +37,7 @@ export type Match = {
   firstServer: Side;
 };
 
-export type FontSize = 'normal' | 'large' | 'xlarge';
+export type FontSize = "normal" | "large" | "xlarge";
 
 export type AppState = {
   tournaments: Record<string, Tournament>;

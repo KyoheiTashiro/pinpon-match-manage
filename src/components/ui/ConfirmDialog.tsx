@@ -1,5 +1,5 @@
-import { useEffect, useRef } from 'react';
-import { BigButton } from './BigButton';
+import { useEffect, useRef } from "react";
+import { BigButton } from "./BigButton";
 
 type Props = {
   open: boolean;
@@ -16,8 +16,8 @@ export const ConfirmDialog = ({
   open,
   title,
   message,
-  confirmLabel = 'はい',
-  cancelLabel = 'いいえ',
+  confirmLabel = "はい",
+  cancelLabel = "いいえ",
   destructive,
   onConfirm,
   onCancel,
@@ -37,7 +37,7 @@ export const ConfirmDialog = ({
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
       onClick={onCancel}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === 'Escape') onCancel();
+        if (e.key === "Enter" || e.key === "Escape") onCancel();
       }}
     >
       {/* oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- role="dialog" はランドマークだがstopPropagationが必要 */}
@@ -58,10 +58,7 @@ export const ConfirmDialog = ({
           <BigButton ref={cancelRef} variant="secondary" onClick={onCancel}>
             {cancelLabel}
           </BigButton>
-          <BigButton
-            variant={destructive ? 'danger' : 'primary'}
-            onClick={onConfirm}
-          >
+          <BigButton variant={destructive ? "danger" : "primary"} onClick={onConfirm}>
             {confirmLabel}
           </BigButton>
         </div>
