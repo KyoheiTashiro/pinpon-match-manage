@@ -118,11 +118,14 @@ export const ScoreProgressChart = ({ games, leftName, rightName, matchFirstServe
               <div className="text-center font-bold text-base text-ink mb-2">Game {gameNumber}</div>
               <div className="flex items-stretch">
                 {/* プレイヤー名の列 */}
-                <div className="flex flex-col shrink-0" style={{ width: 64, height: SVG_HEIGHT }}>
+                <div
+                  className="flex flex-col shrink-0"
+                  style={{ minWidth: 64, height: SVG_HEIGHT }}
+                >
                   {[leftName, rightName].map((name, row) => (
                     <div
                       key={row}
-                      className="flex items-center justify-end pr-2 text-sm font-bold text-ink truncate"
+                      className="flex items-center justify-end pr-2 text-sm font-bold text-ink whitespace-nowrap"
                       style={{ height: ROW_HEIGHT }}
                     >
                       {name}

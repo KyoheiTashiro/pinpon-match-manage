@@ -2,7 +2,6 @@ import { NavLink, Outlet, useNavigate, useParams } from "react-router-dom";
 import type { ComponentType, SVGProps } from "react";
 import { useEffect } from "react";
 import { useAppStore } from "@/store/useAppStore";
-import { FontSizeToggle } from "@/components/ui/FontSizeToggle";
 import { UsersIcon, PaddleIcon, TrophyIcon, GearIcon } from "@/components/icons";
 
 type Tab = {
@@ -57,7 +56,6 @@ export const TournamentLayout = () => {
             {tournament.format === "singles" ? "シングルス" : "ダブルス"}
           </div>
         </div>
-        <FontSizeToggle />
       </header>
 
       <main className="max-w-5xl mx-auto p-4">

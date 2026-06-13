@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { BigButton } from "@/components/ui/BigButton";
 import { useImageCapture } from "@/lib/useImageCapture";
-import { ScoreProgressChart } from "@/features/tournament/matrix/components/scoreboard/ScoreProgressChart";
 import { useResultRows } from "@/features/tournament/ranking/hooks";
+import { GraphMatchSelector, MatchGraphBlock } from "@/features/tournament/ranking/components";
 import type { MatchResultRow } from "@/features/tournament/ranking/hooks";
 
 export const ResultTab = () => {
@@ -16,10 +16,34 @@ type DisplayMode = "table" | "graph";
 
 const RankingView = ({ tournamentId }: { tournamentId: string }) => {
   const { rows, matchResults, tournament } = useResultRows(tournamentId);
-  const { ref, saving, save } = useImageCapture("結果", tournament?.name);
+  // 表示中コンテナ（table全体 or 選択中1対戦）用
+  const main = useImageCapture("結果", tournament?.name);
+  // off-screen 全対戦版用
+  const allMatches = useImageCapture("結果", tournament?.name);
   const [mode, setMode] = useState<DisplayMode>("table");
 
+  // ログのある対戦のみ選択肢に出す
+  const graphMatches = useMemo(
+    () =>
+      matchResults.filter((match) =>
+        match.games.some((game) => game.pointLog && game.pointLog.length > 0),
+      ),
+    [matchResults],
+  );
+
+  const [selectedMatchId, setSelectedMatchId] = useState<string | null>(null);
+
+  // 初期選択: graphMatches が変わったときに未選択 or 消えた id をリセット
+  const resolvedSelectedId =
+    selectedMatchId !== null && graphMatches.some((m) => m.id === selectedMatchId)
+      ? selectedMatchId
+      : (graphMatches[0]?.id ?? null);
+
+  const selectedMatch = graphMatches.find((m) => m.id === resolvedSelectedId) ?? null;
+
   if (!tournament) return null;
+
+  const isSaving = main.saving || allMatches.saving;
 
   return (
     <div className="space-y-4">
@@ -57,9 +81,21 @@ const RankingView = ({ tournamentId }: { tournamentId: string }) => {
             </button>
           </div>
 
+          {/* グラフモード時のみ表示するセレクタ（画像保存対象外） */}
+          {mode === "graph" && (
+            <GraphMatchSelector
+              graphMatches={graphMatches}
+              selectedMatchId={resolvedSelectedId}
+              onSelect={(id) => setSelectedMatchId(id)}
+            />
+          )}
+
           {/* 画像保存対象コンテンツ */}
           <div className="overflow-x-auto">
-            <div ref={ref} className="bg-white p-3 space-y-2 inline-block align-top min-w-full">
+            <div
+              ref={main.ref}
+              className="bg-white p-3 space-y-2 inline-block align-top min-w-full"
+            >
               {/* 大会名・日付ヘッダ（両モード共通） */}
               <div className="border-b-2 border-line pb-2">
                 <div className="text-xl font-extrabold">{tournament.name}</div>
@@ -68,15 +104,60 @@ const RankingView = ({ tournamentId }: { tournamentId: string }) => {
 
               {mode === "table" ? (
                 <TableMode rows={rows} matchResults={matchResults} bestOf={tournament.bestOf} />
-              ) : (
-                <GraphMode matchResults={matchResults} />
-              )}
+              ) : graphMatches.length === 0 ? (
+                <p className="text-sub">対戦結果がありません。</p>
+              ) : selectedMatch ? (
+                <MatchGraphBlock match={selectedMatch} />
+              ) : null}
             </div>
           </div>
 
-          <BigButton onClick={save} disabled={saving}>
-            {saving ? "保存中…" : "結果の画像を保存"}
-          </BigButton>
+          {/* 保存ボタン（画像対象外） */}
+          {mode === "table" ? (
+            <BigButton onClick={() => main.save()} disabled={isSaving}>
+              {main.saving ? "保存中…" : "結果の画像を保存"}
+            </BigButton>
+          ) : (
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <BigButton
+                onClick={() =>
+                  selectedMatch &&
+                  main.save(`${selectedMatch.leftName} vs ${selectedMatch.rightName}`)
+                }
+                disabled={isSaving || !selectedMatch}
+              >
+                {main.saving ? "保存中…" : "この対戦を保存"}
+              </BigButton>
+              <BigButton
+                onClick={() => allMatches.save("全対戦")}
+                disabled={isSaving || graphMatches.length === 0}
+              >
+                {allMatches.saving ? "保存中…" : "全対戦を保存"}
+              </BigButton>
+            </div>
+          )}
+
+          {/* off-screen 全対戦版（graphモード時のみ、画像取得用） */}
+          {mode === "graph" && graphMatches.length > 0 && (
+            <div
+              aria-hidden
+              className="absolute -left-[99999px] top-0 h-0 overflow-hidden pointer-events-none"
+            >
+              <div ref={allMatches.ref} className="bg-white p-3 space-y-2">
+                {/* 大会名・日付ヘッダ */}
+                <div className="border-b-2 border-line pb-2">
+                  <div className="text-xl font-extrabold">{tournament.name}</div>
+                  <div className="text-sm text-sub">{tournament.date}</div>
+                </div>
+                {/* 全対戦を縦積み */}
+                <div className="space-y-6">
+                  {graphMatches.map((match) => (
+                    <MatchGraphBlock key={match.id} match={match} />
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
         </>
       )}
     </div>
@@ -196,47 +277,5 @@ const TableMode = ({ rows, matchResults, bestOf }: TableModeProps) => (
     )}
   </>
 );
-
-// ----- グラフモード -----
-type GraphModeProps = {
-  matchResults: MatchResultRow[];
-};
-
-const GraphMode = ({ matchResults }: GraphModeProps) => {
-  if (matchResults.length === 0) {
-    return <p className="text-sub">対戦結果がありません。</p>;
-  }
-
-  return (
-    <div className="space-y-6">
-      {matchResults.map((match) => {
-        const hasLog = match.games.some((game) => game.pointLog && game.pointLog.length > 0);
-        return (
-          <div key={match.id} className="pt-2">
-            <div className="text-base mb-1">
-              <span className={match.winner === "L" ? "font-extrabold" : "text-sub"}>
-                {match.leftName}
-              </span>
-              <span className="text-sub"> vs </span>
-              <span className={match.winner === "R" ? "font-extrabold" : "text-sub"}>
-                {match.rightName}
-              </span>
-            </div>
-            {hasLog ? (
-              <ScoreProgressChart
-                games={match.games}
-                leftName={match.leftName}
-                rightName={match.rightName}
-                matchFirstServer={match.firstServer}
-              />
-            ) : (
-              <p className="text-sub">得点記録なし</p>
-            )}
-          </div>
-        );
-      })}
-    </div>
-  );
-};
 
 const signed = (value: number) => (value > 0 ? `+${value}` : `${value}`);
