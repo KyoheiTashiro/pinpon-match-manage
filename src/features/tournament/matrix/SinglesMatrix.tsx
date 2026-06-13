@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { useAppStore } from "../../../store/useAppStore";
-import { BigButton } from "../../../components/ui/BigButton";
-import { useImageCapture } from "../../../lib/useImageCapture";
-import { matchSummary, winsNeededForBestOf } from "../../../domain/match";
-import { MatchModal } from "./components/MatchModal";
-import { involvesSingle, useMatrix } from "./hooks";
+import { useAppStore } from "@/store/useAppStore";
+import { BigButton } from "@/components/ui/BigButton";
+import { useImageCapture } from "@/lib/useImageCapture";
+import { matchSummary, winsNeededForBestOf } from "@/domain/match";
+import { MatchModal } from "@/features/tournament/matrix/components/MatchModal";
+import { involvesSingle, useMatrix } from "@/features/tournament/matrix/hooks";
 
 export const SinglesMatrix = ({ tournamentId }: { tournamentId: string }) => {
   const { tournament, participants, ps, singlesCellMatch } = useMatrix(tournamentId);

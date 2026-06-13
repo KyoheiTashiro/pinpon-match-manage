@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useAppStore } from "../../../store/useAppStore";
-import { BigButton } from "../../../components/ui/BigButton";
-import { ConfirmDialog } from "../../../components/ui/ConfirmDialog";
-import { formatDate } from "../../../lib/time";
+import { useAppStore } from "@/store/useAppStore";
+import { BigButton } from "@/components/ui/BigButton";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { formatDate } from "@/lib/time";
 
 export const SettingsTab = () => {
   const { tournamentId } = useParams<{ tournamentId: string }>();

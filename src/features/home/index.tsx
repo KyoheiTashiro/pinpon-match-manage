@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAppStore } from "../../store/useAppStore";
-import { BigButton } from "../../components/ui/BigButton";
-import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
-import { FontSizeToggle } from "../../components/ui/FontSizeToggle";
-import { InstallAppButton } from "../../components/ui/InstallAppButton";
-import { formatDate } from "../../lib/time";
-import type { BestOf, Format } from "../../store/types";
-import { useHome } from "./hooks";
+import { useAppStore } from "@/store/useAppStore";
+import { BigButton } from "@/components/ui/BigButton";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { FontSizeToggle } from "@/components/ui/FontSizeToggle";
+import { InstallAppButton } from "@/components/ui/InstallAppButton";
+import { formatDate } from "@/lib/time";
+import type { BestOf, Format } from "@/store/types";
+import { useHome } from "@/features/home/hooks";
 
 export const Home = () => {
   const navigate = useNavigate();

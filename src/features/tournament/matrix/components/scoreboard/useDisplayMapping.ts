@@ -1,11 +1,11 @@
-import type { Game, Side } from "../../../../../domain/match";
+import type { Game, Side } from "@/domain/match";
 import {
   gameWinner,
   isGameFinished,
   matchSummary,
   gameFirstServer,
   currentServer,
-} from "../../../../../domain/match";
+} from "@/domain/match";
 
 type Params = {
   leftName: string;

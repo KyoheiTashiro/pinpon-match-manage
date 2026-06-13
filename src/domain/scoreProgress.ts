@@ -1,5 +1,5 @@
-import type { Side } from "./match";
-import { currentServer } from "./match";
+import type { Side } from "@/domain/match";
+import { currentServer } from "@/domain/match";
 
 export type ProgressPoint = {
   index: number;

@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
-import { useAppStore } from "../../../store/useAppStore";
-import type { Match, MatchSide } from "../../../store/types";
+import { useAppStore } from "@/store/useAppStore";
+import type { Match, MatchSide } from "@/store/types";
 
 export const sideMembers = (s: MatchSide) =>
   s.kind === "single" ? [s.participantId] : [...s.memberIds];

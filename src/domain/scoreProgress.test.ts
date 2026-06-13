@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import type { Side } from "./match";
-import { gameProgress } from "./scoreProgress";
+import type { Side } from "@/domain/match";
+import { gameProgress } from "@/domain/scoreProgress";
 
 describe("gameProgress", () => {
   it("empty log returns empty array", () => {

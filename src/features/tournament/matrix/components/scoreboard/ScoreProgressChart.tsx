@@ -1,6 +1,6 @@
-import type { Game, Side } from "../../../../../domain/match";
-import { gameFirstServer, realGames } from "../../../../../domain/match";
-import { gameProgress } from "../../../../../domain/scoreProgress";
+import type { Game, Side } from "@/domain/match";
+import { gameFirstServer, realGames } from "@/domain/match";
+import { gameProgress } from "@/domain/scoreProgress";
 
 // Display mapping: left=top, right=bottom (no swap)
 const displayScorer = (p: { scorer: Side }): "top" | "bot" => (p.scorer === "L" ? "top" : "bot");

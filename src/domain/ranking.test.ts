@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { computeRanking } from "./ranking";
-import type { Match } from "../store/types";
+import { computeRanking } from "@/domain/ranking";
+import type { Match } from "@/store/types";
 
 const make = (
   id: string,

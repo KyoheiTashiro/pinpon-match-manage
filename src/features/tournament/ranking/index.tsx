@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
-import { BigButton } from "../../../components/ui/BigButton";
-import { useImageCapture } from "../../../lib/useImageCapture";
-import { ScoreProgressChart } from "../matrix/components/scoreboard/ScoreProgressChart";
-import { useResultRows } from "./hooks";
-import type { MatchResultRow } from "./hooks";
+import { BigButton } from "@/components/ui/BigButton";
+import { useImageCapture } from "@/lib/useImageCapture";
+import { ScoreProgressChart } from "@/features/tournament/matrix/components/scoreboard/ScoreProgressChart";
+import { useResultRows } from "@/features/tournament/ranking/hooks";
+import type { MatchResultRow } from "@/features/tournament/ranking/hooks";
 
 export const ResultTab = () => {
   const { tournamentId } = useParams<{ tournamentId: string }>();

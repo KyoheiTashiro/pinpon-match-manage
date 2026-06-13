@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { saveAsImage } from "./saveAsImage";
+import { saveAsImage } from "@/lib/saveAsImage";
 
 export const useImageCapture = (filenamePrefix: string, tournamentName: string | undefined) => {
   const ref = useRef<HTMLDivElement>(null);

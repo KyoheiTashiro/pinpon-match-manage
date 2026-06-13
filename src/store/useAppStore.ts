@@ -1,10 +1,10 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { AppState, Tournament } from "./types";
-import { createUiSlice, type UiSlice } from "./slices/uiSlice";
-import { createTournamentSlice, type TournamentSlice } from "./slices/tournamentSlice";
-import { createParticipantSlice, type ParticipantSlice } from "./slices/participantSlice";
-import { createMatchSlice, type MatchSlice } from "./slices/matchSlice";
+import type { AppState, Tournament } from "@/store/types";
+import { createUiSlice, type UiSlice } from "@/store/slices/uiSlice";
+import { createTournamentSlice, type TournamentSlice } from "@/store/slices/tournamentSlice";
+import { createParticipantSlice, type ParticipantSlice } from "@/store/slices/participantSlice";
+import { createMatchSlice, type MatchSlice } from "@/store/slices/matchSlice";
 
 export type StoreState = UiSlice & TournamentSlice & ParticipantSlice & MatchSlice;
 

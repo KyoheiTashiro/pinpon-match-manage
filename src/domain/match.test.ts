@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import type { Side } from "./match";
+import type { Side } from "@/domain/match";
 import {
   isGameFinished,
   gameWinner,
@@ -8,7 +8,7 @@ import {
   addPointToGame,
   undoLastPoint,
   lastScorer,
-} from "./match";
+} from "@/domain/match";
 
 describe("isGameFinished", () => {
   it("11-9 finished", () => {

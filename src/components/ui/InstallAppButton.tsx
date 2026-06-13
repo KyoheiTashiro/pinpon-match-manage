@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { BigButton } from "./BigButton";
+import { BigButton } from "@/components/ui/BigButton";
 
 type BeforeInstallPromptEvent = Event & {
   prompt: () => Promise<void>;

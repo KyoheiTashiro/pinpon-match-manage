@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useAppStore } from "../../store/useAppStore";
-import type { BestOf, Format } from "../../store/types";
+import { useAppStore } from "@/store/useAppStore";
+import type { BestOf, Format } from "@/store/types";
 
 export const useHome = (onCreated: (id: string) => void) => {
   const tournaments = useAppStore((s) => s.tournaments);

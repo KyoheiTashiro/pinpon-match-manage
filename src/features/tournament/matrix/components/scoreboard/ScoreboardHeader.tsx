@@ -1,5 +1,5 @@
-import type { Game } from "../../../../../domain/match";
-import { isGameFinished } from "../../../../../domain/match";
+import type { Game } from "@/domain/match";
+import { isGameFinished } from "@/domain/match";
 
 type Props = {
   games: Game[];

@@ -1,9 +1,9 @@
 import type { StateCreator } from "zustand";
-import type { BestOf, Format, Tournament } from "../types";
-import type { StoreState } from "../useAppStore";
-import { uid } from "../../lib/id";
-import { participantInitial } from "./participantSlice";
-import { matchInitial } from "./matchSlice";
+import type { BestOf, Format, Tournament } from "@/store/types";
+import type { StoreState } from "@/store/useAppStore";
+import { uid } from "@/lib/id";
+import { participantInitial } from "@/store/slices/participantSlice";
+import { matchInitial } from "@/store/slices/matchSlice";
 
 export type TournamentSlice = {
   tournaments: Record<string, Tournament>;

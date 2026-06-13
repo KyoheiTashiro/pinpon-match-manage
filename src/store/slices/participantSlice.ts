@@ -1,7 +1,7 @@
 import type { StateCreator } from "zustand";
-import type { MatchSide, Participant } from "../types";
-import type { StoreState } from "../useAppStore";
-import { uid } from "../../lib/id";
+import type { MatchSide, Participant } from "@/store/types";
+import type { StoreState } from "@/store/useAppStore";
+import { uid } from "@/lib/id";
 
 export type ParticipantSlice = {
   participants: Record<string, Participant>;

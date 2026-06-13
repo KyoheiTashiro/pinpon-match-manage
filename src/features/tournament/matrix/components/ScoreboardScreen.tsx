@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { createPortal } from "react-dom";
-import type { Game, Side } from "../../../../domain/match";
-import { addPointToGame, undoLastPoint, lastScorer } from "../../../../domain/match";
-import { usePortrait } from "./scoreboard/useOrientation";
-import { useDisplayMapping } from "./scoreboard/useDisplayMapping";
-import { ScoreboardHeader } from "./scoreboard/ScoreboardHeader";
-import { ScoreInputView } from "./scoreboard/ScoreInputView";
-import { MatchResultView } from "./scoreboard/MatchResultView";
+import type { Game, Side } from "@/domain/match";
+import { addPointToGame, undoLastPoint, lastScorer } from "@/domain/match";
+import { usePortrait } from "@/features/tournament/matrix/components/scoreboard/useOrientation";
+import { useDisplayMapping } from "@/features/tournament/matrix/components/scoreboard/useDisplayMapping";
+import { ScoreboardHeader } from "@/features/tournament/matrix/components/scoreboard/ScoreboardHeader";
+import { ScoreInputView } from "@/features/tournament/matrix/components/scoreboard/ScoreInputView";
+import { MatchResultView } from "@/features/tournament/matrix/components/scoreboard/MatchResultView";
 
 type Props = {
   leftName: string;

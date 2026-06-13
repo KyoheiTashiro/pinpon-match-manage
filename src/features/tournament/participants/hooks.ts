@@ -1,4 +1,4 @@
-import { useAppStore } from "../../../store/useAppStore";
+import { useAppStore } from "@/store/useAppStore";
 
 export const useParticipants = (tournamentId: string) => {
   const tournament = useAppStore((s) => s.tournaments[tournamentId]);

@@ -1,5 +1,5 @@
-import type { Side } from "../../../../../domain/match";
-import { ScoreColumn } from "./ScoreColumn";
+import type { Side } from "@/domain/match";
+import { ScoreColumn } from "@/features/tournament/matrix/components/scoreboard/ScoreColumn";
 
 type Props = {
   leftName: string;

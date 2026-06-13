@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import type { Match, Participant } from "../../../../store/types";
-import type { Game, Side } from "../../../../domain/match";
-import { isGameFinished, gameWinner, winsNeededForBestOf } from "../../../../domain/match";
-import { useAppStore } from "../../../../store/useAppStore";
-import { BigButton } from "../../../../components/ui/BigButton";
-import { ConfirmDialog } from "../../../../components/ui/ConfirmDialog";
-import { ScoreboardScreen } from "./ScoreboardScreen";
+import type { Match, Participant } from "@/store/types";
+import type { Game, Side } from "@/domain/match";
+import { isGameFinished, gameWinner, winsNeededForBestOf } from "@/domain/match";
+import { useAppStore } from "@/store/useAppStore";
+import { BigButton } from "@/components/ui/BigButton";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { ScoreboardScreen } from "@/features/tournament/matrix/components/ScoreboardScreen";
 
 type Props = {
   matchId: string;

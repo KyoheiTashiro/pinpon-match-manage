@@ -1,4 +1,4 @@
-import type { Game, Side } from "../domain/match";
+import type { Game, Side } from "@/domain/match";
 
 export type Format = "singles" | "doubles";
 

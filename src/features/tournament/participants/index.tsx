@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
-import { BigButton } from "../../../components/ui/BigButton";
-import { ConfirmDialog } from "../../../components/ui/ConfirmDialog";
-import { useParticipants } from "./hooks";
+import { BigButton } from "@/components/ui/BigButton";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { useParticipants } from "@/features/tournament/participants/hooks";
 
 export const ParticipantsTab = () => {
   const { tournamentId } = useParams<{ tournamentId: string }>();

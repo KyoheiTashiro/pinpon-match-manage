@@ -1,5 +1,5 @@
-import type { Match } from "../store/types";
-import { matchSummary } from "./match";
+import type { Match } from "@/store/types";
+import { matchSummary } from "@/domain/match";
 
 export type RankingRow = {
   participantId: string;

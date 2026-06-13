@@ -1,9 +1,9 @@
 import { useMemo } from "react";
-import { useAppStore } from "../../../store/useAppStore";
-import { computeRanking } from "../../../domain/ranking";
-import { matchSummary, realGames, winsNeededForBestOf } from "../../../domain/match";
-import type { Game, Side } from "../../../domain/match";
-import type { Match, MatchSide, Participant } from "../../../store/types";
+import { useAppStore } from "@/store/useAppStore";
+import { computeRanking } from "@/domain/ranking";
+import { matchSummary, realGames, winsNeededForBestOf } from "@/domain/match";
+import type { Game, Side } from "@/domain/match";
+import type { Match, MatchSide, Participant } from "@/store/types";
 
 const sideLabel = (side: MatchSide, participants: Record<string, Participant>) => {
   if (side.kind === "single") return participants[side.participantId]?.name ?? "?";

@@ -1,7 +1,7 @@
 import type { StateCreator } from "zustand";
-import type { Match, MatchSide } from "../types";
-import type { StoreState } from "../useAppStore";
-import { uid } from "../../lib/id";
+import type { Match, MatchSide } from "@/store/types";
+import type { StoreState } from "@/store/useAppStore";
+import { uid } from "@/lib/id";
 
 export type MatchSlice = {
   matches: Record<string, Match>;

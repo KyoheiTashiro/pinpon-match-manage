@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { BigButton } from "./BigButton";
+import { BigButton } from "@/components/ui/BigButton";
 
 type Props = {
   open: boolean;

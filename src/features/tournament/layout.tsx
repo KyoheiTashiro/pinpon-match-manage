@@ -1,9 +1,9 @@
 import { NavLink, Outlet, useNavigate, useParams } from "react-router-dom";
 import type { ComponentType, SVGProps } from "react";
 import { useEffect } from "react";
-import { useAppStore } from "../../store/useAppStore";
-import { FontSizeToggle } from "../../components/ui/FontSizeToggle";
-import { UsersIcon, PaddleIcon, TrophyIcon, GearIcon } from "../../components/icons";
+import { useAppStore } from "@/store/useAppStore";
+import { FontSizeToggle } from "@/components/ui/FontSizeToggle";
+import { UsersIcon, PaddleIcon, TrophyIcon, GearIcon } from "@/components/icons";
 
 type Tab = {
   to: string;

@@ -1,6 +1,6 @@
 import { useEffect } from "react";
-import { useAppStore } from "../../store/useAppStore";
-import type { FontSize } from "../../store/types";
+import { useAppStore } from "@/store/useAppStore";
+import type { FontSize } from "@/store/types";
 
 const labels: Record<FontSize, string> = {
   normal: "標準",
