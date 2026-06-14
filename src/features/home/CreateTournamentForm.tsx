@@ -1,4 +1,5 @@
 import { Controller, type UseFormReturn } from "react-hook-form";
+import { CalendarIcon } from "@/components/icons";
 import { BigButton } from "@/components/ui/BigButton";
 import { RadioCardGroup } from "@/components/ui/RadioCardGroup";
 import type { FormType } from "@/features/home/schema";
@@ -59,12 +60,16 @@ export const CreateTournamentForm = ({ form, submit, onCancel }: Props) => (
     />
     <label className="flex flex-col gap-1">
       <span className="font-bold">開催日</span>
-      <input
-        {...form.register("date")}
-        type="date"
-        aria-label="開催日"
-        className="min-h-input border-2 border-line rounded-xl px-3 text-lg"
-      />
+      <div className="relative">
+        <input
+          {...form.register("date")}
+          type="date"
+          aria-label="開催日"
+          onClick={(e) => e.currentTarget.showPicker?.()}
+          className="w-full min-h-input appearance-none bg-white border-2 border-line rounded-xl pl-3 pr-12 text-lg [&::-webkit-calendar-picker-indicator]:opacity-0"
+        />
+        <CalendarIcon className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-2xl text-line" />
+      </div>
     </label>
     <div className="flex gap-3 justify-end flex-wrap">
       <BigButton variant="secondary" type="button" onClick={onCancel}>

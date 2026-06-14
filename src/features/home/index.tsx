@@ -72,9 +72,6 @@ export const Home = () => {
 
         <div className="pt-6 border-t-2 border-line space-y-3">
           <InstallAppButton />
-        </div>
-
-        <div className="pt-6 border-t-2 border-line">
           <BigButton variant="danger" onClick={() => setConfirmReset(true)}>
             すべてのデータを消す
           </BigButton>
