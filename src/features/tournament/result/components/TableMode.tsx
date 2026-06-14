@@ -1,10 +1,10 @@
-import { useResultRows } from "@/features/tournament/result/hooks";
+import { useResult } from "@/features/tournament/result/hooks";
 import type { MatchResultRow } from "@/features/tournament/result/hooks";
 import { SIDE } from "@/domain/match";
 
 // ----- 点数表モード -----
 type TableModeProps = {
-  rows: ReturnType<typeof useResultRows>["rows"];
+  rows: ReturnType<typeof useResult>["rows"];
   matchResults: MatchResultRow[];
   bestOf: number;
 };
