@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useAppStore } from "@/store/useAppStore";
-import type { FontSize } from "@/store/types";
+import { FONT_SIZE, type FontSize } from "@/store/types";
 
 const labels: Record<FontSize, string> = {
   normal: "標準",
@@ -13,7 +13,7 @@ export const FontSizeToggle = () => {
   const setFontSize = useAppStore((state) => state.setFontSize);
 
   useEffect(() => {
-    if (fontSize === "normal") delete document.documentElement.dataset.fs;
+    if (fontSize === FONT_SIZE.NORMAL) delete document.documentElement.dataset.fs;
     else document.documentElement.dataset.fs = fontSize;
   }, [fontSize]);
 
@@ -21,7 +21,7 @@ export const FontSizeToggle = () => {
     <div role="radiogroup" aria-label="文字サイズ" className="flex items-center gap-2">
       <span className="text-base font-bold">文字</span>
       <div className="inline-flex items-center bg-bg border-2 border-line rounded-xl p-1 gap-1">
-        {(["normal", "large", "xlarge"] as FontSize[]).map((size) => {
+        {Object.values(FONT_SIZE).map((size) => {
           const selected = fontSize === size;
           return (
             <button

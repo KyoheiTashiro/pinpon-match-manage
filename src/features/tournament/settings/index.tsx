@@ -8,6 +8,8 @@ import { BigButton } from "@/components/ui/BigButton";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { formatDate } from "@/lib/time";
 import { Schema, type FormType, defaultValues } from "@/features/tournament/settings/schema";
+import { FORMAT } from "@/store/types";
+import { ROUTES } from "@/constants/routes";
 
 export const SettingsTab = () => {
   const { tournamentId } = useParams<{ tournamentId: string }>();
@@ -97,7 +99,7 @@ export const SettingsTab = () => {
           <dt className="font-bold">大会名</dt>
           <dd>{tournament.name}</dd>
           <dt className="font-bold">形式</dt>
-          <dd>{tournament.format === "singles" ? "シングルス" : "ダブルス"}</dd>
+          <dd>{tournament.format === FORMAT.SINGLES ? "シングルス" : "ダブルス"}</dd>
           <dt className="font-bold">開催日</dt>
           <dd>{formatDate(tournament.date)}</dd>
           <dt className="font-bold">参加者</dt>
@@ -145,7 +147,7 @@ export const SettingsTab = () => {
         onConfirm={() => {
           deleteTournament(tournamentId);
           setConfirmDelete(false);
-          navigate("/");
+          navigate(ROUTES.HOME);
         }}
         onCancel={() => setConfirmDelete(false)}
       />

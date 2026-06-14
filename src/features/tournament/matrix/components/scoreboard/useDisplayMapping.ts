@@ -1,11 +1,13 @@
 import type { Game, Side } from "@/domain/match";
 import {
+  SIDE,
   gameWinner,
   isGameFinished,
   matchSummary,
   gameFirstServer,
   currentServer,
 } from "@/domain/match";
+import { GAME_POINT, WIN_DIFF } from "@/domain/constants";
 
 type Params = {
   leftName: string;
@@ -17,11 +19,12 @@ type Params = {
   matchFirstServer: Side;
 };
 
-const flip = (side: Side | null): Side | null => (side === "L" ? "R" : side === "R" ? "L" : null);
+const flip = (side: Side | null): Side | null =>
+  side === SIDE.LEFT ? SIDE.RIGHT : side === SIDE.RIGHT ? SIDE.LEFT : null;
 
 const isGamePoint = (score: number, opponent: number) => {
   const nextScore = score + 1;
-  return nextScore >= 11 && nextScore - opponent >= 2;
+  return nextScore >= GAME_POINT && nextScore - opponent >= WIN_DIFF;
 };
 
 export const useDisplayMapping = ({

@@ -1,5 +1,5 @@
 import type { StateCreator } from "zustand";
-import type { FontSize } from "@/store/types";
+import { FONT_SIZE, type FontSize } from "@/store/types";
 import type { StoreState } from "@/store/useAppStore";
 
 export type UiSlice = {
@@ -10,7 +10,7 @@ export type UiSlice = {
 export const createUiSlice: StateCreator<StoreState, [["zustand/immer", never]], [], UiSlice> = (
   set,
 ) => ({
-  fontSize: "normal",
+  fontSize: FONT_SIZE.NORMAL,
   setFontSize: (size) =>
     set((state) => {
       state.fontSize = size;

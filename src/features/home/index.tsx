@@ -9,13 +9,14 @@ import { InstallAppButton } from "@/features/home/InstallAppButton";
 import { formatDate } from "@/lib/time";
 import { useHome } from "@/features/home/hooks";
 import { CreateTournamentForm } from "@/features/home/CreateTournamentForm";
+import { tournamentPath } from "@/constants/routes";
 
 export const Home = () => {
   const navigate = useNavigate();
   const resetAll = useAppStore((state) => state.resetAll);
 
   const { list, creating, setCreating, closeForm, form, submit } = useHome((id) =>
-    navigate(`/t/${id}/participants`),
+    navigate(tournamentPath(id)),
   );
 
   const [confirmReset, setConfirmReset] = useState(false);
@@ -46,7 +47,7 @@ export const Home = () => {
               {list.map((tournament) => (
                 <li key={tournament.id}>
                   <button
-                    onClick={() => navigate(`/t/${tournament.id}/participants`)}
+                    onClick={() => navigate(tournamentPath(tournament.id))}
                     className="w-full text-left p-4 min-h-[72px] hover:bg-bg flex items-center justify-between gap-3"
                   >
                     <div>

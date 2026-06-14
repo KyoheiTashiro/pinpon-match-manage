@@ -4,6 +4,8 @@ import { useEffect } from "react";
 import { useAppStore } from "@/store/useAppStore";
 import { UsersIcon, PaddleIcon, TrophyIcon, GearIcon, ChevronDownIcon } from "@/components/icons";
 import { BigButton } from "@/components/ui/BigButton";
+import { ROUTES, TAB_PATH } from "@/constants/routes";
+import { FORMAT } from "@/store/types";
 
 type Tab = {
   to: string;
@@ -12,10 +14,10 @@ type Tab = {
 };
 
 const tabs: Tab[] = [
-  { to: "participants", label: "参加者", Icon: UsersIcon },
-  { to: "matrix", label: "対戦表", Icon: PaddleIcon },
-  { to: "result", label: "結果", Icon: TrophyIcon },
-  { to: "settings", label: "設定", Icon: GearIcon },
+  { to: TAB_PATH.PARTICIPANTS, label: "参加者", Icon: UsersIcon },
+  { to: TAB_PATH.MATRIX, label: "対戦表", Icon: PaddleIcon },
+  { to: TAB_PATH.RESULT, label: "結果", Icon: TrophyIcon },
+  { to: TAB_PATH.SETTINGS, label: "設定", Icon: GearIcon },
 ];
 
 export const TournamentLayout = () => {
@@ -34,7 +36,7 @@ export const TournamentLayout = () => {
     return (
       <div className="p-6 text-center">
         <p className="text-lg mb-4">大会が見つかりません。</p>
-        <button onClick={() => navigate("/")} className="text-primary underline text-lg">
+        <button onClick={() => navigate(ROUTES.HOME)} className="text-primary underline text-lg">
           一覧へ戻る
         </button>
       </div>
@@ -47,7 +49,7 @@ export const TournamentLayout = () => {
         <BigButton
           variant="white"
           size="sm"
-          onClick={() => navigate("/")}
+          onClick={() => navigate(ROUTES.HOME)}
           className="inline-flex items-center gap-1"
           aria-label="大会一覧へ戻る"
         >
@@ -56,7 +58,7 @@ export const TournamentLayout = () => {
         <div className="flex-1 min-w-0">
           <div className="text-xl font-extrabold truncate">{tournament.name}</div>
           <div className="text-sm">
-            {tournament.format === "singles" ? "シングルス" : "ダブルス"}
+            {tournament.format === FORMAT.SINGLES ? "シングルス" : "ダブルス"}
           </div>
         </div>
       </header>

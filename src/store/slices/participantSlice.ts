@@ -1,5 +1,5 @@
 import type { StateCreator } from "zustand";
-import type { MatchSide, Participant } from "@/store/types";
+import { SIDE_KIND, type MatchSide, type Participant } from "@/store/types";
 import type { StoreState } from "@/store/useAppStore";
 import { generateId } from "@/lib/id";
 
@@ -52,7 +52,7 @@ export const createParticipantSlice: StateCreator<
         const match = state.matches[matchId];
         if (!match) continue;
         const involves = (side: MatchSide) =>
-          side.kind === "single" ? side.participantId === id : side.memberIds.includes(id);
+          side.kind === SIDE_KIND.SINGLE ? side.participantId === id : side.memberIds.includes(id);
         if (involves(match.leftSide) || involves(match.rightSide)) {
           delete state.matches[matchId];
         } else {

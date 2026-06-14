@@ -3,6 +3,7 @@ import { CalendarIcon } from "@/components/icons";
 import { BigButton } from "@/components/ui/BigButton";
 import { RadioCardGroup } from "@/components/ui/RadioCardGroup";
 import type { FormType } from "@/features/home/schema";
+import { FORMAT, BEST_OF_OPTIONS } from "@/store/types";
 
 type Props = {
   form: UseFormReturn<FormType>;
@@ -34,8 +35,8 @@ export const CreateTournamentForm = ({ form, submit, onCancel }: Props) => (
           name="format"
           value={field.value}
           options={[
-            { value: "singles", label: "シングルス" },
-            { value: "doubles", label: "ダブルス" },
+            { value: FORMAT.SINGLES, label: "シングルス" },
+            { value: FORMAT.DOUBLES, label: "ダブルス" },
           ]}
           onChange={field.onChange}
         />
@@ -49,11 +50,7 @@ export const CreateTournamentForm = ({ form, submit, onCancel }: Props) => (
           legend="ゲーム数"
           name="bestOf"
           value={field.value}
-          options={[
-            { value: 3, label: "3" },
-            { value: 5, label: "5" },
-            { value: 7, label: "7" },
-          ]}
+          options={BEST_OF_OPTIONS.map((value) => ({ value, label: String(value) }))}
           onChange={field.onChange}
         />
       )}

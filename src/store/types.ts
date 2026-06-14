@@ -1,9 +1,11 @@
 import type { Game, Side } from "@/domain/match";
 
-export type Format = "singles" | "doubles";
+export const FORMAT = { SINGLES: "singles", DOUBLES: "doubles" } as const;
+export type Format = (typeof FORMAT)[keyof typeof FORMAT];
 
-/** 1試合のゲーム数。先取は (bestOf + 1) / 2。 */
-export type BestOf = 3 | 5 | 7;
+/** 選択可能なゲーム数(bestOf)。先取は (bestOf + 1) / 2。 */
+export const BEST_OF_OPTIONS = [3, 5, 7] as const;
+export type BestOf = (typeof BEST_OF_OPTIONS)[number];
 
 export type Tournament = {
   id: string;
@@ -23,8 +25,11 @@ export type Participant = {
   affiliation?: string;
 };
 
-export type SingleSide = { kind: "single"; participantId: string };
-export type PairSide = { kind: "pair"; memberIds: [string, string] };
+export const SIDE_KIND = { SINGLE: "single", PAIR: "pair" } as const;
+export type SideKind = (typeof SIDE_KIND)[keyof typeof SIDE_KIND];
+
+export type SingleSide = { kind: typeof SIDE_KIND.SINGLE; participantId: string };
+export type PairSide = { kind: typeof SIDE_KIND.PAIR; memberIds: [string, string] };
 export type MatchSide = SingleSide | PairSide;
 
 export type Match = {
@@ -37,7 +42,8 @@ export type Match = {
   firstServer: Side;
 };
 
-export type FontSize = "normal" | "large" | "xlarge";
+export const FONT_SIZE = { NORMAL: "normal", LARGE: "large", XLARGE: "xlarge" } as const;
+export type FontSize = (typeof FONT_SIZE)[keyof typeof FONT_SIZE];
 
 export type AppState = {
   tournaments: Record<string, Tournament>;

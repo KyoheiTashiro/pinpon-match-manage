@@ -1,6 +1,7 @@
 import type { StateCreator } from "zustand";
-import type { Match, MatchSide } from "@/store/types";
+import { SIDE_KIND, type Match, type MatchSide } from "@/store/types";
 import type { StoreState } from "@/store/useAppStore";
+import { SIDE } from "@/domain/match";
 import { generateId } from "@/lib/id";
 
 export type MatchSlice = {
@@ -23,7 +24,7 @@ export const createMatchSlice: StateCreator<
   ...matchInitial,
 
   addManualMatch: (tournamentId, left, right) => {
-    if (left.kind === "single" && right.kind === "single") {
+    if (left.kind === SIDE_KIND.SINGLE && right.kind === SIDE_KIND.SINGLE) {
       const tournament = get().tournaments[tournamentId];
       if (tournament) {
         const leftParticipantId = left.participantId;
@@ -31,7 +32,8 @@ export const createMatchSlice: StateCreator<
         for (const matchId of tournament.matchIds) {
           const match = get().matches[matchId];
           if (!match) continue;
-          if (match.leftSide.kind !== "single" || match.rightSide.kind !== "single") continue;
+          if (match.leftSide.kind !== SIDE_KIND.SINGLE || match.rightSide.kind !== SIDE_KIND.SINGLE)
+            continue;
           const existingLeftId = match.leftSide.participantId;
           const existingRightId = match.rightSide.participantId;
           if (
@@ -49,7 +51,7 @@ export const createMatchSlice: StateCreator<
       leftSide: left,
       rightSide: right,
       games: [],
-      firstServer: "L",
+      firstServer: SIDE.LEFT,
     };
     set((state) => {
       const tournament = state.tournaments[tournamentId];

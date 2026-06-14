@@ -4,9 +4,10 @@ import type { Match } from "@/store/types";
 import { BigButton } from "@/components/ui/BigButton";
 import { DownloadIcon } from "@/components/icons";
 import { useImageCapture } from "@/lib/useImageCapture";
-import { matchSummary, winsNeededForBestOf } from "@/domain/match";
+import { matchSummary, winsNeededForBestOf, SIDE } from "@/domain/match";
 import { MatchModal } from "@/features/tournament/matrix/components/MatchModal";
-import { involvesSingle, useMatrix } from "@/features/tournament/matrix/hooks";
+import { involvesSingle, useMatrix, MIN_PLAYERS_SINGLES } from "@/features/tournament/matrix/hooks";
+import { SIDE_KIND } from "@/store/types";
 
 type Player = { id: string; name: string };
 
@@ -32,12 +33,13 @@ const MatrixCell = ({ row, column, match, winsNeeded, onCreate, onOpen }: Matrix
   const rowIsLeft =
     !!match &&
     involvesSingle(match, row.id) &&
-    match.leftSide.kind === "single" &&
+    match.leftSide.kind === SIDE_KIND.SINGLE &&
     match.leftSide.participantId === row.id;
   const rowWins = rowIsLeft ? summary?.leftWins : summary?.rightWins;
   const columnWins = rowIsLeft ? summary?.rightWins : summary?.leftWins;
   const rowWon =
-    summary?.finished === true && (rowIsLeft ? summary.winner === "L" : summary.winner === "R");
+    summary?.finished === true &&
+    (rowIsLeft ? summary.winner === SIDE.LEFT : summary.winner === SIDE.RIGHT);
   const rowLost = summary?.finished === true && !rowWon;
   const hasScore = !!match && (summary?.finished === true || match.games.length > 0);
   const inProgress = hasScore && summary?.finished !== true;
@@ -94,7 +96,7 @@ export const SinglesMatrix = ({ tournamentId }: { tournamentId: string }) => {
     <div className="space-y-4">
       <h2 className="text-xl font-extrabold">対戦表</h2>
 
-      {players.length < 2 ? (
+      {players.length < MIN_PLAYERS_SINGLES ? (
         <p className="text-sub">参加者を2人以上 登録してください。</p>
       ) : (
         <>
@@ -140,8 +142,8 @@ export const SinglesMatrix = ({ tournamentId }: { tournamentId: string }) => {
                           onCreate={() => {
                             const id = addManualMatch(
                               tournamentId,
-                              { kind: "single", participantId: row.id },
-                              { kind: "single", participantId: column.id },
+                              { kind: SIDE_KIND.SINGLE, participantId: row.id },
+                              { kind: SIDE_KIND.SINGLE, participantId: column.id },
                             );
                             setOpenMatchId(id);
                           }}

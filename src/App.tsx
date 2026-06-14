@@ -5,19 +5,20 @@ import { ParticipantsTab } from "@/features/tournament/participants";
 import { MatchMatrixTab } from "@/features/tournament/matrix";
 import { ResultTab } from "@/features/tournament/result";
 import { SettingsTab } from "@/features/tournament/settings";
+import { ROUTES, TAB_PATH } from "@/constants/routes";
 
 export default function App() {
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/t/:tournamentId" element={<TournamentLayout />}>
-        <Route index element={<Navigate to="participants" replace />} />
-        <Route path="participants" element={<ParticipantsTab />} />
-        <Route path="matrix" element={<MatchMatrixTab />} />
-        <Route path="result" element={<ResultTab />} />
-        <Route path="settings" element={<SettingsTab />} />
+      <Route path={ROUTES.HOME} element={<Home />} />
+      <Route path={ROUTES.TOURNAMENT} element={<TournamentLayout />}>
+        <Route index element={<Navigate to={TAB_PATH.PARTICIPANTS} replace />} />
+        <Route path={TAB_PATH.PARTICIPANTS} element={<ParticipantsTab />} />
+        <Route path={TAB_PATH.MATRIX} element={<MatchMatrixTab />} />
+        <Route path={TAB_PATH.RESULT} element={<ResultTab />} />
+        <Route path={TAB_PATH.SETTINGS} element={<SettingsTab />} />
       </Route>
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path={ROUTES.NOT_FOUND} element={<Navigate to={ROUTES.HOME} replace />} />
     </Routes>
   );
 }

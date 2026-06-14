@@ -1,5 +1,5 @@
-import type { Match } from "@/store/types";
-import { matchSummary } from "@/domain/match";
+import { SIDE_KIND, type Match } from "@/store/types";
+import { SIDE, matchSummary } from "@/domain/match";
 
 export type RankingRow = {
   participantId: string;
@@ -17,7 +17,7 @@ export type RankingRow = {
 };
 
 const sideMembers = (side: Match["leftSide"]): string[] =>
-  side.kind === "single" ? [side.participantId] : [...side.memberIds];
+  side.kind === SIDE_KIND.SINGLE ? [side.participantId] : [...side.memberIds];
 
 export const computeRanking = (
   matches: Match[],
@@ -50,7 +50,7 @@ export const computeRanking = (
     if (!summary.finished) continue;
     const leftIds = sideMembers(match.leftSide);
     const rightIds = sideMembers(match.rightSide);
-    const leftWon = summary.winner === "L";
+    const leftWon = summary.winner === SIDE.LEFT;
 
     for (const id of leftIds) {
       const stat = ensure(id);

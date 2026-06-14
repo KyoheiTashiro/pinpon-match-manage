@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { createPortal } from "react-dom";
+import { SIDE } from "@/domain/match";
 import type { Game, Side } from "@/domain/match";
 import { addPointToGame, undoLastPoint, lastScorer } from "@/domain/match";
 import { usePortrait } from "@/features/tournament/matrix/components/scoreboard/useOrientation";
@@ -59,7 +60,11 @@ export const ScoreboardScreen = ({
 
   const addPoint = (displaySide: Side) => {
     if (locked) return;
-    const actualSide: Side = swapped ? (displaySide === "L" ? "R" : "L") : displaySide;
+    const actualSide: Side = swapped
+      ? displaySide === SIDE.LEFT
+        ? SIDE.RIGHT
+        : SIDE.LEFT
+      : displaySide;
     setGames(
       games.map((game, index) => (index === gameIndex ? addPointToGame(game, actualSide) : game)),
     );
@@ -67,7 +72,11 @@ export const ScoreboardScreen = ({
 
   const undoPoint = (displaySide: Side) => {
     if (locked) return;
-    const actualSide: Side = swapped ? (displaySide === "L" ? "R" : "L") : displaySide;
+    const actualSide: Side = swapped
+      ? displaySide === SIDE.LEFT
+        ? SIDE.RIGHT
+        : SIDE.LEFT
+      : displaySide;
     const current = games[gameIndex];
     if (!current) return;
     if (lastScorer(current) !== actualSide) return;
@@ -76,8 +85,8 @@ export const ScoreboardScreen = ({
 
   const currentGame = games[gameIndex];
   const rawLastScorer = lastScorer(currentGame ?? { leftScore: 0, rightScore: 0 });
-  const actualLeft: Side = swapped ? "R" : "L";
-  const actualRight: Side = swapped ? "L" : "R";
+  const actualLeft: Side = swapped ? SIDE.RIGHT : SIDE.LEFT;
+  const actualRight: Side = swapped ? SIDE.LEFT : SIDE.RIGHT;
   const canSubLeft = rawLastScorer === actualLeft;
   const canSubRight = rawLastScorer === actualRight;
 
@@ -148,10 +157,10 @@ export const ScoreboardScreen = ({
           locked={locked}
           swapped={swapped}
           onSwap={() => setSwapped((previous) => !previous)}
-          onAddLeft={() => addPoint("L")}
-          onSubLeft={() => undoPoint("L")}
-          onAddRight={() => addPoint("R")}
-          onSubRight={() => undoPoint("R")}
+          onAddLeft={() => addPoint(SIDE.LEFT)}
+          onSubLeft={() => undoPoint(SIDE.LEFT)}
+          onAddRight={() => addPoint(SIDE.RIGHT)}
+          onSubRight={() => undoPoint(SIDE.RIGHT)}
           canSubLeft={canSubLeft}
           canSubRight={canSubRight}
         />

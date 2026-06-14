@@ -1,5 +1,6 @@
 import { useResultRows } from "@/features/tournament/result/hooks";
 import type { MatchResultRow } from "@/features/tournament/result/hooks";
+import { SIDE } from "@/domain/match";
 
 // ----- 点数表モード -----
 type TableModeProps = {
@@ -72,11 +73,11 @@ export const TableMode = ({ rows, matchResults, bestOf }: TableModeProps) => (
             {matchResults.map((match) => (
               <tr key={match.id}>
                 <td className="border-2 border-line p-2 text-base">
-                  <span className={match.winner === "L" ? "font-extrabold" : "text-sub"}>
+                  <span className={match.winner === SIDE.LEFT ? "font-extrabold" : "text-sub"}>
                     {match.leftName}
                   </span>
                   <span className="text-sub"> vs </span>
-                  <span className={match.winner === "R" ? "font-extrabold" : "text-sub"}>
+                  <span className={match.winner === SIDE.RIGHT ? "font-extrabold" : "text-sub"}>
                     {match.rightName}
                   </span>
                 </td>

@@ -2,10 +2,10 @@ import { useState } from "react";
 import { BigButton } from "@/components/ui/BigButton";
 import { DownloadIcon } from "@/components/icons";
 import { useImageCapture } from "@/lib/useImageCapture";
-import { matchSummary, winsNeededForBestOf } from "@/domain/match";
+import { matchSummary, winsNeededForBestOf, SIDE } from "@/domain/match";
 import { MatchModal } from "@/features/tournament/matrix/components/MatchModal";
 import { DoublesMatchForm } from "@/features/tournament/matrix/components/DoublesMatchForm";
-import { sideMembers, useMatrix } from "@/features/tournament/matrix/hooks";
+import { sideMembers, useMatrix, MIN_PLAYERS_DOUBLES } from "@/features/tournament/matrix/hooks";
 
 export const DoublesMatrix = ({ tournamentId }: { tournamentId: string }) => {
   const { tournament, participants, matchList, players } = useMatrix(tournamentId);
@@ -20,7 +20,7 @@ export const DoublesMatrix = ({ tournamentId }: { tournamentId: string }) => {
     <div className="space-y-4">
       <h2 className="text-xl font-extrabold">対戦表（ダブルス）</h2>
 
-      {players.length < 4 ? (
+      {players.length < MIN_PLAYERS_DOUBLES ? (
         <p className="text-sub">参加者を4人以上 登録してください。</p>
       ) : (
         <DoublesMatchForm tournamentId={tournamentId} players={players} onAdded={setOpenMatchId} />
@@ -59,7 +59,7 @@ export const DoublesMatrix = ({ tournamentId }: { tournamentId: string }) => {
                       </span>
                       {summary.finished ? (
                         <span className="text-sm text-success">
-                          {summary.winner === "L" ? leftName : rightName} の勝ち
+                          {summary.winner === SIDE.LEFT ? leftName : rightName} の勝ち
                         </span>
                       ) : (
                         <span className="text-sm text-warning">途中</span>
@@ -73,7 +73,7 @@ export const DoublesMatrix = ({ tournamentId }: { tournamentId: string }) => {
         </ul>
       </div>
 
-      {players.length >= 4 && matchList.length > 0 && (
+      {players.length >= MIN_PLAYERS_DOUBLES && matchList.length > 0 && (
         <div className="space-y-2">
           <div className="text-base font-extrabold">画像で保存</div>
           <BigButton onClick={save} disabled={saving}>

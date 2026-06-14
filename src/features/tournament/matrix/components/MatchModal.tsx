@@ -1,8 +1,9 @@
 import { useEffect, useId, useState } from "react";
 import { createPortal } from "react-dom";
 import type { Match, Participant } from "@/store/types";
+import { SIDE_KIND } from "@/store/types";
 import type { Game, Side } from "@/domain/match";
-import { isGameFinished, gameWinner, winsNeededForBestOf } from "@/domain/match";
+import { SIDE, isGameFinished, gameWinner, winsNeededForBestOf } from "@/domain/match";
 import {
   padGames,
   trimTrailingEmptyGames,
@@ -22,7 +23,7 @@ type Props = {
 };
 
 const sideLabel = (side: Match["leftSide"], participants: Record<string, Participant>) => {
-  if (side.kind === "single") return participants[side.participantId]?.name ?? "?";
+  if (side.kind === SIDE_KIND.SINGLE) return participants[side.participantId]?.name ?? "?";
   return side.memberIds.map((id) => participants[id]?.name ?? "?").join(" / ");
 };
 
@@ -102,8 +103,11 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
         <fieldset className="mb-4 border-2 border-line rounded-xl p-3">
           <legend className="px-2 font-bold">最初のサーブ</legend>
           <div className="flex flex-col sm:flex-row gap-2">
-            {(["L", "R"] as Side[]).map((side) => {
-              const name = sideLabel(side === "L" ? match.leftSide : match.rightSide, participants);
+            {([SIDE.LEFT, SIDE.RIGHT] as Side[]).map((side) => {
+              const name = sideLabel(
+                side === SIDE.LEFT ? match.leftSide : match.rightSide,
+                participants,
+              );
               return (
                 <label
                   key={side}
@@ -156,9 +160,11 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
                     <span className="text-sub text-base font-bold">未入力</span>
                   ) : (
                     <>
-                      <span className={winner === "L" ? "text-success" : ""}>{game.leftScore}</span>
+                      <span className={winner === SIDE.LEFT ? "text-success" : ""}>
+                        {game.leftScore}
+                      </span>
                       <span className="mx-2 text-sub">-</span>
-                      <span className={winner === "R" ? "text-success" : ""}>
+                      <span className={winner === SIDE.RIGHT ? "text-success" : ""}>
                         {game.rightScore}
                       </span>
                       {!winner && !empty && !isGameFinished(game) && (

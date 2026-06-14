@@ -5,6 +5,7 @@ import { BigButton } from "@/components/ui/BigButton";
 import { PairSelect } from "@/features/tournament/matrix/components/PairSelect";
 import { Schema, type FormType, defaultValues } from "@/features/tournament/matrix/schema";
 import type { Participant } from "@/store/types";
+import { SIDE_KIND } from "@/store/types";
 
 type Props = {
   tournamentId: string;
@@ -25,8 +26,8 @@ export const DoublesMatchForm = ({ tournamentId, players, onAdded }: Props) => {
   const submit = pairForm.handleSubmit((data) => {
     const id = addManualMatch(
       tournamentId,
-      { kind: "pair", memberIds: [data.l1, data.l2] },
-      { kind: "pair", memberIds: [data.r1, data.r2] },
+      { kind: SIDE_KIND.PAIR, memberIds: [data.l1, data.l2] },
+      { kind: SIDE_KIND.PAIR, memberIds: [data.r1, data.r2] },
     );
     pairForm.reset();
     onAdded(id);

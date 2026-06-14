@@ -1,3 +1,5 @@
+import { MAX_SCORE } from "@/features/tournament/matrix/hooks";
+
 type Props = {
   name: string;
   score: number;
@@ -53,7 +55,7 @@ export const ScoreColumn = ({
             type="button"
             aria-label={`${name} を1増やす`}
             onClick={onAdd}
-            disabled={disabled || disableAdd || score >= 30}
+            disabled={disabled || disableAdd || score >= MAX_SCORE}
             className="absolute inset-x-0 top-0 h-1/2 w-full hover:bg-white/5 active:bg-white/10 disabled:opacity-40 disabled:hover:bg-transparent transition"
           />
           <button

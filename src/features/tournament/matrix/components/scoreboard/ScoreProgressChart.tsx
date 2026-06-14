@@ -1,12 +1,17 @@
 import type { Game, Side } from "@/domain/match";
-import { gameFirstServer, realGames } from "@/domain/match";
+import { SIDE, gameFirstServer, realGames } from "@/domain/match";
+import {
+  CHART_COL_WIDTH as COL_WIDTH,
+  CHART_ROW_HEIGHT as ROW_HEIGHT,
+  CHART_CIRCLE_SIZE as CIRCLE_SIZE,
+} from "@/features/tournament/matrix/hooks";
 import { gameProgress, type ProgressPoint } from "@/domain/scoreProgress";
 
 type Row = "top" | "bot";
 
 // 表示マッピング: 左=上段, 右=下段（入れ替えなし）
-const displayScorer = (point: ProgressPoint): Row => (point.scorer === "L" ? "top" : "bot");
-const displayServer = (point: ProgressPoint): Row => (point.server === "L" ? "top" : "bot");
+const displayScorer = (point: ProgressPoint): Row => (point.scorer === SIDE.LEFT ? "top" : "bot");
+const displayServer = (point: ProgressPoint): Row => (point.server === SIDE.LEFT ? "top" : "bot");
 const topScore = (point: { left: number }) => point.left;
 const botScore = (point: { right: number }) => point.right;
 
@@ -17,9 +22,6 @@ type Props = {
   matchFirstServer: Side;
 };
 
-const COL_WIDTH = 44; // ラリー1列あたりの幅(px)
-const ROW_HEIGHT = 56; // プレイヤー1行あたりの高さ(円 + 余白)(px)
-const CIRCLE_SIZE = 36; // 円の直径(px)
 const SVG_HEIGHT = ROW_HEIGHT * 2; // 上下2行ぶん
 
 type CircleVariant = "active" | "inactive" | "finalWinner" | "finalLoser";
