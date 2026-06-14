@@ -1,5 +1,5 @@
 import { ScoreProgressChart } from "@/features/tournament/matrix/components/scoreboard/ScoreProgressChart";
-import type { MatchResultRow } from "@/features/tournament/ranking/hooks";
+import type { MatchResultRow } from "@/features/tournament/result/hooks";
 
 // ----- 1対戦グラフブロック（表示用・off-screen用の共通コンポーネント） -----
 type MatchGraphBlockProps = {

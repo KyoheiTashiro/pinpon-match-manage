@@ -1,5 +1,5 @@
-import { useResultRows } from "@/features/tournament/ranking/hooks";
-import type { MatchResultRow } from "@/features/tournament/ranking/hooks";
+import { useResultRows } from "@/features/tournament/result/hooks";
+import type { MatchResultRow } from "@/features/tournament/result/hooks";
 
 // ----- 点数表モード -----
 type TableModeProps = {

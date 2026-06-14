@@ -3,7 +3,7 @@ import { Home } from "@/features/home";
 import { TournamentLayout } from "@/features/tournament/layout";
 import { ParticipantsTab } from "@/features/tournament/participants";
 import { MatchMatrixTab } from "@/features/tournament/matrix";
-import { ResultTab } from "@/features/tournament/ranking";
+import { ResultTab } from "@/features/tournament/result";
 import { SettingsTab } from "@/features/tournament/settings";
 
 export default function App() {

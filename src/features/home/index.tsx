@@ -30,11 +30,7 @@ export const Home = () => {
         {creating ? (
           <CreateTournamentForm form={form} submit={submit} onCancel={closeForm} />
         ) : (
-          <BigButton
-            variant="primary"
-            className="w-full !min-h-[72px] text-xl"
-            onClick={() => setCreating(true)}
-          >
+          <BigButton variant="primary" onClick={() => setCreating(true)}>
             ＋ 新しい大会を作る
           </BigButton>
         )}

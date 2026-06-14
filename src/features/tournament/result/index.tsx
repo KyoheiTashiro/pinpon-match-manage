@@ -4,19 +4,19 @@ import { BigButton } from "@/components/ui/BigButton";
 import { SelectMenu } from "@/components/ui/SelectMenu";
 import { DownloadIcon } from "@/components/icons";
 import { useImageCapture } from "@/lib/useImageCapture";
-import { useResultRows } from "@/features/tournament/ranking/hooks";
-import { MatchGraphBlock } from "@/features/tournament/ranking/components";
-import { TableMode } from "@/features/tournament/ranking/TableMode";
+import { useResultRows } from "@/features/tournament/result/hooks";
+import { MatchGraphBlock } from "@/features/tournament/result/components";
+import { TableMode } from "@/features/tournament/result/TableMode";
 
 export const ResultTab = () => {
   const { tournamentId } = useParams<{ tournamentId: string }>();
   if (!tournamentId) return null;
-  return <RankingView tournamentId={tournamentId} />;
+  return <ResultView tournamentId={tournamentId} />;
 };
 
 type DisplayMode = "table" | "graph";
 
-const RankingView = ({ tournamentId }: { tournamentId: string }) => {
+const ResultView = ({ tournamentId }: { tournamentId: string }) => {
   const { rows, matchResults, tournament } = useResultRows(tournamentId);
   // 表示中コンテナ（table全体 or 選択中1対戦）用
   const main = useImageCapture("結果", tournament?.name);
@@ -90,12 +90,14 @@ const RankingView = ({ tournamentId }: { tournamentId: string }) => {
 
           {/* グラフモード時のみ表示するセレクタ（画像保存対象外） */}
           {mode === "graph" && graphMatches.length > 0 && (
-            <SelectMenu
-              label="対戦を選択"
-              value={resolvedSelectedId}
-              onChange={(id) => setSelectedMatchId(id)}
-              options={graphOptions}
-            />
+            <div className="sm:max-w-md">
+              <SelectMenu
+                label="対戦を選択"
+                value={resolvedSelectedId}
+                onChange={(id) => setSelectedMatchId(id)}
+                options={graphOptions}
+              />
+            </div>
           )}
 
           {/* 画像保存対象コンテンツ */}

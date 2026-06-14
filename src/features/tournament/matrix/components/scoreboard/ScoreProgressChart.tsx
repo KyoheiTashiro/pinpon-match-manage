@@ -114,7 +114,7 @@ export const ScoreProgressChart = ({ games, leftName, rightName, matchFirstServe
 
           return (
             <div key={gameNumber}>
-              <div className="text-left font-bold text-base text-ink mb-2">Game {gameNumber}</div>
+              <div className="text-left font-bold text-base text-ink mb-2">ゲーム {gameNumber}</div>
               <div className="flex items-stretch">
                 {/* プレイヤー名の列 */}
                 <div
