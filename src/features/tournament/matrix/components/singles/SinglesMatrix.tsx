@@ -11,7 +11,7 @@ import { SIDE_KIND } from "@/store/types";
 
 type Player = { id: string; name: string };
 
-type MatrixCellProps = {
+type Props = {
   row: Player;
   column: Player;
   match: Match | undefined;
@@ -20,7 +20,7 @@ type MatrixCellProps = {
   onOpen: (matchId: string) => void;
 };
 
-const MatrixCell = ({ row, column, match, winsNeeded, onCreate, onOpen }: MatrixCellProps) => {
+const MatrixCell = ({ row, column, match, winsNeeded, onCreate, onOpen }: Props) => {
   if (row.id === column.id) {
     return (
       <td className="border-2 border-line bg-bg min-h-cell min-w-cell" aria-label="自分">

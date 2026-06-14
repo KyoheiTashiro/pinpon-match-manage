@@ -3,13 +3,13 @@ import type { MatchResultRow } from "@/features/tournament/result/hooks";
 import { SIDE } from "@/domain/match";
 
 // ----- 点数表モード -----
-type TableModeProps = {
+type Props = {
   rows: ReturnType<typeof useResult>["rows"];
   matchResults: MatchResultRow[];
   bestOf: number;
 };
 
-export const TableMode = ({ rows, matchResults, bestOf }: TableModeProps) => (
+export const TableMode = ({ rows, matchResults, bestOf }: Props) => (
   <>
     <div className="text-base font-extrabold">順位</div>
     <table className="w-full border-2 border-line border-collapse">

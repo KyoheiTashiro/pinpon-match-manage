@@ -3,11 +3,11 @@ import type { MatchResultRow } from "@/features/tournament/result/hooks";
 import { SIDE } from "@/domain/match";
 
 // ----- 1対戦グラフブロック（表示用・off-screen用の共通コンポーネント） -----
-type MatchGraphBlockProps = {
+type Props = {
   match: MatchResultRow;
 };
 
-export const MatchGraphBlock = ({ match }: MatchGraphBlockProps) => {
+export const MatchGraphBlock = ({ match }: Props) => {
   const hasLog = match.games.some((game) => game.pointLog && game.pointLog.length > 0);
   return (
     <div className="pt-2">
