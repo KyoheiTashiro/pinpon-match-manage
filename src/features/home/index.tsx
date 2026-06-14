@@ -5,15 +5,17 @@ import { BigButton } from "@/components/ui/BigButton";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { FontSizeToggle } from "@/components/ui/FontSizeToggle";
 import { InstallAppButton } from "@/components/ui/InstallAppButton";
-import { RadioCardGroup } from "@/components/ui/RadioCardGroup";
 import { formatDate } from "@/lib/time";
 import { useHome } from "@/features/home/hooks";
+import { CreateTournamentForm } from "@/features/home/CreateTournamentForm";
 
 export const Home = () => {
   const navigate = useNavigate();
   const resetAll = useAppStore((state) => state.resetAll);
 
-  const { list, form } = useHome((id) => navigate(`/t/${id}/participants`));
+  const { list, creating, setCreating, closeForm, form, submit } = useHome((id) =>
+    navigate(`/t/${id}/participants`),
+  );
 
   const [confirmReset, setConfirmReset] = useState(false);
 
@@ -25,64 +27,13 @@ export const Home = () => {
       </header>
 
       <main className="max-w-3xl mx-auto p-4 space-y-6">
-        {form.creating ? (
-          <div className="border-4 border-primary rounded-2xl p-4 space-y-4">
-            <h2 className="text-xl font-extrabold">新しい大会</h2>
-            <label className="flex flex-col gap-1">
-              <span className="font-bold">大会名</span>
-              <input
-                value={form.name}
-                onChange={(event) => form.setName(event.target.value)}
-                placeholder="例: 春の大会"
-                aria-label="大会名"
-                className="min-h-input border-2 border-line rounded-xl px-3 text-lg"
-              />
-            </label>
-            <RadioCardGroup
-              legend="形式"
-              name="format"
-              value={form.format}
-              options={[
-                { value: "singles", label: "シングルス" },
-                { value: "doubles", label: "ダブルス" },
-              ]}
-              onChange={form.setFormat}
-            />
-            <RadioCardGroup
-              legend="ゲーム数"
-              name="bestOf"
-              value={form.bestOf}
-              options={[
-                { value: 3, label: "3" },
-                { value: 5, label: "5" },
-                { value: 7, label: "7" },
-              ]}
-              onChange={form.setBestOf}
-            />
-            <label className="flex flex-col gap-1">
-              <span className="font-bold">開催日</span>
-              <input
-                type="date"
-                value={form.date}
-                onChange={(event) => form.setDate(event.target.value)}
-                aria-label="開催日"
-                className="min-h-input border-2 border-line rounded-xl px-3 text-lg"
-              />
-            </label>
-            <div className="flex gap-3 justify-end flex-wrap">
-              <BigButton variant="secondary" onClick={() => form.setCreating(false)}>
-                キャンセル
-              </BigButton>
-              <BigButton variant="primary" onClick={form.submit} disabled={!form.name.trim()}>
-                つくる
-              </BigButton>
-            </div>
-          </div>
+        {creating ? (
+          <CreateTournamentForm form={form} submit={submit} onCancel={closeForm} />
         ) : (
           <BigButton
             variant="primary"
             className="w-full !min-h-[72px] text-xl"
-            onClick={() => form.setCreating(true)}
+            onClick={() => setCreating(true)}
           >
             ＋ あたらしい大会をつくる
           </BigButton>

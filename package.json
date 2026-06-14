@@ -16,10 +16,14 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@hookform/resolvers": "5.4.0",
     "html-to-image": "1.11.13",
+    "immer": "11.1.8",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "react-hook-form": "7.79.0",
     "react-router-dom": "^6.30.4",
+    "zod": "4.4.3",
     "zustand": "^5.0.0"
   },
   "devDependencies": {

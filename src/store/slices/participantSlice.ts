@@ -14,9 +14,12 @@ export const participantInitial: Pick<ParticipantSlice, "participants"> = {
   participants: {},
 };
 
-export const createParticipantSlice: StateCreator<StoreState, [], [], ParticipantSlice> = (
-  set,
-) => ({
+export const createParticipantSlice: StateCreator<
+  StoreState,
+  [["zustand/immer", never]],
+  [],
+  ParticipantSlice
+> = (set) => ({
   ...participantInitial,
 
   addParticipant: (tournamentId, name, affiliation) => {
@@ -24,17 +27,9 @@ export const createParticipantSlice: StateCreator<StoreState, [], [], Participan
     const participant: Participant = { id, tournamentId, name: name.trim(), affiliation };
     set((state) => {
       const tournament = state.tournaments[tournamentId];
-      if (!tournament) return state;
-      return {
-        participants: { ...state.participants, [id]: participant },
-        tournaments: {
-          ...state.tournaments,
-          [tournamentId]: {
-            ...tournament,
-            participantIds: [...tournament.participantIds, id],
-          },
-        },
-      };
+      if (!tournament) return;
+      state.participants[id] = participant;
+      state.tournaments[tournamentId].participantIds.push(id);
     });
     return id;
   },
@@ -42,47 +37,31 @@ export const createParticipantSlice: StateCreator<StoreState, [], [], Participan
   updateParticipant: (id, patch) =>
     set((state) => {
       const current = state.participants[id];
-      if (!current) return state;
-      return {
-        participants: {
-          ...state.participants,
-          [id]: { ...current, ...patch, name: (patch.name ?? current.name).trim() },
-        },
-      };
+      if (!current) return;
+      Object.assign(state.participants[id], patch);
+      state.participants[id].name = (patch.name ?? current.name).trim();
     }),
 
   removeParticipant: (tournamentId, id) =>
     set((state) => {
       const tournament = state.tournaments[tournamentId];
-      if (!tournament) return state;
-      const participants = { ...state.participants };
-      delete participants[id];
-      const matches = { ...state.matches };
+      if (!tournament) return;
+      delete state.participants[id];
       const remainingMatchIds: string[] = [];
       for (const matchId of tournament.matchIds) {
-        const match = matches[matchId];
+        const match = state.matches[matchId];
         if (!match) continue;
         const involves = (side: MatchSide) =>
           side.kind === "single" ? side.participantId === id : side.memberIds.includes(id);
         if (involves(match.leftSide) || involves(match.rightSide)) {
-          delete matches[matchId];
+          delete state.matches[matchId];
         } else {
           remainingMatchIds.push(matchId);
         }
       }
-      return {
-        participants,
-        matches,
-        tournaments: {
-          ...state.tournaments,
-          [tournamentId]: {
-            ...tournament,
-            participantIds: tournament.participantIds.filter(
-              (participantId) => participantId !== id,
-            ),
-            matchIds: remainingMatchIds,
-          },
-        },
-      };
+      state.tournaments[tournamentId].participantIds = tournament.participantIds.filter(
+        (pid) => pid !== id,
+      );
+      state.tournaments[tournamentId].matchIds = remainingMatchIds;
     }),
 });

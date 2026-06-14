@@ -21,7 +21,12 @@ export const tournamentInitial: Pick<TournamentSlice, "tournaments" | "currentTo
   currentTournamentId: null,
 };
 
-export const createTournamentSlice: StateCreator<StoreState, [], [], TournamentSlice> = (set) => ({
+export const createTournamentSlice: StateCreator<
+  StoreState,
+  [["zustand/immer", never]],
+  [],
+  TournamentSlice
+> = (set) => ({
   ...tournamentInitial,
 
   createTournament: (name, format, date, bestOf) => {
@@ -36,62 +41,49 @@ export const createTournamentSlice: StateCreator<StoreState, [], [], TournamentS
       participantIds: [],
       matchIds: [],
     };
-    set((state) => ({
-      tournaments: { ...state.tournaments, [id]: tournament },
-      currentTournamentId: id,
-    }));
+    set((state) => {
+      state.tournaments[id] = tournament;
+      state.currentTournamentId = id;
+    });
     return id;
   },
 
   updateTournament: (id, patch) => {
     set((state) => {
       const tournament = state.tournaments[id];
-      if (!tournament) return state;
-      return {
-        tournaments: {
-          ...state.tournaments,
-          [id]: { ...tournament, ...patch },
-        },
-      };
+      if (!tournament) return;
+      Object.assign(state.tournaments[id], patch);
     });
   },
 
   deleteTournament: (id) => {
     set((state) => {
       const tournament = state.tournaments[id];
-      if (!tournament) return state;
-      const tournaments = { ...state.tournaments };
-      delete tournaments[id];
-      const matches = { ...state.matches };
-      for (const matchId of tournament.matchIds) delete matches[matchId];
-      const participants = { ...state.participants };
-      for (const participantId of tournament.participantIds) delete participants[participantId];
-      return {
-        tournaments,
-        matches,
-        participants,
-        currentTournamentId: state.currentTournamentId === id ? null : state.currentTournamentId,
-      };
+      if (!tournament) return;
+      for (const matchId of tournament.matchIds) delete state.matches[matchId];
+      for (const participantId of tournament.participantIds)
+        delete state.participants[participantId];
+      delete state.tournaments[id];
+      if (state.currentTournamentId === id) state.currentTournamentId = null;
     });
   },
 
-  setCurrentTournament: (id) => set({ currentTournamentId: id }),
+  setCurrentTournament: (id) =>
+    set((state) => {
+      state.currentTournamentId = id;
+    }),
 
   resetTournament: (id) => {
     set((state) => {
       const tournament = state.tournaments[id];
-      if (!tournament) return state;
-      const matches = { ...state.matches };
-      for (const matchId of tournament.matchIds) delete matches[matchId];
-      return {
-        matches,
-        tournaments: {
-          ...state.tournaments,
-          [id]: { ...tournament, matchIds: [] },
-        },
-      };
+      if (!tournament) return;
+      for (const matchId of tournament.matchIds) delete state.matches[matchId];
+      state.tournaments[id].matchIds = [];
     });
   },
 
-  resetAll: () => set({ ...tournamentInitial, ...participantInitial, ...matchInitial }),
+  resetAll: () =>
+    set((state) => {
+      Object.assign(state, tournamentInitial, participantInitial, matchInitial);
+    }),
 });

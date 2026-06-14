@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { immer } from "zustand/middleware/immer";
 import type { AppState, Tournament } from "@/store/types";
 import { createUiSlice, type UiSlice } from "@/store/slices/uiSlice";
 import { createTournamentSlice, type TournamentSlice } from "@/store/slices/tournamentSlice";
@@ -10,12 +11,12 @@ export type StoreState = UiSlice & TournamentSlice & ParticipantSlice & MatchSli
 
 export const useAppStore = create<StoreState>()(
   persist(
-    (...a) => ({
+    immer((...a) => ({
       ...createUiSlice(...a),
       ...createTournamentSlice(...a),
       ...createParticipantSlice(...a),
       ...createMatchSlice(...a),
-    }),
+    })),
     {
       name: "pinpon-match-manage:v1",
       version: 2,

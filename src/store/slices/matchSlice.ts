@@ -14,7 +14,12 @@ export const matchInitial: Pick<MatchSlice, "matches"> = {
   matches: {},
 };
 
-export const createMatchSlice: StateCreator<StoreState, [], [], MatchSlice> = (set, get) => ({
+export const createMatchSlice: StateCreator<
+  StoreState,
+  [["zustand/immer", never]],
+  [],
+  MatchSlice
+> = (set, get) => ({
   ...matchInitial,
 
   addManualMatch: (tournamentId, left, right) => {
@@ -48,14 +53,9 @@ export const createMatchSlice: StateCreator<StoreState, [], [], MatchSlice> = (s
     };
     set((state) => {
       const tournament = state.tournaments[tournamentId];
-      if (!tournament) return state;
-      return {
-        matches: { ...state.matches, [id]: match },
-        tournaments: {
-          ...state.tournaments,
-          [tournamentId]: { ...tournament, matchIds: [...tournament.matchIds, id] },
-        },
-      };
+      if (!tournament) return;
+      state.matches[id] = match;
+      state.tournaments[tournamentId].matchIds.push(id);
     });
     return id;
   },
@@ -63,28 +63,20 @@ export const createMatchSlice: StateCreator<StoreState, [], [], MatchSlice> = (s
   updateMatch: (id, patch) =>
     set((state) => {
       const current = state.matches[id];
-      if (!current) return state;
-      return { matches: { ...state.matches, [id]: { ...current, ...patch } } };
+      if (!current) return;
+      Object.assign(state.matches[id], patch);
     }),
 
   deleteMatch: (id) =>
     set((state) => {
       const match = state.matches[id];
-      if (!match) return state;
-      const matches = { ...state.matches };
-      delete matches[id];
+      if (!match) return;
       const tournament = state.tournaments[match.tournamentId];
-      return {
-        matches,
-        tournaments: tournament
-          ? {
-              ...state.tournaments,
-              [match.tournamentId]: {
-                ...tournament,
-                matchIds: tournament.matchIds.filter((matchId) => matchId !== id),
-              },
-            }
-          : state.tournaments,
-      };
+      delete state.matches[id];
+      if (tournament) {
+        state.tournaments[match.tournamentId].matchIds = tournament.matchIds.filter(
+          (matchId) => matchId !== id,
+        );
+      }
     }),
 });

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useAppStore } from "@/store/useAppStore";
 import type { Match, MatchSide } from "@/store/types";
 
@@ -8,8 +8,6 @@ export const sideMembers = (side: MatchSide) =>
 export const involvesSingle = (match: Match, id: string) =>
   (match.leftSide.kind === "single" && match.leftSide.participantId === id) ||
   (match.rightSide.kind === "single" && match.rightSide.participantId === id);
-
-const emptyDoublesForm = { l1: "", l2: "", r1: "", r2: "" };
 
 export const useMatrix = (tournamentId: string) => {
   const tournament = useAppStore((state) => state.tournaments[tournamentId]);
@@ -34,19 +32,11 @@ export const useMatrix = (tournamentId: string) => {
     return map;
   }, [matchList]);
 
-  const [form, setForm] = useState(emptyDoublesForm);
-  const canAdd =
-    !!form.l1 && !!form.l2 && !!form.r1 && !!form.r2 && new Set(Object.values(form)).size === 4;
-
   return {
     tournament,
     participants,
     matchList,
     players,
     singlesCellMatch,
-    form,
-    setForm,
-    canAdd,
-    reset: () => setForm(emptyDoublesForm),
   };
 };

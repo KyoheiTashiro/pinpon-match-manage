@@ -1,8 +1,11 @@
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useParams } from "react-router-dom";
 import { BigButton } from "@/components/ui/BigButton";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { useParticipants } from "@/features/tournament/participants/hooks";
+import { Schema, type FormType, defaultValues } from "@/features/tournament/participants/schema";
 
 export const ParticipantsTab = () => {
   const { tournamentId } = useParams<{ tournamentId: string }>();
@@ -13,36 +16,52 @@ export const ParticipantsTab = () => {
 const ParticipantsView = ({ tournamentId }: { tournamentId: string }) => {
   const { list, add, rename, remove } = useParticipants(tournamentId);
 
-  const [name, setName] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editName, setEditName] = useState("");
   const [removeTarget, setRemoveTarget] = useState<string | null>(null);
 
-  const submit = () => {
-    if (!name.trim()) return;
-    add(name);
-    setName("");
+  const addForm = useForm<FormType>({
+    resolver: zodResolver(Schema),
+    mode: "onChange",
+    defaultValues,
+  });
+
+  const editForm = useForm<FormType>({
+    resolver: zodResolver(Schema),
+    mode: "onChange",
+    defaultValues,
+  });
+
+  const addSubmit = addForm.handleSubmit((data) => {
+    add(data.name);
+    addForm.reset();
+  });
+
+  const startEdit = (id: string, currentName: string) => {
+    setEditingId(id);
+    editForm.reset({ name: currentName });
+    void editForm.trigger();
   };
+
+  const submitEdit = editForm.handleSubmit((data) => {
+    if (editingId) rename(editingId, data.name);
+    setEditingId(null);
+  });
 
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-extrabold">参加者</h2>
 
-      <div className="flex gap-2 flex-wrap">
+      <form onSubmit={addSubmit} className="flex gap-2 flex-wrap">
         <input
-          value={name}
-          onChange={(event) => setName(event.target.value)}
+          {...addForm.register("name")}
           placeholder="名前"
           aria-label="参加者名"
-          onKeyDown={(event) => {
-            if (event.key === "Enter") event.preventDefault();
-          }}
           className="flex-1 min-w-[200px] min-h-input border-2 border-line rounded-xl px-3 text-lg"
         />
-        <BigButton onClick={submit} disabled={!name.trim()}>
+        <BigButton type="submit" disabled={!addForm.formState.isValid}>
           追加
         </BigButton>
-      </div>
+      </form>
 
       {list.length === 0 ? (
         <p className="text-sub text-base py-6">まだ参加者がいません。</p>
@@ -54,27 +73,29 @@ const ParticipantsView = ({ tournamentId }: { tournamentId: string }) => {
                 {index + 1}
               </span>
               {editingId === participant.id ? (
-                <>
+                <form onSubmit={submitEdit} className="flex-1 min-w-0 flex items-center gap-2">
                   <input
-                    value={editName}
-                    onChange={(event) => setEditName(event.target.value)}
+                    {...editForm.register("name")}
                     aria-label="参加者名を編集"
                     className="flex-1 min-w-0 min-h-input border-2 border-line rounded-xl px-3 text-lg"
                   />
                   <BigButton
+                    type="submit"
                     variant="primary"
                     size="sm"
-                    onClick={() => {
-                      if (editName.trim()) rename(participant.id, editName);
-                      setEditingId(null);
-                    }}
+                    disabled={!editForm.formState.isValid}
                   >
                     保存
                   </BigButton>
-                  <BigButton variant="secondary" size="sm" onClick={() => setEditingId(null)}>
+                  <BigButton
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => setEditingId(null)}
+                  >
                     やめる
                   </BigButton>
-                </>
+                </form>
               ) : (
                 <>
                   <span className="flex-1 min-w-0 text-lg font-bold truncate">
@@ -83,10 +104,7 @@ const ParticipantsView = ({ tournamentId }: { tournamentId: string }) => {
                   <BigButton
                     variant="secondary"
                     size="sm"
-                    onClick={() => {
-                      setEditingId(participant.id);
-                      setEditName(participant.name);
-                    }}
+                    onClick={() => startEdit(participant.id, participant.name)}
                   >
                     編集
                   </BigButton>

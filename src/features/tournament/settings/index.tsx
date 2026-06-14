@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useAppStore } from "@/store/useAppStore";
 import { BigButton } from "@/components/ui/BigButton";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { formatDate } from "@/lib/time";
+import { Schema, type FormType, defaultValues } from "@/features/tournament/settings/schema";
 
 export const SettingsTab = () => {
   const { tournamentId } = useParams<{ tournamentId: string }>();
@@ -16,23 +19,27 @@ export const SettingsTab = () => {
   const deleteTournament = useAppStore((state) => state.deleteTournament);
 
   const [editing, setEditing] = useState(false);
-  const [nameDraft, setNameDraft] = useState("");
-  const [dateDraft, setDateDraft] = useState("");
   const [confirmReset, setConfirmReset] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+
+  const form = useForm<FormType>({
+    resolver: zodResolver(Schema),
+    mode: "onChange",
+    defaultValues,
+  });
 
   if (!tournament || !tournamentId) return null;
 
   const startEdit = () => {
-    setNameDraft(tournament.name);
-    setDateDraft(tournament.date);
+    form.reset({ name: tournament.name, date: tournament.date });
+    void form.trigger(); // プリフィル値で isValid を即時確定（保存ボタンの初期 disabled 回避）
     setEditing(true);
   };
 
-  const saveEdit = () => {
-    updateTournament(tournamentId, { name: nameDraft.trim(), date: dateDraft });
+  const saveEdit = form.handleSubmit((data) => {
+    updateTournament(tournamentId, { name: data.name, date: data.date });
     setEditing(false);
-  };
+  });
 
   return (
     <div className="space-y-4">
@@ -46,36 +53,37 @@ export const SettingsTab = () => {
       </div>
 
       {editing ? (
-        <div className="space-y-3">
+        <form onSubmit={saveEdit} className="space-y-3">
           <label className="flex flex-col gap-1">
             <span className="font-bold">大会名</span>
             <input
               type="text"
-              value={nameDraft}
-              onChange={(event) => setNameDraft(event.target.value)}
+              {...form.register("name")}
               aria-label="大会名"
               className="min-h-input border-2 border-line rounded-xl px-3 text-lg"
             />
+            {form.formState.errors.name && (
+              <span className="text-sm text-danger">{form.formState.errors.name.message}</span>
+            )}
           </label>
           <label className="flex flex-col gap-1">
             <span className="font-bold">開催日</span>
             <input
               type="date"
-              value={dateDraft}
-              onChange={(event) => setDateDraft(event.target.value)}
+              {...form.register("date")}
               aria-label="開催日"
               className="min-h-input border-2 border-line rounded-xl px-3 text-lg"
             />
           </label>
           <div className="flex gap-3 justify-end flex-wrap">
-            <BigButton variant="secondary" onClick={() => setEditing(false)}>
+            <BigButton type="button" variant="secondary" onClick={() => setEditing(false)}>
               キャンセル
             </BigButton>
-            <BigButton variant="primary" onClick={saveEdit} disabled={!nameDraft.trim()}>
+            <BigButton type="submit" variant="primary" disabled={!form.formState.isValid}>
               保存
             </BigButton>
           </div>
-        </div>
+        </form>
       ) : (
         <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-base">
           <dt className="font-bold">大会名</dt>

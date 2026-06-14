@@ -1,17 +1,14 @@
 import { useState } from "react";
-import { useAppStore } from "@/store/useAppStore";
 import { BigButton } from "@/components/ui/BigButton";
 import { DownloadIcon } from "@/components/icons";
 import { useImageCapture } from "@/lib/useImageCapture";
 import { matchSummary, winsNeededForBestOf } from "@/domain/match";
 import { MatchModal } from "@/features/tournament/matrix/components/MatchModal";
-import { PairSelect } from "@/features/tournament/matrix/components/PairSelect";
+import { DoublesMatchForm } from "@/features/tournament/matrix/components/DoublesMatchForm";
 import { sideMembers, useMatrix } from "@/features/tournament/matrix/hooks";
 
 export const DoublesMatrix = ({ tournamentId }: { tournamentId: string }) => {
-  const { tournament, participants, matchList, players, form, setForm, canAdd, reset } =
-    useMatrix(tournamentId);
-  const addManualMatch = useAppStore((state) => state.addManualMatch);
+  const { tournament, participants, matchList, players } = useMatrix(tournamentId);
   const { ref, saving, save } = useImageCapture("対戦表", tournament?.name);
   const [openMatchId, setOpenMatchId] = useState<string | null>(null);
 
@@ -26,59 +23,7 @@ export const DoublesMatrix = ({ tournamentId }: { tournamentId: string }) => {
       {players.length < 4 ? (
         <p className="text-sub">参加者を4人以上 登録してください。</p>
       ) : (
-        <div className="border-4 border-primary rounded-2xl p-4 space-y-3">
-          <h3 className="text-lg font-extrabold">試合を追加</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="space-y-2">
-              <span className="font-bold">左ペア</span>
-              <PairSelect
-                value={form.l1}
-                onChange={(value) => setForm((formState) => ({ ...formState, l1: value }))}
-                options={players}
-                exclude={[form.l2, form.r1, form.r2]}
-                label="左1"
-              />
-              <PairSelect
-                value={form.l2}
-                onChange={(value) => setForm((formState) => ({ ...formState, l2: value }))}
-                options={players}
-                exclude={[form.l1, form.r1, form.r2]}
-                label="左2"
-              />
-            </div>
-            <div className="space-y-2">
-              <span className="font-bold">右ペア</span>
-              <PairSelect
-                value={form.r1}
-                onChange={(value) => setForm((formState) => ({ ...formState, r1: value }))}
-                options={players}
-                exclude={[form.l1, form.l2, form.r2]}
-                label="右1"
-              />
-              <PairSelect
-                value={form.r2}
-                onChange={(value) => setForm((formState) => ({ ...formState, r2: value }))}
-                options={players}
-                exclude={[form.l1, form.l2, form.r1]}
-                label="右2"
-              />
-            </div>
-          </div>
-          <BigButton
-            disabled={!canAdd}
-            onClick={() => {
-              const id = addManualMatch(
-                tournamentId,
-                { kind: "pair", memberIds: [form.l1, form.l2] },
-                { kind: "pair", memberIds: [form.r1, form.r2] },
-              );
-              reset();
-              setOpenMatchId(id);
-            }}
-          >
-            試合を追加して入力へ
-          </BigButton>
-        </div>
+        <DoublesMatchForm tournamentId={tournamentId} players={players} onAdded={setOpenMatchId} />
       )}
 
       <div ref={ref} className="bg-white p-3 space-y-2">

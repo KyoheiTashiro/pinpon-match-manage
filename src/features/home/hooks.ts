@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useAppStore } from "@/store/useAppStore";
-import type { BestOf, Format } from "@/store/types";
+import { Schema, type FormType, defaultValues } from "@/features/home/schema";
 
 export const useHome = (onCreated: (id: string) => void) => {
   const tournaments = useAppStore((state) => state.tournaments);
@@ -13,31 +15,24 @@ export const useHome = (onCreated: (id: string) => void) => {
   );
 
   const [creating, setCreating] = useState(false);
-  const [name, setName] = useState("");
-  const [format, setFormat] = useState<Format>("singles");
-  const [bestOf, setBestOf] = useState<BestOf>(3);
-  const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
 
-  const submit = () => {
-    if (!name.trim()) return;
-    const id = createTournament(name.trim(), format, date, bestOf);
+  const formMethods = useForm<FormType>({
+    resolver: zodResolver(Schema),
+    mode: "onChange",
+    defaultValues,
+  });
+
+  const submit = formMethods.handleSubmit((data) => {
+    const id = createTournament(data.name, data.format, data.date, data.bestOf);
+    formMethods.reset();
+    setCreating(false);
     onCreated(id);
+  });
+
+  const closeForm = () => {
+    formMethods.reset();
+    setCreating(false);
   };
 
-  return {
-    list,
-    form: {
-      creating,
-      setCreating,
-      name,
-      setName,
-      format,
-      setFormat,
-      bestOf,
-      setBestOf,
-      date,
-      setDate,
-      submit,
-    },
-  };
+  return { list, creating, setCreating, closeForm, form: formMethods, submit };
 };

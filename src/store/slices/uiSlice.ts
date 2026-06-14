@@ -7,7 +7,12 @@ export type UiSlice = {
   setFontSize: (size: FontSize) => void;
 };
 
-export const createUiSlice: StateCreator<StoreState, [], [], UiSlice> = (set) => ({
+export const createUiSlice: StateCreator<StoreState, [["zustand/immer", never]], [], UiSlice> = (
+  set,
+) => ({
   fontSize: "normal",
-  setFontSize: (size) => set({ fontSize: size }),
+  setFontSize: (size) =>
+    set((state) => {
+      state.fontSize = size;
+    }),
 });
