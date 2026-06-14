@@ -102,7 +102,7 @@ export const ScoreProgressChart = ({ games, leftName, rightName, matchFirstServe
           const columnCount = points.length;
           const svgWidth = (columnCount + 1) * COL_WIDTH; // ラリー列 + 最終スコア列
 
-          const lastPoint = points[points.length - 1];
+          const lastPoint = points.at(-1);
           const finalTop = lastPoint ? topScore(lastPoint) : 0;
           const finalBot = lastPoint ? botScore(lastPoint) : 0;
 

@@ -42,7 +42,7 @@ describe("gameProgress", () => {
   it("cumulative scores match final scores", () => {
     const log: Side[] = ["R", "L", "R", "R", "L"];
     const result = gameProgress(log, "L");
-    const last = result[result.length - 1];
+    const last = result.at(-1);
     const leftCount = log.filter((side) => side === "L").length;
     const rightCount = log.filter((side) => side === "R").length;
     expect(last?.left).toBe(leftCount);

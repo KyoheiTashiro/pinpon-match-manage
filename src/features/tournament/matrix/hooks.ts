@@ -39,7 +39,7 @@ export const useMatrix = (tournamentId: string) => {
         continue;
       const leftId = match.leftSide.participantId;
       const rightId = match.rightSide.participantId;
-      const key = [leftId, rightId].sort().join("|");
+      const key = [leftId, rightId].toSorted().join("|");
       map.set(key, match);
     }
     return map;

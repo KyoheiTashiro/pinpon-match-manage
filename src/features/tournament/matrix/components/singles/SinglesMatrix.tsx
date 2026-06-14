@@ -137,7 +137,7 @@ export const SinglesMatrix = ({ tournamentId }: { tournamentId: string }) => {
                           key={column.id}
                           row={row}
                           column={column}
-                          match={singlesCellMatch.get([row.id, column.id].sort().join("|"))}
+                          match={singlesCellMatch.get([row.id, column.id].toSorted().join("|"))}
                           winsNeeded={wins}
                           onCreate={() => {
                             const id = addManualMatch(

@@ -9,7 +9,7 @@ export const useHome = (onCreated: (id: string) => void) => {
   const createTournament = useAppStore((state) => state.createTournament);
   const resetAll = useAppStore((state) => state.resetAll);
 
-  const list = Object.values(tournaments).sort(
+  const list = Object.values(tournaments).toSorted(
     (tournamentA, tournamentB) =>
       (tournamentB.date ?? "").localeCompare(tournamentA.date ?? "") ||
       tournamentB.createdAt.localeCompare(tournamentA.createdAt),

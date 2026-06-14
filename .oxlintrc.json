@@ -28,13 +28,6 @@
     "import/max-dependencies": ["error", { "max": 20 }],
     // CSS の副作用 import (main.tsx の index.css) は意図的なので許可
     "import/no-unassigned-import": ["warn", { "allow": ["**/*.css"] }],
-    // toSorted() は ES2023 ランタイム API。tsconfig lib が ES2020 のため使えず、
-    // 古い Safari/iPad での実行時クラッシュを避けるため off にする。
-    // sort 利用箇所はコピーしてから sort する（共有配列を直接 mutate しない）こと。
-    "unicorn/no-array-sort": "off",
-    // Array.prototype.at() / String.prototype.at() は ES2022 API。no-array-sort と同じく
-    // tsconfig lib が ES2020 のため使えない。arr[arr.length - 1] のままにする。
-    "unicorn/prefer-at": "off",
     // max-lines-per-function: 閾値が恣意的で、JSX を返す React コンポーネントは本質的に
     // 1 関数が長くなる。分割の判断はレビューに委ねるため off。
     "eslint/max-lines-per-function": "off",

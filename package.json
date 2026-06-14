@@ -11,6 +11,7 @@
     "test:watch": "vitest",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
+    "lint:typed": "oxlint --type-aware",
     "format": "oxfmt",
     "format:check": "oxfmt --check",
     "prepare": "husky"

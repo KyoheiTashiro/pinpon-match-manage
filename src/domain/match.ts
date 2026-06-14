@@ -82,5 +82,5 @@ export const undoLastPoint = (game: Game): Game => {
 export const lastScorer = (game: Game): Side | null => {
   const log = game.pointLog;
   if (!log || log.length === 0) return null;
-  return log[log.length - 1] ?? null;
+  return log.at(-1) ?? null;
 };
