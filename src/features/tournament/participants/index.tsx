@@ -49,7 +49,7 @@ const ParticipantsView = ({ tournamentId }: { tournamentId: string }) => {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-extrabold">参加者</h2>
+      <h2 className="text-xl font-extrabold">参加者{list.length > 0 && `（${list.length}人）`}</h2>
 
       <form onSubmit={addSubmit} className="flex gap-2 flex-wrap">
         <input
@@ -67,11 +67,8 @@ const ParticipantsView = ({ tournamentId }: { tournamentId: string }) => {
         <p className="text-sub text-base py-6">まだ参加者がいません。</p>
       ) : (
         <ul className="divide-y-2 divide-line border-2 border-line rounded-2xl overflow-hidden">
-          {list.map((participant, index) => (
+          {list.map((participant) => (
             <li key={participant.id} className="p-3 flex items-center gap-2">
-              <span className="text-lg font-bold w-8 text-center text-sub shrink-0">
-                {index + 1}
-              </span>
               {editingId === participant.id ? (
                 <form
                   onSubmit={submitEdit}
