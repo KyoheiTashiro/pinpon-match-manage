@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppStore } from "@/store/useAppStore";
 import { BigButton } from "@/components/ui/BigButton";
+import { ChevronDownIcon } from "@/components/icons";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { FontSizeToggle } from "@/components/ui/FontSizeToggle";
 import { InstallAppButton } from "@/features/home/InstallAppButton";
@@ -52,9 +53,7 @@ export const Home = () => {
                       <div className="text-xl font-extrabold">{tournament.name}</div>
                       <div className="text-base text-sub">{formatDate(tournament.date)}</div>
                     </div>
-                    <span className="text-2xl" aria-hidden>
-                      ▶
-                    </span>
+                    <ChevronDownIcon className="-rotate-90 text-2xl" />
                   </button>
                 </li>
               ))}
@@ -62,7 +61,7 @@ export const Home = () => {
           )}
         </section>
 
-        <div className="pt-6 border-t-2 border-line space-y-3">
+        <div className="pt-6 border-t-2 border-line flex flex-col items-start gap-3 sm:flex-row">
           <InstallAppButton />
           <BigButton variant="danger" onClick={() => setConfirmReset(true)}>
             全てのデータを消す

@@ -11,6 +11,7 @@ import {
 } from "@/domain/matchGames";
 import { useAppStore } from "@/store/useAppStore";
 import { BigButton } from "@/components/ui/BigButton";
+import { ChevronDownIcon } from "@/components/icons";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { ScoreboardScreen } from "@/features/tournament/matrix/components/ScoreboardScreen";
 
@@ -128,11 +129,11 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
 
         <div className="mb-4">
           <BigButton variant="primary" className="w-full" onClick={() => setScoreboardOpen(true)}>
-            ▶ スコアボードを開く
+            <span className="inline-flex items-center justify-center gap-2">
+              <ChevronDownIcon className="-rotate-90" />
+              スコアボードを開く
+            </span>
           </BigButton>
-          <p className="text-sub text-sm mt-2">
-            ゲームごとの点数加減はスコアボード画面で行います。
-          </p>
         </div>
 
         <ul className="space-y-2 mb-4 border-2 border-line rounded-xl divide-y-2 divide-line overflow-hidden">
