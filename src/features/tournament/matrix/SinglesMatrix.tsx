@@ -44,7 +44,7 @@ const MatrixCell = ({ row, column, match, winsNeeded, onCreate, onOpen }: Matrix
 
   return (
     <td
-      className={`border-2 ${hasScore ? "border-line" : "border-dashed border-line"} text-center min-h-cell min-w-cell p-0 ${
+      className={`border-2 border-line text-center min-h-cell min-w-cell p-0 ${
         rowWon ? "bg-winBg" : rowLost ? "bg-loseBg" : inProgress ? "bg-warning/10" : ""
       }`}
     >
