@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppStore } from "@/store/useAppStore";
-import { BigButton } from "@/components/ui/BigButton";
+import { Button } from "@/components/ui/Button";
 import { ChevronDownIcon } from "@/components/icons";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { FontSizeToggle } from "@/components/ui/FontSizeToggle";
@@ -32,9 +32,9 @@ export const Home = () => {
         {creating ? (
           <CreateTournament form={form} submit={submit} onCancel={closeForm} />
         ) : (
-          <BigButton variant="primary" onClick={() => setCreating(true)}>
+          <Button variant="primary" onClick={() => setCreating(true)}>
             ＋ 新しい大会を作る
-          </BigButton>
+          </Button>
         )}
 
         <section aria-label="大会一覧">
@@ -64,9 +64,9 @@ export const Home = () => {
 
         <div className="pt-6 border-t-2 border-line flex flex-col items-start gap-3 sm:flex-row">
           <InstallAppButton />
-          <BigButton variant="danger" onClick={() => setConfirmReset(true)}>
+          <Button variant="danger" onClick={() => setConfirmReset(true)}>
             全てのデータを消す
-          </BigButton>
+          </Button>
         </div>
       </main>
 

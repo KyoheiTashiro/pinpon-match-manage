@@ -3,7 +3,7 @@ import type { ComponentType, SVGProps } from "react";
 import { useEffect } from "react";
 import { useAppStore } from "@/store/useAppStore";
 import { UsersIcon, PaddleIcon, TrophyIcon, GearIcon, ChevronDownIcon } from "@/components/icons";
-import { BigButton } from "@/components/ui/BigButton";
+import { Button } from "@/components/ui/Button";
 import { ROUTES, TAB_PATH } from "@/constants/routes";
 import { FORMAT } from "@/store/types";
 
@@ -46,7 +46,7 @@ export const TournamentLayout = () => {
   return (
     <div className="min-h-screen bg-white text-ink pb-24">
       <header className="bg-primary text-white p-4 flex items-center gap-3 flex-wrap">
-        <BigButton
+        <Button
           variant="white"
           size="sm"
           onClick={() => navigate(ROUTES.HOME)}
@@ -54,7 +54,7 @@ export const TournamentLayout = () => {
           aria-label="大会一覧へ戻る"
         >
           <ChevronDownIcon className="rotate-90" /> 戻る
-        </BigButton>
+        </Button>
         <div className="flex-1 min-w-0">
           <div className="text-xl font-extrabold truncate">{tournament.name}</div>
           <div className="text-sm">

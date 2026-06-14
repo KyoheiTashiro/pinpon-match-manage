@@ -1,6 +1,6 @@
 import { Controller, type UseFormReturn } from "react-hook-form";
 import { CalendarIcon } from "@/components/icons";
-import { BigButton } from "@/components/ui/BigButton";
+import { Button } from "@/components/ui/Button";
 import { RadioCardGroup } from "@/components/ui/RadioCardGroup";
 import type { FormType } from "@/features/home/schema";
 import { FORMAT, BEST_OF_OPTIONS } from "@/store/types";
@@ -72,12 +72,12 @@ export const CreateTournament = ({ form, submit, onCancel }: Props) => (
       )}
     </label>
     <div className="flex gap-3 justify-end flex-wrap">
-      <BigButton variant="secondary" type="button" onClick={onCancel}>
+      <Button variant="secondary" type="button" onClick={onCancel}>
         キャンセル
-      </BigButton>
-      <BigButton variant="primary" type="submit" disabled={!form.formState.isValid}>
+      </Button>
+      <Button variant="primary" type="submit" disabled={!form.formState.isValid}>
         作る
-      </BigButton>
+      </Button>
     </div>
   </form>
 );

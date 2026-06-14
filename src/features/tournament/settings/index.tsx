@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAppStore } from "@/store/useAppStore";
 import { CalendarIcon } from "@/components/icons";
-import { BigButton } from "@/components/ui/BigButton";
+import { Button } from "@/components/ui/Button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { formatDate } from "@/lib/time";
 import { Schema, type FormType, defaultValues } from "@/features/tournament/settings/schema";
@@ -49,9 +49,9 @@ export const SettingsTab = () => {
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-extrabold">設定</h2>
         {!editing && (
-          <BigButton variant="secondary" onClick={startEdit}>
+          <Button variant="secondary" onClick={startEdit}>
             編集
-          </BigButton>
+          </Button>
         )}
       </div>
 
@@ -86,12 +86,12 @@ export const SettingsTab = () => {
             )}
           </label>
           <div className="flex gap-3 justify-end flex-wrap">
-            <BigButton type="button" variant="secondary" onClick={() => setEditing(false)}>
+            <Button type="button" variant="secondary" onClick={() => setEditing(false)}>
               キャンセル
-            </BigButton>
-            <BigButton type="submit" variant="primary" disabled={!form.formState.isValid}>
+            </Button>
+            <Button type="submit" variant="primary" disabled={!form.formState.isValid}>
               保存
-            </BigButton>
+            </Button>
           </div>
         </form>
       ) : (
@@ -110,16 +110,16 @@ export const SettingsTab = () => {
       )}
 
       <div className="border-t-2 border-line pt-4 space-y-3">
-        <BigButton variant="danger" onClick={() => setConfirmReset(true)}>
+        <Button variant="danger" onClick={() => setConfirmReset(true)}>
           試合結果を削除
-        </BigButton>
+        </Button>
         <p className="text-sm text-sub">大会・参加者は残し、試合の記録だけを削除します。</p>
       </div>
 
       <div className="border-t-2 border-line pt-4 space-y-3">
-        <BigButton variant="danger" onClick={() => setConfirmDelete(true)}>
+        <Button variant="danger" onClick={() => setConfirmDelete(true)}>
           大会を削除
-        </BigButton>
+        </Button>
         <p className="text-sm text-sub">大会・参加者・試合を全て削除します。</p>
       </div>
 

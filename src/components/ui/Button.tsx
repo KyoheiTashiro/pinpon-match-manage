@@ -28,7 +28,7 @@ const sizes: Record<Size, string> = {
   sm: "min-h-[44px] px-4 text-base",
 };
 
-export const BigButton = ({
+export const Button = ({
   variant = "primary",
   size = "md",
   className = "",

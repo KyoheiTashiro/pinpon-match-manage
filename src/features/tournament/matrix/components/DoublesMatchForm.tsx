@@ -1,7 +1,7 @@
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAppStore } from "@/store/useAppStore";
-import { BigButton } from "@/components/ui/BigButton";
+import { Button } from "@/components/ui/Button";
 import { PairSelect } from "@/features/tournament/matrix/components/PairSelect";
 import { Schema, type FormType, defaultValues } from "@/features/tournament/matrix/schema";
 import type { Participant } from "@/store/types";
@@ -96,9 +96,9 @@ export const DoublesMatchForm = ({ tournamentId, players, onAdded }: Props) => {
           />
         </div>
       </div>
-      <BigButton disabled={!pairForm.formState.isValid} onClick={submit}>
+      <Button disabled={!pairForm.formState.isValid} onClick={submit}>
         試合を追加して入力へ
-      </BigButton>
+      </Button>
     </div>
   );
 };

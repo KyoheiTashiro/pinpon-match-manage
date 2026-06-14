@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useParams } from "react-router-dom";
-import { BigButton } from "@/components/ui/BigButton";
+import { Button } from "@/components/ui/Button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { useParticipants } from "@/features/tournament/participants/hooks";
 import { Schema, type FormType, defaultValues } from "@/features/tournament/participants/schema";
@@ -58,9 +58,9 @@ const ParticipantsView = ({ tournamentId }: { tournamentId: string }) => {
           aria-label="参加者名"
           className="flex-1 min-w-[200px] min-h-input border-2 border-line rounded-xl px-3 text-lg"
         />
-        <BigButton type="submit" disabled={!addForm.formState.isValid}>
+        <Button type="submit" disabled={!addForm.formState.isValid}>
           追加
-        </BigButton>
+        </Button>
         {addForm.formState.errors.name && (
           <span className="basis-full text-sm text-danger">
             {addForm.formState.errors.name.message}
@@ -84,22 +84,22 @@ const ParticipantsView = ({ tournamentId }: { tournamentId: string }) => {
                     aria-label="参加者名を編集"
                     className="basis-full sm:basis-0 sm:flex-1 min-w-0 min-h-input border-2 border-line rounded-xl px-3 text-lg"
                   />
-                  <BigButton
+                  <Button
                     type="submit"
                     variant="primary"
                     size="sm"
                     disabled={!editForm.formState.isValid}
                   >
                     保存
-                  </BigButton>
-                  <BigButton
+                  </Button>
+                  <Button
                     type="button"
                     variant="secondary"
                     size="sm"
                     onClick={() => setEditingId(null)}
                   >
                     やめる
-                  </BigButton>
+                  </Button>
                   {editForm.formState.errors.name && (
                     <span className="basis-full text-sm text-danger">
                       {editForm.formState.errors.name.message}
@@ -111,20 +111,20 @@ const ParticipantsView = ({ tournamentId }: { tournamentId: string }) => {
                   <span className="flex-1 min-w-0 text-lg font-bold truncate">
                     {participant.name}
                   </span>
-                  <BigButton
+                  <Button
                     variant="secondary"
                     size="sm"
                     onClick={() => startEdit(participant.id, participant.name)}
                   >
                     編集
-                  </BigButton>
-                  <BigButton
+                  </Button>
+                  <Button
                     variant="danger"
                     size="sm"
                     onClick={() => setRemoveTarget(participant.id)}
                   >
                     削除
-                  </BigButton>
+                  </Button>
                 </>
               )}
             </li>

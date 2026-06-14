@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef } from "react";
-import { BigButton } from "@/components/ui/BigButton";
+import { Button } from "@/components/ui/Button";
 
 type Props = {
   open: boolean;
@@ -56,12 +56,12 @@ export const ConfirmDialog = ({
         </h2>
         <p className="text-base mb-6 leading-relaxed">{message}</p>
         <div className="flex gap-4 justify-end flex-wrap">
-          <BigButton ref={cancelRef} variant="secondary" onClick={onCancel}>
+          <Button ref={cancelRef} variant="secondary" onClick={onCancel}>
             {cancelLabel}
-          </BigButton>
-          <BigButton variant={destructive ? "danger" : "primary"} onClick={onConfirm}>
+          </Button>
+          <Button variant={destructive ? "danger" : "primary"} onClick={onConfirm}>
             {confirmLabel}
-          </BigButton>
+          </Button>
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, type ReactNode } from "react";
-import { BigButton } from "@/components/ui/BigButton";
+import { Button } from "@/components/ui/Button";
 
 type Props = {
   open: boolean;
@@ -43,9 +43,9 @@ export const InfoDialog = ({ open, title, onClose, closeLabel = "閉じる", chi
         </h2>
         {children}
         <div className="mt-6 flex justify-end">
-          <BigButton ref={closeRef} variant="primary" onClick={onClose}>
+          <Button ref={closeRef} variant="primary" onClick={onClose}>
             {closeLabel}
-          </BigButton>
+          </Button>
         </div>
       </div>
     </dialog>

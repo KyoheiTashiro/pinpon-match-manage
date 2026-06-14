@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { BigButton } from "@/components/ui/BigButton";
+import { Button } from "@/components/ui/Button";
 import { InfoDialog } from "@/components/ui/InfoDialog";
 import { DownloadIcon } from "@/components/icons";
 
@@ -57,10 +57,10 @@ export const InstallAppButton = () => {
 
   return (
     <>
-      <BigButton variant="secondary" onClick={handleClick}>
+      <Button variant="secondary" onClick={handleClick}>
         <DownloadIcon className="inline-block mr-2 align-[-0.125em]" />
         ホーム画面に追加
-      </BigButton>
+      </Button>
 
       <InfoDialog open={showGuide} title="ホーム画面に追加" onClose={() => setShowGuide(false)}>
         {isIOS() ? (

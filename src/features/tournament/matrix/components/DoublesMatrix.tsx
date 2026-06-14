@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BigButton } from "@/components/ui/BigButton";
+import { Button } from "@/components/ui/Button";
 import { DownloadIcon } from "@/components/icons";
 import { useImageCapture } from "@/lib/useImageCapture";
 import { matchSummary, winsNeededForBestOf, SIDE } from "@/domain/match";
@@ -76,12 +76,12 @@ export const DoublesMatrix = ({ tournamentId }: { tournamentId: string }) => {
       {players.length >= MIN_PLAYERS_DOUBLES && matchList.length > 0 && (
         <div className="space-y-2">
           <div className="text-base font-extrabold">画像で保存</div>
-          <BigButton onClick={save} disabled={saving}>
+          <Button onClick={save} disabled={saving}>
             <span className="inline-flex items-center justify-center gap-2">
               <DownloadIcon />
               {saving ? "保存中…" : "対戦表"}
             </span>
-          </BigButton>
+          </Button>
         </div>
       )}
 

@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
-import { BigButton } from "@/components/ui/BigButton";
+import { Button } from "@/components/ui/Button";
 import { SelectMenu } from "@/components/ui/SelectMenu";
 import { DownloadIcon } from "@/components/icons";
 import { useImageCapture } from "@/lib/useImageCapture";
@@ -126,18 +126,18 @@ const ResultView = ({ tournamentId }: { tournamentId: string }) => {
           {mode === "table" ? (
             <div className="space-y-2 sm:max-w-md">
               <div className="text-base font-extrabold">画像で保存</div>
-              <BigButton className="w-fit" onClick={() => main.save()} disabled={isSaving}>
+              <Button className="w-fit" onClick={() => main.save()} disabled={isSaving}>
                 <span className="inline-flex items-center justify-center gap-2">
                   <DownloadIcon />
                   {main.saving ? "保存中…" : "点数表"}
                 </span>
-              </BigButton>
+              </Button>
             </div>
           ) : (
             <div className="space-y-2 sm:max-w-md">
               <div className="text-base font-extrabold">画像で保存</div>
               <div className="flex flex-col gap-2 sm:flex-row">
-                <BigButton
+                <Button
                   className="w-fit"
                   onClick={() =>
                     selectedMatch &&
@@ -149,8 +149,8 @@ const ResultView = ({ tournamentId }: { tournamentId: string }) => {
                     <DownloadIcon />
                     {main.saving ? "保存中…" : "表示中の対戦"}
                   </span>
-                </BigButton>
-                <BigButton
+                </Button>
+                <Button
                   className="w-fit"
                   onClick={() => allMatches.save("全対戦")}
                   disabled={isSaving || graphMatches.length === 0}
@@ -159,7 +159,7 @@ const ResultView = ({ tournamentId }: { tournamentId: string }) => {
                     <DownloadIcon />
                     {allMatches.saving ? "保存中…" : "全ての対戦"}
                   </span>
-                </BigButton>
+                </Button>
               </div>
             </div>
           )}
