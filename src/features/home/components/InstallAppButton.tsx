@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
-import { InfoDialog } from "@/components/ui/InfoDialog";
+import { InfoModal } from "@/components/ui/InfoModal";
 import { DownloadIcon } from "@/components/icons";
 
 type BeforeInstallPromptEvent = Event & {
@@ -62,7 +62,7 @@ export const InstallAppButton = () => {
         ホーム画面に追加
       </Button>
 
-      <InfoDialog open={showGuide} title="ホーム画面に追加" onClose={() => setShowGuide(false)}>
+      <InfoModal open={showGuide} title="ホーム画面に追加" onClose={() => setShowGuide(false)}>
         {isIOS() ? (
           <ol className="text-base space-y-2 list-decimal list-inside leading-relaxed">
             <li>Safariで このページ を開く</li>
@@ -79,7 +79,7 @@ export const InstallAppButton = () => {
             <li>確認ダイアログで追加</li>
           </ol>
         )}
-      </InfoDialog>
+      </InfoModal>
     </>
   );
 };

@@ -9,7 +9,7 @@ type Props = {
   children: ReactNode;
 };
 
-export const InfoDialog = ({ open, title, onClose, closeLabel = "閉じる", children }: Props) => {
+export const InfoModal = ({ open, title, onClose, closeLabel = "閉じる", children }: Props) => {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const titleId = useId();

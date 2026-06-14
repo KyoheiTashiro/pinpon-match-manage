@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAppStore } from "@/store/useAppStore";
 import { Button } from "@/components/ui/Button";
 import { ChevronDownIcon } from "@/components/icons";
-import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { FontSizeToggle } from "@/components/ui/FontSizeToggle";
 import { InstallAppButton } from "@/features/home/components/InstallAppButton";
 import { formatDate } from "@/lib/time";
@@ -70,7 +70,7 @@ export const Home = () => {
         </div>
       </main>
 
-      <ConfirmDialog
+      <ConfirmModal
         open={confirmReset}
         title="全データ削除"
         message="全ての大会・参加者・対戦結果を削除します。取り消せません。本当に削除しますか?"

@@ -12,7 +12,7 @@ type Props = {
   onCancel: () => void;
 };
 
-export const ConfirmDialog = ({
+export const ConfirmModal = ({
   open,
   title,
   message,
@@ -22,35 +22,34 @@ export const ConfirmDialog = ({
   onConfirm,
   onCancel,
 }: Props) => {
+  const dialogRef = useRef<HTMLDialogElement>(null);
   const cancelRef = useRef<HTMLButtonElement>(null);
   const titleId = useId();
 
   useEffect(() => {
-    if (open) cancelRef.current?.focus();
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    if (open) {
+      dialog.showModal();
+      cancelRef.current?.focus();
+    } else if (dialog.open) {
+      dialog.close();
+    }
   }, [open]);
 
-  if (!open) return null;
   return (
-    <div
-      role="button"
-      tabIndex={-1}
-      aria-label="閉じる"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
-      onClick={onCancel}
-      onKeyDown={(event) => {
-        if (event.key === "Enter" || event.key === "Escape") onCancel();
+    // backdrop クリックで閉じる。Esc は onCancel で担保済み。
+    // oxlint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions
+    <dialog
+      ref={dialogRef}
+      aria-labelledby={titleId}
+      onCancel={onCancel}
+      onClick={(event) => {
+        if (event.target === dialogRef.current) onCancel();
       }}
+      className="m-auto max-w-md w-full bg-white text-ink rounded-2xl border-4 border-line backdrop:bg-black/40"
     >
-      {/* oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- role="dialog" はランドマークだがstopPropagationが必要 */}
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={titleId}
-        tabIndex={-1}
-        className="bg-white text-ink rounded-2xl p-6 max-w-md w-full border-4 border-line"
-        onClick={(event) => event.stopPropagation()}
-        onKeyDown={(event) => event.stopPropagation()}
-      >
+      <div className="p-6">
         <h2 id={titleId} className="text-xl font-extrabold mb-4">
           {title}
         </h2>
@@ -64,6 +63,6 @@ export const ConfirmDialog = ({
           </Button>
         </div>
       </div>
-    </div>
+    </dialog>
   );
 };

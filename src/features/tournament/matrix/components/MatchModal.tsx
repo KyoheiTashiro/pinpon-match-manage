@@ -13,7 +13,7 @@ import {
 import { useAppStore } from "@/store/useAppStore";
 import { Button } from "@/components/ui/Button";
 import { ChevronDownIcon } from "@/components/icons";
-import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { ScoreboardScreen } from "@/features/tournament/matrix/components/ScoreboardScreen";
 
 type Props = {
@@ -200,7 +200,7 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
         />
       )}
 
-      <ConfirmDialog
+      <ConfirmModal
         open={confirmDelete}
         title="試合結果を削除"
         message="この試合結果を削除します。取り消せません。"

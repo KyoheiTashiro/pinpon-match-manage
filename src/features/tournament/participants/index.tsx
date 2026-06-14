@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/Button";
-import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { useParticipants } from "@/features/tournament/participants/hooks";
 import { Schema, type FormType, defaultValues } from "@/features/tournament/participants/schema";
 
@@ -132,7 +132,7 @@ const ParticipantsView = ({ tournamentId }: { tournamentId: string }) => {
         </ul>
       )}
 
-      <ConfirmDialog
+      <ConfirmModal
         open={!!removeTarget}
         title="参加者を削除"
         message="この参加者と関連する試合を削除します。よろしいですか?"

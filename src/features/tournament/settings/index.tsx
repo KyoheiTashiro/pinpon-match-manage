@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useAppStore } from "@/store/useAppStore";
 import { CalendarIcon } from "@/components/icons";
 import { Button } from "@/components/ui/Button";
-import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { formatDate } from "@/lib/time";
 import { Schema, type FormType, defaultValues } from "@/features/tournament/settings/schema";
 import { FORMAT } from "@/store/types";
@@ -123,7 +123,7 @@ export const SettingsTab = () => {
         <p className="text-sm text-sub">大会・参加者・試合を全て削除します。</p>
       </div>
 
-      <ConfirmDialog
+      <ConfirmModal
         open={confirmReset}
         title="試合結果を削除"
         message="この大会の試合記録を全て削除します。参加者は残ります。"
@@ -137,7 +137,7 @@ export const SettingsTab = () => {
         onCancel={() => setConfirmReset(false)}
       />
 
-      <ConfirmDialog
+      <ConfirmModal
         open={confirmDelete}
         title="大会を削除"
         message="大会・参加者・試合を全て削除します。取り消せません。"
