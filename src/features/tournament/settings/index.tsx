@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAppStore } from "@/store/useAppStore";
+import { CalendarIcon } from "@/components/icons";
 import { BigButton } from "@/components/ui/BigButton";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { formatDate } from "@/lib/time";
@@ -68,12 +69,16 @@ export const SettingsTab = () => {
           </label>
           <label className="flex flex-col gap-1">
             <span className="font-bold">開催日</span>
-            <input
-              type="date"
-              {...form.register("date")}
-              aria-label="開催日"
-              className="min-h-input border-2 border-line rounded-xl px-3 text-lg"
-            />
+            <div className="relative">
+              <input
+                type="date"
+                {...form.register("date")}
+                aria-label="開催日"
+                onClick={(e) => e.currentTarget.showPicker?.()}
+                className="w-full min-h-input appearance-none bg-white border-2 border-line rounded-xl pl-3 pr-12 text-lg [&::-webkit-calendar-picker-indicator]:opacity-0"
+              />
+              <CalendarIcon className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-2xl text-line" />
+            </div>
           </label>
           <div className="flex gap-3 justify-end flex-wrap">
             <BigButton type="button" variant="secondary" onClick={() => setEditing(false)}>
