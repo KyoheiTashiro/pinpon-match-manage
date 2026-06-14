@@ -4,7 +4,7 @@ import { DownloadIcon } from "@/components/icons";
 import { useImageCapture } from "@/lib/useImageCapture";
 import { matchSummary, winsNeededForBestOf, SIDE } from "@/domain/match";
 import { MatchModal } from "@/features/tournament/matrix/components/MatchModal";
-import { DoublesMatchForm } from "@/features/tournament/matrix/components/DoublesMatchForm";
+import { DoublesMatchForm } from "@/features/tournament/matrix/components/doubles/DoublesMatchForm";
 import { sideMembers, useMatrix, MIN_PLAYERS_DOUBLES } from "@/features/tournament/matrix/hooks";
 
 export const DoublesMatrix = ({ tournamentId }: { tournamentId: string }) => {

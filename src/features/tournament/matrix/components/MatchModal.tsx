@@ -14,7 +14,7 @@ import { useAppStore } from "@/store/useAppStore";
 import { Button } from "@/components/ui/Button";
 import { ChevronDownIcon } from "@/components/icons";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
-import { ScoreboardScreen } from "@/features/tournament/matrix/components/ScoreboardScreen";
+import { ScoreboardScreen } from "@/features/tournament/matrix/components/scoreboard/ScoreboardScreen";
 
 type Props = {
   matchId: string;

@@ -130,8 +130,9 @@ export const ScoreboardScreen = ({
   const canSubRight = rawLastScorer === toActual(SIDE.RIGHT);
 
   return createPortal(
-    // oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- role="dialog" はランドマークだがstopPropagationが必要
+    // oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- フルスクリーンoverlay。stopPropagation必要
     <div
+      // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- ネイティブ<dialog>は不使用
       role="dialog"
       aria-modal="true"
       tabIndex={-1}

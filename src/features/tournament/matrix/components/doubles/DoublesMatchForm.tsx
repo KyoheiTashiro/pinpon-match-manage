@@ -2,7 +2,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAppStore } from "@/store/useAppStore";
 import { Button } from "@/components/ui/Button";
-import { PairSelect } from "@/features/tournament/matrix/components/PairSelect";
+import { PairSelect } from "@/features/tournament/matrix/components/doubles/PairSelect";
 import { Schema, type FormType, defaultValues } from "@/features/tournament/matrix/schema";
 import type { Participant } from "@/store/types";
 import { SIDE_KIND } from "@/store/types";
