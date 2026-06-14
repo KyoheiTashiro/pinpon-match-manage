@@ -11,7 +11,7 @@ type Props = {
   onCancel: () => void;
 };
 
-export const CreateTournamentForm = ({ form, submit, onCancel }: Props) => (
+export const CreateTournament = ({ form, submit, onCancel }: Props) => (
   <form onSubmit={submit} className="border-4 border-primary rounded-2xl p-4 space-y-4">
     <h2 className="text-xl font-extrabold">新しい大会</h2>
     <label className="flex flex-col gap-1">

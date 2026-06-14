@@ -5,10 +5,10 @@ import { BigButton } from "@/components/ui/BigButton";
 import { ChevronDownIcon } from "@/components/icons";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { FontSizeToggle } from "@/components/ui/FontSizeToggle";
-import { InstallAppButton } from "@/features/home/InstallAppButton";
+import { InstallAppButton } from "@/features/home/components/InstallAppButton";
 import { formatDate } from "@/lib/time";
 import { useHome } from "@/features/home/hooks";
-import { CreateTournamentForm } from "@/features/home/CreateTournamentForm";
+import { CreateTournament } from "@/features/home/components/CreateTournament";
 import { tournamentPath } from "@/constants/routes";
 
 export const Home = () => {
@@ -30,7 +30,7 @@ export const Home = () => {
 
       <main className="max-w-3xl mx-auto p-4 space-y-6">
         {creating ? (
-          <CreateTournamentForm form={form} submit={submit} onCancel={closeForm} />
+          <CreateTournament form={form} submit={submit} onCancel={closeForm} />
         ) : (
           <BigButton variant="primary" onClick={() => setCreating(true)}>
             ＋ 新しい大会を作る

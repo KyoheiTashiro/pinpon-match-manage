@@ -5,8 +5,8 @@ import { SelectMenu } from "@/components/ui/SelectMenu";
 import { DownloadIcon } from "@/components/icons";
 import { useImageCapture } from "@/lib/useImageCapture";
 import { useResultRows } from "@/features/tournament/result/hooks";
-import { MatchGraphBlock } from "@/features/tournament/result/components";
-import { TableMode } from "@/features/tournament/result/TableMode";
+import { MatchGraphBlock } from "@/features/tournament/result/components/MatchGraphBlock";
+import { TableMode } from "@/features/tournament/result/components/TableMode";
 
 export const ResultTab = () => {
   const { tournamentId } = useParams<{ tournamentId: string }>();
