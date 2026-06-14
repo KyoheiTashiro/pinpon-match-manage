@@ -124,9 +124,9 @@ const ResultView = ({ tournamentId }: { tournamentId: string }) => {
 
           {/* 保存ボタン（画像対象外） */}
           {mode === "table" ? (
-            <div className="space-y-2">
+            <div className="space-y-2 sm:max-w-md">
               <div className="text-base font-extrabold">画像で保存</div>
-              <BigButton onClick={() => main.save()} disabled={isSaving}>
+              <BigButton className="w-fit" onClick={() => main.save()} disabled={isSaving}>
                 <span className="inline-flex items-center justify-center gap-2">
                   <DownloadIcon />
                   {main.saving ? "保存中…" : "点数表"}
@@ -134,10 +134,11 @@ const ResultView = ({ tournamentId }: { tournamentId: string }) => {
               </BigButton>
             </div>
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-2 sm:max-w-md">
               <div className="text-base font-extrabold">画像で保存</div>
               <div className="flex flex-col gap-2 sm:flex-row">
                 <BigButton
+                  className="w-fit"
                   onClick={() =>
                     selectedMatch &&
                     main.save(`${selectedMatch.leftName} vs ${selectedMatch.rightName}`)
@@ -150,6 +151,7 @@ const ResultView = ({ tournamentId }: { tournamentId: string }) => {
                   </span>
                 </BigButton>
                 <BigButton
+                  className="w-fit"
                   onClick={() => allMatches.save("全対戦")}
                   disabled={isSaving || graphMatches.length === 0}
                 >
@@ -174,10 +176,15 @@ const ResultView = ({ tournamentId }: { tournamentId: string }) => {
                   <div className="text-xl font-extrabold">{tournament.name}</div>
                   <div className="text-sm text-sub">{tournament.date}</div>
                 </div>
-                {/* 全対戦を縦積み */}
-                <div className="space-y-6">
+                {/* 全対戦を縦積み（対戦ごとに区切り線） */}
+                <div>
                   {graphMatches.map((match) => (
-                    <MatchGraphBlock key={match.id} match={match} />
+                    <div
+                      key={match.id}
+                      className="pt-6 mt-6 border-t-2 border-line first:pt-0 first:mt-0 first:border-t-0"
+                    >
+                      <MatchGraphBlock match={match} />
+                    </div>
                   ))}
                 </div>
               </div>

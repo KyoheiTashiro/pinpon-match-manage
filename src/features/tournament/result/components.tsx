@@ -11,11 +11,11 @@ export const MatchGraphBlock = ({ match }: MatchGraphBlockProps) => {
   return (
     <div className="pt-2">
       <div className="text-base mb-1">
-        <span className={match.winner === "L" ? "font-extrabold" : "text-sub"}>
+        <span className={`text-xl ${match.winner === "L" ? "font-extrabold" : "text-sub"}`}>
           {match.leftName}
         </span>
         <span className="text-sub"> vs </span>
-        <span className={match.winner === "R" ? "font-extrabold" : "text-sub"}>
+        <span className={`text-xl ${match.winner === "R" ? "font-extrabold" : "text-sub"}`}>
           {match.rightName}
         </span>
       </div>

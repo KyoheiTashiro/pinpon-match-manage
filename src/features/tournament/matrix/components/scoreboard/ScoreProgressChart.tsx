@@ -93,8 +93,8 @@ export const ScoreProgressChart = ({ games, leftName, rightName, matchFirstServe
   if (chartGames.length === 0) return null;
 
   return (
-    <div className="w-full mt-6 px-2">
-      <div className="flex flex-col gap-8">
+    <div className="w-full mt-2 px-2">
+      <div className="flex flex-col gap-2">
         {chartGames.map(({ game, realIndex, gameNumber }) => {
           const points = gameProgress(game.pointLog!, gameFirstServer(matchFirstServer, realIndex));
           const columnCount = points.length;
