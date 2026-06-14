@@ -73,11 +73,14 @@ const ParticipantsView = ({ tournamentId }: { tournamentId: string }) => {
                 {index + 1}
               </span>
               {editingId === participant.id ? (
-                <form onSubmit={submitEdit} className="flex-1 min-w-0 flex items-center gap-2">
+                <form
+                  onSubmit={submitEdit}
+                  className="flex-1 min-w-0 flex flex-wrap items-center gap-2"
+                >
                   <input
                     {...editForm.register("name")}
                     aria-label="参加者名を編集"
-                    className="flex-1 min-w-0 min-h-input border-2 border-line rounded-xl px-3 text-lg"
+                    className="basis-full sm:basis-0 sm:flex-1 min-w-0 min-h-input border-2 border-line rounded-xl px-3 text-lg"
                   />
                   <BigButton
                     type="submit"

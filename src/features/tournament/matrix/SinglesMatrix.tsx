@@ -114,7 +114,7 @@ export const SinglesMatrix = ({ tournamentId }: { tournamentId: string }) => {
                     {players.map((player) => (
                       <th
                         key={player.id}
-                        className="border-2 border-line p-2 text-base font-bold min-w-cell"
+                        className="border-2 border-line p-2 text-base font-bold min-w-cell whitespace-nowrap"
                       >
                         {player.name}
                       </th>
