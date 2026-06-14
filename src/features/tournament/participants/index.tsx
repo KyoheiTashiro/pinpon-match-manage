@@ -1,11 +1,7 @@
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/Button";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { useParticipants } from "@/features/tournament/participants/hooks";
-import { Schema, type FormType, defaultValues } from "@/features/tournament/participants/schema";
 
 export const ParticipantsTab = () => {
   const { tournamentId } = useParams<{ tournamentId: string }>();
@@ -14,38 +10,20 @@ export const ParticipantsTab = () => {
 };
 
 const ParticipantsView = ({ tournamentId }: { tournamentId: string }) => {
-  const { list, add, rename, remove } = useParticipants(tournamentId);
-
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [removeTarget, setRemoveTarget] = useState<string | null>(null);
-
-  const addForm = useForm<FormType>({
-    resolver: zodResolver(Schema),
-    mode: "onChange",
-    defaultValues,
-  });
-
-  const editForm = useForm<FormType>({
-    resolver: zodResolver(Schema),
-    mode: "onChange",
-    defaultValues,
-  });
-
-  const addSubmit = addForm.handleSubmit((data) => {
-    add(data.name);
-    addForm.reset();
-  });
-
-  const startEdit = (id: string, currentName: string) => {
-    setEditingId(id);
-    editForm.reset({ name: currentName });
-    void editForm.trigger();
-  };
-
-  const submitEdit = editForm.handleSubmit((data) => {
-    if (editingId) rename(editingId, data.name);
-    setEditingId(null);
-  });
+  const {
+    list,
+    addForm,
+    addSubmit,
+    editingId,
+    startEdit,
+    cancelEdit,
+    editForm,
+    submitEdit,
+    removeTarget,
+    askRemove,
+    doRemove,
+    cancelRemove,
+  } = useParticipants(tournamentId);
 
   return (
     <div className="space-y-4">
@@ -92,12 +70,7 @@ const ParticipantsView = ({ tournamentId }: { tournamentId: string }) => {
                   >
                     保存
                   </Button>
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => setEditingId(null)}
-                  >
+                  <Button type="button" variant="secondary" size="sm" onClick={cancelEdit}>
                     やめる
                   </Button>
                   {editForm.formState.errors.name && (
@@ -118,11 +91,7 @@ const ParticipantsView = ({ tournamentId }: { tournamentId: string }) => {
                   >
                     編集
                   </Button>
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    onClick={() => setRemoveTarget(participant.id)}
-                  >
+                  <Button variant="danger" size="sm" onClick={() => askRemove(participant.id)}>
                     削除
                   </Button>
                 </>
@@ -139,11 +108,8 @@ const ParticipantsView = ({ tournamentId }: { tournamentId: string }) => {
         confirmLabel="削除する"
         cancelLabel="やめる"
         destructive
-        onConfirm={() => {
-          if (removeTarget) remove(removeTarget);
-          setRemoveTarget(null);
-        }}
-        onCancel={() => setRemoveTarget(null)}
+        onConfirm={doRemove}
+        onCancel={cancelRemove}
       />
     </div>
   );

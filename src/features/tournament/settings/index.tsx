@@ -1,48 +1,38 @@
-import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useAppStore } from "@/store/useAppStore";
 import { CalendarIcon } from "@/components/icons";
 import { Button } from "@/components/ui/Button";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { formatDate } from "@/lib/time";
-import { Schema, type FormType, defaultValues } from "@/features/tournament/settings/schema";
 import { FORMAT } from "@/store/types";
 import { ROUTES } from "@/constants/routes";
+import { useSettings } from "@/features/tournament/settings/hooks";
 
 export const SettingsTab = () => {
   const { tournamentId } = useParams<{ tournamentId: string }>();
+  if (!tournamentId) return null;
+  return <SettingsView tournamentId={tournamentId} />;
+};
+
+const SettingsView = ({ tournamentId }: { tournamentId: string }) => {
   const navigate = useNavigate();
-  const tournament = useAppStore((state) =>
-    tournamentId ? state.tournaments[tournamentId] : undefined,
-  );
-  const updateTournament = useAppStore((state) => state.updateTournament);
-  const resetTournament = useAppStore((state) => state.resetTournament);
-  const deleteTournament = useAppStore((state) => state.deleteTournament);
+  const {
+    tournament,
+    form,
+    editing,
+    startEdit,
+    cancelEdit,
+    saveEdit,
+    confirmReset,
+    askReset,
+    doReset,
+    cancelReset,
+    confirmDelete,
+    askDelete,
+    doDelete,
+    cancelDelete,
+  } = useSettings(tournamentId, () => navigate(ROUTES.HOME));
 
-  const [editing, setEditing] = useState(false);
-  const [confirmReset, setConfirmReset] = useState(false);
-  const [confirmDelete, setConfirmDelete] = useState(false);
-
-  const form = useForm<FormType>({
-    resolver: zodResolver(Schema),
-    mode: "onChange",
-    defaultValues,
-  });
-
-  if (!tournament || !tournamentId) return null;
-
-  const startEdit = () => {
-    form.reset({ name: tournament.name, date: tournament.date });
-    void form.trigger(); // プリフィル値で isValid を即時確定（保存ボタンの初期 disabled 回避）
-    setEditing(true);
-  };
-
-  const saveEdit = form.handleSubmit((data) => {
-    updateTournament(tournamentId, { name: data.name, date: data.date });
-    setEditing(false);
-  });
+  if (!tournament) return null;
 
   return (
     <div className="space-y-4">
@@ -86,7 +76,7 @@ export const SettingsTab = () => {
             )}
           </label>
           <div className="flex gap-3 justify-end flex-wrap">
-            <Button type="button" variant="secondary" onClick={() => setEditing(false)}>
+            <Button type="button" variant="secondary" onClick={cancelEdit}>
               キャンセル
             </Button>
             <Button type="submit" variant="primary" disabled={!form.formState.isValid}>
@@ -110,14 +100,14 @@ export const SettingsTab = () => {
       )}
 
       <div className="border-t-2 border-line pt-4 space-y-3">
-        <Button variant="danger" onClick={() => setConfirmReset(true)}>
+        <Button variant="danger" onClick={askReset}>
           試合結果を削除
         </Button>
         <p className="text-sm text-sub">大会・参加者は残し、試合の記録だけを削除します。</p>
       </div>
 
       <div className="border-t-2 border-line pt-4 space-y-3">
-        <Button variant="danger" onClick={() => setConfirmDelete(true)}>
+        <Button variant="danger" onClick={askDelete}>
           大会を削除
         </Button>
         <p className="text-sm text-sub">大会・参加者・試合を全て削除します。</p>
@@ -130,11 +120,8 @@ export const SettingsTab = () => {
         confirmLabel="削除する"
         cancelLabel="やめる"
         destructive
-        onConfirm={() => {
-          resetTournament(tournamentId);
-          setConfirmReset(false);
-        }}
-        onCancel={() => setConfirmReset(false)}
+        onConfirm={doReset}
+        onCancel={cancelReset}
       />
 
       <ConfirmModal
@@ -144,12 +131,8 @@ export const SettingsTab = () => {
         confirmLabel="削除する"
         cancelLabel="やめる"
         destructive
-        onConfirm={() => {
-          deleteTournament(tournamentId);
-          setConfirmDelete(false);
-          navigate(ROUTES.HOME);
-        }}
-        onCancel={() => setConfirmDelete(false)}
+        onConfirm={doDelete}
+        onCancel={cancelDelete}
       />
     </div>
   );

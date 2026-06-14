@@ -7,6 +7,7 @@ import { Schema, type FormType, defaultValues } from "@/features/home/schema";
 export const useHome = (onCreated: (id: string) => void) => {
   const tournaments = useAppStore((state) => state.tournaments);
   const createTournament = useAppStore((state) => state.createTournament);
+  const resetAll = useAppStore((state) => state.resetAll);
 
   const list = Object.values(tournaments).sort(
     (tournamentA, tournamentB) =>
@@ -15,6 +16,7 @@ export const useHome = (onCreated: (id: string) => void) => {
   );
 
   const [creating, setCreating] = useState(false);
+  const [confirmReset, setConfirmReset] = useState(false);
 
   const formMethods = useForm<FormType>({
     resolver: zodResolver(Schema),
@@ -34,5 +36,23 @@ export const useHome = (onCreated: (id: string) => void) => {
     setCreating(false);
   };
 
-  return { list, creating, setCreating, closeForm, form: formMethods, submit };
+  const askReset = () => setConfirmReset(true);
+  const doReset = () => {
+    resetAll();
+    setConfirmReset(false);
+  };
+  const cancelReset = () => setConfirmReset(false);
+
+  return {
+    list,
+    creating,
+    setCreating,
+    closeForm,
+    form: formMethods,
+    submit,
+    confirmReset,
+    askReset,
+    doReset,
+    cancelReset,
+  };
 };

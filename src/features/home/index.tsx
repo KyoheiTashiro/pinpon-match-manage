@@ -1,6 +1,4 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAppStore } from "@/store/useAppStore";
 import { Button } from "@/components/ui/Button";
 import { ChevronDownIcon } from "@/components/icons";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
@@ -13,13 +11,19 @@ import { tournamentPath } from "@/constants/routes";
 
 export const Home = () => {
   const navigate = useNavigate();
-  const resetAll = useAppStore((state) => state.resetAll);
 
-  const { list, creating, setCreating, closeForm, form, submit } = useHome((id) =>
-    navigate(tournamentPath(id)),
-  );
-
-  const [confirmReset, setConfirmReset] = useState(false);
+  const {
+    list,
+    creating,
+    setCreating,
+    closeForm,
+    form,
+    submit,
+    confirmReset,
+    askReset,
+    doReset,
+    cancelReset,
+  } = useHome((id) => navigate(tournamentPath(id)));
 
   return (
     <div className="min-h-screen bg-white text-ink">
@@ -64,7 +68,7 @@ export const Home = () => {
 
         <div className="pt-6 border-t-2 border-line flex flex-col items-start gap-3 sm:flex-row">
           <InstallAppButton />
-          <Button variant="danger" onClick={() => setConfirmReset(true)}>
+          <Button variant="danger" onClick={askReset}>
             全てのデータを消す
           </Button>
         </div>
@@ -77,11 +81,8 @@ export const Home = () => {
         confirmLabel="全て消す"
         cancelLabel="やめる"
         destructive
-        onConfirm={() => {
-          resetAll();
-          setConfirmReset(false);
-        }}
-        onCancel={() => setConfirmReset(false)}
+        onConfirm={doReset}
+        onCancel={cancelReset}
       />
     </div>
   );

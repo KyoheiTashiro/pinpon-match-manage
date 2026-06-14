@@ -53,3 +53,6 @@ export const useMatrix = (tournamentId: string) => {
     singlesCellMatch,
   };
 };
+
+export const useTournamentFormat = (tournamentId: string) =>
+  useAppStore((state) => state.tournaments[tournamentId]?.format);

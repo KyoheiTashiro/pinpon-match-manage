@@ -1,10 +1,8 @@
-import { useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Select";
 import { DownloadIcon } from "@/components/icons";
-import { useImageCapture } from "@/lib/useImageCapture";
-import { useResultRows } from "@/features/tournament/result/hooks";
+import { useResult } from "@/features/tournament/result/hooks";
 import { MatchGraphBlock } from "@/features/tournament/result/components/MatchGraphBlock";
 import { TableMode } from "@/features/tournament/result/components/TableMode";
 
@@ -14,43 +12,24 @@ export const ResultTab = () => {
   return <ResultView tournamentId={tournamentId} />;
 };
 
-type DisplayMode = "table" | "graph";
-
 const ResultView = ({ tournamentId }: { tournamentId: string }) => {
-  const { rows, matchResults, tournament } = useResultRows(tournamentId);
-  // 表示中コンテナ（table全体 or 選択中1対戦）用
-  const main = useImageCapture("結果", tournament?.name);
-  // off-screen 全対戦版用
-  const allMatches = useImageCapture("結果", tournament?.name);
-  const [mode, setMode] = useState<DisplayMode>("table");
-
-  // ログのある対戦のみ選択肢に出す
-  const graphMatches = useMemo(
-    () =>
-      matchResults.filter((match) =>
-        match.games.some((game) => game.pointLog && game.pointLog.length > 0),
-      ),
-    [matchResults],
-  );
-
-  const graphOptions = useMemo(
-    () => graphMatches.map((m) => ({ value: m.id, label: `${m.leftName} vs ${m.rightName}` })),
-    [graphMatches],
-  );
-
-  const [selectedMatchId, setSelectedMatchId] = useState<string | null>(null);
-
-  // 初期選択: graphMatches が変わったときに未選択 or 消えた id をリセット
-  const resolvedSelectedId =
-    selectedMatchId !== null && graphMatches.some((m) => m.id === selectedMatchId)
-      ? selectedMatchId
-      : (graphMatches[0]?.id ?? null);
-
-  const selectedMatch = graphMatches.find((m) => m.id === resolvedSelectedId) ?? null;
+  const {
+    tournament,
+    rows,
+    matchResults,
+    main,
+    allMatches,
+    mode,
+    setMode,
+    graphMatches,
+    graphOptions,
+    setSelectedMatchId,
+    resolvedSelectedId,
+    selectedMatch,
+    isSaving,
+  } = useResult(tournamentId);
 
   if (!tournament) return null;
-
-  const isSaving = main.saving || allMatches.saving;
 
   return (
     <div className="space-y-4">

@@ -1,18 +1,19 @@
 import { useParams } from "react-router-dom";
-import { useAppStore } from "@/store/useAppStore";
 import { SinglesMatrix } from "@/features/tournament/matrix/components/SinglesMatrix";
 import { DoublesMatrix } from "@/features/tournament/matrix/components/DoublesMatrix";
 import { FORMAT } from "@/store/types";
+import { useTournamentFormat } from "@/features/tournament/matrix/hooks";
 
 export const MatchMatrixTab = () => {
   const { tournamentId } = useParams<{ tournamentId: string }>();
-  const tournament = useAppStore((state) =>
-    tournamentId ? state.tournaments[tournamentId] : undefined,
-  );
+  if (!tournamentId) return null;
+  return <MatchMatrixView tournamentId={tournamentId} />;
+};
 
-  if (!tournament || !tournamentId) return null;
-
-  return tournament.format === FORMAT.SINGLES ? (
+const MatchMatrixView = ({ tournamentId }: { tournamentId: string }) => {
+  const format = useTournamentFormat(tournamentId);
+  if (!format) return null;
+  return format === FORMAT.SINGLES ? (
     <SinglesMatrix tournamentId={tournamentId} />
   ) : (
     <DoublesMatrix tournamentId={tournamentId} />
