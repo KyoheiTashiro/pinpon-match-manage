@@ -1,5 +1,7 @@
 import type { Game } from "@/domain/match";
 import { isGameFinished } from "@/domain/match";
+import { ChevronDownIcon } from "@/components/icons";
+import { BigButton } from "@/components/ui/BigButton";
 
 type Props = {
   games: Game[];
@@ -32,14 +34,16 @@ export const ScoreboardHeader = ({
 }: Props) => {
   return (
     <div className="flex items-center justify-between px-3 py-2 border-b border-white/20 shrink-0">
-      <button
+      <BigButton
         type="button"
+        variant="outlineWhite"
+        size="sm"
         onClick={onBack}
         aria-label="戻る"
-        className="px-4 py-2 text-base font-extrabold rounded-lg border-2 border-white/60 hover:bg-white/10 active:scale-95 transition"
+        className="inline-flex items-center gap-1"
       >
-        ← 戻る
-      </button>
+        <ChevronDownIcon className="rotate-90" /> 戻る
+      </BigButton>
       <div className="flex gap-1 flex-wrap justify-center">
         {!showResult &&
           games.map((game, index) => {

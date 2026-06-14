@@ -2,7 +2,8 @@ import { NavLink, Outlet, useNavigate, useParams } from "react-router-dom";
 import type { ComponentType, SVGProps } from "react";
 import { useEffect } from "react";
 import { useAppStore } from "@/store/useAppStore";
-import { UsersIcon, PaddleIcon, TrophyIcon, GearIcon } from "@/components/icons";
+import { UsersIcon, PaddleIcon, TrophyIcon, GearIcon, ChevronDownIcon } from "@/components/icons";
+import { BigButton } from "@/components/ui/BigButton";
 
 type Tab = {
   to: string;
@@ -43,13 +44,15 @@ export const TournamentLayout = () => {
   return (
     <div className="min-h-screen bg-white text-ink pb-24">
       <header className="bg-primary text-white p-4 flex items-center gap-3 flex-wrap">
-        <button
+        <BigButton
+          variant="white"
+          size="sm"
           onClick={() => navigate("/")}
-          className="min-h-btn px-4 rounded-xl bg-white text-primary font-bold border-2 border-white"
+          className="inline-flex items-center gap-1"
           aria-label="大会一覧へ戻る"
         >
-          ← 戻る
-        </button>
+          <ChevronDownIcon className="rotate-90" /> 戻る
+        </BigButton>
         <div className="flex-1 min-w-0">
           <div className="text-xl font-extrabold truncate">{tournament.name}</div>
           <div className="text-sm">
