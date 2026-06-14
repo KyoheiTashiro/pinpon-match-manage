@@ -82,7 +82,7 @@ src/
 
 ## 補足
 
-- ルーターは `main.tsx` の `HashRouter`。ルート定義は `App.tsx`（`/` 大会一覧、`/t/:tournamentId` 配下に participants / matrix / result / settings タブ）。
+- ルーターは `main.tsx` の `HashRouter`。ルート定義は `App.tsx`（`/` 大会一覧、`/tournaments/:tournamentId` 配下に participants / matrix / result / settings タブ）。
 - `features/tournament/result/` は App.tsx のルート `result`（「結果」タブ）に対応。点数表・グラフのサブタブを内包する。
 - `domain/scoreProgress.ts` は点数進行グラフ用の純粋関数を提供（[features/result-graph.md](../features/result-graph.md) 参照）。
 - `scoreboard/ScoreProgressChart.tsx` は SVG ベースのグラフコンポーネント（結果タブのグラフモード・スコアボードで使用）。

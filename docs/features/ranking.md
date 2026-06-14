@@ -1,6 +1,6 @@
 親: [README.md](../README.md) / 関連: [result-graph.md](./result-graph.md)
 
-ルート: 結果タブ (`/#/t/:id/result`・HashRouter) — 大会参加者の勝敗集計・順位・対戦結果を表示する画面。
+ルート: 結果タブ (`/#/tournaments/:id/result`・HashRouter) — 大会参加者の勝敗集計・順位・対戦結果を表示する画面。
 
 実装: `src/features/tournament/result/`（`index.tsx`, `hooks.ts`, `TableMode.tsx`, `components.tsx`）
 

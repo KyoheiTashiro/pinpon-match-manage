@@ -17,7 +17,7 @@ export type TabPath = (typeof TAB_PATH)[keyof typeof TAB_PATH];
 /** ルートパス定義。 */
 export const ROUTES = {
   HOME: "/",
-  TOURNAMENT: `/t/:${ROUTE_PARAM.TOURNAMENT_ID}`,
+  TOURNAMENT: `/tournaments/:${ROUTE_PARAM.TOURNAMENT_ID}`,
   NOT_FOUND: "*",
 } as const;
 
@@ -25,4 +25,4 @@ export const ROUTES = {
 export const tournamentPath = (
   tournamentId: string,
   tab: TabPath = TAB_PATH.PARTICIPANTS,
-): string => `/t/${tournamentId}/${tab}`;
+): string => `/tournaments/${tournamentId}/${tab}`;

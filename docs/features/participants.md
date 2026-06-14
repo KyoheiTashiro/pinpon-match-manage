@@ -1,11 +1,11 @@
 親: [README.md](../README.md)
 
-ルート: `/#/t/:tournamentId/participants`（HashRouter・参加者タブ）— 大会に参加する選手の登録・編集・削除を行う画面。
+ルート: `/#/tournaments/:tournamentId/participants`（HashRouter・参加者タブ）— 大会に参加する選手の登録・編集・削除を行う画面。
 
 ## 画面構成
 
 大会レイアウト（`TournamentLayout`）内のタブとして表示される。
-`/#/t/:tournamentId` にアクセスすると `/#/t/:tournamentId/participants` へ自動リダイレクトされる（`App.tsx` の index ルートが `participants` へ `Navigate`）。
+`/#/tournaments/:tournamentId` にアクセスすると `/#/tournaments/:tournamentId/participants` へ自動リダイレクトされる（`App.tsx` の index ルートが `participants` へ `Navigate`）。
 
 ---
 

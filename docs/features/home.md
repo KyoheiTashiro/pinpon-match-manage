@@ -46,7 +46,7 @@
 
 #### 作成後の挙動
 
-大会が作成されると `/t/:id/participants` へ自動遷移する（`navigate` で push）。
+大会が作成されると `/tournaments/:id/participants` へ自動遷移する（`navigate` で push）。
 
 ---
 
@@ -54,7 +54,7 @@
 
 - `tournaments` ストアの全大会を一覧表示。
 - 大会が0件の場合は「まだ大会がありません。上のボタンから作成してください。」を表示。
-- 各行に大会名と開催日（`YYYY年M月D日` 形式・JST）を表示し、行全体がボタンになっており押すと `/t/:id/participants` へ遷移する。
+- 各行に大会名と開催日（`YYYY年M月D日` 形式・JST）を表示し、行全体がボタンになっており押すと `/tournaments/:id/participants` へ遷移する。
 - 参加者数は表示しない。
 
 #### ソート仕様

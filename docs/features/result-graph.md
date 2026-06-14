@@ -55,7 +55,7 @@ export const gameProgress = (pointLog: Side[], firstServerOfGame: Side): Progres
 
 ## 3. 配置とデータフロー
 
-**配置先**: 結果タブ（`/#/t/:id/result`）の**グラフモード**。
+**配置先**: 結果タブ（`/#/tournaments/:id/result`）の**グラフモード**。
 
 - `src/features/tournament/result/index.tsx`（`ResultView`）が `useResultRows` から `matchResults` を取得し、`game.pointLog && game.pointLog.length > 0` を持つゲームが1件以上ある試合のみ `graphMatches` としてフィルタリングする。
 - セレクトメニューで1対戦を選択し、`MatchGraphBlock`（`components.tsx`）を表示する。

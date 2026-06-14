@@ -1,6 +1,6 @@
 親: [README.md](../README.md)
 
-ルート: 設定タブ (`/#/t/:id/settings`・HashRouter) — 大会情報の編集・試合結果の削除・大会の削除を行う画面。
+ルート: 設定タブ (`/#/tournaments/:id/settings`・HashRouter) — 大会情報の編集・試合結果の削除・大会の削除を行う画面。
 
 実装: `src/features/tournament/settings/index.tsx`（`SettingsTab`）、`src/features/tournament/settings/schema.ts`
 
