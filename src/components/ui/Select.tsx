@@ -8,7 +8,7 @@ export type SelectOption<T extends string | number> = {
   label: string;
 };
 
-type SelectMenuProps<T extends string | number> = {
+type Props<T extends string | number> = {
   options: SelectOption<T>[];
   value: T | null;
   onChange: (value: T) => void;
@@ -19,7 +19,7 @@ type SelectMenuProps<T extends string | number> = {
   id?: string; // 省略時 useId() で自動採番（複数マウント時の id 衝突回避）
 };
 
-export const SelectMenu = <T extends string | number>({
+export const Select = <T extends string | number>({
   options,
   value,
   onChange,
@@ -28,7 +28,7 @@ export const SelectMenu = <T extends string | number>({
   placeholder = "選択してください",
   disabled = false,
   id,
-}: SelectMenuProps<T>) => {
+}: Props<T>) => {
   const [isOpen, setIsOpen] = useState(false);
   const [focusedIndex, setFocusedIndex] = useState<number>(-1);
   const wrapperRef = useRef<HTMLDivElement>(null);

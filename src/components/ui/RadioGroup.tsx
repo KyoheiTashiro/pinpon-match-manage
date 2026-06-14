@@ -8,7 +8,7 @@ type Props<T extends string | number> = {
   onChange: (value: T) => void;
 };
 
-export const RadioCardGroup = <T extends string | number>({
+export const RadioGroup = <T extends string | number>({
   legend,
   name,
   value,

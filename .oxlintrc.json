@@ -72,13 +72,11 @@
       //   showModal() 制御が必要で挙動が変わるため行わない。
       // - Toggle の role="radio" ボタンも、ネイティブ <input type="radio"> 化は
       //   カスタムスタイルが壊れるため行わない。
-      // - SelectMenu の role="listbox"/role="option" は、シェブロン回転などの
+      // - Select の role="listbox"/role="option" は、シェブロン回転などの
       //   カスタム UI が必要なため <select>/<option> への置き換えは行わない。
       "files": [
-        "src/components/ui/ConfirmDialog.tsx",
         "src/components/ui/Toggle.tsx",
-        "src/components/ui/InstallAppButton.tsx",
-        "src/components/ui/SelectMenu.tsx",
+        "src/components/ui/Select.tsx",
         "src/features/tournament/matrix/components/MatchModal.tsx",
         "src/features/tournament/matrix/components/ScoreboardScreen.tsx"
       ],

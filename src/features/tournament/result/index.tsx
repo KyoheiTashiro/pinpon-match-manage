@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/Button";
-import { SelectMenu } from "@/components/ui/SelectMenu";
+import { Select } from "@/components/ui/Select";
 import { DownloadIcon } from "@/components/icons";
 import { useImageCapture } from "@/lib/useImageCapture";
 import { useResultRows } from "@/features/tournament/result/hooks";
@@ -91,7 +91,7 @@ const ResultView = ({ tournamentId }: { tournamentId: string }) => {
           {/* グラフモード時のみ表示するセレクタ（画像保存対象外） */}
           {mode === "graph" && graphMatches.length > 0 && (
             <div className="sm:max-w-md">
-              <SelectMenu
+              <Select
                 label="対戦を選択"
                 value={resolvedSelectedId}
                 onChange={(id) => setSelectedMatchId(id)}

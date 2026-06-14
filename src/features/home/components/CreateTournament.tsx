@@ -1,7 +1,7 @@
 import { Controller, type UseFormReturn } from "react-hook-form";
 import { CalendarIcon } from "@/components/icons";
 import { Button } from "@/components/ui/Button";
-import { RadioCardGroup } from "@/components/ui/RadioCardGroup";
+import { RadioGroup } from "@/components/ui/RadioGroup";
 import type { FormType } from "@/features/home/schema";
 import { FORMAT, BEST_OF_OPTIONS } from "@/store/types";
 
@@ -30,7 +30,7 @@ export const CreateTournament = ({ form, submit, onCancel }: Props) => (
       name="format"
       control={form.control}
       render={({ field }) => (
-        <RadioCardGroup
+        <RadioGroup
           legend="形式"
           name="format"
           value={field.value}
@@ -46,7 +46,7 @@ export const CreateTournament = ({ form, submit, onCancel }: Props) => (
       name="bestOf"
       control={form.control}
       render={({ field }) => (
-        <RadioCardGroup
+        <RadioGroup
           legend="ゲーム数"
           name="bestOf"
           value={field.value}
