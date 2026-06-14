@@ -70,6 +70,9 @@ export const CreateTournamentForm = ({ form, submit, onCancel }: Props) => (
         />
         <CalendarIcon className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-2xl text-line" />
       </div>
+      {form.formState.errors.date && (
+        <span className="text-sm text-danger">{form.formState.errors.date.message}</span>
+      )}
     </label>
     <div className="flex gap-3 justify-end flex-wrap">
       <BigButton variant="secondary" type="button" onClick={onCancel}>

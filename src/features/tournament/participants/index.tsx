@@ -61,6 +61,11 @@ const ParticipantsView = ({ tournamentId }: { tournamentId: string }) => {
         <BigButton type="submit" disabled={!addForm.formState.isValid}>
           追加
         </BigButton>
+        {addForm.formState.errors.name && (
+          <span className="basis-full text-sm text-danger">
+            {addForm.formState.errors.name.message}
+          </span>
+        )}
       </form>
 
       {list.length === 0 ? (
@@ -95,6 +100,11 @@ const ParticipantsView = ({ tournamentId }: { tournamentId: string }) => {
                   >
                     やめる
                   </BigButton>
+                  {editForm.formState.errors.name && (
+                    <span className="basis-full text-sm text-danger">
+                      {editForm.formState.errors.name.message}
+                    </span>
+                  )}
                 </form>
               ) : (
                 <>
