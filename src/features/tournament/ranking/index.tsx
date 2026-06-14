@@ -1,10 +1,12 @@
 import { useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { BigButton } from "@/components/ui/BigButton";
+import { SelectMenu } from "@/components/ui/SelectMenu";
+import { DownloadIcon } from "@/components/icons";
 import { useImageCapture } from "@/lib/useImageCapture";
 import { useResultRows } from "@/features/tournament/ranking/hooks";
-import { GraphMatchSelector, MatchGraphBlock } from "@/features/tournament/ranking/components";
-import type { MatchResultRow } from "@/features/tournament/ranking/hooks";
+import { MatchGraphBlock } from "@/features/tournament/ranking/components";
+import { TableMode } from "@/features/tournament/ranking/TableMode";
 
 export const ResultTab = () => {
   const { tournamentId } = useParams<{ tournamentId: string }>();
@@ -29,6 +31,11 @@ const RankingView = ({ tournamentId }: { tournamentId: string }) => {
         match.games.some((game) => game.pointLog && game.pointLog.length > 0),
       ),
     [matchResults],
+  );
+
+  const graphOptions = useMemo(
+    () => graphMatches.map((m) => ({ value: m.id, label: `${m.leftName} vs ${m.rightName}` })),
+    [graphMatches],
   );
 
   const [selectedMatchId, setSelectedMatchId] = useState<string | null>(null);
@@ -82,11 +89,12 @@ const RankingView = ({ tournamentId }: { tournamentId: string }) => {
           </div>
 
           {/* グラフモード時のみ表示するセレクタ（画像保存対象外） */}
-          {mode === "graph" && (
-            <GraphMatchSelector
-              graphMatches={graphMatches}
-              selectedMatchId={resolvedSelectedId}
-              onSelect={(id) => setSelectedMatchId(id)}
+          {mode === "graph" && graphMatches.length > 0 && (
+            <SelectMenu
+              label="対戦を選択"
+              value={resolvedSelectedId}
+              onChange={(id) => setSelectedMatchId(id)}
+              options={graphOptions}
             />
           )}
 
@@ -114,26 +122,41 @@ const RankingView = ({ tournamentId }: { tournamentId: string }) => {
 
           {/* 保存ボタン（画像対象外） */}
           {mode === "table" ? (
-            <BigButton onClick={() => main.save()} disabled={isSaving}>
-              {main.saving ? "保存中…" : "結果の画像を保存"}
-            </BigButton>
+            <div className="space-y-2">
+              <div className="text-base font-extrabold">画像で保存</div>
+              <BigButton onClick={() => main.save()} disabled={isSaving}>
+                <span className="inline-flex items-center justify-center gap-2">
+                  <DownloadIcon />
+                  {main.saving ? "保存中…" : "点数表"}
+                </span>
+              </BigButton>
+            </div>
           ) : (
-            <div className="flex flex-col gap-2 sm:flex-row">
-              <BigButton
-                onClick={() =>
-                  selectedMatch &&
-                  main.save(`${selectedMatch.leftName} vs ${selectedMatch.rightName}`)
-                }
-                disabled={isSaving || !selectedMatch}
-              >
-                {main.saving ? "保存中…" : "この対戦を保存"}
-              </BigButton>
-              <BigButton
-                onClick={() => allMatches.save("全対戦")}
-                disabled={isSaving || graphMatches.length === 0}
-              >
-                {allMatches.saving ? "保存中…" : "全対戦を保存"}
-              </BigButton>
+            <div className="space-y-2">
+              <div className="text-base font-extrabold">画像で保存</div>
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <BigButton
+                  onClick={() =>
+                    selectedMatch &&
+                    main.save(`${selectedMatch.leftName} vs ${selectedMatch.rightName}`)
+                  }
+                  disabled={isSaving || !selectedMatch}
+                >
+                  <span className="inline-flex items-center justify-center gap-2">
+                    <DownloadIcon />
+                    {main.saving ? "保存中…" : "表示中の対戦"}
+                  </span>
+                </BigButton>
+                <BigButton
+                  onClick={() => allMatches.save("全対戦")}
+                  disabled={isSaving || graphMatches.length === 0}
+                >
+                  <span className="inline-flex items-center justify-center gap-2">
+                    <DownloadIcon />
+                    {allMatches.saving ? "保存中…" : "全ての対戦"}
+                  </span>
+                </BigButton>
+              </div>
             </div>
           )}
 
@@ -163,119 +186,3 @@ const RankingView = ({ tournamentId }: { tournamentId: string }) => {
     </div>
   );
 };
-
-// ----- 点数表モード -----
-type TableModeProps = {
-  rows: ReturnType<typeof useResultRows>["rows"];
-  matchResults: MatchResultRow[];
-  bestOf: number;
-};
-
-const TableMode = ({ rows, matchResults, bestOf }: TableModeProps) => (
-  <>
-    <div className="text-base font-extrabold">順位</div>
-    <table className="w-full border-2 border-line border-collapse">
-      <thead>
-        <tr className="bg-bg">
-          <th className="border-2 border-line p-2 text-base">順位</th>
-          <th className="border-2 border-line p-2 text-base text-left">名前</th>
-          <th className="border-2 border-line p-2 text-base">試合</th>
-          <th className="border-2 border-line p-2 text-base">勝</th>
-          <th className="border-2 border-line p-2 text-base">敗</th>
-          <th className="border-2 border-line p-2 text-base">ゲーム差</th>
-          <th className="border-2 border-line p-2 text-base">点差</th>
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map((row) => (
-          <tr key={row.participantId} className="text-center">
-            <td className="border-2 border-line p-2 text-2xl font-extrabold">{row.rank}</td>
-            <td className="border-2 border-line p-2 text-lg font-bold text-left">{row.name}</td>
-            <td className="border-2 border-line p-2 text-lg">{row.played}</td>
-            <td className="border-2 border-line p-2 text-lg text-success font-bold">{row.wins}</td>
-            <td className="border-2 border-line p-2 text-lg text-danger font-bold">{row.losses}</td>
-            <td className="border-2 border-line p-2 text-lg">
-              {signed(row.gameDiff)}
-              <span className="text-sub text-base">
-                {" "}
-                ({row.gamesWon}/{row.gamesLost})
-              </span>
-            </td>
-            <td className="border-2 border-line p-2 text-lg">
-              {signed(row.pointDiff)}
-              <span className="text-sub text-base">
-                {" "}
-                ({row.pointsFor}/{row.pointsAgainst})
-              </span>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-    {matchResults.length > 0 && (
-      <div className="space-y-2 pt-2">
-        <div className="text-base font-extrabold">対戦結果</div>
-        <table className="w-full border-2 border-line border-collapse">
-          <thead>
-            <tr className="bg-bg">
-              <th className="border-2 border-line p-2 text-base text-left">対戦</th>
-              {Array.from({ length: bestOf }, (_, index) => (
-                <th key={index} className="border-2 border-line p-2 text-base">
-                  G{index + 1}
-                </th>
-              ))}
-              <th className="border-2 border-line p-2 text-base">セット</th>
-            </tr>
-          </thead>
-          <tbody>
-            {matchResults.map((match) => (
-              <tr key={match.id}>
-                <td className="border-2 border-line p-2 text-base">
-                  <span className={match.winner === "L" ? "font-extrabold" : "text-sub"}>
-                    {match.leftName}
-                  </span>
-                  <span className="text-sub"> vs </span>
-                  <span className={match.winner === "R" ? "font-extrabold" : "text-sub"}>
-                    {match.rightName}
-                  </span>
-                </td>
-                {Array.from({ length: bestOf }, (_, gameIndex) => {
-                  const game = match.games[gameIndex];
-                  if (!game) {
-                    return (
-                      <td
-                        key={gameIndex}
-                        className="border-2 border-line p-2 text-base text-center text-sub"
-                      >
-                        -
-                      </td>
-                    );
-                  }
-                  return (
-                    <td
-                      key={gameIndex}
-                      className="border-2 border-line p-2 text-base text-center whitespace-nowrap"
-                    >
-                      <span className={game.leftScore > game.rightScore ? "font-extrabold" : ""}>
-                        {game.leftScore}
-                      </span>
-                      <span className="text-sub">-</span>
-                      <span className={game.rightScore > game.leftScore ? "font-extrabold" : ""}>
-                        {game.rightScore}
-                      </span>
-                    </td>
-                  );
-                })}
-                <td className="border-2 border-line p-2 text-base text-center font-bold whitespace-nowrap">
-                  {match.leftWins}-{match.rightWins}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    )}
-  </>
-);
-
-const signed = (value: number) => (value > 0 ? `+${value}` : `${value}`);

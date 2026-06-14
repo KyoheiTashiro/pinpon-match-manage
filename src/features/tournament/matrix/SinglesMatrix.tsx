@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAppStore } from "@/store/useAppStore";
 import type { Match } from "@/store/types";
 import { BigButton } from "@/components/ui/BigButton";
+import { DownloadIcon } from "@/components/icons";
 import { useImageCapture } from "@/lib/useImageCapture";
 import { matchSummary, winsNeededForBestOf } from "@/domain/match";
 import { MatchModal } from "@/features/tournament/matrix/components/MatchModal";
@@ -27,52 +28,50 @@ const MatrixCell = ({ row, column, match, winsNeeded, onCreate, onOpen }: Matrix
     );
   }
 
-  if (!match) {
-    return (
-      <td className="border-2 border-dashed border-line text-center text-sub min-h-cell min-w-cell p-1">
-        <button
-          className="w-full h-full min-h-cell text-base flex flex-col items-center justify-center gap-0.5 cursor-pointer hover:bg-bg active:scale-95 transition"
-          aria-label={`${row.name} 対 ${column.name} 対戦追加`}
-          onClick={onCreate}
-        >
-          <span className="text-2xl leading-none">＋</span>
-          <span className="text-xs leading-none">対戦</span>
-        </button>
-      </td>
-    );
-  }
-
-  const summary = matchSummary(match.games, winsNeeded);
+  const summary = match ? matchSummary(match.games, winsNeeded) : null;
   const rowIsLeft =
+    !!match &&
     involvesSingle(match, row.id) &&
     match.leftSide.kind === "single" &&
     match.leftSide.participantId === row.id;
-  const rowWins = rowIsLeft ? summary.leftWins : summary.rightWins;
-  const columnWins = rowIsLeft ? summary.rightWins : summary.leftWins;
-  const rowWon = summary.finished && (rowIsLeft ? summary.winner === "L" : summary.winner === "R");
-  const rowLost = summary.finished && !rowWon;
-  const hasScore = summary.finished || match.games.length > 0;
+  const rowWins = rowIsLeft ? summary?.leftWins : summary?.rightWins;
+  const columnWins = rowIsLeft ? summary?.rightWins : summary?.leftWins;
+  const rowWon =
+    summary?.finished === true && (rowIsLeft ? summary.winner === "L" : summary.winner === "R");
+  const rowLost = summary?.finished === true && !rowWon;
+  const hasScore = !!match && (summary?.finished === true || match.games.length > 0);
+  const inProgress = hasScore && summary?.finished !== true;
 
   return (
     <td
       className={`border-2 ${hasScore ? "border-line" : "border-dashed border-line"} text-center min-h-cell min-w-cell p-0 ${
-        rowWon ? "bg-winBg" : rowLost ? "bg-loseBg" : ""
+        rowWon ? "bg-winBg" : rowLost ? "bg-loseBg" : inProgress ? "bg-warning/10" : ""
       }`}
     >
       <button
-        onClick={() => onOpen(match.id)}
-        className="relative w-full h-full min-h-cell text-lg font-extrabold p-2 cursor-pointer hover:bg-bg active:scale-95 transition"
-        aria-label={`${row.name} 対 ${column.name} ${rowWins}-${columnWins} 編集`}
+        onClick={() => (match ? onOpen(match.id) : onCreate())}
+        className="group relative w-full h-full min-h-cell text-lg font-extrabold p-2 cursor-pointer hover:bg-bg active:scale-95 transition"
+        aria-label={
+          hasScore
+            ? `${row.name} 対 ${column.name} ${rowWins}-${columnWins}${inProgress ? " 途中" : ""} 編集`
+            : `${row.name} 対 ${column.name} 対戦追加`
+        }
       >
         {hasScore ? (
           <span>
             {rowWins}-{columnWins}
-            {summary.finished && <span className="block text-sm">{rowWon ? "勝" : "負"}</span>}
+            {summary?.finished ? (
+              <span className="block text-sm">{rowWon ? "勝" : "負"}</span>
+            ) : (
+              <span className="block text-sm text-warning">途中</span>
+            )}
           </span>
         ) : (
-          <span className="flex flex-col items-center justify-center gap-0.5 text-sub">
-            <span className="text-2xl leading-none">＋</span>
-            <span className="text-xs leading-none">点数入力</span>
+          <span className="flex flex-col items-center justify-center gap-1">
+            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary text-xl leading-none transition-colors group-hover:bg-primary group-hover:text-white">
+              ＋
+            </span>
+            <span className="text-xs leading-none text-sub">対戦</span>
           </span>
         )}
       </button>
@@ -99,12 +98,6 @@ export const SinglesMatrix = ({ tournamentId }: { tournamentId: string }) => {
         <p className="text-sub">参加者を2人以上 登録してください。</p>
       ) : (
         <>
-          <div className="text-sub text-base bg-bg border-2 border-line rounded-xl px-3 py-2">
-            <h3 className="font-bold mb-1">使い方</h3>
-            <ul className="list-disc list-inside space-y-0.5">
-              <li>マスをタップ → 点数入力</li>
-            </ul>
-          </div>
           <div className="overflow-x-auto">
             <div ref={ref} className="bg-white p-3 space-y-2 inline-block align-top min-w-full">
               <div className="border-b-2 border-line pb-2">
@@ -161,9 +154,15 @@ export const SinglesMatrix = ({ tournamentId }: { tournamentId: string }) => {
               </table>
             </div>
           </div>
-          <BigButton onClick={save} disabled={saving}>
-            {saving ? "保存中…" : "対戦表の画像を保存"}
-          </BigButton>
+          <div className="space-y-2">
+            <div className="text-base font-extrabold">画像で保存</div>
+            <BigButton onClick={save} disabled={saving}>
+              <span className="inline-flex items-center justify-center gap-2">
+                <DownloadIcon />
+                {saving ? "保存中…" : "対戦表"}
+              </span>
+            </BigButton>
+          </div>
         </>
       )}
 

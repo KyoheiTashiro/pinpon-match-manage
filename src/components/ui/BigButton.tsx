@@ -1,9 +1,11 @@
 import type { ButtonHTMLAttributes, ReactNode, Ref } from "react";
 
 type Variant = "primary" | "secondary" | "danger" | "success" | "ghost";
+type Size = "md" | "sm";
 
 type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: Variant;
+  size?: Size;
   children: ReactNode;
   ref?: Ref<HTMLButtonElement>;
 };
@@ -16,8 +18,15 @@ const styles: Record<Variant, string> = {
   ghost: "bg-transparent text-ink underline underline-offset-4",
 };
 
+// md = 主要操作（大型・最小幅あり）。sm = リスト行内などの省スペース操作。
+const sizes: Record<Size, string> = {
+  md: "min-h-btn min-w-btn px-6 text-lg",
+  sm: "min-h-[44px] px-4 text-base",
+};
+
 export const BigButton = ({
   variant = "primary",
+  size = "md",
   className = "",
   children,
   ref,
@@ -26,7 +35,7 @@ export const BigButton = ({
   <button
     ref={ref}
     {...rest}
-    className={`min-h-btn min-w-btn px-6 rounded-xl text-lg font-bold disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${styles[variant]} ${className}`}
+    className={`${sizes[size]} rounded-xl font-bold disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${styles[variant]} ${className}`}
   >
     {children}
   </button>

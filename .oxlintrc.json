@@ -70,15 +70,15 @@
       //   showModal() 制御が必要で挙動が変わるため行わない。
       // - FontSizeToggle の role="radio" ボタンも、ネイティブ <input type="radio"> 化は
       //   カスタムスタイルが壊れるため行わない。
-      // - GraphMatchSelector の role="listbox"/role="option" は、シェブロン回転などの
+      // - SelectMenu の role="listbox"/role="option" は、シェブロン回転などの
       //   カスタム UI が必要なため <select>/<option> への置き換えは行わない。
       "files": [
         "src/components/ui/ConfirmDialog.tsx",
         "src/components/ui/FontSizeToggle.tsx",
         "src/components/ui/InstallAppButton.tsx",
+        "src/components/ui/SelectMenu.tsx",
         "src/features/tournament/matrix/components/MatchModal.tsx",
-        "src/features/tournament/matrix/components/ScoreboardScreen.tsx",
-        "src/features/tournament/ranking/components.tsx"
+        "src/features/tournament/matrix/components/ScoreboardScreen.tsx"
       ],
       "rules": {
         "jsx-a11y/prefer-tag-over-role": "off"

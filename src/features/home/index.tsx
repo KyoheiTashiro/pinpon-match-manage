@@ -53,9 +53,9 @@ export const Home = () => {
               name="bestOf"
               value={form.bestOf}
               options={[
-                { value: 3, label: "3ゲーム制" },
-                { value: 5, label: "5ゲーム制" },
-                { value: 7, label: "7ゲーム制" },
+                { value: 3, label: "3" },
+                { value: 5, label: "5" },
+                { value: 7, label: "7" },
               ]}
               onChange={form.setBestOf}
             />

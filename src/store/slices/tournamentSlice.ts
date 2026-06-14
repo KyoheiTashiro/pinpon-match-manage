@@ -9,6 +9,7 @@ export type TournamentSlice = {
   tournaments: Record<string, Tournament>;
   currentTournamentId: string | null;
   createTournament: (name: string, format: Format, date: string, bestOf: BestOf) => string;
+  updateTournament: (id: string, patch: Partial<Pick<Tournament, "name" | "date">>) => void;
   deleteTournament: (id: string) => void;
   setCurrentTournament: (id: string | null) => void;
   resetTournament: (id: string) => void;
@@ -40,6 +41,19 @@ export const createTournamentSlice: StateCreator<StoreState, [], [], TournamentS
       currentTournamentId: id,
     }));
     return id;
+  },
+
+  updateTournament: (id, patch) => {
+    set((state) => {
+      const tournament = state.tournaments[id];
+      if (!tournament) return state;
+      return {
+        tournaments: {
+          ...state.tournaments,
+          [id]: { ...tournament, ...patch },
+        },
+      };
+    });
   },
 
   deleteTournament: (id) => {

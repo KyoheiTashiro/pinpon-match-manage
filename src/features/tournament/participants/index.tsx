@@ -49,18 +49,21 @@ const ParticipantsView = ({ tournamentId }: { tournamentId: string }) => {
       ) : (
         <ul className="divide-y-2 divide-line border-2 border-line rounded-2xl overflow-hidden">
           {list.map((participant, index) => (
-            <li key={participant.id} className="p-3 flex items-center gap-3 flex-wrap">
-              <span className="text-lg font-bold w-8 text-center text-sub">{index + 1}</span>
+            <li key={participant.id} className="p-3 flex items-center gap-2">
+              <span className="text-lg font-bold w-8 text-center text-sub shrink-0">
+                {index + 1}
+              </span>
               {editingId === participant.id ? (
                 <>
                   <input
                     value={editName}
                     onChange={(event) => setEditName(event.target.value)}
                     aria-label="参加者名を編集"
-                    className="flex-1 min-w-[160px] min-h-input border-2 border-line rounded-xl px-3 text-lg"
+                    className="flex-1 min-w-0 min-h-input border-2 border-line rounded-xl px-3 text-lg"
                   />
                   <BigButton
                     variant="primary"
+                    size="sm"
                     onClick={() => {
                       if (editName.trim()) rename(participant.id, editName);
                       setEditingId(null);
@@ -68,15 +71,18 @@ const ParticipantsView = ({ tournamentId }: { tournamentId: string }) => {
                   >
                     保存
                   </BigButton>
-                  <BigButton variant="secondary" onClick={() => setEditingId(null)}>
+                  <BigButton variant="secondary" size="sm" onClick={() => setEditingId(null)}>
                     やめる
                   </BigButton>
                 </>
               ) : (
                 <>
-                  <span className="flex-1 text-lg font-bold">{participant.name}</span>
+                  <span className="flex-1 min-w-0 text-lg font-bold truncate">
+                    {participant.name}
+                  </span>
                   <BigButton
                     variant="secondary"
+                    size="sm"
                     onClick={() => {
                       setEditingId(participant.id);
                       setEditName(participant.name);
@@ -84,7 +90,11 @@ const ParticipantsView = ({ tournamentId }: { tournamentId: string }) => {
                   >
                     編集
                   </BigButton>
-                  <BigButton variant="danger" onClick={() => setRemoveTarget(participant.id)}>
+                  <BigButton
+                    variant="danger"
+                    size="sm"
+                    onClick={() => setRemoveTarget(participant.id)}
+                  >
                     削除
                   </BigButton>
                 </>

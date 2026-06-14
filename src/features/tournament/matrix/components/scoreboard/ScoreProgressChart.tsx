@@ -94,7 +94,6 @@ export const ScoreProgressChart = ({ games, leftName, rightName, matchFirstServe
 
   return (
     <div className="w-full mt-6 px-2">
-      <h3 className="text-center text-lg font-bold mb-4 text-ink">点数進行</h3>
       <div className="flex flex-col gap-8">
         {chartGames.map(({ game, realIndex, gameNumber }) => {
           const points = gameProgress(game.pointLog!, gameFirstServer(matchFirstServer, realIndex));
@@ -115,7 +114,7 @@ export const ScoreProgressChart = ({ games, leftName, rightName, matchFirstServe
 
           return (
             <div key={gameNumber}>
-              <div className="text-center font-bold text-base text-ink mb-2">Game {gameNumber}</div>
+              <div className="text-left font-bold text-base text-ink mb-2">Game {gameNumber}</div>
               <div className="flex items-stretch">
                 {/* プレイヤー名の列 */}
                 <div

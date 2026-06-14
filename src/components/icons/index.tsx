@@ -43,6 +43,20 @@ export const TrophyIcon = (props: IconProps) => (
   </svg>
 );
 
+export const ChevronDownIcon = (props: IconProps) => (
+  <svg {...base} strokeWidth={2.5} {...props}>
+    <polyline points="6 9 12 15 18 9" />
+  </svg>
+);
+
+export const DownloadIcon = (props: IconProps) => (
+  <svg {...base} {...props}>
+    <path d="M12 3v12" />
+    <path d="m7 11 5 5 5-5" />
+    <path d="M4 19h16" />
+  </svg>
+);
+
 export const GearIcon = (props: IconProps) => (
   <svg {...base} {...props}>
     <circle cx="12" cy="12" r="3" />

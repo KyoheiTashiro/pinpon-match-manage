@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAppStore } from "@/store/useAppStore";
 import { BigButton } from "@/components/ui/BigButton";
+import { DownloadIcon } from "@/components/icons";
 import { useImageCapture } from "@/lib/useImageCapture";
 import { matchSummary, winsNeededForBestOf } from "@/domain/match";
 import { MatchModal } from "@/features/tournament/matrix/components/MatchModal";
@@ -91,6 +92,7 @@ export const DoublesMatrix = ({ tournamentId }: { tournamentId: string }) => {
           ) : (
             matchList.map((match) => {
               const summary = matchSummary(match.games, wins);
+              const inProgress = !summary.finished;
               const leftName = sideMembers(match.leftSide)
                 .map((id) => participants[id]?.name ?? "?")
                 .join(" / ");
@@ -98,7 +100,7 @@ export const DoublesMatrix = ({ tournamentId }: { tournamentId: string }) => {
                 .map((id) => participants[id]?.name ?? "?")
                 .join(" / ");
               return (
-                <li key={match.id}>
+                <li key={match.id} className={inProgress ? "bg-warning/10" : ""}>
                   <button
                     onClick={() => setOpenMatchId(match.id)}
                     className="w-full text-left p-3 min-h-[64px] hover:bg-bg flex items-center justify-between gap-3"
@@ -110,10 +112,12 @@ export const DoublesMatrix = ({ tournamentId }: { tournamentId: string }) => {
                       <span>
                         {summary.leftWins}-{summary.rightWins}
                       </span>
-                      {summary.finished && (
+                      {summary.finished ? (
                         <span className="text-sm text-success">
                           {summary.winner === "L" ? leftName : rightName} の勝ち
                         </span>
+                      ) : (
+                        <span className="text-sm text-warning">途中</span>
                       )}
                     </span>
                   </button>
@@ -125,9 +129,15 @@ export const DoublesMatrix = ({ tournamentId }: { tournamentId: string }) => {
       </div>
 
       {players.length >= 4 && matchList.length > 0 && (
-        <BigButton onClick={save} disabled={saving}>
-          {saving ? "保存中…" : "対戦表の画像を保存"}
-        </BigButton>
+        <div className="space-y-2">
+          <div className="text-base font-extrabold">画像で保存</div>
+          <BigButton onClick={save} disabled={saving}>
+            <span className="inline-flex items-center justify-center gap-2">
+              <DownloadIcon />
+              {saving ? "保存中…" : "対戦表"}
+            </span>
+          </BigButton>
+        </div>
       )}
 
       {openMatchId && (
