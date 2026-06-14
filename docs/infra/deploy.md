@@ -7,8 +7,10 @@
 `.github/workflows/deploy.yml` の構成（実装が正）:
 
 - **trigger**: `main` ブランチへの push + `workflow_dispatch`（手動実行）
+- **runner**: `ubuntu-slim`
 - **Node**: 20
 - **ジョブ分離**: `build` ジョブと `deploy` ジョブに分離
+- **concurrency**: `group: pages`、`cancel-in-progress: true`（重複実行を自動キャンセル）
 
 ### build ジョブ
 

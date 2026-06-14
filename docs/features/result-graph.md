@@ -1,217 +1,141 @@
-親: [README.md](../README.md) / 関連: [matrix.md](./matrix.md)
+親: [README.md](../README.md) / 関連: [ranking.md](./ranking.md)
 
 # 点数進行グラフ（結果画面）
 
-試合の「結果」表示に、ゲームごとの点数進行を折れ線グラフで表示する。
+実装: `src/features/tournament/result/components.tsx`（`MatchGraphBlock`）、
+`src/features/tournament/matrix/components/scoreboard/ScoreProgressChart.tsx`（グラフ本体）、
+`src/domain/scoreProgress.ts`（導出ロジック）
+
+試合の「結果」タブのグラフモードで、ゲームごとの点数進行を表示する。
 1ラリーごとに両者の累計スコアを丸で並べ、得点した側を線で結んでジグザグを描く。
 卓球の「流れ（連取・逆転）」を一目で振り返れるようにする。
 
-参照: 結果画面の現状は [matrix.md#スコアボード](./matrix.md) の `MatchResultView`。
-
 ---
 
-## 1. 何が必要か（前提）
+## 1. 前提: PointLog
 
-グラフを描くには **ラリー1本ごとに「どちらが得点したか」の時系列** が要る。
-現状ドメインは最終スコアしか持たない:
-
-```ts
-// 現状 src/domain/match.ts
-export type Game = { leftScore: number; rightScore: number };
-```
-
-`{ leftScore: 4, rightScore: 11 }` だけからは進行順を**復元できない**
-（4-11に至る得点順は無数にある）。→ **ドメインモデル拡張が必須。**
-
----
-
-## 2. ドメインモデル拡張
-
-### 2.1 ポイントログを真実源にする
-
-各ゲームに、得点したサイドの並び `pointLog: Side[]` を持たせる。
+グラフを描くには **ラリー1本ごとに「どちらが得点したか」の時系列**（`pointLog`）が必要。
 
 ```ts
-export type Side = "L" | "R";
-
+// src/domain/match.ts
 export type Game = {
-  leftScore: number; // 後方互換のため残す（pointLog から導出可能）
+  leftScore: number;
   rightScore: number;
-  pointLog?: Side[]; // 得点順。例: ['R','R','L','R','R','R','L', ...]
+  pointLog?: Side[]; // 得点順。例: ['R','R','L','R', ...]
 };
 ```
 
-- `pointLog = ['R','R','L',...]` → 1本目R得点、2本目R、3本目L…
-- 累計スコアは prefix で導出:
-  - 第 i ラリー後の `leftScore = log.slice(0, i+1).filter(s => s==='L').length`
-  - 同様に `rightScore`
-
-### 2.2 leftScore / rightScore との整合
-
-- `pointLog` がある場合、`leftScore` / `rightScore` は `pointLog` から導出した値と**一致させる**（保存時に再計算）。
-- 真実源は `pointLog`。`leftScore`/`rightScore` は導出キャッシュ。
-
-### 2.3 pointLog 無しの扱い
-
 - `pointLog` は **optional**。スコアボードを使わず手入力した試合には付かない。
-- `pointLog` が `undefined` のゲーム → **進行順が不明 → グラフは描画しない**
-  （最終スコアだけで単調な線を引くのは誤情報になるため、描かない方が誠実）。
-- グラフ表示可否はゲーム単位で判定（`game.pointLog && game.pointLog.length > 0`）。
+- `pointLog` が `undefined` またはゲーム単位で `pointLog.length === 0` のゲームは **グラフを描画しない**（進行順が不明なため）。
+- グラフ表示可否はゲーム単位で判定: `game.pointLog && game.pointLog.length > 0`。
 
 ---
 
-## 3. 入力UIへの影響（スコアボード）
+## 2. グラフ導出ロジック
 
-ポイントログを真実源にするため、加減ボタンの意味を再定義する。
-現状は左右スコアを独立に±できる（[matrix.md](./matrix.md) のスコアボード）。
-
-- **+1（得点）**: 当該サイドを `pointLog` に push。`['R','R'] → ['R','R','L']`
-- **−1（取消）**: `pointLog` の**末尾を1つ pop**（最後のラリーを取り消す）。
-  - 変更点: 末尾が相手の得点だった場合、当該サイドのボタンでは取り消せない。
-    「最後のラリーだけ巻き戻せる」挙動に統一する。
-  - UI整合: `−1` ボタンの有効化は「末尾の得点が自サイドか」で判定。
-    末尾が相手側なら自サイドの `−` は disabled（相手側の `−` が有効）。
-- これによりログと表示スコアが常に一致し、進行順が壊れない。
-
-> 既存スコアボードの上半分タップ=+1 / 下半分タップ=−1 のジェスチャはそのまま。
-> −1 の「巻き戻し対象」がログ末尾になる点だけが変わる。
-
----
-
-## 4. グラフ導出ロジック（純粋関数・domain層）
-
-`src/domain/scoreProgress.ts`（新規）に純粋関数として置き、ユニットテスト対象にする。
+`src/domain/scoreProgress.ts`:
 
 ```ts
 export type ProgressPoint = {
-  index: number; // ラリー番号（1始まり）
-  scorer: Side; // このラリーの得点者
-  left: number; // ラリー後の左累計
-  right: number; // ラリー後の右累計
-  server: Side; // このラリー時点のサーバー
+  index: number;  // ラリー番号（1始まり）
+  scorer: Side;   // このラリーの得点者
+  left: number;   // ラリー後の左側累計スコア
+  right: number;  // ラリー後の右側累計スコア
+  server: Side;   // このラリー時点のサーバー
 };
 
-// pointLog + そのゲームの先サーバー → 進行点列
-export const gameProgress = (pointLog: Side[], firstServerOfGame: Side): ProgressPoint[] => {
-  /* prefix集計 + currentServer 適用 */
-};
+export const gameProgress = (pointLog: Side[], firstServerOfGame: Side): ProgressPoint[];
 ```
 
-- サーバーは既存 `currentServer(g, firstServerOfGame)` のロジックを流用。
-  各ラリー直前の累計 total からサーバーを算出（2本交代・デュース後1本交代）。
-- ゲームの先サーバーは既存 `gameFirstServer(match.firstServer, gameIndex)`。
+- `pointLog` の各要素を prefix 集計して `left`/`right` を算出する。
+- サーバーは `currentServer({ leftScore: left_before, rightScore: right_before }, firstServerOfGame)` で算出（2本交代・デュース後1本交代ルール）。
+- ゲームの先サーバーは `gameFirstServer(match.firstServer, gameIndex)` で算出（偶数ゲームは match 先サーバー、奇数ゲームは逆）。
 
 ---
 
-## 5. UI仕様
+## 3. 配置とデータフロー
 
-参照画像の構造（`IMG_0917.png`）を仕様化する。
+**配置先**: 結果タブ（`/#/t/:id/result`）の**グラフモード**。
 
-### 5.1 レイアウト
+- `src/features/tournament/result/index.tsx`（`ResultView`）が `useResultRows` から `matchResults` を取得し、`game.pointLog && game.pointLog.length > 0` を持つゲームが1件以上ある試合のみ `graphMatches` としてフィルタリングする。
+- セレクトメニューで1対戦を選択し、`MatchGraphBlock`（`components.tsx`）を表示する。
+- `MatchGraphBlock` は `ScoreProgressChart` を `games`, `leftName`, `rightName`, `matchFirstServer` を渡して呼び出す。
+- `pointLog` を持つゲームが1本もない試合はグラフモードの選択肢に現れない。
+
+---
+
+## 4. UI仕様（ScoreProgressChart）
+
+### 4.1 全体レイアウト
+
+ゲームごとに1ブロックを縦積みする。各ブロック構成:
 
 ```
-            Game 1
-─────────────────────────────────────────────┬──────
- 田代   ⓪ ⓪ ① ① ① ① ② ② ③ ③ ③ ③      │  4   ← 上選手 累計列
-        ‾‾  ‾‾      ‾‾  ‾‾      ‾‾  ‾‾         │
-─────────────────────────────────────────────┤
- 中野   ① ② ② ③ ④ ⑤ ⑤ ⑥ ⑥ ⑦ ⑧ ⑨      │ 11   ← 下選手 累計列（最終スコア=黄背景）
-              ‾‾ ‾‾      ‾‾ ‾‾      ‾‾ ‾‾      │
-─────────────────────────────────────────────┴──────
-            Game 2
-            ...（ゲームごとに繰り返し）
+ゲーム 1
+ 左選手名  ⓪ ⓪ ① ①  ...  最終スコア
+ 右選手名  ① ② ② ③  ...  最終スコア
+ゲーム 2
+ ...
 ```
 
-- **ゲームごとに1ブロック**。見出し `Game 1`, `Game 2`...（中央・太字）。
-- 各ブロックは **上下2段**（左選手 = 上段 / 右選手 = 下段）。`swapped` 状態を尊重。
+- 見出し「ゲーム {N}」（左揃え・太字）。
+- 各ブロックは **上下2段**（上段=左選手 / 下段=右選手）。`swapped` の概念はなく、常に `leftName`=上段・`rightName`=下段の固定表示。
 - **横軸 = ラリー番号**（1本ごとに1列）。列数 = `pointLog.length`。
-- 各列に **両選手のその時点の累計スコアを丸で表示**。
+- `pointLog` のないゲームはブロックを描画しない（`ScoreProgressChart` が内部でフィルタリング）。
 
-### 5.2 丸（スコアノード）
+### 4.2 スコアノード（丸）
 
-- 各ラリー列で、**得点した側の丸 = 青塗り・白文字**、**得点しなかった側 = 灰塗り・濃灰文字**。
-- 丸の中の数字 = その時点の累計スコア。
-- 例（中野が1本目得点）: 田代列=灰`0` / 中野列=青`1`。
+- 各ラリー列に上下2つの丸を配置。丸の中の数字 = その時点の累計スコア。
+- **得点した側の丸**: 青塗り（`bg-blue-500`）/ 白文字（`active` バリアント）。
+- **得点しなかった側の丸**: 灰塗り（`bg-neutral-200`）/ 濃灰文字（`text-neutral-700`）（`inactive` バリアント）。
+- **最終スコア列（右端）**: 黄背景（`bg-amber-300`）。勝者側は `text-green-800`（`finalWinner`）、敗者側は `text-neutral-700`（`finalLoser`）。
 
-### 5.3 折れ線
+定数:
+- 丸の直径: 36px（`CIRCLE_SIZE`）
+- 列幅: 44px（`COL_WIDTH`）
+- 行高: 56px（`ROW_HEIGHT`）
 
-- **得点者の青丸どうしを線で結ぶ**（上下段をまたいでジグザグ）。
-  - 連取中は同じ段に水平、得点者交代でもう一方の段へ斜めに移動。
-- 線色 = 青（`stroke` 青系）。丸の中心を通す。
+### 4.3 折れ線
 
-### 5.4 サーブ権の下線（赤）
+- 連続するラリーの**得点者ノード（青丸）**どうしをSVGの `<line>` で結ぶ。
+- 線色: 青（`stroke: #3b82f6`）、線幅: 3px、`strokeLinecap: round`。
+- 連取中は同じ段に水平、得点者交代で反対の段へ斜めに移動する。
 
-- 各ラリー列で **サーブ権を持つ側の丸の下にオレンジの短い下線**（既存スコアボードのサーブ表現 `bg-orange-500` と統一）。
-- 卓球ルールにより通常 **2本ごとに交代**（10-10以降は1本交代）→ 下線は2本ずつ同じ段に並ぶ。
-- データは `ProgressPoint.server`。
+### 4.4 サーブ表示
 
-### 5.5 最終スコア列（黄背景）
+- 各ラリー列で**サーブ権を持つ側のノード下**にオレンジの短い下線（`bg-orange-500`、幅20px・高さ4px）を表示する。
+- データソース: `ProgressPoint.server`。
 
-- 右端に **ゲーム最終スコアを縦に2つ**（上=左選手、下=右選手）、**黄色背景**で強調。
-- 勝者側の数字を強調色にしてもよい（既存結果画面の緑勝者表現と整合）。
+### 4.5 選手名
 
-### 5.6 描画方式
+- 各ブロックの左端にプレイヤー名を縦2行で表示（右揃え）。
+- スタイル: `text-sm font-bold text-ink`、`whitespace-nowrap`。
 
-- 丸+線は **SVG** か CSS で実装。本数が多い（最大19〜20本程度）ため横スクロール許容。
-  - 11点ゲームの最長ケース: デュース継続で20本超もあり得る → **横スクロール**前提。
-- 列幅は丸が重ならない最小幅（例 40〜48px）。スマホ縦持ちでは横スクロール。
+### 4.6 描画方式・スクロール
 
----
-
-## 6. 配色・視認性（**白背景**前提・結果タブのデザインに準拠）
-
-> 配置先は「結果」タブ（白背景・画像保存対象）。スコアボード（青背景）とは前提が違う。
-> 文字は白でなく `text-ink`（黒系）。白地でコントラストが出る配色にする。
-
-- 得点ノード: 青塗り `bg-blue-500` / 白文字
-- 非得点ノード: 灰塗り `bg-neutral-200`〜`bg-neutral-300` / 濃灰文字 `text-neutral-700`
-- 折れ線: 青 `stroke-blue-500`
-- サーブ下線: オレンジ `bg-orange-500`（既存スコアボードのサーブ表現と統一・確定）
-- 最終スコア背景: 黄 `bg-amber-300` / 文字 黒系（勝者は強調可）
-- 選手名ラベル: `text-ink`（黒系）
-- 色のみに頼らない: 得点者は**線でも**示される（色覚多様性対応）。
-- 高齢者視認性（[ui-guidelines.md](../design/ui-guidelines.md) 準拠）: 丸内数字は十分大きく、線は太め（3px以上）。
+- SVGと絶対配置のdiv要素を組み合わせて描画する。
+- チャート本体は全幅描画（横スクロールなし）で画像保存に対応する。
+- 列が多い場合（デュース継続など）は親コンテナの `overflow-x-auto` でスクロール可能にする（`ResultView` の `overflow-x-auto` div 内にある）。
 
 ---
 
-## 7. 配置（どこに出すか）
+## 5. 画像保存
 
-**配置先 = 「結果」タブ（`/result` = `ResultTab`, `src/features/tournament/ranking/index.tsx`）の
-サブタブ「グラフ」**（[ranking.md#画面構成表示モード切替](./ranking.md) 参照）。
-スコアボードの結果ビュー（`MatchResultView`）には**置かない**。
-
-- 結果タブは画面上部のサブタブで **「点数表」（順位表+対戦結果テーブル）/「グラフ」** を切り替える。
-- **グラフモード = 全試合の点数進行グラフを一覧表示**。
-  - 各試合 = 「対戦者名 + その試合の各ゲームのグラフ（ゲームごと2段）」のまとまり。
-  - 全試合を一覧に出す。`pointLog` を持たない試合も対戦者名見出しは出し、
-    グラフの代わりに「得点記録なし」と表示する（試合の存在が一覧から消えないように）。
-  - 点数表モード側にはグラフを置かない（テーブルのみ）。
-- **画像保存対象に含める**: 結果タブは `useImageCapture('結果')` の `ref` 内を画像化する。
-  グラフモード表示中はグラフ一覧が `ref` 内にあり、保存画像に含まれる（白背景前提が効く理由）。
-- **swap概念なし**: 結果タブは常に `leftName`/`rightName` 固定表示（上段=左・下段=右）。
-- `pointLog` を持つゲームのみグラフ描画。
-- データ供給: `useResultRows` の `MatchResultRow` に **`firstServer: Side` を追加**
-  （`buildMatchResult` で `m.firstServer` を渡す）。サーブ下線算出に必要。
+- 「表示中の対戦」ボタン: 選択中の対戦グラフを1枚の画像として保存する。ファイル名に `${leftName} vs ${rightName}` を付加する。
+- 「全ての対戦」ボタン: 画面外（`position: absolute; left: -99999px`）に全対戦を縦積みで off-screen レンダリングし、それを画像化する。各対戦の間には区切り線（`border-t-2 border-line`）が入る。
+- `useImageCapture` フックを使用し、`saving` 中は両ボタンとも `disabled`。
 
 ---
 
-## 8. テスト方針（domain層）
+## 6. 配色
 
-`src/domain/scoreProgress.test.ts`:
+白背景（結果タブ）前提:
 
-- `gameProgress(['R','R','L'], 'L')` → 各点の left/right/scorer/server を検証
-- サーバー交代: 2本ごと交代、10-10以降1本交代
-- 空ログ `[]` → 空配列
-- 累計が最終スコアと一致
-
----
-
-## 9. スコープ外 / 段階導入
-
-- **第1段階**: ドメイン拡張（`pointLog`）+ 入力ログ化 + domain関数 + テスト（完了）
-- **第2段階**: グラフUI描画（SVG）を結果タブに配置。白背景・画像保存対応（完了）。
-  - スコアボード結果ビュー（`MatchResultView`）への配置は採用しない（撤回）。
-- **第3段階**: 結果タブにサブタブ「点数表 / グラフ」を導入し、グラフは**グラフモードで全試合一覧表示**に変更
-  （当初の「テーブル下に並記」を置き換え）。
-- `pointLog` の無い試合のグラフ化（最終スコアからの進行順推定）は**やらない**（不正確なため）。
-- ラリーごとのタイムスタンプ・サーブミス種別などの詳細記録はスコープ外。
+| 要素           | スタイル                                                    |
+| -------------- | ----------------------------------------------------------- |
+| 得点ノード     | `bg-blue-500` / 白文字                                      |
+| 非得点ノード   | `bg-neutral-200` / `text-neutral-700`                       |
+| 折れ線         | `stroke: #3b82f6`（blue-500相当）、3px                      |
+| サーブ下線     | `bg-orange-500`                                             |
+| 最終スコア背景 | `bg-amber-300`（勝者: `text-green-800` / 敗者: `text-neutral-700`） |
+| 選手名・見出し | `text-ink`（黒系）                                          |

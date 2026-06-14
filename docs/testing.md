@@ -2,9 +2,15 @@
 
 親: [README.md](README.md)
 
+## テストツール
+
+- **Vitest** (`vitest run` / `vitest`)
+- Testing Library は導入していない
+- `package.json` scripts: `"test": "vitest run"`, `"test:watch": "vitest"`
+
 ## domain層（必須）
 
-`match` / `ranking` / `scoreProgress` はユニットテスト必須。
+`match` / `matchGames` / `ranking` / `scoreProgress` はユニットテスト必須。
 
 - 11-9はゲーム未確定、12-10は確定、11-10は未確定
 - bestOf可変の試合勝敗判定（3/5/7ゲームマッチ）: 先取ゲーム数 = floor(bestOf/2)+1

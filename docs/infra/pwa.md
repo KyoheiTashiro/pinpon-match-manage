@@ -33,15 +33,13 @@
 
 ## 10.3 Service Worker キャッシュ戦略
 
-- アプリシェル(JS/CSS/HTML/manifest/icons): **precache**（Workbox `precacheAndRoute`）→ 完全オフライン動作
-- フォント等の同一オリジン静的資産: `StaleWhileRevalidate`
+- アプリシェル（JS/CSS/HTML/SVG/PNG/webmanifest）: **precache**（Workbox `precacheAndRoute`）→ 完全オフライン動作
+  - `workbox.globPatterns: ["**/*.{js,css,html,svg,png,webmanifest}"]` で対象ファイルを指定
 - 外部API: 無し（全データLocalStorage）→ ネットワークキャッシュ戦略 不要
 
 ## 10.4 更新フロー
 
-- `autoUpdate`: 新SW検出時 自動アクティベート
-- 起動中タブには「更新あり」トースト表示し、ユーザー操作で `window.location.reload()`
-- 進行中試合データはLocalStorage永続のためリロード安全
+- `autoUpdate`: 新 SW 検出時に自動でアクティベートし、ページを自動リロードする
 
 ## 10.5 オフライン制約
 

@@ -64,7 +64,14 @@ type AppState = {
 - ダブルスのペアはエンティティ化せず `memberIds[2]` のみ。同ペアの再結成は識別不可
 - `pointLog` は `Side[]`。例: `['R','R','L','R',...]` — 1本目R得点、2本目R、3本目L。点数進行グラフの真実源（[result-graph.md](../features/result-graph.md) 参照）
 
-LocalStorageキー: `pinpon-match-manage:v1`（zustand persist）。
+### 永続化（zustand persist）
+
+- ストアキー（`name`）: `pinpon-match-manage:v1`
+- スキーマ `version`: `2`
+- ミドルウェア構成: `persist(immer(...))`。スライス（`uiSlice` / `tournamentSlice` / `participantSlice` / `matchSlice`）を合成。
+- `migrate`: 旧 `version < 2` のデータに対し、各 `Tournament` へ `bestOf` を補完する（`bestOf ?? 5`）。v1 は5ゲーム制固定だったため、既存大会には `bestOf: 5` を付与する。
+
+実装: `src/store/useAppStore.ts`。
 
 ---
 
