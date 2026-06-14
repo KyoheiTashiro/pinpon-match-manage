@@ -46,7 +46,7 @@ export const SettingsTab = () => {
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-extrabold">設定</h2>
         {!editing && (
-          <BigButton variant="primary" onClick={startEdit}>
+          <BigButton variant="secondary" onClick={startEdit}>
             編集
           </BigButton>
         )}
