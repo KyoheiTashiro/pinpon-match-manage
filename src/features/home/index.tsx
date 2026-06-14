@@ -4,7 +4,7 @@ import { useAppStore } from "@/store/useAppStore";
 import { Button } from "@/components/ui/Button";
 import { ChevronDownIcon } from "@/components/icons";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
-import { FontSizeToggle } from "@/components/ui/FontSizeToggle";
+import { FontSizeToggle } from "@/features/home/components/FontSizeToggle";
 import { InstallAppButton } from "@/features/home/components/InstallAppButton";
 import { formatDate } from "@/lib/time";
 import { useHome } from "@/features/home/hooks";
