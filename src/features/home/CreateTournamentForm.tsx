@@ -76,7 +76,7 @@ export const CreateTournamentForm = ({ form, submit, onCancel }: Props) => (
         キャンセル
       </BigButton>
       <BigButton variant="primary" type="submit" disabled={!form.formState.isValid}>
-        つくる
+        作る
       </BigButton>
     </div>
   </form>

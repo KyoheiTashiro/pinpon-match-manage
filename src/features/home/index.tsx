@@ -4,7 +4,7 @@ import { useAppStore } from "@/store/useAppStore";
 import { BigButton } from "@/components/ui/BigButton";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { FontSizeToggle } from "@/components/ui/FontSizeToggle";
-import { InstallAppButton } from "@/components/ui/InstallAppButton";
+import { InstallAppButton } from "@/features/home/InstallAppButton";
 import { formatDate } from "@/lib/time";
 import { useHome } from "@/features/home/hooks";
 import { CreateTournamentForm } from "@/features/home/CreateTournamentForm";
@@ -35,7 +35,7 @@ export const Home = () => {
             className="w-full !min-h-[72px] text-xl"
             onClick={() => setCreating(true)}
           >
-            ＋ あたらしい大会をつくる
+            ＋ 新しい大会を作る
           </BigButton>
         )}
 
@@ -54,11 +54,7 @@ export const Home = () => {
                   >
                     <div>
                       <div className="text-xl font-extrabold">{tournament.name}</div>
-                      <div className="text-base text-sub">
-                        {formatDate(tournament.date)} ・{" "}
-                        {tournament.format === "singles" ? "シングルス" : "ダブルス"} ・{" "}
-                        {tournament.participantIds.length}人
-                      </div>
+                      <div className="text-base text-sub">{formatDate(tournament.date)}</div>
                     </div>
                     <span className="text-2xl" aria-hidden>
                       ▶
@@ -73,7 +69,7 @@ export const Home = () => {
         <div className="pt-6 border-t-2 border-line space-y-3">
           <InstallAppButton />
           <BigButton variant="danger" onClick={() => setConfirmReset(true)}>
-            すべてのデータを消す
+            全てのデータを消す
           </BigButton>
         </div>
       </main>
@@ -81,8 +77,8 @@ export const Home = () => {
       <ConfirmDialog
         open={confirmReset}
         title="全データ削除"
-        message="すべての大会・参加者・対戦結果を削除します。取り消せません。本当に削除しますか?"
-        confirmLabel="すべて消す"
+        message="全ての大会・参加者・対戦結果を削除します。取り消せません。本当に削除しますか?"
+        confirmLabel="全て消す"
         cancelLabel="やめる"
         destructive
         onConfirm={() => {

@@ -35,10 +35,10 @@ export const ScoreboardHeader = ({
       <button
         type="button"
         onClick={onBack}
-        aria-label="もどる"
+        aria-label="戻る"
         className="px-4 py-2 text-base font-extrabold rounded-lg border-2 border-white/60 hover:bg-white/10 active:scale-95 transition"
       >
-        ← もどる
+        ← 戻る
       </button>
       <div className="flex gap-1 flex-wrap justify-center">
         {!showResult &&

@@ -48,7 +48,7 @@ export const TournamentLayout = () => {
           className="min-h-btn px-4 rounded-xl bg-white text-primary font-bold border-2 border-white"
           aria-label="大会一覧へ戻る"
         >
-          ← もどる
+          ← 戻る
         </button>
         <div className="flex-1 min-w-0">
           <div className="text-xl font-extrabold truncate">{tournament.name}</div>

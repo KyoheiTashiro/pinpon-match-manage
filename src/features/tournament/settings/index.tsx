@@ -108,15 +108,15 @@ export const SettingsTab = () => {
 
       <div className="border-t-2 border-line pt-4 space-y-3">
         <BigButton variant="danger" onClick={() => setConfirmDelete(true)}>
-          この大会を削除
+          大会を削除
         </BigButton>
-        <p className="text-sm text-sub">大会・参加者・試合をすべて削除します。</p>
+        <p className="text-sm text-sub">大会・参加者・試合を全て削除します。</p>
       </div>
 
       <ConfirmDialog
         open={confirmReset}
         title="試合結果を削除"
-        message="この大会の試合記録をすべて削除します。参加者は残ります。"
+        message="この大会の試合記録を全て削除します。参加者は残ります。"
         confirmLabel="削除する"
         cancelLabel="やめる"
         destructive
@@ -130,7 +130,7 @@ export const SettingsTab = () => {
       <ConfirmDialog
         open={confirmDelete}
         title="大会を削除"
-        message="大会・参加者・試合をすべて削除します。取り消せません。"
+        message="大会・参加者・試合を全て削除します。取り消せません。"
         confirmLabel="削除する"
         cancelLabel="やめる"
         destructive
