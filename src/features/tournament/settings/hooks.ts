@@ -1,8 +1,8 @@
+import { Schema, type FormType, defaultValues } from "@/features/tournament/settings/schema";
+import { useAppStore } from "@/store/useAppStore";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useAppStore } from "@/store/useAppStore";
-import { Schema, type FormType, defaultValues } from "@/features/tournament/settings/schema";
 
 export const useSettings = (tournamentId: string, onDeleted: () => void) => {
   const tournament = useAppStore((state) => state.tournaments[tournamentId]);

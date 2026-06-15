@@ -1,4 +1,3 @@
-import { describe, it, expect } from "vitest";
 import type { Side } from "@/domain/match";
 import {
   isGameFinished,
@@ -9,6 +8,7 @@ import {
   undoLastPoint,
   lastScorer,
 } from "@/domain/match";
+import { describe, it, expect } from "vitest";
 
 describe("isGameFinished", () => {
   it("11-9 finished", () => {

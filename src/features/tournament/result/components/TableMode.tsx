@@ -1,6 +1,6 @@
+import { SIDE } from "@/domain/match";
 import { useResult } from "@/features/tournament/result/hooks";
 import type { MatchResultRow } from "@/features/tournament/result/hooks";
-import { SIDE } from "@/domain/match";
 
 // ----- 点数表モード -----
 type Props = {
@@ -12,38 +12,38 @@ type Props = {
 export const TableMode = ({ rows, matchResults, bestOf }: Props) => (
   <>
     <div className="text-base font-extrabold">順位</div>
-    <table className="w-full border-2 border-line border-collapse">
+    <table className="w-full border-collapse border-2 border-line">
       <thead>
         <tr className="bg-bg">
-          <th className="border-2 border-line p-2 text-base whitespace-nowrap">順位</th>
-          <th className="border-2 border-line p-2 text-base text-left whitespace-nowrap">名前</th>
-          <th className="border-2 border-line p-2 text-base whitespace-nowrap">試合</th>
-          <th className="border-2 border-line p-2 text-base whitespace-nowrap">勝</th>
-          <th className="border-2 border-line p-2 text-base whitespace-nowrap">敗</th>
-          <th className="border-2 border-line p-2 text-base whitespace-nowrap">G差</th>
-          <th className="border-2 border-line p-2 text-base whitespace-nowrap">点差</th>
+          <th className="whitespace-nowrap border-2 border-line p-2 text-base">順位</th>
+          <th className="whitespace-nowrap border-2 border-line p-2 text-left text-base">名前</th>
+          <th className="whitespace-nowrap border-2 border-line p-2 text-base">試合</th>
+          <th className="whitespace-nowrap border-2 border-line p-2 text-base">勝</th>
+          <th className="whitespace-nowrap border-2 border-line p-2 text-base">敗</th>
+          <th className="whitespace-nowrap border-2 border-line p-2 text-base">G差</th>
+          <th className="whitespace-nowrap border-2 border-line p-2 text-base">点差</th>
         </tr>
       </thead>
       <tbody>
         {rows.map((row) => (
           <tr key={row.participantId} className="text-center">
             <td className="border-2 border-line p-2 text-2xl font-extrabold">{row.rank}</td>
-            <td className="border-2 border-line p-2 text-lg font-bold text-left whitespace-nowrap">
+            <td className="whitespace-nowrap border-2 border-line p-2 text-left text-lg font-bold">
               {row.name}
             </td>
             <td className="border-2 border-line p-2 text-lg">{row.played}</td>
-            <td className="border-2 border-line p-2 text-lg text-success font-bold">{row.wins}</td>
-            <td className="border-2 border-line p-2 text-lg text-danger font-bold">{row.losses}</td>
+            <td className="border-2 border-line p-2 text-lg font-bold text-success">{row.wins}</td>
+            <td className="border-2 border-line p-2 text-lg font-bold text-danger">{row.losses}</td>
             <td className="border-2 border-line p-2 text-lg">
               {signed(row.gameDiff)}
-              <span className="text-sub text-base">
+              <span className="text-base text-sub">
                 {" "}
                 ({row.gamesWon}/{row.gamesLost})
               </span>
             </td>
             <td className="border-2 border-line p-2 text-lg">
               {signed(row.pointDiff)}
-              <span className="text-sub text-base">
+              <span className="text-base text-sub">
                 {" "}
                 ({row.pointsFor}/{row.pointsAgainst})
               </span>
@@ -55,18 +55,18 @@ export const TableMode = ({ rows, matchResults, bestOf }: Props) => (
     {matchResults.length > 0 && (
       <div className="space-y-2 pt-2">
         <div className="text-base font-extrabold">対戦結果</div>
-        <table className="w-full border-2 border-line border-collapse">
+        <table className="w-full border-collapse border-2 border-line">
           <thead>
             <tr className="bg-bg">
-              <th className="border-2 border-line p-2 text-base text-left whitespace-nowrap">
+              <th className="whitespace-nowrap border-2 border-line p-2 text-left text-base">
                 対戦
               </th>
               {Array.from({ length: bestOf }, (_, index) => (
-                <th key={index} className="border-2 border-line p-2 text-base whitespace-nowrap">
+                <th key={index} className="whitespace-nowrap border-2 border-line p-2 text-base">
                   G{index + 1}
                 </th>
               ))}
-              <th className="border-2 border-line p-2 text-base whitespace-nowrap">セット</th>
+              <th className="whitespace-nowrap border-2 border-line p-2 text-base">セット</th>
             </tr>
           </thead>
           <tbody>
@@ -87,7 +87,7 @@ export const TableMode = ({ rows, matchResults, bestOf }: Props) => (
                     return (
                       <td
                         key={gameIndex}
-                        className="border-2 border-line p-2 text-base text-center text-sub"
+                        className="border-2 border-line p-2 text-center text-base text-sub"
                       >
                         -
                       </td>
@@ -96,7 +96,7 @@ export const TableMode = ({ rows, matchResults, bestOf }: Props) => (
                   return (
                     <td
                       key={gameIndex}
-                      className="border-2 border-line p-2 text-base text-center whitespace-nowrap"
+                      className="whitespace-nowrap border-2 border-line p-2 text-center text-base"
                     >
                       <span className={game.leftScore > game.rightScore ? "font-extrabold" : ""}>
                         {game.leftScore}
@@ -108,7 +108,7 @@ export const TableMode = ({ rows, matchResults, bestOf }: Props) => (
                     </td>
                   );
                 })}
-                <td className="border-2 border-line p-2 text-base text-center font-bold whitespace-nowrap">
+                <td className="whitespace-nowrap border-2 border-line p-2 text-center text-base font-bold">
                   {match.leftWins}-{match.rightWins}
                 </td>
               </tr>

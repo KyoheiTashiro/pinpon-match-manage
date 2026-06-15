@@ -1,7 +1,6 @@
-import { useEffect, useId, useState } from "react";
-import { createPortal } from "react-dom";
-import type { Match, Participant } from "@/store/types";
-import { SIDE_KIND } from "@/store/types";
+import { ChevronDownIcon } from "@/components/icons";
+import { Button } from "@/components/ui/Button";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import type { Game, Side } from "@/domain/match";
 import { SIDE, isGameFinished, gameWinner, winsNeededForBestOf } from "@/domain/match";
 import {
@@ -10,11 +9,12 @@ import {
   lockedGameStartIndex,
   firstPlayableGameIndex,
 } from "@/domain/matchGames";
-import { useAppStore } from "@/store/useAppStore";
-import { Button } from "@/components/ui/Button";
-import { ChevronDownIcon } from "@/components/icons";
-import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { ScoreboardScreen } from "@/features/tournament/matrix/components/scoreboard/ScoreboardScreen";
+import type { Match, Participant } from "@/store/types";
+import { SIDE_KIND } from "@/store/types";
+import { useAppStore } from "@/store/useAppStore";
+import { useEffect, useId, useState } from "react";
+import { createPortal } from "react-dom";
 
 type Props = {
   matchId: string;
@@ -64,7 +64,7 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
       role="button"
       tabIndex={-1}
       aria-label="閉じる"
-      className="fixed inset-0 z-40 flex items-start justify-center bg-black/50 p-2 sm:p-4 pb-28 sm:pb-28 overflow-y-auto"
+      className="fixed inset-0 z-40 flex items-start justify-center overflow-y-auto bg-black/50 p-2 pb-28 sm:p-4 sm:pb-28"
       onClick={onClose}
       onKeyDown={(event) => {
         if (event.key === "Enter" || event.key === "Escape") onClose();
@@ -76,11 +76,11 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        className="bg-white rounded-2xl p-4 sm:p-6 w-full max-w-2xl border-4 border-line my-4"
+        className="my-4 w-full max-w-2xl rounded-2xl border-4 border-line bg-white p-4 sm:p-6"
         onClick={(event) => event.stopPropagation()}
         onKeyDown={(event) => event.stopPropagation()}
       >
-        <div className="flex items-start justify-between gap-3 mb-4">
+        <div className="mb-4 flex items-start justify-between gap-3">
           <h2 id={titleId} className="text-xl font-extrabold">
             試合の入力
           </h2>
@@ -88,21 +88,21 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
             type="button"
             onClick={onClose}
             aria-label="閉じる"
-            className="w-10 h-10 rounded-lg bg-white border-2 border-line text-2xl font-extrabold leading-none flex items-center justify-center hover:bg-bg active:scale-95 transition"
+            className="flex h-10 w-10 items-center justify-center rounded-lg border-2 border-line bg-white text-2xl font-extrabold leading-none transition hover:bg-bg active:scale-95"
           >
             ×
           </button>
         </div>
 
-        <div className="text-2xl font-extrabold text-center mb-4">
+        <div className="mb-4 text-center text-2xl font-extrabold">
           {sideLabel(match.leftSide, participants)}
           <span className="mx-3 text-line">対</span>
           {sideLabel(match.rightSide, participants)}
         </div>
 
-        <fieldset className="mb-4 border-2 border-line rounded-xl p-3">
+        <fieldset className="mb-4 rounded-xl border-2 border-line p-3">
           <legend className="px-2 font-bold">最初のサーブ</legend>
-          <div className="flex flex-col sm:flex-row gap-2">
+          <div className="flex flex-col gap-2 sm:flex-row">
             {([SIDE.LEFT, SIDE.RIGHT] as Side[]).map((side) => {
               const name = sideLabel(
                 side === SIDE.LEFT ? match.leftSide : match.rightSide,
@@ -111,7 +111,7 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
               return (
                 <label
                   key={side}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg border-2 cursor-pointer flex-1 ${
+                  className={`flex flex-1 cursor-pointer items-center gap-2 rounded-lg border-2 px-3 py-2 ${
                     firstServer === side ? "border-orange-500 bg-orange-50" : "border-line bg-white"
                   }`}
                 >
@@ -122,7 +122,7 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
                     checked={firstServer === side}
                     onChange={() => setFirstServer(side)}
                     aria-label={`最初のサーブ: ${name}`}
-                    className="w-5 h-5 accent-orange-500"
+                    className="h-5 w-5 accent-orange-500"
                   />
                   <span className="font-bold">{name}</span>
                 </label>
@@ -140,7 +140,7 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
           </Button>
         </div>
 
-        <ul className="space-y-2 mb-4 border-2 border-line rounded-xl divide-y-2 divide-line overflow-hidden">
+        <ul className="mb-4 space-y-2 divide-y-2 divide-line overflow-hidden rounded-xl border-2 border-line">
           {games.map((game, gameIndex) => {
             const locked = gameIndex >= lockedFromIndex;
             const empty = game.leftScore === 0 && game.rightScore === 0;
@@ -152,12 +152,12 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
                   locked ? "bg-bg opacity-60" : "bg-white"
                 }`}
               >
-                <span className="font-extrabold text-base px-3 py-1">ゲーム{gameIndex + 1}</span>
+                <span className="px-3 py-1 text-base font-extrabold">ゲーム{gameIndex + 1}</span>
                 <span className="text-xl font-extrabold tabular-nums">
                   {locked && empty ? (
-                    <span className="text-sub text-base font-bold">入力不可</span>
+                    <span className="text-base font-bold text-sub">入力不可</span>
                   ) : empty ? (
-                    <span className="text-sub text-base font-bold">未入力</span>
+                    <span className="text-base font-bold text-sub">未入力</span>
                   ) : (
                     <>
                       <span className={winner === SIDE.LEFT ? "text-success" : ""}>
@@ -178,7 +178,7 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
           })}
         </ul>
 
-        <div className="flex flex-wrap gap-3 justify-end">
+        <div className="flex flex-wrap justify-end gap-3">
           <Button variant="danger" onClick={() => setConfirmDelete(true)}>
             試合結果を削除
           </Button>

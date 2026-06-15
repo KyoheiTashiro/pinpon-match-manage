@@ -1,5 +1,4 @@
-import { useState, useSyncExternalStore } from "react";
-import { createPortal } from "react-dom";
+import { GAME_POINT, WIN_DIFF } from "@/domain/constants";
 import { SIDE } from "@/domain/match";
 import type { Game, Side } from "@/domain/match";
 import {
@@ -12,10 +11,11 @@ import {
   gameFirstServer,
   currentServer,
 } from "@/domain/match";
-import { GAME_POINT, WIN_DIFF } from "@/domain/constants";
+import { MatchResultView } from "@/features/tournament/matrix/components/scoreboard/MatchResultView";
 import { ScoreboardHeader } from "@/features/tournament/matrix/components/scoreboard/ScoreboardHeader";
 import { ScoreInputView } from "@/features/tournament/matrix/components/scoreboard/ScoreInputView";
-import { MatchResultView } from "@/features/tournament/matrix/components/scoreboard/MatchResultView";
+import { useState, useSyncExternalStore } from "react";
+import { createPortal } from "react-dom";
 
 const PORTRAIT_QUERY = "(orientation: portrait) and (max-width: 900px)";
 
@@ -136,7 +136,7 @@ export const ScoreboardScreen = ({
       role="dialog"
       aria-modal="true"
       tabIndex={-1}
-      className="fixed inset-0 z-[60] bg-blue-800 text-white flex flex-col select-none overflow-x-hidden"
+      className="fixed inset-0 z-[60] flex select-none flex-col overflow-x-hidden bg-blue-800 text-white"
       style={{
         touchAction: "none",
         paddingTop: "env(safe-area-inset-top)",
@@ -163,9 +163,9 @@ export const ScoreboardScreen = ({
       />
 
       {isPortrait && (
-        <div className="bg-amber-500 text-black text-center text-sm font-extrabold py-1 px-2 leading-tight">
+        <div className="bg-amber-500 px-2 py-1 text-center text-sm font-extrabold leading-tight text-black">
           端末を横向きにしてください
-          <span className="block text-xs font-bold">
+          <span className="text-xs block font-bold">
             （画面の回転ロックがオンの場合は、解除してください）
           </span>
         </div>

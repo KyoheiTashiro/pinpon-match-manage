@@ -1,4 +1,3 @@
-import { describe, it, expect } from "vitest";
 import type { Game } from "@/domain/match";
 import {
   padGames,
@@ -6,6 +5,7 @@ import {
   lockedGameStartIndex,
   firstPlayableGameIndex,
 } from "@/domain/matchGames";
+import { describe, it, expect } from "vitest";
 
 const game = (leftScore: number, rightScore: number): Game => ({ leftScore, rightScore });
 const empty = (): Game => game(0, 0);

@@ -1,5 +1,5 @@
-import { useEffect, useId, useRef } from "react";
 import { Button } from "@/components/ui/Button";
+import { useEffect, useId, useRef } from "react";
 
 type Props = {
   open: boolean;
@@ -47,14 +47,14 @@ export const ConfirmModal = ({
       onClick={(event) => {
         if (event.target === dialogRef.current) onCancel();
       }}
-      className="m-auto max-w-md w-full bg-white text-ink rounded-2xl border-4 border-line backdrop:bg-black/40"
+      className="m-auto w-full max-w-md rounded-2xl border-4 border-line bg-white text-ink backdrop:bg-black/40"
     >
       <div className="p-6">
-        <h2 id={titleId} className="text-xl font-extrabold mb-4">
+        <h2 id={titleId} className="mb-4 text-xl font-extrabold">
           {title}
         </h2>
-        <p className="text-base mb-6 leading-relaxed">{message}</p>
-        <div className="flex gap-4 justify-end flex-wrap">
+        <p className="mb-6 text-base leading-relaxed">{message}</p>
+        <div className="flex flex-wrap justify-end gap-4">
           <Button ref={cancelRef} variant="secondary" onClick={onCancel}>
             {cancelLabel}
           </Button>

@@ -18,3 +18,4 @@ jobs:
       - run: npm ci
       # --type-aware は通常ルールに加え no-floating-promises 等の型ルールも走らせる
       - run: npm run lint:typed
+      - run: npm run format:check

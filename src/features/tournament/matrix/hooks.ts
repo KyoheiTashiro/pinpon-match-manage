@@ -1,6 +1,6 @@
-import { useMemo } from "react";
-import { useAppStore } from "@/store/useAppStore";
 import { SIDE_KIND, type Match, type MatchSide } from "@/store/types";
+import { useAppStore } from "@/store/useAppStore";
+import { useMemo } from "react";
 
 /** 対戦表を成立させる最小参加人数。 */
 export const MIN_PLAYERS_SINGLES = 2;

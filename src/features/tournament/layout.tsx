@@ -1,11 +1,11 @@
-import { NavLink, Outlet, useNavigate, useParams } from "react-router-dom";
-import type { ComponentType, SVGProps } from "react";
-import { useEffect } from "react";
-import { useAppStore } from "@/store/useAppStore";
 import { UsersIcon, PaddleIcon, TrophyIcon, GearIcon, ChevronDownIcon } from "@/components/icons";
 import { Button } from "@/components/ui/Button";
 import { ROUTES, TAB_PATH } from "@/constants/routes";
 import { FORMAT } from "@/store/types";
+import { useAppStore } from "@/store/useAppStore";
+import type { ComponentType, SVGProps } from "react";
+import { useEffect } from "react";
+import { NavLink, Outlet, useNavigate, useParams } from "react-router-dom";
 
 type Tab = {
   to: string;
@@ -35,8 +35,8 @@ export const TournamentLayout = () => {
   if (!tournament) {
     return (
       <div className="p-6 text-center">
-        <p className="text-lg mb-4">大会が見つかりません。</p>
-        <button onClick={() => navigate(ROUTES.HOME)} className="text-primary underline text-lg">
+        <p className="mb-4 text-lg">大会が見つかりません。</p>
+        <button onClick={() => navigate(ROUTES.HOME)} className="text-lg text-primary underline">
           一覧へ戻る
         </button>
       </div>
@@ -44,8 +44,8 @@ export const TournamentLayout = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white text-ink pb-24">
-      <header className="bg-primary text-white p-4 flex items-center gap-3 flex-wrap">
+    <div className="min-h-screen bg-white pb-24 text-ink">
+      <header className="flex flex-wrap items-center gap-3 bg-primary p-4 text-white">
         <Button
           variant="white"
           size="sm"
@@ -55,28 +55,28 @@ export const TournamentLayout = () => {
         >
           <ChevronDownIcon className="rotate-90" /> 戻る
         </Button>
-        <div className="flex-1 min-w-0">
-          <div className="text-xl font-extrabold truncate">{tournament.name}</div>
+        <div className="min-w-0 flex-1">
+          <div className="truncate text-xl font-extrabold">{tournament.name}</div>
           <div className="text-sm">
             {tournament.format === FORMAT.SINGLES ? "シングルス" : "ダブルス"}
           </div>
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto p-4">
+      <main className="mx-auto max-w-5xl p-4">
         <Outlet />
       </main>
 
       <nav
         aria-label="メインタブ"
-        className="fixed bottom-0 inset-x-0 z-50 bg-white border-t-4 border-line grid grid-cols-4"
+        className="fixed inset-x-0 bottom-0 z-50 grid grid-cols-4 border-t-4 border-line bg-white"
       >
         {tabs.map(({ to, label, Icon }) => (
           <NavLink
             key={to}
             to={to}
             className={({ isActive }) =>
-              `flex flex-col items-center justify-center min-h-[72px] py-2 font-bold ${
+              `flex min-h-[72px] flex-col items-center justify-center py-2 font-bold ${
                 isActive ? "bg-primary text-white" : "bg-white text-ink"
               }`
             }

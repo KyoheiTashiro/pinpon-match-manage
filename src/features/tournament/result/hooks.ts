@@ -1,10 +1,10 @@
-import { useMemo, useState } from "react";
-import { useAppStore } from "@/store/useAppStore";
-import { computeRanking } from "@/domain/ranking";
 import { matchSummary, realGames, winsNeededForBestOf } from "@/domain/match";
 import type { Game, Side } from "@/domain/match";
-import { SIDE_KIND, type Match, type MatchSide, type Participant } from "@/store/types";
+import { computeRanking } from "@/domain/ranking";
 import { useImageCapture } from "@/lib/useImageCapture";
+import { SIDE_KIND, type Match, type MatchSide, type Participant } from "@/store/types";
+import { useAppStore } from "@/store/useAppStore";
+import { useMemo, useState } from "react";
 
 type DisplayMode = "table" | "graph";
 

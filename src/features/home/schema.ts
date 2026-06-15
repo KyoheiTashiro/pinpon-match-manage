@@ -1,5 +1,5 @@
-import { z } from "zod";
 import { FORMAT } from "@/store/types";
+import { z } from "zod";
 
 export const Schema = z.object({
   name: z

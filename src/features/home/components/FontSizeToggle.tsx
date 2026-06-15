@@ -1,7 +1,7 @@
-import { useEffect } from "react";
-import { useAppStore } from "@/store/useAppStore";
-import { FONT_SIZE, type FontSize } from "@/store/types";
 import { Toggle, type ToggleOption } from "@/components/ui/Toggle";
+import { FONT_SIZE, type FontSize } from "@/store/types";
+import { useAppStore } from "@/store/useAppStore";
+import { useEffect } from "react";
 
 const FONT_SIZE_OPTIONS: ToggleOption<FontSize>[] = Object.values(FONT_SIZE).map((size) => ({
   value: size,

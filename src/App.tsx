@@ -1,11 +1,11 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { ROUTES, TAB_PATH } from "@/constants/routes";
 import { Home } from "@/features/home";
 import { TournamentLayout } from "@/features/tournament/layout";
-import { ParticipantsTab } from "@/features/tournament/participants";
 import { MatchMatrixTab } from "@/features/tournament/matrix";
+import { ParticipantsTab } from "@/features/tournament/participants";
 import { ResultTab } from "@/features/tournament/result";
 import { SettingsTab } from "@/features/tournament/settings";
-import { ROUTES, TAB_PATH } from "@/constants/routes";
+import { Routes, Route, Navigate } from "react-router-dom";
 
 export default function App() {
   return (

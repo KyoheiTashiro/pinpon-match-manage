@@ -1,7 +1,7 @@
-import type { StateCreator } from "zustand";
+import { generateId } from "@/lib/id";
 import { SIDE_KIND, type MatchSide, type Participant } from "@/store/types";
 import type { StoreState } from "@/store/useAppStore";
-import { generateId } from "@/lib/id";
+import type { StateCreator } from "zustand";
 
 export type ParticipantSlice = {
   participants: Record<string, Participant>;

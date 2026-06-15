@@ -91,6 +91,7 @@ export const gameProgress = (pointLog: Side[], firstServerOfGame: Side): Progres
 - **最終スコア列（右端）**: 黄背景（`bg-amber-300`）。勝者側は `text-green-800`（`finalWinner`）、敗者側は `text-neutral-700`（`finalLoser`）。
 
 定数:
+
 - 丸の直径: 36px（`CIRCLE_SIZE`）
 - 列幅: 44px（`COL_WIDTH`）
 - 行高: 56px（`ROW_HEIGHT`）
@@ -131,11 +132,11 @@ export const gameProgress = (pointLog: Side[], firstServerOfGame: Side): Progres
 
 白背景（結果タブ）前提:
 
-| 要素           | スタイル                                                    |
-| -------------- | ----------------------------------------------------------- |
-| 得点ノード     | `bg-blue-500` / 白文字                                      |
-| 非得点ノード   | `bg-neutral-200` / `text-neutral-700`                       |
-| 折れ線         | `stroke: #3b82f6`（blue-500相当）、3px                      |
-| サーブ下線     | `bg-orange-500`                                             |
+| 要素           | スタイル                                                            |
+| -------------- | ------------------------------------------------------------------- |
+| 得点ノード     | `bg-blue-500` / 白文字                                              |
+| 非得点ノード   | `bg-neutral-200` / `text-neutral-700`                               |
+| 折れ線         | `stroke: #3b82f6`（blue-500相当）、3px                              |
+| サーブ下線     | `bg-orange-500`                                                     |
 | 最終スコア背景 | `bg-amber-300`（勝者: `text-green-800` / 敗者: `text-neutral-700`） |
-| 選手名・見出し | `text-ink`（黒系）                                          |
+| 選手名・見出し | `text-ink`（黒系）                                                  |

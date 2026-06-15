@@ -2,11 +2,11 @@
 
 親: [README.md](../README.md)
 
-| 項目         | 採用                                                                       |
-| ------------ | -------------------------------------------------------------------------- |
+| 項目         | 採用                                                                        |
+| ------------ | --------------------------------------------------------------------------- |
 | フロント     | React 19 + TypeScript                                                       |
 | ビルド       | Vite 5                                                                      |
-| ルーティング | React Router v6 (`HashRouter` — GH Pages対応)                              |
+| ルーティング | React Router v6 (`HashRouter` — GH Pages対応)                               |
 | 状態管理     | Zustand v5 + `immer` ミドルウェア + `persist`（LocalStorage永続化）         |
 | フォーム     | React Hook Form + Zod（`@hookform/resolvers/zod`）                          |
 | スタイル     | Tailwind CSS v3                                                             |

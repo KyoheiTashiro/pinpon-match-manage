@@ -1,5 +1,5 @@
-import { useEffect, useId, useRef, type ReactNode } from "react";
 import { Button } from "@/components/ui/Button";
+import { useEffect, useId, useRef, type ReactNode } from "react";
 
 type Props = {
   open: boolean;
@@ -35,10 +35,10 @@ export const InfoModal = ({ open, title, onClose, closeLabel = "閉じる", chil
       onClick={(event) => {
         if (event.target === dialogRef.current) onClose();
       }}
-      className="m-auto max-w-md w-full bg-white text-ink rounded-2xl border-4 border-line backdrop:bg-black/40"
+      className="m-auto w-full max-w-md rounded-2xl border-4 border-line bg-white text-ink backdrop:bg-black/40"
     >
       <div className="p-6">
-        <h2 id={titleId} className="text-xl font-extrabold mb-4">
+        <h2 id={titleId} className="mb-4 text-xl font-extrabold">
           {title}
         </h2>
         {children}

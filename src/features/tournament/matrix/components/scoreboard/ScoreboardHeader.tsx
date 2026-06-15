@@ -1,7 +1,7 @@
-import type { Game } from "@/domain/match";
-import { isGameFinished } from "@/domain/match";
 import { ChevronDownIcon } from "@/components/icons";
 import { Button } from "@/components/ui/Button";
+import type { Game } from "@/domain/match";
+import { isGameFinished } from "@/domain/match";
 
 type Props = {
   games: Game[];
@@ -33,7 +33,7 @@ export const ScoreboardHeader = ({
   onCloseAll,
 }: Props) => {
   return (
-    <div className="flex items-center justify-between px-3 py-2 border-b border-white/20 shrink-0">
+    <div className="flex shrink-0 items-center justify-between border-b border-white/20 px-3 py-2">
       <Button
         type="button"
         variant="secondary"
@@ -44,7 +44,7 @@ export const ScoreboardHeader = ({
       >
         <ChevronDownIcon className="rotate-90" /> 戻る
       </Button>
-      <div className="flex gap-1 flex-wrap justify-center">
+      <div className="flex flex-wrap justify-center gap-1">
         {!showResult &&
           games.map((game, index) => {
             const empty = game.leftScore === 0 && game.rightScore === 0;
@@ -56,9 +56,9 @@ export const ScoreboardHeader = ({
                 type="button"
                 onClick={() => setGameIndex(index)}
                 disabled={isLocked && empty}
-                className={`min-w-[44px] px-2 py-1 text-sm font-extrabold rounded border-2 ${
+                className={`min-w-[44px] rounded border-2 px-2 py-1 text-sm font-extrabold ${
                   index === gameIndex
-                    ? "bg-white text-black border-white"
+                    ? "border-white bg-white text-black"
                     : done
                       ? "border-success text-green-500"
                       : isLocked && empty
@@ -71,12 +71,12 @@ export const ScoreboardHeader = ({
             );
           })}
       </div>
-      <div className="min-w-[110px] flex justify-end">
+      <div className="flex min-w-[110px] justify-end">
         {showNextGameBtn && (
           <button
             type="button"
             onClick={() => setGameIndex(nextGameIndex)}
-            className="px-4 py-2 text-base font-extrabold rounded-lg border-2 border-success bg-success text-white hover:brightness-110 active:scale-95 transition"
+            className="rounded-lg border-2 border-success bg-success px-4 py-2 text-base font-extrabold text-white transition hover:brightness-110 active:scale-95"
           >
             次に進む
           </button>
@@ -85,7 +85,7 @@ export const ScoreboardHeader = ({
           <button
             type="button"
             onClick={onShowResult}
-            className="px-4 py-2 text-base font-extrabold rounded-lg border-2 border-success bg-success text-white hover:brightness-110 active:scale-95 transition"
+            className="rounded-lg border-2 border-success bg-success px-4 py-2 text-base font-extrabold text-white transition hover:brightness-110 active:scale-95"
           >
             結果を見る
           </button>
@@ -97,7 +97,7 @@ export const ScoreboardHeader = ({
               onBack();
               onCloseAll?.();
             }}
-            className="px-4 py-2 text-base font-extrabold rounded-lg border-2 border-success bg-success text-white hover:brightness-110 active:scale-95 transition"
+            className="rounded-lg border-2 border-success bg-success px-4 py-2 text-base font-extrabold text-white transition hover:brightness-110 active:scale-95"
           >
             対戦表に戻る
           </button>

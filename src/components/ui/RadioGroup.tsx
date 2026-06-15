@@ -16,15 +16,15 @@ export const RadioGroup = <T extends string | number>({
   onChange,
 }: Props<T>) => (
   <fieldset className="flex flex-col gap-2">
-    <legend className="font-bold mb-1">{legend}</legend>
-    <div className="flex gap-3 flex-wrap">
+    <legend className="mb-1 font-bold">{legend}</legend>
+    <div className="flex flex-wrap gap-3">
       {options.map((option) => (
         <label
           key={String(option.value)}
-          className={`flex items-center gap-2 px-4 min-h-btn rounded-xl border-2 cursor-pointer ${
+          className={`flex min-h-btn cursor-pointer items-center gap-2 rounded-xl border-2 px-4 ${
             value === option.value
-              ? "bg-primary text-white border-primary"
-              : "bg-white text-ink border-line"
+              ? "border-primary bg-primary text-white"
+              : "border-line bg-white text-ink"
           }`}
         >
           <input
@@ -33,7 +33,7 @@ export const RadioGroup = <T extends string | number>({
             checked={value === option.value}
             onChange={() => onChange(option.value)}
             aria-label={option.label}
-            className="w-5 h-5"
+            className="h-5 w-5"
           />
           <span className="text-lg font-bold">{option.label}</span>
         </label>

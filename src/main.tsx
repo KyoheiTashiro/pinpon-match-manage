@@ -1,7 +1,8 @@
+import App from "@/App";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { HashRouter } from "react-router-dom";
-import App from "@/App";
+
 import "./styles/index.css";
 import { registerSW } from "virtual:pwa-register";
 

@@ -8,11 +8,11 @@ type Props = {
 
 export const PairSelect = ({ value, onChange, options, exclude, label }: Props) => (
   <label className="flex flex-col gap-1">
-    <span className="font-bold text-base">{label}</span>
+    <span className="text-base font-bold">{label}</span>
     <select
       value={value}
       onChange={(event) => onChange(event.target.value)}
-      className="min-h-input border-2 border-line rounded-xl px-3 text-lg bg-white"
+      className="min-h-input rounded-xl border-2 border-line bg-white px-3 text-lg"
     >
       <option value="">— 選んでください —</option>
       {options

@@ -1,8 +1,8 @@
-import type { StateCreator } from "zustand";
-import { SIDE_KIND, type Match, type MatchSide } from "@/store/types";
-import type { StoreState } from "@/store/useAppStore";
 import { SIDE } from "@/domain/match";
 import { generateId } from "@/lib/id";
+import { SIDE_KIND, type Match, type MatchSide } from "@/store/types";
+import type { StoreState } from "@/store/useAppStore";
+import type { StateCreator } from "zustand";
 
 export type MatchSlice = {
   matches: Record<string, Match>;
