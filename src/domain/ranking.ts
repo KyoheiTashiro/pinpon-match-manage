@@ -1,5 +1,5 @@
-import { SIDE_KIND, type Match } from "@/store/types";
 import { SIDE, matchSummary } from "@/domain/match";
+import { SIDE_KIND, type Match } from "@/store/types";
 
 export type RankingRow = {
   participantId: string;
@@ -79,6 +79,7 @@ export const computeRanking = (
   // stats values are locally created objects not shared outside computeRanking; mutate
   // directly to avoid the spread overhead flagged by oxc/no-map-spread, then cast to
   // RankingRow (rank will be filled in below).
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion
   const rows = Array.from(stats.values()) as RankingRow[];
   for (const row of rows) {
     row.gameDiff = row.gamesWon - row.gamesLost;

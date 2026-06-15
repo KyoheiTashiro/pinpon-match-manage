@@ -33,7 +33,21 @@
     "eslint/max-lines-per-function": "off",
     // no-inline-comments: 本コードベースは意図・根拠を行末/行内コメントで明示する方針
     // （この設定ファイル自体もそう）。意図的なスタイルなので off。
-    "eslint/no-inline-comments": "off"
+    "eslint/no-inline-comments": "off",
+    // prefer-readonly-parameter-types: 全ての object/array 引数に Readonly<> を強制する。
+    // React props・zustand/immer の slice・ドメイン関数の引数すべてに波及して誤検知が大量に出る一方、
+    // immer 下では draft をミューテートするのが正であり readonly 化は実態と矛盾する。費用対効果が低いため off。
+    "typescript/prefer-readonly-parameter-types": "off",
+    // no-confusing-void-expression: zustand の `(set) => set(...)` のようなアロー短縮形で
+    // void を返すのは本コードベースの定型。実害がないアロー短縮形のみ許可し、その他の紛らわしい
+    // void 式（引数渡し・戻り値利用）は引き続き検出する。
+    "typescript/no-confusing-void-expression": ["error", { "ignoreArrowShorthand": true }],
+    // strict-boolean-expressions: 検出の過半は Record/配列の index アクセスが
+    // noUncheckedIndexedAccess 無効により `T`（undefined 無し）と推論され、既存の防御的
+    // `if (!x) return` ガードが「常に truthy」と誤検知されるもの。残りも `{label && <jsx>}` 等の
+    // React 慣用的な条件描画で、満たすには冗長な明示比較が必要。バグ検出価値が低いため off。
+    // （根本対処として noUncheckedIndexedAccess 有効化は別途検討。新規 tsc エラー誘発のため本件では見送り。）
+    "typescript/strict-boolean-expressions": "off"
   },
   "ignorePatterns": ["dist", "dev-dist", "node_modules", "**/*.config.{ts,js}"],
   "overrides": [

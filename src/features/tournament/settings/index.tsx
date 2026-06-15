@@ -1,11 +1,11 @@
-import { useNavigate, useParams } from "react-router-dom";
 import { CalendarIcon } from "@/components/icons";
 import { Button } from "@/components/ui/Button";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
-import { formatDate } from "@/lib/time";
-import { FORMAT } from "@/store/types";
 import { ROUTES } from "@/constants/routes";
 import { useSettings } from "@/features/tournament/settings/hooks";
+import { formatDate } from "@/lib/time";
+import { FORMAT } from "@/store/types";
+import { useNavigate, useParams } from "react-router-dom";
 
 export const SettingsTab = () => {
   const { tournamentId } = useParams<{ tournamentId: string }>();
@@ -46,14 +46,19 @@ const SettingsView = ({ tournamentId }: { tournamentId: string }) => {
       </div>
 
       {editing ? (
-        <form onSubmit={saveEdit} className="space-y-3">
+        <form
+          onSubmit={(e) => {
+            void saveEdit(e);
+          }}
+          className="space-y-3"
+        >
           <label className="flex flex-col gap-1">
             <span className="font-bold">大会名</span>
             <input
               type="text"
               {...form.register("name")}
               aria-label="大会名"
-              className="min-h-input border-2 border-line rounded-xl px-3 text-lg"
+              className="min-h-input rounded-xl border-2 border-line px-3 text-lg"
             />
             {form.formState.errors.name && (
               <span className="text-sm text-danger">{form.formState.errors.name.message}</span>
@@ -67,7 +72,7 @@ const SettingsView = ({ tournamentId }: { tournamentId: string }) => {
                 {...form.register("date")}
                 aria-label="開催日"
                 onClick={(e) => e.currentTarget.showPicker?.()}
-                className="w-full min-h-input appearance-none bg-white border-2 border-line rounded-xl pl-3 pr-12 text-lg [&::-webkit-calendar-picker-indicator]:opacity-0"
+                className="min-h-input w-full appearance-none rounded-xl border-2 border-line bg-white pl-3 pr-12 text-lg [&::-webkit-calendar-picker-indicator]:opacity-0"
               />
               <CalendarIcon className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-2xl text-line" />
             </div>
@@ -75,7 +80,7 @@ const SettingsView = ({ tournamentId }: { tournamentId: string }) => {
               <span className="text-sm text-danger">{form.formState.errors.date.message}</span>
             )}
           </label>
-          <div className="flex gap-3 justify-end flex-wrap">
+          <div className="flex flex-wrap justify-end gap-3">
             <Button type="button" variant="secondary" onClick={cancelEdit}>
               キャンセル
             </Button>
@@ -99,14 +104,14 @@ const SettingsView = ({ tournamentId }: { tournamentId: string }) => {
         </dl>
       )}
 
-      <div className="border-t-2 border-line pt-4 space-y-3">
+      <div className="space-y-3 border-t-2 border-line pt-4">
         <Button variant="danger" onClick={askReset}>
           試合結果を削除
         </Button>
         <p className="text-sm text-sub">大会・参加者は残し、試合の記録だけを削除します。</p>
       </div>
 
-      <div className="border-t-2 border-line pt-4 space-y-3">
+      <div className="space-y-3 border-t-2 border-line pt-4">
         <Button variant="danger" onClick={askDelete}>
           大会を削除
         </Button>

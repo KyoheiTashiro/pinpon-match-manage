@@ -1,5 +1,5 @@
-import { useEffect, useId, useRef, useState } from "react";
 import { ChevronDownIcon } from "@/components/icons";
+import { useEffect, useId, useRef, useState } from "react";
 
 // 汎用カスタムセレクト（listbox パターン）。native <select> ではなく
 // スタイル統一・キーボード操作のため独自実装。
@@ -43,9 +43,14 @@ export const Select = <T extends string | number>({
   const selectedOption = options.find((o) => o.value === value) ?? null;
 
   useEffect(() => {
-    if (!isOpen) return;
+    // クリーンアップ不要だが consistent-return のため空クリーンアップ関数を返す
+    if (!isOpen) return () => {};
     const handlePointerDown = (e: PointerEvent) => {
-      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+      if (
+        wrapperRef.current &&
+        e.target instanceof Node &&
+        !wrapperRef.current.contains(e.target)
+      ) {
         setIsOpen(false);
       }
     };
@@ -120,7 +125,7 @@ export const Select = <T extends string | number>({
   return (
     <div className="flex items-center gap-2">
       {label && (
-        <span id={labelId} className="text-sm font-bold text-ink shrink-0">
+        <span id={labelId} className="shrink-0 text-sm font-bold text-ink">
           {label}
         </span>
       )}
@@ -136,7 +141,7 @@ export const Select = <T extends string | number>({
           id={triggerId}
           onClick={() => (isOpen ? close() : open())}
           onKeyDown={handleTriggerKeyDown}
-          className="w-full min-h-btn px-3 rounded-xl border-2 border-line text-ink bg-white text-base font-bold flex items-center justify-between gap-2 text-left disabled:opacity-50"
+          className="flex min-h-btn w-full items-center justify-between gap-2 rounded-xl border-2 border-line bg-white px-3 text-left text-base font-bold text-ink disabled:opacity-50"
         >
           <span className="truncate">{selectedOption ? selectedOption.label : placeholder}</span>
           <ChevronDownIcon
@@ -157,7 +162,7 @@ export const Select = <T extends string | number>({
             }
             tabIndex={-1}
             onKeyDown={handleListKeyDown}
-            className="absolute left-0 right-0 top-full mt-1 z-50 bg-white border-2 border-line rounded-xl shadow max-h-64 overflow-y-auto"
+            className="absolute left-0 right-0 top-full z-50 mt-1 max-h-64 overflow-y-auto rounded-xl border-2 border-line bg-white shadow"
           >
             {options.map((option, index) => {
               const isSelected = option.value === value;
@@ -172,7 +177,7 @@ export const Select = <T extends string | number>({
                   tabIndex={-1}
                   onClick={() => selectByIndex(index)}
                   onMouseEnter={() => setFocusedIndex(index)}
-                  className={`block w-full text-left px-4 py-3 text-base font-bold ${
+                  className={`block w-full px-4 py-3 text-left text-base font-bold ${
                     isSelected ? "bg-primary/10 text-primary" : "text-ink"
                   } ${isFocused && !isSelected ? "bg-line/10" : ""}`}
                 >

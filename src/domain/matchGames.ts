@@ -23,7 +23,7 @@ export const lockedGameStartIndex = (
   let leftWins = 0;
   let rightWins = 0;
   for (let index = 0; index < games.length; index++) {
-    const game = games[index]!;
+    const game = games[index];
     if (isEmptyScore(game) || !isGameFinished(game)) continue;
     if (game.leftScore > game.rightScore) leftWins++;
     else rightWins++;
@@ -39,7 +39,7 @@ export const firstPlayableGameIndex = (
   gameCount: number,
 ): number => {
   for (let index = 0; index < games.length && index < lockedStartIndex; index++) {
-    if (!isGameFinished(games[index]!)) return index;
+    if (!isGameFinished(games[index])) return index;
   }
   return Math.min(gameCount - 1, Math.max(0, lockedStartIndex - 1));
 };

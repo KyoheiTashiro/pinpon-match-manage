@@ -22,7 +22,7 @@ export const saveAsImage = async (node: HTMLElement, filename: string) => {
       await navigatorWithShare.share({ files: [file] } as ShareData);
       return;
     } catch (error) {
-      if ((error as Error).name === "AbortError") return;
+      if (error instanceof Error && error.name === "AbortError") return;
     }
   }
   const url = URL.createObjectURL(blob);

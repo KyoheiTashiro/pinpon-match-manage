@@ -1,13 +1,13 @@
-import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/Button";
 import { ChevronDownIcon } from "@/components/icons";
+import { Button } from "@/components/ui/Button";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { tournamentPath } from "@/constants/routes";
+import { CreateTournament } from "@/features/home/components/CreateTournament";
 import { FontSizeToggle } from "@/features/home/components/FontSizeToggle";
 import { InstallAppButton } from "@/features/home/components/InstallAppButton";
-import { formatDate } from "@/lib/time";
 import { useHome } from "@/features/home/hooks";
-import { CreateTournament } from "@/features/home/components/CreateTournament";
-import { tournamentPath } from "@/constants/routes";
+import { formatDate } from "@/lib/time";
+import { useNavigate } from "react-router-dom";
 
 export const Home = () => {
   const navigate = useNavigate();
@@ -27,14 +27,20 @@ export const Home = () => {
 
   return (
     <div className="min-h-screen bg-white text-ink">
-      <header className="bg-primary text-white p-4 flex items-center justify-between flex-wrap gap-3">
+      <header className="flex flex-wrap items-center justify-between gap-3 bg-primary p-4 text-white">
         <h1 className="text-2xl font-extrabold">卓ログ</h1>
         <FontSizeToggle />
       </header>
 
-      <main className="max-w-3xl mx-auto p-4 space-y-6">
+      <main className="mx-auto max-w-3xl space-y-6 p-4">
         {creating ? (
-          <CreateTournament form={form} submit={submit} onCancel={closeForm} />
+          <CreateTournament
+            form={form}
+            submit={(e) => {
+              void submit(e);
+            }}
+            onCancel={closeForm}
+          />
         ) : (
           <Button variant="primary" onClick={() => setCreating(true)}>
             ＋ 新しい大会を作る
@@ -43,16 +49,16 @@ export const Home = () => {
 
         <section aria-label="大会一覧">
           {list.length === 0 ? (
-            <p className="text-base text-sub text-center py-8">
+            <p className="py-8 text-center text-base text-sub">
               まだ大会がありません。上のボタンから作成してください。
             </p>
           ) : (
-            <ul className="divide-y-2 divide-line border-2 border-line rounded-2xl overflow-hidden">
+            <ul className="divide-y-2 divide-line overflow-hidden rounded-2xl border-2 border-line">
               {list.map((tournament) => (
                 <li key={tournament.id}>
                   <button
                     onClick={() => navigate(tournamentPath(tournament.id))}
-                    className="w-full text-left p-4 min-h-[72px] hover:bg-bg flex items-center justify-between gap-3"
+                    className="flex min-h-[72px] w-full items-center justify-between gap-3 p-4 text-left hover:bg-bg"
                   >
                     <div>
                       <div className="text-xl font-extrabold">{tournament.name}</div>
@@ -66,7 +72,7 @@ export const Home = () => {
           )}
         </section>
 
-        <div className="pt-6 border-t-2 border-line flex flex-col items-start gap-3 sm:flex-row">
+        <div className="flex flex-col items-start gap-3 border-t-2 border-line pt-6 sm:flex-row">
           <InstallAppButton />
           <Button variant="danger" onClick={askReset}>
             全てのデータを消す

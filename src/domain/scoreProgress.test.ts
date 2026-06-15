@@ -1,6 +1,6 @@
-import { describe, it, expect } from "vitest";
 import type { Side } from "@/domain/match";
 import { gameProgress } from "@/domain/scoreProgress";
+import { describe, it, expect } from "vitest";
 
 describe("gameProgress", () => {
   it("empty log returns empty array", () => {
@@ -28,9 +28,9 @@ describe("gameProgress", () => {
 
   it("deuce: 1-point alternation after 10-10 (total>=20)", () => {
     const buildTo1010: Side[] = [
-      ...Array.from({ length: 10 }).fill("L"),
-      ...Array.from({ length: 10 }).fill("R"),
-    ] as Side[];
+      ...Array.from<Side>({ length: 10 }).fill("L"),
+      ...Array.from<Side>({ length: 10 }).fill("R"),
+    ];
     const log: Side[] = [...buildTo1010, "L", "R"];
     const result = gameProgress(log, "L");
     const r20 = result[20];

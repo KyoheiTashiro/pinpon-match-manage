@@ -1,13 +1,13 @@
-import { useState } from "react";
-import { useAppStore } from "@/store/useAppStore";
-import type { Match } from "@/store/types";
-import { Button } from "@/components/ui/Button";
 import { DownloadIcon } from "@/components/icons";
-import { useImageCapture } from "@/lib/useImageCapture";
+import { Button } from "@/components/ui/Button";
 import { matchSummary, winsNeededForBestOf, SIDE } from "@/domain/match";
 import { MatchModal } from "@/features/tournament/matrix/components/MatchModal";
 import { involvesSingle, useMatrix, MIN_PLAYERS_SINGLES } from "@/features/tournament/matrix/hooks";
+import { useImageCapture } from "@/lib/useImageCapture";
+import type { Match } from "@/store/types";
 import { SIDE_KIND } from "@/store/types";
+import { useAppStore } from "@/store/useAppStore";
+import { useState } from "react";
 
 type Player = { id: string; name: string };
 
@@ -23,8 +23,8 @@ type Props = {
 const MatrixCell = ({ row, column, match, winsNeeded, onCreate, onOpen }: Props) => {
   if (row.id === column.id) {
     return (
-      <td className="border-2 border-line bg-bg min-h-cell min-w-cell" aria-label="自分">
-        <div className="w-full h-16 bg-[repeating-linear-gradient(45deg,#cbd5e1_0_8px,#94a3b8_8px_16px)]" />
+      <td className="min-h-cell min-w-cell border-2 border-line bg-bg" aria-label="自分">
+        <div className="h-16 w-full bg-[repeating-linear-gradient(45deg,#cbd5e1_0_8px,#94a3b8_8px_16px)]" />
       </td>
     );
   }
@@ -46,13 +46,13 @@ const MatrixCell = ({ row, column, match, winsNeeded, onCreate, onOpen }: Props)
 
   return (
     <td
-      className={`border-2 border-line text-center min-h-cell min-w-cell p-0 ${
+      className={`min-h-cell min-w-cell border-2 border-line p-0 text-center ${
         rowWon ? "bg-winBg" : rowLost ? "bg-loseBg" : inProgress ? "bg-warning/10" : ""
       }`}
     >
       <button
         onClick={() => (match ? onOpen(match.id) : onCreate())}
-        className="group relative w-full h-full min-h-cell text-lg font-extrabold p-2 cursor-pointer hover:bg-bg active:scale-95 transition"
+        className="group relative h-full min-h-cell w-full cursor-pointer p-2 text-lg font-extrabold transition hover:bg-bg active:scale-95"
         aria-label={
           hasScore
             ? `${row.name} 対 ${column.name} ${rowWins}-${columnWins}${inProgress ? " 途中" : ""} 編集`
@@ -70,7 +70,7 @@ const MatrixCell = ({ row, column, match, winsNeeded, onCreate, onOpen }: Props)
           </span>
         ) : (
           <span className="flex flex-col items-center justify-center gap-1">
-            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary text-xl leading-none transition-colors group-hover:bg-primary group-hover:text-white">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xl leading-none text-primary transition-colors group-hover:bg-primary group-hover:text-white">
               ＋
             </span>
             <span className="text-xs leading-none text-sub">対戦</span>
@@ -101,22 +101,22 @@ export const SinglesMatrix = ({ tournamentId }: { tournamentId: string }) => {
       ) : (
         <>
           <div className="overflow-x-auto">
-            <div ref={ref} className="bg-white p-3 space-y-2 inline-block align-top min-w-full">
+            <div ref={ref} className="inline-block min-w-full space-y-2 bg-white p-3 align-top">
               <div className="border-b-2 border-line pb-2">
                 <div className="text-xl font-extrabold">{tournament.name}</div>
                 <div className="text-sm text-sub">{tournament.date}</div>
               </div>
-              <table className="matrix border-collapse w-full">
+              <table className="matrix w-full border-collapse">
                 <thead>
                   <tr>
                     <th
-                      className="sticky left-0 bg-white z-10 border-2 border-line p-2 min-w-cell"
+                      className="sticky left-0 z-10 min-w-cell border-2 border-line bg-white p-2"
                       aria-label="対戦表の行列ヘッダー"
                     ></th>
                     {players.map((player) => (
                       <th
                         key={player.id}
-                        className="border-2 border-line p-2 text-base font-bold min-w-cell whitespace-nowrap"
+                        className="min-w-cell whitespace-nowrap border-2 border-line p-2 text-base font-bold"
                       >
                         {player.name}
                       </th>
@@ -128,7 +128,7 @@ export const SinglesMatrix = ({ tournamentId }: { tournamentId: string }) => {
                     <tr key={row.id}>
                       <th
                         scope="row"
-                        className="sticky left-0 bg-white z-10 border-2 border-line p-2 text-base font-bold text-left whitespace-nowrap"
+                        className="sticky left-0 z-10 whitespace-nowrap border-2 border-line bg-white p-2 text-left text-base font-bold"
                       >
                         {row.name}
                       </th>
@@ -158,7 +158,12 @@ export const SinglesMatrix = ({ tournamentId }: { tournamentId: string }) => {
           </div>
           <div className="space-y-2">
             <div className="text-base font-extrabold">画像で保存</div>
-            <Button onClick={save} disabled={saving}>
+            <Button
+              onClick={() => {
+                void save();
+              }}
+              disabled={saving}
+            >
               <span className="inline-flex items-center justify-center gap-2">
                 <DownloadIcon />
                 {saving ? "保存中…" : "対戦表"}

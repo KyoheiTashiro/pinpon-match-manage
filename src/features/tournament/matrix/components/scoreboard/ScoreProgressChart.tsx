@@ -1,11 +1,11 @@
 import type { Game, Side } from "@/domain/match";
 import { SIDE, gameFirstServer, realGames } from "@/domain/match";
+import { gameProgress, type ProgressPoint } from "@/domain/scoreProgress";
 import {
   CHART_COL_WIDTH as COL_WIDTH,
   CHART_ROW_HEIGHT as ROW_HEIGHT,
   CHART_CIRCLE_SIZE as CIRCLE_SIZE,
 } from "@/features/tournament/matrix/hooks";
-import { gameProgress, type ProgressPoint } from "@/domain/scoreProgress";
 
 type Row = "top" | "bot";
 
@@ -47,14 +47,14 @@ const ScoreCircle = ({
     style={{ height: ROW_HEIGHT, width: COL_WIDTH }}
   >
     <div
-      className={`flex items-center justify-center rounded-full font-bold text-sm select-none ${circleClassName[variant]}`}
+      className={`flex select-none items-center justify-center rounded-full text-sm font-bold ${circleClassName[variant]}`}
       style={{ width: CIRCLE_SIZE, height: CIRCLE_SIZE }}
     >
       {value}
     </div>
     {serving && (
       <div
-        className="absolute bg-orange-500 rounded-full"
+        className="absolute rounded-full bg-orange-500"
         style={{ width: 20, height: 4, bottom: 6, left: "50%", transform: "translateX(-50%)" }}
       />
     )}
@@ -95,7 +95,7 @@ export const ScoreProgressChart = ({ games, leftName, rightName, matchFirstServe
   if (chartGames.length === 0) return null;
 
   return (
-    <div className="w-full mt-2 px-2">
+    <div className="mt-2 w-full px-2">
       <div className="flex flex-col gap-2">
         {chartGames.map(({ game, realIndex, gameNumber }) => {
           const points = gameProgress(game.pointLog!, gameFirstServer(matchFirstServer, realIndex));
@@ -109,24 +109,24 @@ export const ScoreProgressChart = ({ games, leftName, rightName, matchFirstServe
           // 連続するラリーの得点者ドットを結ぶ線分
           const lines = points.slice(1).map((point, index) => ({
             x1: index * COL_WIDTH + COL_WIDTH / 2,
-            y1: rowCenterY(displayScorer(points[index]!)),
+            y1: rowCenterY(displayScorer(points[index])),
             x2: (index + 1) * COL_WIDTH + COL_WIDTH / 2,
             y2: rowCenterY(displayScorer(point)),
           }));
 
           return (
             <div key={gameNumber}>
-              <div className="text-left font-bold text-base text-ink mb-2">ゲーム {gameNumber}</div>
+              <div className="mb-2 text-left text-base font-bold text-ink">ゲーム {gameNumber}</div>
               <div className="flex items-stretch">
                 {/* プレイヤー名の列 */}
                 <div
-                  className="flex flex-col shrink-0"
+                  className="flex shrink-0 flex-col"
                   style={{ minWidth: 64, height: SVG_HEIGHT }}
                 >
                   {[leftName, rightName].map((name, row) => (
                     <div
                       key={row}
-                      className="flex items-center justify-end pr-2 text-sm font-bold text-ink whitespace-nowrap"
+                      className="flex items-center justify-end whitespace-nowrap pr-2 text-sm font-bold text-ink"
                       style={{ height: ROW_HEIGHT }}
                     >
                       {name}
@@ -135,10 +135,10 @@ export const ScoreProgressChart = ({ games, leftName, rightName, matchFirstServe
                 </div>
 
                 {/* チャート本体（画像取得のため overflow-x-auto は付けず全幅描画） */}
-                <div className="flex-1 min-w-0">
+                <div className="min-w-0 flex-1">
                   <div className="relative" style={{ width: svgWidth, height: SVG_HEIGHT }}>
                     <svg
-                      className="absolute inset-0 pointer-events-none"
+                      className="pointer-events-none absolute inset-0"
                       width={svgWidth}
                       height={SVG_HEIGHT}
                       style={{ overflow: "visible" }}

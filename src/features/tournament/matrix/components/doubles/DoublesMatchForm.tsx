@@ -1,11 +1,11 @@
-import { useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useAppStore } from "@/store/useAppStore";
 import { Button } from "@/components/ui/Button";
 import { PairSelect } from "@/features/tournament/matrix/components/doubles/PairSelect";
 import { Schema, type FormType, defaultValues } from "@/features/tournament/matrix/schema";
 import type { Participant } from "@/store/types";
 import { SIDE_KIND } from "@/store/types";
+import { useAppStore } from "@/store/useAppStore";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm, Controller } from "react-hook-form";
 
 type Props = {
   tournamentId: string;
@@ -34,9 +34,9 @@ export const DoublesMatchForm = ({ tournamentId, players, onAdded }: Props) => {
   });
 
   return (
-    <div className="border-4 border-primary rounded-2xl p-4 space-y-3">
+    <div className="space-y-3 rounded-2xl border-4 border-primary p-4">
       <h3 className="text-lg font-extrabold">試合を追加</h3>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div className="space-y-2">
           <span className="font-bold">左ペア</span>
           <Controller
@@ -96,7 +96,12 @@ export const DoublesMatchForm = ({ tournamentId, players, onAdded }: Props) => {
           />
         </div>
       </div>
-      <Button disabled={!pairForm.formState.isValid} onClick={submit}>
+      <Button
+        disabled={!pairForm.formState.isValid}
+        onClick={() => {
+          void submit();
+        }}
+      >
         試合を追加して入力へ
       </Button>
     </div>

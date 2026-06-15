@@ -1,12 +1,12 @@
+import { STORAGE_KEY, STORAGE_VERSION, MIGRATION_DEFAULT_BEST_OF } from "@/constants/storage";
+import { createMatchSlice, type MatchSlice } from "@/store/slices/matchSlice";
+import { createParticipantSlice, type ParticipantSlice } from "@/store/slices/participantSlice";
+import { createTournamentSlice, type TournamentSlice } from "@/store/slices/tournamentSlice";
+import { createUiSlice, type UiSlice } from "@/store/slices/uiSlice";
+import type { AppState, Tournament } from "@/store/types";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
-import type { AppState, Tournament } from "@/store/types";
-import { createUiSlice, type UiSlice } from "@/store/slices/uiSlice";
-import { createTournamentSlice, type TournamentSlice } from "@/store/slices/tournamentSlice";
-import { createParticipantSlice, type ParticipantSlice } from "@/store/slices/participantSlice";
-import { createMatchSlice, type MatchSlice } from "@/store/slices/matchSlice";
-import { STORAGE_KEY, STORAGE_VERSION, MIGRATION_DEFAULT_BEST_OF } from "@/constants/storage";
 
 export type StoreState = UiSlice & TournamentSlice & ParticipantSlice & MatchSlice;
 
@@ -22,6 +22,8 @@ export const useAppStore = create<StoreState>()(
       name: STORAGE_KEY,
       version: STORAGE_VERSION,
       migrate: (persisted, version) => {
+        // zustand persist の migrate は persisted が unknown。実際は AppState 構造のため安全なキャスト。
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion
         const state = persisted as AppState;
         // version < 2 は bestOf を導入したマイグレーション境界(現行 STORAGE_VERSION とは別概念)。
         if (version < 2 && state?.tournaments) {

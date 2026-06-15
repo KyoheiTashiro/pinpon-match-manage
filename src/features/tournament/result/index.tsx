@@ -1,10 +1,10 @@
-import { useParams } from "react-router-dom";
+import { DownloadIcon } from "@/components/icons";
 import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Select";
-import { DownloadIcon } from "@/components/icons";
-import { useResult } from "@/features/tournament/result/hooks";
 import { MatchGraphBlock } from "@/features/tournament/result/components/MatchGraphBlock";
 import { TableMode } from "@/features/tournament/result/components/TableMode";
+import { useResult } from "@/features/tournament/result/hooks";
+import { useParams } from "react-router-dom";
 
 export const ResultTab = () => {
   const { tournamentId } = useParams<{ tournamentId: string }>();
@@ -45,10 +45,10 @@ const ResultView = ({ tournamentId }: { tournamentId: string }) => {
               role="tab"
               aria-selected={mode === "table"}
               onClick={() => setMode("table")}
-              className={`flex-1 min-h-btn text-lg font-bold border-b-4 transition-colors ${
+              className={`min-h-btn flex-1 border-b-4 text-lg font-bold transition-colors ${
                 mode === "table"
-                  ? "border-primary text-primary bg-primary/10"
-                  : "border-transparent text-ink bg-white"
+                  ? "border-primary bg-primary/10 text-primary"
+                  : "border-transparent bg-white text-ink"
               }`}
             >
               点数表
@@ -57,10 +57,10 @@ const ResultView = ({ tournamentId }: { tournamentId: string }) => {
               role="tab"
               aria-selected={mode === "graph"}
               onClick={() => setMode("graph")}
-              className={`flex-1 min-h-btn text-lg font-bold border-b-4 transition-colors ${
+              className={`min-h-btn flex-1 border-b-4 text-lg font-bold transition-colors ${
                 mode === "graph"
-                  ? "border-primary text-primary bg-primary/10"
-                  : "border-transparent text-ink bg-white"
+                  ? "border-primary bg-primary/10 text-primary"
+                  : "border-transparent bg-white text-ink"
               }`}
             >
               グラフ
@@ -83,7 +83,7 @@ const ResultView = ({ tournamentId }: { tournamentId: string }) => {
           <div className="overflow-x-auto">
             <div
               ref={main.ref}
-              className="bg-white p-3 space-y-2 inline-block align-top min-w-full"
+              className="inline-block min-w-full space-y-2 bg-white p-3 align-top"
             >
               {/* 大会名・日付ヘッダ（両モード共通） */}
               <div className="border-b-2 border-line pb-2">
@@ -105,7 +105,13 @@ const ResultView = ({ tournamentId }: { tournamentId: string }) => {
           {mode === "table" ? (
             <div className="space-y-2 sm:max-w-md">
               <div className="text-base font-extrabold">画像で保存</div>
-              <Button className="w-fit" onClick={() => main.save()} disabled={isSaving}>
+              <Button
+                className="w-fit"
+                onClick={() => {
+                  void main.save();
+                }}
+                disabled={isSaving}
+              >
                 <span className="inline-flex items-center justify-center gap-2">
                   <DownloadIcon />
                   {main.saving ? "保存中…" : "点数表"}
@@ -118,10 +124,11 @@ const ResultView = ({ tournamentId }: { tournamentId: string }) => {
               <div className="flex flex-col gap-2 sm:flex-row">
                 <Button
                   className="w-fit"
-                  onClick={() =>
-                    selectedMatch &&
-                    main.save(`${selectedMatch.leftName} vs ${selectedMatch.rightName}`)
-                  }
+                  onClick={() => {
+                    if (selectedMatch) {
+                      void main.save(`${selectedMatch.leftName} vs ${selectedMatch.rightName}`);
+                    }
+                  }}
                   disabled={isSaving || !selectedMatch}
                 >
                   <span className="inline-flex items-center justify-center gap-2">
@@ -131,7 +138,9 @@ const ResultView = ({ tournamentId }: { tournamentId: string }) => {
                 </Button>
                 <Button
                   className="w-fit"
-                  onClick={() => allMatches.save("全対戦")}
+                  onClick={() => {
+                    void allMatches.save("全対戦");
+                  }}
                   disabled={isSaving || graphMatches.length === 0}
                 >
                   <span className="inline-flex items-center justify-center gap-2">
@@ -147,9 +156,9 @@ const ResultView = ({ tournamentId }: { tournamentId: string }) => {
           {mode === "graph" && graphMatches.length > 0 && (
             <div
               aria-hidden
-              className="absolute -left-[99999px] top-0 h-0 overflow-hidden pointer-events-none"
+              className="pointer-events-none absolute -left-[99999px] top-0 h-0 overflow-hidden"
             >
-              <div ref={allMatches.ref} className="bg-white p-3 space-y-2">
+              <div ref={allMatches.ref} className="space-y-2 bg-white p-3">
                 {/* 大会名・日付ヘッダ */}
                 <div className="border-b-2 border-line pb-2">
                   <div className="text-xl font-extrabold">{tournament.name}</div>
@@ -160,7 +169,7 @@ const ResultView = ({ tournamentId }: { tournamentId: string }) => {
                   {graphMatches.map((match) => (
                     <div
                       key={match.id}
-                      className="pt-6 mt-6 border-t-2 border-line first:pt-0 first:mt-0 first:border-t-0"
+                      className="mt-6 border-t-2 border-line pt-6 first:mt-0 first:border-t-0 first:pt-0"
                     >
                       <MatchGraphBlock match={match} />
                     </div>
