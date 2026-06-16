@@ -126,7 +126,7 @@ const ResultView = ({ tournamentId }: { tournamentId: string }) => {
                   className="w-fit"
                   onClick={() => {
                     if (selectedMatch) {
-                      void main.save(`${selectedMatch.leftName} vs ${selectedMatch.rightName}`);
+                      void main.save();
                     }
                   }}
                   disabled={isSaving || !selectedMatch}
@@ -139,7 +139,7 @@ const ResultView = ({ tournamentId }: { tournamentId: string }) => {
                 <Button
                   className="w-fit"
                   onClick={() => {
-                    void allMatches.save("全対戦");
+                    void allMatches.save();
                   }}
                   disabled={isSaving || graphMatches.length === 0}
                 >

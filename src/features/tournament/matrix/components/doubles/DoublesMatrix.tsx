@@ -9,7 +9,7 @@ import { useState } from "react";
 
 export const DoublesMatrix = ({ tournamentId }: { tournamentId: string }) => {
   const { tournament, participants, matchList, players } = useMatrix(tournamentId);
-  const { ref, saving, save } = useImageCapture("対戦表", tournament?.name);
+  const { ref, saving, save } = useImageCapture();
   const [openMatchId, setOpenMatchId] = useState<string | null>(null);
 
   if (!tournament) return null;

@@ -72,9 +72,9 @@ export const useResult = (tournamentId: string) => {
   }, [tournament, matches, participants]);
 
   // 表示中コンテナ（table全体 or 選択中1対戦）用
-  const main = useImageCapture("結果", tournament?.name);
+  const main = useImageCapture();
   // off-screen 全対戦版用
-  const allMatches = useImageCapture("結果", tournament?.name);
+  const allMatches = useImageCapture();
   const [mode, setMode] = useState<DisplayMode>(DISPLAY_MODE.TABLE);
 
   // ログのある対戦のみ選択肢に出す

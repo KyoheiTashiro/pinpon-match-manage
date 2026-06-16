@@ -85,7 +85,7 @@ export const SinglesMatrix = ({ tournamentId }: { tournamentId: string }) => {
   const { tournament, participants, players, singlesCellMatch } = useMatrix(tournamentId);
   const addManualMatch = useAppStore((state) => state.addManualMatch);
 
-  const { ref, saving, save } = useImageCapture("対戦表", tournament?.name);
+  const { ref, saving, save } = useImageCapture();
   const [openMatchId, setOpenMatchId] = useState<string | null>(null);
 
   if (!tournament) return null;
