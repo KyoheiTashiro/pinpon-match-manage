@@ -6,7 +6,8 @@ import { useAppStore } from "@/store/useAppStore";
 import { useImageCapture } from "@/utils/useImageCapture";
 import { useMemo, useState } from "react";
 
-type DisplayMode = "table" | "graph";
+export const DISPLAY_MODE = { TABLE: "table", GRAPH: "graph" } as const;
+type DisplayMode = (typeof DISPLAY_MODE)[keyof typeof DISPLAY_MODE];
 
 const sideLabel = (side: MatchSide, participants: Record<string, Participant>) => {
   if (side.kind === SIDE_KIND.SINGLE) return participants[side.participantId]?.name ?? "?";
@@ -74,7 +75,7 @@ export const useResult = (tournamentId: string) => {
   const main = useImageCapture("結果", tournament?.name);
   // off-screen 全対戦版用
   const allMatches = useImageCapture("結果", tournament?.name);
-  const [mode, setMode] = useState<DisplayMode>("table");
+  const [mode, setMode] = useState<DisplayMode>(DISPLAY_MODE.TABLE);
 
   // ログのある対戦のみ選択肢に出す
   const graphMatches = useMemo(

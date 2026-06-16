@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Select";
 import { MatchGraphBlock } from "@/features/tournament/result/components/MatchGraphBlock";
 import { TableMode } from "@/features/tournament/result/components/TableMode";
-import { useResult } from "@/features/tournament/result/hooks";
+import { DISPLAY_MODE, useResult } from "@/features/tournament/result/hooks";
 import { useParams } from "react-router-dom";
 
 export const ResultTab = () => {
@@ -43,10 +43,10 @@ const ResultView = ({ tournamentId }: { tournamentId: string }) => {
           <div className="flex border-b-2 border-line" role="tablist" aria-label="表示モード">
             <button
               role="tab"
-              aria-selected={mode === "table"}
-              onClick={() => setMode("table")}
+              aria-selected={mode === DISPLAY_MODE.TABLE}
+              onClick={() => setMode(DISPLAY_MODE.TABLE)}
               className={`min-h-btn flex-1 border-b-4 text-lg font-bold transition-colors ${
-                mode === "table"
+                mode === DISPLAY_MODE.TABLE
                   ? "border-primary bg-primary/10 text-primary"
                   : "border-transparent bg-white text-ink"
               }`}
@@ -55,10 +55,10 @@ const ResultView = ({ tournamentId }: { tournamentId: string }) => {
             </button>
             <button
               role="tab"
-              aria-selected={mode === "graph"}
-              onClick={() => setMode("graph")}
+              aria-selected={mode === DISPLAY_MODE.GRAPH}
+              onClick={() => setMode(DISPLAY_MODE.GRAPH)}
               className={`min-h-btn flex-1 border-b-4 text-lg font-bold transition-colors ${
-                mode === "graph"
+                mode === DISPLAY_MODE.GRAPH
                   ? "border-primary bg-primary/10 text-primary"
                   : "border-transparent bg-white text-ink"
               }`}
@@ -68,7 +68,7 @@ const ResultView = ({ tournamentId }: { tournamentId: string }) => {
           </div>
 
           {/* グラフモード時のみ表示するセレクタ（画像保存対象外） */}
-          {mode === "graph" && graphMatches.length > 0 && (
+          {mode === DISPLAY_MODE.GRAPH && graphMatches.length > 0 && (
             <div className="sm:max-w-md">
               <Select
                 label="対戦を選択"
@@ -91,7 +91,7 @@ const ResultView = ({ tournamentId }: { tournamentId: string }) => {
                 <div className="text-sm text-sub">{tournament.date}</div>
               </div>
 
-              {mode === "table" ? (
+              {mode === DISPLAY_MODE.TABLE ? (
                 <TableMode rows={rows} matchResults={matchResults} bestOf={tournament.bestOf} />
               ) : graphMatches.length === 0 ? (
                 <p className="text-sub">対戦結果がありません。</p>
@@ -102,7 +102,7 @@ const ResultView = ({ tournamentId }: { tournamentId: string }) => {
           </div>
 
           {/* 保存ボタン（画像対象外） */}
-          {mode === "table" ? (
+          {mode === DISPLAY_MODE.TABLE ? (
             <div className="space-y-2 sm:max-w-md">
               <div className="text-base font-extrabold">画像で保存</div>
               <Button
@@ -153,7 +153,7 @@ const ResultView = ({ tournamentId }: { tournamentId: string }) => {
           )}
 
           {/* off-screen 全対戦版（graphモード時のみ、画像取得用） */}
-          {mode === "graph" && graphMatches.length > 0 && (
+          {mode === DISPLAY_MODE.GRAPH && graphMatches.length > 0 && (
             <div
               aria-hidden
               className="pointer-events-none absolute -left-[99999px] top-0 h-0 overflow-hidden"

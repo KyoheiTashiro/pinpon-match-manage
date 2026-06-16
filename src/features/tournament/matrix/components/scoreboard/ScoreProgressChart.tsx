@@ -7,11 +7,14 @@ import {
   CHART_CIRCLE_SIZE as CIRCLE_SIZE,
 } from "@/features/tournament/matrix/hooks";
 
-type Row = "top" | "bot";
+const ROW = { TOP: "top", BOT: "bot" } as const;
+type Row = (typeof ROW)[keyof typeof ROW];
 
 // 表示マッピング: 左=上段, 右=下段（入れ替えなし）
-const displayScorer = (point: ProgressPoint): Row => (point.scorer === SIDE.LEFT ? "top" : "bot");
-const displayServer = (point: ProgressPoint): Row => (point.server === SIDE.LEFT ? "top" : "bot");
+const displayScorer = (point: ProgressPoint): Row =>
+  point.scorer === SIDE.LEFT ? ROW.TOP : ROW.BOT;
+const displayServer = (point: ProgressPoint): Row =>
+  point.server === SIDE.LEFT ? ROW.TOP : ROW.BOT;
 const topScore = (point: { left: number }) => point.left;
 const botScore = (point: { right: number }) => point.right;
 
@@ -24,13 +27,19 @@ type Props = {
 
 const SVG_HEIGHT = ROW_HEIGHT * 2; // 上下2行ぶん
 
-type CircleVariant = "active" | "inactive" | "finalWinner" | "finalLoser";
+const CIRCLE_VARIANT = {
+  ACTIVE: "active",
+  INACTIVE: "inactive",
+  FINAL_WINNER: "finalWinner",
+  FINAL_LOSER: "finalLoser",
+} as const;
+type CircleVariant = (typeof CIRCLE_VARIANT)[keyof typeof CIRCLE_VARIANT];
 
 const circleClassName: Record<CircleVariant, string> = {
-  active: "bg-blue-500 text-white",
-  inactive: "bg-neutral-200 text-neutral-700",
-  finalWinner: "bg-amber-300 text-green-800",
-  finalLoser: "bg-amber-300 text-neutral-700",
+  [CIRCLE_VARIANT.ACTIVE]: "bg-blue-500 text-white",
+  [CIRCLE_VARIANT.INACTIVE]: "bg-neutral-200 text-neutral-700",
+  [CIRCLE_VARIANT.FINAL_WINNER]: "bg-amber-300 text-green-800",
+  [CIRCLE_VARIANT.FINAL_LOSER]: "bg-amber-300 text-neutral-700",
 };
 
 const ScoreCircle = ({
@@ -74,18 +83,18 @@ const Column = ({ left, top, bottom }: { left: number; top: ColumnCell; bottom: 
 );
 
 const rallyCell = (point: ProgressPoint, row: Row): ColumnCell => ({
-  value: row === "top" ? topScore(point) : botScore(point),
-  variant: displayScorer(point) === row ? "active" : "inactive",
+  value: row === ROW.TOP ? topScore(point) : botScore(point),
+  variant: displayScorer(point) === row ? CIRCLE_VARIANT.ACTIVE : CIRCLE_VARIANT.INACTIVE,
   serving: displayServer(point) === row,
 });
 
 const finalCell = (value: number, opponent: number): ColumnCell => ({
   value,
-  variant: value > opponent ? "finalWinner" : "finalLoser",
+  variant: value > opponent ? CIRCLE_VARIANT.FINAL_WINNER : CIRCLE_VARIANT.FINAL_LOSER,
   serving: false,
 });
 
-const rowCenterY = (row: Row) => (row === "top" ? ROW_HEIGHT / 2 : ROW_HEIGHT + ROW_HEIGHT / 2);
+const rowCenterY = (row: Row) => (row === ROW.TOP ? ROW_HEIGHT / 2 : ROW_HEIGHT + ROW_HEIGHT / 2);
 
 export const ScoreProgressChart = ({ games, leftName, rightName, matchFirstServer }: Props) => {
   const chartGames = realGames(games)
@@ -161,8 +170,8 @@ export const ScoreProgressChart = ({ games, leftName, rightName, matchFirstServe
                       <Column
                         key={index}
                         left={index * COL_WIDTH}
-                        top={rallyCell(point, "top")}
-                        bottom={rallyCell(point, "bot")}
+                        top={rallyCell(point, ROW.TOP)}
+                        bottom={rallyCell(point, ROW.BOT)}
                       />
                     ))}
 
