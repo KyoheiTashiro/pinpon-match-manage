@@ -3,8 +3,8 @@ import { Button } from "@/components/ui/Button";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { ROUTES } from "@/constants/routes";
 import { useSettings } from "@/features/tournament/settings/hooks";
-import { formatDate } from "@/lib/time";
 import { FORMAT } from "@/store/types";
+import { formatDate } from "@/utils/time";
 import { useNavigate, useParams } from "react-router-dom";
 
 export const SettingsTab = () => {

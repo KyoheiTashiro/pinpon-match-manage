@@ -6,7 +6,7 @@ import { CreateTournament } from "@/features/home/components/CreateTournament";
 import { FontSizeToggle } from "@/features/home/components/FontSizeToggle";
 import { InstallAppButton } from "@/features/home/components/InstallAppButton";
 import { useHome } from "@/features/home/hooks";
-import { formatDate } from "@/lib/time";
+import { formatDate } from "@/utils/time";
 import { useNavigate } from "react-router-dom";
 
 export const Home = () => {

@@ -1,8 +1,8 @@
-import { generateId } from "@/lib/id";
 import { matchInitial } from "@/store/slices/matchSlice";
 import { participantInitial } from "@/store/slices/participantSlice";
 import type { BestOf, Format, Tournament } from "@/store/types";
 import type { StoreState } from "@/store/useAppStore";
+import { generateId } from "@/utils/id";
 import type { StateCreator } from "zustand";
 
 export type TournamentSlice = {

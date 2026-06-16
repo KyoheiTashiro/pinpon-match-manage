@@ -1,7 +1,7 @@
 import { SIDE } from "@/domain/match";
-import { generateId } from "@/lib/id";
 import { SIDE_KIND, type Match, type MatchSide } from "@/store/types";
 import type { StoreState } from "@/store/useAppStore";
+import { generateId } from "@/utils/id";
 import type { StateCreator } from "zustand";
 
 export type MatchSlice = {

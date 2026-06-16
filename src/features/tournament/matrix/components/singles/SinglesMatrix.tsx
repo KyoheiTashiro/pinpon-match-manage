@@ -3,10 +3,10 @@ import { Button } from "@/components/ui/Button";
 import { matchSummary, winsNeededForBestOf, SIDE } from "@/domain/match";
 import { MatchModal } from "@/features/tournament/matrix/components/MatchModal";
 import { involvesSingle, useMatrix, MIN_PLAYERS_SINGLES } from "@/features/tournament/matrix/hooks";
-import { useImageCapture } from "@/lib/useImageCapture";
 import type { Match } from "@/store/types";
 import { SIDE_KIND } from "@/store/types";
 import { useAppStore } from "@/store/useAppStore";
+import { useImageCapture } from "@/utils/useImageCapture";
 import { useState } from "react";
 
 type Player = { id: string; name: string };
