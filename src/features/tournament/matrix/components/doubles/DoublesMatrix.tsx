@@ -4,7 +4,7 @@ import { matchSummary, winsNeededForBestOf, SIDE } from "@/domain/match";
 import { DoublesMatchForm } from "@/features/tournament/matrix/components/doubles/DoublesMatchForm";
 import { MatchModal } from "@/features/tournament/matrix/components/MatchModal";
 import { sideMembers, useMatrix, MIN_PLAYERS_DOUBLES } from "@/features/tournament/matrix/hooks";
-import { useImageCapture } from "@/utils/useImageCapture";
+import { useImageCapture } from "@/utils/imageCapture/useImageCapture";
 import { useState } from "react";
 
 export const DoublesMatrix = ({ tournamentId }: { tournamentId: string }) => {

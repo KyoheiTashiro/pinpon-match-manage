@@ -3,7 +3,7 @@ import type { Game, Side } from "@/domain/match";
 import { computeRanking } from "@/domain/ranking";
 import { SIDE_KIND, type Match, type MatchSide, type Participant } from "@/store/types";
 import { useAppStore } from "@/store/useAppStore";
-import { useImageCapture } from "@/utils/useImageCapture";
+import { useImageCapture } from "@/utils/imageCapture/useImageCapture";
 import { useMemo, useState } from "react";
 
 export const DISPLAY_MODE = { TABLE: "table", GRAPH: "graph" } as const;

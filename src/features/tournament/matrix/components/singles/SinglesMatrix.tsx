@@ -6,7 +6,7 @@ import { involvesSingle, useMatrix, MIN_PLAYERS_SINGLES } from "@/features/tourn
 import type { Match } from "@/store/types";
 import { SIDE_KIND } from "@/store/types";
 import { useAppStore } from "@/store/useAppStore";
-import { useImageCapture } from "@/utils/useImageCapture";
+import { useImageCapture } from "@/utils/imageCapture/useImageCapture";
 import { useState } from "react";
 
 type Player = { id: string; name: string };
