@@ -3,11 +3,11 @@ import { gameProgress } from "@/domain/scoreProgress";
 import { describe, it, expect } from "vitest";
 
 describe("gameProgress", () => {
-  it("empty log returns empty array", () => {
+  it("空ログは空配列", () => {
     expect(gameProgress([], "L")).toEqual([]);
   });
 
-  it("basic progression: R,R,L firstServer=L", () => {
+  it("基本進行: R,R,L firstServer=L", () => {
     const result = gameProgress(["R", "R", "L"], "L");
     expect(result).toHaveLength(3);
     expect(result[0]).toMatchObject({ index: 1, scorer: "R", left: 0, right: 1, server: "L" });
@@ -15,7 +15,7 @@ describe("gameProgress", () => {
     expect(result[2]).toMatchObject({ index: 3, scorer: "L", left: 1, right: 2, server: "R" });
   });
 
-  it("server switches every 2 points", () => {
+  it("2点ごとにサーバー交代", () => {
     const log: Side[] = ["L", "L", "R", "R", "L", "L"];
     const result = gameProgress(log, "L");
     expect(result[0].server).toBe("L");
@@ -26,7 +26,7 @@ describe("gameProgress", () => {
     expect(result[5].server).toBe("L");
   });
 
-  it("deuce: 1-point alternation after 10-10 (total>=20)", () => {
+  it("デュース: 10-10 以降(合計20以上)は1点ごと交代", () => {
     const buildTo1010: Side[] = [
       ...Array.from<Side>({ length: 10 }).fill("L"),
       ...Array.from<Side>({ length: 10 }).fill("R"),
@@ -39,7 +39,7 @@ describe("gameProgress", () => {
     expect(r21?.server).toBe("R");
   });
 
-  it("cumulative scores match final scores", () => {
+  it("累積スコアが最終スコアと一致", () => {
     const log: Side[] = ["R", "L", "R", "R", "L"];
     const result = gameProgress(log, "L");
     const last = result.at(-1);

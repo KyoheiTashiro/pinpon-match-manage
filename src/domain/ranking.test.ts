@@ -17,7 +17,7 @@ const make = (
 });
 
 describe("computeRanking", () => {
-  it("orders by wins, then game diff, then point diff", () => {
+  it("勝数→ゲーム差→得失点差の順で並ぶ", () => {
     const matches: Match[] = [
       make("1", "A", "B", [
         { leftScore: 11, rightScore: 5 },
@@ -44,14 +44,14 @@ describe("computeRanking", () => {
     expect(rows[2].wins).toBe(0);
   });
 
-  it("ignores unfinished matches", () => {
+  it("未完了 match は無視", () => {
     const matches: Match[] = [make("1", "A", "B", [{ leftScore: 11, rightScore: 9 }])];
     const rows = computeRanking(matches, { A: "A", B: "B" });
     expect(rows.every((row) => row.wins === 0)).toBe(true);
     expect(rows.every((row) => row.losses === 0)).toBe(true);
   });
 
-  it("lists participants with no matches", () => {
+  it("試合なし参加者も一覧に出す", () => {
     const rows = computeRanking([], { A: "A", B: "B" });
     expect(rows).toHaveLength(2);
   });
