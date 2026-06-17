@@ -1,12 +1,15 @@
 import { matchSummary, winsNeededForBestOf, SIDE } from "@/domain/match";
-import { MatchModal } from "@/features/tournament/matrix/shared/MatchModal";
-import { SaveImageButton } from "@/features/tournament/matrix/shared/SaveImageButton";
+import { MatchModal } from "@/features/tournament/matrix/components/MatchModal";
+import { SaveImageButton } from "@/features/tournament/matrix/components/SaveImageButton";
+import {
+  involvesSingle,
+  useSinglesMatrix,
+  MIN_PLAYERS_SINGLES,
+} from "@/features/tournament/matrix/singles/hooks";
 import type { Match } from "@/store/types";
 import { SIDE_KIND } from "@/store/types";
 import { useAppStore } from "@/store/useAppStore";
 import { useImageCapture } from "@/utils/imageCapture/useImageCapture";
-
-import { involvesSingle, useSinglesMatrix, MIN_PLAYERS_SINGLES } from "./hooks";
 
 type Player = { id: string; name: string };
 

@@ -1,7 +1,6 @@
+import { useMatrix, useMatchModal } from "@/features/tournament/matrix/hooks";
 import { SIDE_KIND, type Match } from "@/store/types";
 import { useMemo } from "react";
-
-import { useMatrix, useMatchModal } from "../hooks";
 
 /** 対戦表を成立させる最小参加人数（シングルス）。 */
 export const MIN_PLAYERS_SINGLES = 2;

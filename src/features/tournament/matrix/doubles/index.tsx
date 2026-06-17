@@ -1,11 +1,10 @@
 import { matchSummary, winsNeededForBestOf, SIDE } from "@/domain/match";
+import { MatchModal } from "@/features/tournament/matrix/components/MatchModal";
+import { SaveImageButton } from "@/features/tournament/matrix/components/SaveImageButton";
 import { DoublesMatchForm } from "@/features/tournament/matrix/doubles/DoublesMatchForm";
+import { useDoublesMatrix, MIN_PLAYERS_DOUBLES } from "@/features/tournament/matrix/doubles/hooks";
 import { sideName } from "@/features/tournament/matrix/hooks";
-import { MatchModal } from "@/features/tournament/matrix/shared/MatchModal";
-import { SaveImageButton } from "@/features/tournament/matrix/shared/SaveImageButton";
 import { useImageCapture } from "@/utils/imageCapture/useImageCapture";
-
-import { useDoublesMatrix, MIN_PLAYERS_DOUBLES } from "./hooks";
 
 export const DoublesMatrix = ({ tournamentId }: { tournamentId: string }) => {
   const { tournament, participants, matchList, players, openMatchId, openMatch, closeMatch } =

@@ -1,4 +1,4 @@
-import { useMatrix, useMatchModal } from "../hooks";
+import { useMatrix, useMatchModal } from "@/features/tournament/matrix/hooks";
 
 /** 対戦表を成立させる最小参加人数（ダブルス）。 */
 export const MIN_PLAYERS_DOUBLES = 4;
