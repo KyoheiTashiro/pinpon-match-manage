@@ -1,22 +1,17 @@
 import type { Game, Side } from "@/domain/match";
 import { SIDE, gameFirstServer, realGames } from "@/domain/match";
 import { gameProgress, type ProgressPoint } from "@/domain/scoreProgress";
-import {
-  CHART_COL_WIDTH as COL_WIDTH,
-  CHART_ROW_HEIGHT as ROW_HEIGHT,
-  CHART_CIRCLE_SIZE as CIRCLE_SIZE,
-} from "@/features/tournament/matrix/hooks";
+
+// スコア推移チャートのレイアウト寸法(px)
+const COL_WIDTH = 44;
+const ROW_HEIGHT = 56;
+const CIRCLE_SIZE = 36;
 
 const ROW = { TOP: "top", BOT: "bot" } as const;
 type Row = (typeof ROW)[keyof typeof ROW];
 
 // 表示マッピング: 左=上段, 右=下段（入れ替えなし）
-const displayScorer = (point: ProgressPoint): Row =>
-  point.scorer === SIDE.LEFT ? ROW.TOP : ROW.BOT;
-const displayServer = (point: ProgressPoint): Row =>
-  point.server === SIDE.LEFT ? ROW.TOP : ROW.BOT;
-const topScore = (point: { left: number }) => point.left;
-const botScore = (point: { right: number }) => point.right;
+const sideRow = (side: Side): Row => (side === SIDE.LEFT ? ROW.TOP : ROW.BOT);
 
 type Props = {
   games: Game[];
@@ -83,9 +78,9 @@ const Column = ({ left, top, bottom }: { left: number; top: ColumnCell; bottom: 
 );
 
 const rallyCell = (point: ProgressPoint, row: Row): ColumnCell => ({
-  value: row === ROW.TOP ? topScore(point) : botScore(point),
-  variant: displayScorer(point) === row ? CIRCLE_VARIANT.ACTIVE : CIRCLE_VARIANT.INACTIVE,
-  serving: displayServer(point) === row,
+  value: row === ROW.TOP ? point.left : point.right,
+  variant: sideRow(point.scorer) === row ? CIRCLE_VARIANT.ACTIVE : CIRCLE_VARIANT.INACTIVE,
+  serving: sideRow(point.server) === row,
 });
 
 const finalCell = (value: number, opponent: number): ColumnCell => ({
@@ -98,7 +93,7 @@ const rowCenterY = (row: Row) => (row === ROW.TOP ? ROW_HEIGHT / 2 : ROW_HEIGHT 
 
 export const ScoreProgressChart = ({ games, leftName, rightName, matchFirstServer }: Props) => {
   const chartGames = realGames(games)
-    .map((game, realIndex) => ({ game, realIndex, gameNumber: realIndex + 1 }))
+    .map((game, realIndex) => ({ game, realIndex }))
     .filter(({ game }) => game.pointLog && game.pointLog.length > 0);
 
   if (chartGames.length === 0) return null;
@@ -106,21 +101,21 @@ export const ScoreProgressChart = ({ games, leftName, rightName, matchFirstServe
   return (
     <div className="mt-2 w-full px-2">
       <div className="flex flex-col gap-2">
-        {chartGames.map(({ game, realIndex, gameNumber }) => {
+        {chartGames.map(({ game, realIndex }) => {
+          const gameNumber = realIndex + 1;
           const points = gameProgress(game.pointLog!, gameFirstServer(matchFirstServer, realIndex));
           const columnCount = points.length;
           const svgWidth = (columnCount + 1) * COL_WIDTH; // ラリー列 + 最終スコア列
 
-          const lastPoint = points.at(-1);
-          const finalTop = lastPoint ? topScore(lastPoint) : 0;
-          const finalBot = lastPoint ? botScore(lastPoint) : 0;
+          const finalTop = points.at(-1)?.left ?? 0;
+          const finalBot = points.at(-1)?.right ?? 0;
 
           // 連続するラリーの得点者ドットを結ぶ線分
           const lines = points.slice(1).map((point, index) => ({
             x1: index * COL_WIDTH + COL_WIDTH / 2,
-            y1: rowCenterY(displayScorer(points[index])),
+            y1: rowCenterY(sideRow(points[index].scorer)),
             x2: (index + 1) * COL_WIDTH + COL_WIDTH / 2,
-            y2: rowCenterY(displayScorer(point)),
+            y2: rowCenterY(sideRow(point.scorer)),
           }));
 
           return (
@@ -134,7 +129,7 @@ export const ScoreProgressChart = ({ games, leftName, rightName, matchFirstServe
                 >
                   {[leftName, rightName].map((name, row) => (
                     <div
-                      key={row}
+                      key={row === 0 ? "left" : "right"}
                       className="flex items-center justify-end whitespace-nowrap pr-2 text-sm font-bold text-ink"
                       style={{ height: ROW_HEIGHT }}
                     >
@@ -152,9 +147,9 @@ export const ScoreProgressChart = ({ games, leftName, rightName, matchFirstServe
                       height={SVG_HEIGHT}
                       style={{ overflow: "visible" }}
                     >
-                      {lines.map((line, index) => (
+                      {lines.map((line) => (
                         <line
-                          key={index}
+                          key={line.x1}
                           x1={line.x1}
                           y1={line.y1}
                           x2={line.x2}
@@ -168,7 +163,7 @@ export const ScoreProgressChart = ({ games, leftName, rightName, matchFirstServe
 
                     {points.map((point, index) => (
                       <Column
-                        key={index}
+                        key={point.index}
                         left={index * COL_WIDTH}
                         top={rallyCell(point, ROW.TOP)}
                         bottom={rallyCell(point, ROW.BOT)}

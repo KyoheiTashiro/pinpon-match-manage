@@ -1,5 +1,5 @@
 import { SIDE } from "@/domain/match";
-import { ScoreProgressChart } from "@/features/tournament/matrix/components/scoreboard/ScoreProgressChart";
+import { ScoreProgressChart } from "@/features/tournament/result/components/ScoreProgressChart";
 import type { MatchResultRow } from "@/features/tournament/result/hooks";
 
 // ----- 1対戦グラフブロック（表示用・off-screen用の共通コンポーネント） -----
@@ -7,7 +7,7 @@ type Props = {
   match: MatchResultRow;
 };
 
-export const MatchGraphBlock = ({ match }: Props) => {
+export const MatchScoreChart = ({ match }: Props) => {
   const hasLog = match.games.some((game) => game.pointLog && game.pointLog.length > 0);
   return (
     <div className="pt-2">

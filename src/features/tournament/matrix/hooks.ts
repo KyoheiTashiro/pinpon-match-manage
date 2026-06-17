@@ -9,11 +9,6 @@ export const MIN_PLAYERS_DOUBLES = 4;
 /** スコア入力の上限値。 */
 export const MAX_SCORE = 30;
 
-/** スコア推移チャートのレイアウト寸法(px)。 */
-export const CHART_COL_WIDTH = 44;
-export const CHART_ROW_HEIGHT = 56;
-export const CHART_CIRCLE_SIZE = 36;
-
 export const sideMembers = (side: MatchSide) =>
   side.kind === SIDE_KIND.SINGLE ? [side.participantId] : [...side.memberIds];
 
