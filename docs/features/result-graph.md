@@ -2,8 +2,8 @@
 
 # 点数進行グラフ（結果画面）
 
-実装: `src/features/tournament/result/components.tsx`（`MatchGraphBlock`）、
-`src/features/tournament/matrix/components/scoreboard/ScoreProgressChart.tsx`（グラフ本体）、
+実装: `src/features/tournament/result/components/MatchScoreChart.tsx`（1対戦ブロック）、
+`src/features/tournament/result/components/ScoreProgressChart.tsx`（グラフ本体）、
 `src/domain/scoreProgress.ts`（導出ロジック）
 
 試合の「結果」タブのグラフモードで、ゲームごとの点数進行を表示する。
@@ -58,8 +58,8 @@ export const gameProgress = (pointLog: Side[], firstServerOfGame: Side): Progres
 **配置先**: 結果タブ（`/#/tournaments/:id/result`）の**グラフモード**。
 
 - `src/features/tournament/result/index.tsx`（`ResultView`）が `useResultRows` から `matchResults` を取得し、`game.pointLog && game.pointLog.length > 0` を持つゲームが1件以上ある試合のみ `graphMatches` としてフィルタリングする。
-- セレクトメニューで1対戦を選択し、`MatchGraphBlock`（`components.tsx`）を表示する。
-- `MatchGraphBlock` は `ScoreProgressChart` を `games`, `leftName`, `rightName`, `matchFirstServer` を渡して呼び出す。
+- セレクトメニューで1対戦を選択し、`GraphView` が選択中の対戦を `MatchScoreChart` で表示する。
+- `MatchScoreChart` は `ScoreProgressChart` を `games`, `leftName`, `rightName`, `matchFirstServer` を渡して呼び出す。
 - `pointLog` を持つゲームが1本もない試合はグラフモードの選択肢に現れない。
 
 ---
@@ -122,8 +122,9 @@ export const gameProgress = (pointLog: Side[], firstServerOfGame: Side): Progres
 
 ## 5. 画像保存
 
+- 保存ボタンは `SaveImageButtons`（モード別にボタン構成を切替）が担当する。
 - 「表示中の対戦」ボタン: 選択中の対戦グラフを1枚の画像として保存する。ファイル名に `${leftName} vs ${rightName}` を付加する。
-- 「全ての対戦」ボタン: 画面外（`position: absolute; left: -99999px`）に全対戦を縦積みで off-screen レンダリングし、それを画像化する。各対戦の間には区切り線（`border-t-2 border-line`）が入る。
+- 「全ての対戦」ボタン: `AllMatchesCapture` が画面外（`position: absolute; left: -99999px`）に全対戦を縦積みで off-screen レンダリングし、それを画像化する。各対戦の間には区切り線（`border-t-2 border-line`）が入る。
 - `useImageCapture` フックを使用し、`saving` 中は両ボタンとも `disabled`。
 
 ---

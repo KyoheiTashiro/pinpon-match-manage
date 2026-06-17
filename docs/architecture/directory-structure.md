@@ -75,8 +75,7 @@ src/
 │               │   ├── ScoreColumn.tsx
 │               │   ├── ScoreInputView.tsx
 │               │   ├── ScoreboardHeader.tsx
-│               │   ├── ScoreboardScreen.tsx     // 横向き専用・青背景・上下半分タップで±
-│               │   └── ScoreProgressChart.tsx   // 点数進行グラフ（SVG）
+│               │   └── ScoreboardScreen.tsx     // 横向き専用・青背景・上下半分タップで±
 │               └── singles/
 │                   └── SinglesMatrix.tsx        // シングルス対戦表
 ├── store/
@@ -101,5 +100,5 @@ src/
 - ルーターは `main.tsx` の `HashRouter`。ルート定義は `App.tsx`（`/` 大会一覧、`/tournaments/:tournamentId` 配下に participants / matrix / result / settings タブ）。
 - `features/tournament/result/` は App.tsx のルート `result`（「結果」タブ）に対応。点数表・グラフのサブタブを内包する。
 - `domain/scoreProgress.ts` は点数進行グラフ用の純粋関数を提供（[features/result-graph.md](../features/result-graph.md) 参照）。
-- `matrix/components/scoreboard/ScoreProgressChart.tsx` は SVG ベースのグラフコンポーネント（結果タブのグラフモード・スコアボードで使用）。
+- `result/components/ScoreProgressChart.tsx` は SVG ベースのグラフコンポーネント（結果タブのグラフモードで使用）。レイアウト寸法定数（`COL_WIDTH` / `ROW_HEIGHT` / `CIRCLE_SIZE`）は同ファイル内に定義。
 - 各 feature の `schema.ts` は React Hook Form + Zod 用のフォームスキーマ。
