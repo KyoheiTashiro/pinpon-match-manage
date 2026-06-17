@@ -1,6 +1,6 @@
 import App from "@/App";
-import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { SwUpdatePrompt } from "@/components/SwUpdatePrompt";
+import { ErrorBoundary } from "@/components/system/ErrorBoundary";
+import { SwUpdatePrompt } from "@/components/system/SwUpdatePrompt";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { HashRouter } from "react-router-dom";
