@@ -66,6 +66,7 @@
       // いずれも並べ替え・途中挿入が起きないため index キーが正当。
       "files": [
         "src/features/tournament/matrix/components/MatchModal.tsx",
+        "src/features/tournament/matrix/components/GameList.tsx",
         "src/features/tournament/scoreboard/components/ScoreboardHeader.tsx",
         "src/features/tournament/matrix/components/scoreboard/ScoreProgressChart.tsx"
       ],

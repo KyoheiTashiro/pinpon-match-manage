@@ -1,6 +1,6 @@
-import { DoublesMatrix } from "@/features/tournament/matrix/components/doubles/DoublesMatrix";
-import { SinglesMatrix } from "@/features/tournament/matrix/components/singles/SinglesMatrix";
+import { DoublesMatrix } from "@/features/tournament/matrix/doubles";
 import { useTournamentFormat } from "@/features/tournament/matrix/hooks";
+import { SinglesMatrix } from "@/features/tournament/matrix/singles";
 import { FORMAT } from "@/store/types";
 import { useParams } from "react-router-dom";
 

@@ -1,16 +1,16 @@
-import { DownloadIcon } from "@/components/icons";
-import { Button } from "@/components/ui/Button";
 import { matchSummary, winsNeededForBestOf, SIDE } from "@/domain/match";
-import { DoublesMatchForm } from "@/features/tournament/matrix/components/doubles/DoublesMatchForm";
-import { MatchModal } from "@/features/tournament/matrix/components/MatchModal";
-import { sideMembers, useMatrix, MIN_PLAYERS_DOUBLES } from "@/features/tournament/matrix/hooks";
+import { DoublesMatchForm } from "@/features/tournament/matrix/doubles/DoublesMatchForm";
+import { sideName } from "@/features/tournament/matrix/hooks";
+import { MatchModal } from "@/features/tournament/matrix/shared/MatchModal";
+import { SaveImageButton } from "@/features/tournament/matrix/shared/SaveImageButton";
 import { useImageCapture } from "@/utils/imageCapture/useImageCapture";
-import { useState } from "react";
+
+import { useDoublesMatrix, MIN_PLAYERS_DOUBLES } from "./hooks";
 
 export const DoublesMatrix = ({ tournamentId }: { tournamentId: string }) => {
-  const { tournament, participants, matchList, players } = useMatrix(tournamentId);
+  const { tournament, participants, matchList, players, openMatchId, openMatch, closeMatch } =
+    useDoublesMatrix(tournamentId);
   const { ref, saving, save } = useImageCapture();
-  const [openMatchId, setOpenMatchId] = useState<string | null>(null);
 
   if (!tournament) return null;
 
@@ -23,7 +23,7 @@ export const DoublesMatrix = ({ tournamentId }: { tournamentId: string }) => {
       {players.length < MIN_PLAYERS_DOUBLES ? (
         <p className="text-sub">参加者を4人以上 登録してください。</p>
       ) : (
-        <DoublesMatchForm tournamentId={tournamentId} players={players} onAdded={setOpenMatchId} />
+        <DoublesMatchForm tournamentId={tournamentId} players={players} onAdded={openMatch} />
       )}
 
       <div ref={ref} className="space-y-2 bg-white p-3">
@@ -38,16 +38,12 @@ export const DoublesMatrix = ({ tournamentId }: { tournamentId: string }) => {
             matchList.map((match) => {
               const summary = matchSummary(match.games, wins);
               const inProgress = !summary.finished;
-              const leftName = sideMembers(match.leftSide)
-                .map((id) => participants[id]?.name ?? "?")
-                .join(" / ");
-              const rightName = sideMembers(match.rightSide)
-                .map((id) => participants[id]?.name ?? "?")
-                .join(" / ");
+              const leftName = sideName(match.leftSide, participants);
+              const rightName = sideName(match.rightSide, participants);
               return (
                 <li key={match.id} className={inProgress ? "bg-warning/10" : ""}>
                   <button
-                    onClick={() => setOpenMatchId(match.id)}
+                    onClick={() => openMatch(match.id)}
                     className="flex min-h-[64px] w-full items-center justify-between gap-3 p-3 text-left hover:bg-bg"
                   >
                     <span className="flex-1 text-lg font-bold">
@@ -74,28 +70,16 @@ export const DoublesMatrix = ({ tournamentId }: { tournamentId: string }) => {
       </div>
 
       {players.length >= MIN_PLAYERS_DOUBLES && matchList.length > 0 && (
-        <div className="space-y-2">
-          <div className="text-base font-extrabold">画像で保存</div>
-          <Button
-            onClick={() => {
-              void save();
-            }}
-            disabled={saving}
-          >
-            <span className="inline-flex items-center justify-center gap-2">
-              <DownloadIcon />
-              {saving ? "保存中…" : "対戦表"}
-            </span>
-          </Button>
-        </div>
+        <SaveImageButton
+          saving={saving}
+          onSave={() => {
+            void save();
+          }}
+        />
       )}
 
       {openMatchId && (
-        <MatchModal
-          matchId={openMatchId}
-          participants={participants}
-          onClose={() => setOpenMatchId(null)}
-        />
+        <MatchModal matchId={openMatchId} participants={participants} onClose={closeMatch} />
       )}
     </div>
   );

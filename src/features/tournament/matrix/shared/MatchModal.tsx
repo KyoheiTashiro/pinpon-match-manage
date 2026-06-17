@@ -2,16 +2,17 @@ import { ChevronDownIcon } from "@/components/icons";
 import { Button } from "@/components/ui/Button";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import type { Game, Side } from "@/domain/match";
-import { SIDE, isGameFinished, gameWinner, winsNeededForBestOf } from "@/domain/match";
+import { SIDE, gameWinner, isGameFinished, winsNeededForBestOf } from "@/domain/match";
 import {
   padGames,
   trimTrailingEmptyGames,
   lockedGameStartIndex,
   firstPlayableGameIndex,
 } from "@/domain/matchGames";
+import { sideName } from "@/features/tournament/matrix/hooks";
+import { FirstServerSelect } from "@/features/tournament/matrix/shared/FirstServerSelect";
 import { ScoreboardScreen } from "@/features/tournament/scoreboard";
-import type { Match, Participant } from "@/store/types";
-import { SIDE_KIND } from "@/store/types";
+import type { Participant } from "@/store/types";
 import { useAppStore } from "@/store/useAppStore";
 import { useEffect, useId, useState } from "react";
 import { createPortal } from "react-dom";
@@ -20,11 +21,6 @@ type Props = {
   matchId: string;
   participants: Record<string, Participant>;
   onClose: () => void;
-};
-
-const sideLabel = (side: Match["leftSide"], participants: Record<string, Participant>) => {
-  if (side.kind === SIDE_KIND.SINGLE) return participants[side.participantId]?.name ?? "?";
-  return side.memberIds.map((id) => participants[id]?.name ?? "?").join(" / ");
 };
 
 export const MatchModal = ({ matchId, participants, onClose }: Props) => {
@@ -44,6 +40,8 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
 
   if (!match) return null;
 
+  const leftName = sideName(match.leftSide, participants);
+  const rightName = sideName(match.rightSide, participants);
   const firstServer: Side = match.firstServer;
   const lockedFromIndex = lockedGameStartIndex(games, wins, bestOf);
 
@@ -59,6 +57,7 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
 
   return createPortal(
     <div
+      // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- オーバーレイ背景。内部にdialogを内包するためbutton要素にできない
       role="button"
       tabIndex={-1}
       aria-label="閉じる"
@@ -70,6 +69,7 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
     >
       {/* oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- role="dialog" はランドマークだがstopPropagationが必要 */}
       <div
+        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- ネイティブ<dialog>のshowModal挙動を避けcreatePortalで手動制御
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
@@ -93,41 +93,17 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
         </div>
 
         <div className="mb-4 text-center text-2xl font-extrabold">
-          {sideLabel(match.leftSide, participants)}
+          {leftName}
           <span className="mx-3 text-line">対</span>
-          {sideLabel(match.rightSide, participants)}
+          {rightName}
         </div>
 
-        <fieldset className="mb-4 rounded-xl border-2 border-line p-3">
-          <legend className="px-2 font-bold">最初のサーブ</legend>
-          <div className="flex flex-col gap-2 sm:flex-row">
-            {([SIDE.LEFT, SIDE.RIGHT] as Side[]).map((side) => {
-              const name = sideLabel(
-                side === SIDE.LEFT ? match.leftSide : match.rightSide,
-                participants,
-              );
-              return (
-                <label
-                  key={side}
-                  className={`flex flex-1 cursor-pointer items-center gap-2 rounded-lg border-2 px-3 py-2 ${
-                    firstServer === side ? "border-orange-500 bg-orange-50" : "border-line bg-white"
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="first-server"
-                    value={side}
-                    checked={firstServer === side}
-                    onChange={() => setFirstServer(side)}
-                    aria-label={`最初のサーブ: ${name}`}
-                    className="h-5 w-5 accent-orange-500"
-                  />
-                  <span className="font-bold">{name}</span>
-                </label>
-              );
-            })}
-          </div>
-        </fieldset>
+        <FirstServerSelect
+          leftName={leftName}
+          rightName={rightName}
+          value={firstServer}
+          onChange={setFirstServer}
+        />
 
         <div className="mb-4">
           <Button variant="primary" className="w-full" onClick={() => setScoreboardOpen(true)}>
@@ -145,6 +121,7 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
             const winner = gameWinner(game);
             return (
               <li
+                // oxlint-disable-next-line react/no-array-index-key -- ゲーム配列はbestOf固定長・順序不変
                 key={gameIndex}
                 className={`flex items-center justify-between px-3 py-2 ${
                   locked ? "bg-bg opacity-60" : "bg-white"
@@ -185,8 +162,8 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
 
       {scoreboardOpen && (
         <ScoreboardScreen
-          leftName={sideLabel(match.leftSide, participants)}
-          rightName={sideLabel(match.rightSide, participants)}
+          leftName={leftName}
+          rightName={rightName}
           games={games}
           setGames={persistGames}
           lockedFromIndex={lockedFromIndex}

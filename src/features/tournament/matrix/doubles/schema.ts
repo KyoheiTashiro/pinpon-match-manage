@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const Schema = z
+export const doublesPairSchema = z
   .object({
     l1: z.string().min(1),
     l2: z.string().min(1),
@@ -11,6 +11,6 @@ export const Schema = z
     message: "4人とも異なる選手を選んでください",
   });
 
-export type FormType = z.infer<typeof Schema>;
+export type DoublesPairForm = z.infer<typeof doublesPairSchema>;
 
-export const defaultValues: FormType = { l1: "", l2: "", r1: "", r2: "" };
+export const doublesPairDefaults: DoublesPairForm = { l1: "", l2: "", r1: "", r2: "" };

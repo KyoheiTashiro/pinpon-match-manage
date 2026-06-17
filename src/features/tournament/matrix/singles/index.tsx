@@ -1,13 +1,12 @@
-import { DownloadIcon } from "@/components/icons";
-import { Button } from "@/components/ui/Button";
 import { matchSummary, winsNeededForBestOf, SIDE } from "@/domain/match";
-import { MatchModal } from "@/features/tournament/matrix/components/MatchModal";
-import { involvesSingle, useMatrix, MIN_PLAYERS_SINGLES } from "@/features/tournament/matrix/hooks";
+import { MatchModal } from "@/features/tournament/matrix/shared/MatchModal";
+import { SaveImageButton } from "@/features/tournament/matrix/shared/SaveImageButton";
 import type { Match } from "@/store/types";
 import { SIDE_KIND } from "@/store/types";
 import { useAppStore } from "@/store/useAppStore";
 import { useImageCapture } from "@/utils/imageCapture/useImageCapture";
-import { useState } from "react";
+
+import { involvesSingle, useSinglesMatrix, MIN_PLAYERS_SINGLES } from "./hooks";
 
 type Player = { id: string; name: string };
 
@@ -82,11 +81,18 @@ const MatrixCell = ({ row, column, match, winsNeeded, onCreate, onOpen }: Props)
 };
 
 export const SinglesMatrix = ({ tournamentId }: { tournamentId: string }) => {
-  const { tournament, participants, players, singlesCellMatch } = useMatrix(tournamentId);
+  const {
+    tournament,
+    participants,
+    players,
+    singlesCellMatch,
+    openMatchId,
+    openMatch,
+    closeMatch,
+  } = useSinglesMatrix(tournamentId);
   const addManualMatch = useAppStore((state) => state.addManualMatch);
 
   const { ref, saving, save } = useImageCapture();
-  const [openMatchId, setOpenMatchId] = useState<string | null>(null);
 
   if (!tournament) return null;
 
@@ -145,9 +151,9 @@ export const SinglesMatrix = ({ tournamentId }: { tournamentId: string }) => {
                               { kind: SIDE_KIND.SINGLE, participantId: row.id },
                               { kind: SIDE_KIND.SINGLE, participantId: column.id },
                             );
-                            setOpenMatchId(id);
+                            openMatch(id);
                           }}
-                          onOpen={setOpenMatchId}
+                          onOpen={openMatch}
                         />
                       ))}
                     </tr>
@@ -156,29 +162,17 @@ export const SinglesMatrix = ({ tournamentId }: { tournamentId: string }) => {
               </table>
             </div>
           </div>
-          <div className="space-y-2">
-            <div className="text-base font-extrabold">画像で保存</div>
-            <Button
-              onClick={() => {
-                void save();
-              }}
-              disabled={saving}
-            >
-              <span className="inline-flex items-center justify-center gap-2">
-                <DownloadIcon />
-                {saving ? "保存中…" : "対戦表"}
-              </span>
-            </Button>
-          </div>
+          <SaveImageButton
+            saving={saving}
+            onSave={() => {
+              void save();
+            }}
+          />
         </>
       )}
 
       {openMatchId && (
-        <MatchModal
-          matchId={openMatchId}
-          participants={participants}
-          onClose={() => setOpenMatchId(null)}
-        />
+        <MatchModal matchId={openMatchId} participants={participants} onClose={closeMatch} />
       )}
     </div>
   );
