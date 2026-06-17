@@ -6,9 +6,6 @@ import { useMemo } from "react";
 export const MIN_PLAYERS_SINGLES = 2;
 export const MIN_PLAYERS_DOUBLES = 4;
 
-/** スコア入力の上限値。 */
-export const MAX_SCORE = 30;
-
 export const sideMembers = (side: MatchSide) =>
   side.kind === SIDE_KIND.SINGLE ? [side.participantId] : [...side.memberIds];
 

@@ -9,7 +9,7 @@ import {
   lockedGameStartIndex,
   firstPlayableGameIndex,
 } from "@/domain/matchGames";
-import { ScoreboardScreen } from "@/features/tournament/matrix/components/scoreboard/ScoreboardScreen";
+import { ScoreboardScreen } from "@/features/tournament/scoreboard";
 import type { Match, Participant } from "@/store/types";
 import { SIDE_KIND } from "@/store/types";
 import { useAppStore } from "@/store/useAppStore";

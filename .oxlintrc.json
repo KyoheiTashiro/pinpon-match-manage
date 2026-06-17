@@ -66,7 +66,7 @@
       // いずれも並べ替え・途中挿入が起きないため index キーが正当。
       "files": [
         "src/features/tournament/matrix/components/MatchModal.tsx",
-        "src/features/tournament/matrix/components/scoreboard/ScoreboardHeader.tsx",
+        "src/features/tournament/scoreboard/components/ScoreboardHeader.tsx",
         "src/features/tournament/matrix/components/scoreboard/ScoreProgressChart.tsx"
       ],
       "rules": {
@@ -85,7 +85,7 @@
         "src/components/ui/Toggle.tsx",
         "src/components/ui/Select.tsx",
         "src/features/tournament/matrix/components/MatchModal.tsx",
-        "src/features/tournament/matrix/components/ScoreboardScreen.tsx"
+        "src/features/tournament/scoreboard/components/ScoreboardScreen.tsx"
       ],
       "rules": {
         "jsx-a11y/prefer-tag-over-role": "off"

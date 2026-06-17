@@ -1,4 +1,5 @@
-import { MAX_SCORE } from "@/features/tournament/matrix/hooks";
+/** スコア入力の上限値。 */
+const MAX_SCORE = 50;
 
 type Props = {
   name: string;

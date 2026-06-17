@@ -11,9 +11,9 @@ import {
   gameFirstServer,
   currentServer,
 } from "@/domain/match";
-import { MatchResultView } from "@/features/tournament/matrix/components/scoreboard/MatchResultView";
-import { ScoreboardHeader } from "@/features/tournament/matrix/components/scoreboard/ScoreboardHeader";
-import { ScoreInputView } from "@/features/tournament/matrix/components/scoreboard/ScoreInputView";
+import { MatchResultView } from "@/features/tournament/scoreboard/components/MatchResultView";
+import { ScoreboardHeader } from "@/features/tournament/scoreboard/components/ScoreboardHeader";
+import { ScoreInputView } from "@/features/tournament/scoreboard/components/ScoreInputView";
 import { useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 
