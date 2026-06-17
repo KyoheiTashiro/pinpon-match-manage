@@ -44,11 +44,18 @@ src/
 │       │   ├── hooks.ts
 │       │   └── schema.ts           // 参加者名の zod スキーマ
 │       ├── result/                 // 結果タブ（ルート: result）
-│       │   ├── index.tsx           // 点数表/グラフ サブタブ2つを含む
+│       │   ├── index.tsx           // 点数表/グラフ サブタブを束ねるコンテナ
 │       │   ├── hooks.ts            // useResultRows（順位行・対戦結果の構築）
 │       │   └── components/
-│       │       ├── MatchGraphBlock.tsx // 1対戦分の点数進行グラフブロック
-│       │       └── TableMode.tsx       // 点数表モード（順位表＋対戦結果テーブル）
+│       │       ├── ResultModeTabs.tsx     // 点数表/グラフ 切替タブ
+│       │       ├── TableView.tsx          // 点数表モード（RankingTable＋MatchResultsTable）
+│       │       ├── RankingTable.tsx       // 順位表テーブル
+│       │       ├── MatchResultsTable.tsx  // 対戦結果テーブル
+│       │       ├── GraphView.tsx          // グラフモード（選択中対戦を表示）
+│       │       ├── MatchScoreChart.tsx    // 1対戦分の点数進行グラフブロック
+│       │       ├── ScoreProgressChart.tsx // 点数進行グラフ本体（SVG）
+│       │       ├── SaveImageButtons.tsx   // 画像保存ボタン群（モード別）
+│       │       └── AllMatchesCapture.tsx  // 全対戦の off-screen 画像レンダリング
 │       ├── settings/               // 大会設定・削除タブ
 │       │   ├── index.tsx
 │       │   ├── hooks.ts            // useSettings（編集・リセット・削除）
