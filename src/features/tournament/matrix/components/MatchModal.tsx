@@ -31,9 +31,7 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
   const match = useAppStore((state) => state.matches[matchId]);
   const updateMatch = useAppStore((state) => state.updateMatch);
   const deleteMatch = useAppStore((state) => state.deleteMatch);
-  const bestOf = useAppStore((state) =>
-    match ? (state.tournaments[match.tournamentId]?.bestOf ?? 5) : 5,
-  );
+  const bestOf = useAppStore((state) => (match ? state.tournaments[match.tournamentId].bestOf : 5));
   const wins = winsNeededForBestOf(bestOf);
   const [games, setGames] = useState<Game[]>(() => padGames(match?.games ?? [], bestOf));
   const [confirmDelete, setConfirmDelete] = useState(false);
