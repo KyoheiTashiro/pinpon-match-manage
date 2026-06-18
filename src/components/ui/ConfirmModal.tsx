@@ -54,7 +54,7 @@ export const ConfirmModal = ({
           {title}
         </h2>
         <p className="mb-6 text-base leading-relaxed">{message}</p>
-        <div className="flex flex-wrap justify-end gap-4">
+        <div className="flex flex-wrap justify-center gap-4">
           <Button ref={cancelRef} variant="secondary" onClick={onCancel}>
             {cancelLabel}
           </Button>

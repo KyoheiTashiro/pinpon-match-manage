@@ -43,7 +43,7 @@ export const Home = () => {
           />
         ) : (
           <Button variant="primary" onClick={() => setCreating(true)}>
-            ＋ 新しい大会を作る
+            ＋ 新しい大会
           </Button>
         )}
 
@@ -75,14 +75,14 @@ export const Home = () => {
         <div className="flex flex-col items-start gap-3 border-t-2 border-line pt-6 sm:flex-row">
           <InstallAppButton />
           <Button variant="danger" onClick={askReset}>
-            全てのデータを消す
+            データ初期化
           </Button>
         </div>
       </main>
 
       <ConfirmModal
         open={confirmReset}
-        title="全データ削除"
+        title="データ初期化"
         message="全ての大会・参加者・対戦結果を削除します。取り消せません。本当に削除しますか?"
         confirmLabel="全て消す"
         cancelLabel="やめる"
