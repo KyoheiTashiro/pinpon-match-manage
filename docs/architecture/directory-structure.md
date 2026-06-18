@@ -104,3 +104,4 @@ src/
 - `domain/scoreProgress.ts` は点数進行グラフ用の純粋関数を提供（[features/result-graph.md](../features/result-graph.md) 参照）。
 - `result/components/ScoreProgressChart.tsx` は SVG ベースのグラフコンポーネント（結果タブのグラフモードで使用）。レイアウト寸法定数（`COL_WIDTH` / `ROW_HEIGHT` / `CIRCLE_SIZE`）は同ファイル内に定義。
 - 各 feature の `schema.ts` は React Hook Form + Zod 用のフォームスキーマ。
+- Storybook の story はコンポーネント隣に `*.stories.tsx` で配置（colocation・上記ツリーでは省略）。設定は `.storybook/`（`main.ts` / `preview.ts`）。詳細 → [../testing.md](../testing.md)。

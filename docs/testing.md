@@ -23,6 +23,12 @@
 ## UI
 
 - スモークテストのみ（手動確認中心）
+- **Storybook** でコンポーネント単位の見た目・状態を確認
+  - 起動: `npm run storybook`（dev・ポート6006） / ビルド: `npm run build-storybook`
+  - story配置: 各コンポーネント隣に `*.stories.tsx`（`src/**/*.stories.@(tsx|mdx)`）
+  - `@storybook/addon-a11y` で各storyのアクセシビリティ検査（現状 `a11y.test: "todo"`）
+  - 背景: Light（`#ffffff`・アプリ実背景） / Dark（`#0f172a`）切替
+  - PWAプラグインはStorybookビルドから除外（`.storybook/main.ts` の `viteFinal`・SW不要）
 
 ## アクセシビリティ
 

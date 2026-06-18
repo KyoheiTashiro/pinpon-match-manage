@@ -28,7 +28,7 @@
 
 ### テスト
 
-- [testing.md](testing.md) — テスト方針
+- [testing.md](testing.md) — テスト方針（Vitest・Storybook UIカタログ含む）
 
 ### 画面別仕様
 

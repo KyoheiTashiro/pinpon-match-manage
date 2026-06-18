@@ -7,7 +7,16 @@ type Props = {
 };
 
 export const MatchResultsTable = ({ matchResults, bestOf }: Props) => {
-  if (matchResults.length === 0) return null;
+  if (matchResults.length === 0) {
+    return (
+      <div className="space-y-2 pt-2">
+        <div className="text-base font-extrabold">対戦結果</div>
+        <div className="border-2 border-line p-4 text-center text-base text-sub">
+          データがありません
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="space-y-2 pt-2">
       <div className="text-base font-extrabold">対戦結果</div>

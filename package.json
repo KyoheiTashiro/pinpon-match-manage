@@ -14,6 +14,8 @@
     "lint:typed": "oxlint --type-aware",
     "format": "oxfmt",
     "format:check": "oxfmt --check",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
     "prepare": "husky"
   },
   "dependencies": {
@@ -28,6 +30,8 @@
     "zustand": "^5.0.0"
   },
   "devDependencies": {
+    "@storybook/addon-a11y": "^10.4.6",
+    "@storybook/react-vite": "^10.4.6",
     "@types/node": "^22.0.0",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
@@ -39,6 +43,7 @@
     "oxlint": "1.69.0",
     "oxlint-tsgolint": "0.23.0",
     "postcss": "^8.4.47",
+    "storybook": "^10.4.6",
     "tailwindcss": "^3.4.13",
     "typescript": "^5.6.2",
     "vite": "^5.4.8",
