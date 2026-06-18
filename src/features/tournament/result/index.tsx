@@ -1,9 +1,10 @@
 import { Select } from "@/components/ui/Select";
+import { Tabs } from "@/components/ui/Tabs";
 import { AllMatchesCapture } from "@/features/tournament/result/components/AllMatchesCapture";
-import { GraphView } from "@/features/tournament/result/components/GraphView";
-import { ResultModeTabs } from "@/features/tournament/result/components/ResultModeTabs";
+import { MatchResultsTable } from "@/features/tournament/result/components/MatchResultsTable";
+import { MatchScoreChart } from "@/features/tournament/result/components/MatchScoreChart";
+import { RankingTable } from "@/features/tournament/result/components/RankingTable";
 import { SaveImageButtons } from "@/features/tournament/result/components/SaveImageButtons";
-import { TableView } from "@/features/tournament/result/components/TableView";
 import { DISPLAY_MODE, useResult } from "@/features/tournament/result/hooks";
 import { useParams } from "react-router-dom";
 
@@ -32,6 +33,22 @@ const ResultView = ({ tournamentId }: { tournamentId: string }) => {
 
   if (!tournament) return null;
 
+  const renderContent = () => {
+    if (mode === DISPLAY_MODE.TABLE) {
+      return (
+        <>
+          <RankingTable rows={rows} />
+          <MatchResultsTable matchResults={matchResults} bestOf={tournament.bestOf} />
+        </>
+      );
+    }
+    if (graphMatches.length === 0) {
+      return <p className="text-sub">対戦結果がありません。</p>;
+    }
+    if (!selectedMatch) return null;
+    return <MatchScoreChart match={selectedMatch} />;
+  };
+
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-extrabold">結果</h2>
@@ -41,7 +58,15 @@ const ResultView = ({ tournamentId }: { tournamentId: string }) => {
       ) : (
         <>
           {/* サブタブ（画像保存対象外） */}
-          <ResultModeTabs mode={mode} setMode={setMode} />
+          <Tabs
+            ariaLabel="表示モード"
+            value={mode}
+            onChange={setMode}
+            options={[
+              { value: DISPLAY_MODE.TABLE, label: "点数表" },
+              { value: DISPLAY_MODE.GRAPH, label: "点数グラフ" },
+            ]}
+          />
 
           {/* グラフモード時のみ表示するセレクタ（画像保存対象外） */}
           {mode === DISPLAY_MODE.GRAPH && graphMatches.length > 0 && (
@@ -66,11 +91,7 @@ const ResultView = ({ tournamentId }: { tournamentId: string }) => {
                 <div className="text-xl font-extrabold">{tournament.name}</div>
                 <div className="text-sm text-sub">{tournament.date}</div>
               </div>
-              {mode === DISPLAY_MODE.TABLE ? (
-                <TableView rows={rows} matchResults={matchResults} bestOf={tournament.bestOf} />
-              ) : (
-                <GraphView graphMatches={graphMatches} selectedMatch={selectedMatch} />
-              )}
+              {renderContent()}
             </div>
           </div>
 
