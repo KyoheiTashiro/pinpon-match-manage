@@ -1,19 +1,66 @@
-import { matchSummary, winsNeededForBestOf, SIDE } from "@/domain/match";
+import { Button } from "@/components/ui/Button";
+import { Select } from "@/components/ui/Select";
+import { matchSummary, SIDE } from "@/domain/match";
 import { MatchModal } from "@/features/tournament/matrix/components/MatchModal";
 import { SaveImageButton } from "@/features/tournament/matrix/components/SaveImageButton";
-import { DoublesMatchForm } from "@/features/tournament/matrix/doubles/DoublesMatchForm";
 import { useDoublesMatrix, MIN_PLAYERS_DOUBLES } from "@/features/tournament/matrix/doubles/hooks";
+import type { DoublesPairForm } from "@/features/tournament/matrix/doubles/schema";
 import { sideName } from "@/features/tournament/matrix/hooks";
-import { useImageCapture } from "@/utils/imageCapture/useImageCapture";
+import { Controller } from "react-hook-form";
+
+type FieldName = keyof DoublesPairForm;
+
+const FIELD_LABELS: Record<FieldName, string> = { l1: "左1", l2: "左2", r1: "右1", r2: "右2" };
+const LEFT_FIELDS: FieldName[] = ["l1", "l2"];
+const RIGHT_FIELDS: FieldName[] = ["r1", "r2"];
 
 export const DoublesMatrix = ({ tournamentId }: { tournamentId: string }) => {
-  const { tournament, participants, matchList, players, openMatchId, openMatch, closeMatch } =
-    useDoublesMatrix(tournamentId);
-  const { ref, saving, save } = useImageCapture();
+  const {
+    tournament,
+    participants,
+    matchList,
+    players,
+    wins,
+    openMatchId,
+    openMatch,
+    closeMatch,
+    pairForm,
+    submit,
+    ref,
+    saving,
+    save,
+  } = useDoublesMatrix(tournamentId);
+  const values = pairForm.watch();
 
   if (!tournament) return null;
 
-  const wins = winsNeededForBestOf(tournament.bestOf);
+  const renderField = (name: FieldName) => {
+    const excluded = new Set(
+      (Object.keys(FIELD_LABELS) as FieldName[])
+        .filter((key) => key !== name)
+        .map((key) => values[key])
+        .filter(Boolean),
+    );
+    const options = players
+      .filter((p) => !excluded.has(p.id))
+      .map((p) => ({ value: p.id, label: p.name }));
+    return (
+      <Controller
+        key={name}
+        name={name}
+        control={pairForm.control}
+        render={({ field }) => (
+          <Select
+            value={field.value}
+            onChange={field.onChange}
+            options={options}
+            label={FIELD_LABELS[name]}
+            placeholder="選んでください"
+          />
+        )}
+      />
+    );
+  };
 
   return (
     <div className="space-y-4">
@@ -22,7 +69,27 @@ export const DoublesMatrix = ({ tournamentId }: { tournamentId: string }) => {
       {players.length < MIN_PLAYERS_DOUBLES ? (
         <p className="text-sub">参加者を4人以上 登録してください。</p>
       ) : (
-        <DoublesMatchForm tournamentId={tournamentId} players={players} onAdded={openMatch} />
+        <div className="space-y-3 rounded-2xl border-4 border-primary p-4">
+          <h3 className="text-lg font-extrabold">試合を追加</h3>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="space-y-2">
+              <span className="font-bold">左ペア</span>
+              {LEFT_FIELDS.map((name) => renderField(name))}
+            </div>
+            <div className="space-y-2">
+              <span className="font-bold">右ペア</span>
+              {RIGHT_FIELDS.map((name) => renderField(name))}
+            </div>
+          </div>
+          <Button
+            disabled={!pairForm.formState.isValid}
+            onClick={() => {
+              void submit();
+            }}
+          >
+            試合を追加して入力へ
+          </Button>
+        </div>
       )}
 
       <div ref={ref} className="space-y-2 bg-white p-3">
