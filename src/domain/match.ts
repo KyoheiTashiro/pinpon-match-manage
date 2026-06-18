@@ -27,7 +27,9 @@ export const gameWinner = (game: Game): Side | null => {
   return game.leftScore > game.rightScore ? SIDE.LEFT : SIDE.RIGHT;
 };
 
-const opposite = (side: Side): Side => (side === SIDE.LEFT ? SIDE.RIGHT : SIDE.LEFT);
+export const opposite = (side: Side): Side => (side === SIDE.LEFT ? SIDE.RIGHT : SIDE.LEFT);
+
+export const flip = (side: Side | null): Side | null => (side ? opposite(side) : null);
 
 export const gameFirstServer = (matchFirstServer: Side, gameIndex: number): Side =>
   gameIndex % 2 === 0 ? matchFirstServer : opposite(matchFirstServer);

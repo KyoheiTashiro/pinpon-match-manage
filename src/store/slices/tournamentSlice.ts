@@ -39,7 +39,6 @@ export const createTournamentSlice: StateCreator<
       date,
       createdAt: new Date().toISOString(),
       participantIds: [],
-      matchIds: [],
     };
     set((state) => {
       state.tournaments[id] = tournament;
@@ -60,7 +59,8 @@ export const createTournamentSlice: StateCreator<
     set((state) => {
       const tournament = state.tournaments[id];
       if (!tournament) return;
-      for (const matchId of tournament.matchIds) delete state.matches[matchId];
+      for (const match of Object.values(state.matches))
+        if (match.tournamentId === id) delete state.matches[match.id];
       for (const participantId of tournament.participantIds)
         delete state.participants[participantId];
       delete state.tournaments[id];
@@ -77,8 +77,8 @@ export const createTournamentSlice: StateCreator<
     set((state) => {
       const tournament = state.tournaments[id];
       if (!tournament) return;
-      for (const matchId of tournament.matchIds) delete state.matches[matchId];
-      state.tournaments[id].matchIds = [];
+      for (const match of Object.values(state.matches))
+        if (match.tournamentId === id) delete state.matches[match.id];
     });
   },
 

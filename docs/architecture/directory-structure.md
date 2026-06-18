@@ -20,8 +20,9 @@ src/
 │   └── storage.ts                  // localStorage キー定数
 ├── domain/                         // ビジネスロジック（純粋関数）
 │   ├── constants.ts                // 卓球ルール定数（GAME_POINT / WIN_DIFF 等）
-│   ├── match.ts                    // 勝敗判定・サーブ・pointLog操作
+│   ├── match.ts                    // 勝敗判定・サーブ・pointLog操作・opposite/flip
 │   ├── match.test.ts
+│   ├── side.ts                     // MatchSide → participantId配列/表示名（sideMembers/sideName）
 │   ├── matchGames.ts               // ゲーム配列の pad/trim・入力ロック算出
 │   ├── matchGames.test.ts
 │   ├── ranking.ts                  // 順位算出
@@ -79,7 +80,8 @@ src/
 │               └── singles/
 │                   └── SinglesMatrix.tsx        // シングルス対戦表
 ├── store/
-│   ├── useAppStore.ts              // Zustand + persist + immer（migrate含む）
+│   ├── useAppStore.ts              // Zustand + persist + immer（migrate / salvage 含む）
+│   ├── selectors.ts                // 導出セレクタ（matchesOf: tournamentId で試合を導出）
 │   ├── types.ts
 │   └── slices/                     // Zustand スライス
 │       ├── matchSlice.ts

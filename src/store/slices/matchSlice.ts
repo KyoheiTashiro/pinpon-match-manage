@@ -1,4 +1,5 @@
 import { SIDE } from "@/domain/match";
+import { matchesOf } from "@/store/selectors";
 import { SIDE_KIND, type Match, type MatchSide } from "@/store/types";
 import type { StoreState } from "@/store/useAppStore";
 import { generateId } from "@/utils/id";
@@ -29,9 +30,7 @@ export const createMatchSlice: StateCreator<
       if (tournament) {
         const leftParticipantId = left.participantId;
         const rightParticipantId = right.participantId;
-        for (const matchId of tournament.matchIds) {
-          const match = get().matches[matchId];
-          if (!match) continue;
+        for (const match of matchesOf(get().matches, tournamentId)) {
           if (match.leftSide.kind !== SIDE_KIND.SINGLE || match.rightSide.kind !== SIDE_KIND.SINGLE)
             continue;
           const existingLeftId = match.leftSide.participantId;
@@ -40,7 +39,7 @@ export const createMatchSlice: StateCreator<
             (existingLeftId === leftParticipantId && existingRightId === rightParticipantId) ||
             (existingLeftId === rightParticipantId && existingRightId === leftParticipantId)
           )
-            return matchId;
+            return match.id;
         }
       }
     }
@@ -57,7 +56,6 @@ export const createMatchSlice: StateCreator<
       const tournament = state.tournaments[tournamentId];
       if (!tournament) return;
       state.matches[id] = match;
-      state.tournaments[tournamentId].matchIds.push(id);
     });
     return id;
   },
@@ -73,12 +71,6 @@ export const createMatchSlice: StateCreator<
     set((state) => {
       const match = state.matches[id];
       if (!match) return;
-      const tournament = state.tournaments[match.tournamentId];
       delete state.matches[id];
-      if (tournament) {
-        state.tournaments[match.tournamentId].matchIds = tournament.matchIds.filter(
-          (matchId) => matchId !== id,
-        );
-      }
     }),
 });

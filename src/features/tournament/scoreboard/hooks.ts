@@ -1,5 +1,5 @@
 import { GAME_POINT, WIN_DIFF } from "@/domain/constants";
-import { SIDE } from "@/domain/match";
+import { SIDE, flip, opposite } from "@/domain/match";
 import type { Game, Side } from "@/domain/match";
 import {
   addPointToGame,
@@ -22,10 +22,6 @@ const subscribePortrait = (onChange: () => void) => {
 };
 
 const getPortraitSnapshot = () => window.matchMedia(PORTRAIT_QUERY).matches;
-
-const opposite = (side: Side): Side => (side === SIDE.LEFT ? SIDE.RIGHT : SIDE.LEFT);
-
-const flip = (side: Side | null): Side | null => (side ? opposite(side) : null);
 
 const isGamePoint = (score: number, opponent: number) => {
   const nextScore = score + 1;

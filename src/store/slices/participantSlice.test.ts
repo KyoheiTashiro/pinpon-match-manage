@@ -1,6 +1,9 @@
+import { matchesOf } from "@/store/selectors";
 import { FORMAT, SIDE_KIND, type Format } from "@/store/types";
 import { useAppStore } from "@/store/useAppStore";
 import { beforeEach, describe, expect, it } from "vitest";
+
+const matchIdsOf = (tId: string) => matchesOf(useAppStore.getState().matches, tId).map((m) => m.id);
 
 beforeEach(() => {
   useAppStore.getState().resetAll();
@@ -97,7 +100,7 @@ describe("removeParticipant", () => {
     const state = useAppStore.getState();
 
     expect(state.matches[mId]).toBeUndefined();
-    expect(state.tournaments[tId].matchIds).not.toContain(mId);
+    expect(matchIdsOf(tId)).not.toContain(mId);
   });
 
   it("シングルス: 削除対象の参加者が rightSide にいる match が全削除される", () => {
@@ -116,7 +119,7 @@ describe("removeParticipant", () => {
     const state = useAppStore.getState();
 
     expect(state.matches[mId]).toBeUndefined();
-    expect(state.tournaments[tId].matchIds).not.toContain(mId);
+    expect(matchIdsOf(tId)).not.toContain(mId);
   });
 
   it("ペア: memberIds に含まれる場合も match が削除される", () => {
@@ -138,7 +141,7 @@ describe("removeParticipant", () => {
     const state = useAppStore.getState();
 
     expect(state.matches[mId]).toBeUndefined();
-    expect(state.tournaments[tId].matchIds).not.toContain(mId);
+    expect(matchIdsOf(tId)).not.toContain(mId);
   });
 
   it("無関係な match は残る", () => {
@@ -169,8 +172,8 @@ describe("removeParticipant", () => {
 
     expect(state.matches[mId_ab]).toBeUndefined();
     expect(state.matches[mId_bc]).toBeDefined();
-    expect(state.tournaments[tId].matchIds).toContain(mId_bc);
-    expect(state.tournaments[tId].matchIds).not.toContain(mId_ab);
+    expect(matchIdsOf(tId)).toContain(mId_bc);
+    expect(matchIdsOf(tId)).not.toContain(mId_ab);
   });
 
   it("存在しない tournamentId では何も起きない", () => {

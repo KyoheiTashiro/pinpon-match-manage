@@ -17,8 +17,7 @@ type Tournament = {
   bestOf: BestOf; // 1試合のゲーム数（3 / 5 / 7）
   date: string; // 開催日 YYYY-MM-DD
   createdAt: string; // ISO
-  participantIds: string[];
-  matchIds: string[];
+  participantIds: string[]; // 表示順を保持（順序付きの正規化例外）
 };
 
 type Participant = {
@@ -60,6 +59,7 @@ type AppState = {
 };
 ```
 
+- `Tournament` は試合IDの配列を持たない。所属試合は `Match.tournamentId`（FK）から導出する（`src/store/selectors.ts` の `matchesOf(matches, tournamentId)`）。挿入順 = `matches` レコードのキー順
 - 試合進行状態は `matchSummary(games, winsNeeded)` から派生（永続化しない）
 - ダブルスのペアはエンティティ化せず `memberIds[2]` のみ。同ペアの再結成は識別不可
 - `pointLog` は `Side[]`。例: `['R','R','L','R',...]` — 1本目R得点、2本目R、3本目L。点数進行グラフの真実源（[result-graph.md](../features/result-graph.md) 参照）
@@ -69,9 +69,10 @@ type AppState = {
 - ストアキー（`name`）: `pinpon-match-manage:v1`
 - スキーマ `version`: `2`
 - ミドルウェア構成: `persist(immer(...))`。スライス（`uiSlice` / `tournamentSlice` / `participantSlice` / `matchSlice`）を合成。
-- `migrate`: 旧 `version < 2` のデータに対し、各 `Tournament` へ `bestOf` を補完する（`bestOf ?? 5`）。v1 は5ゲーム制固定だったため、既存大会には `bestOf: 5` を付与する。
+- `migrate`: バージョン毎の変換を `migratePersistedState(persisted, fromVersion)` で実施。v1→v2 では各 `Tournament` へ `bestOf` を補完（`bestOf ?? 5`）。将来のスキーマ変更はこの関数に追加し `STORAGE_VERSION` を上げる。
+- `merge` (サルベージ戦略): `appStateSchema.safeParse` が成功すればそのまま適用。失敗した場合は全捨てせず、`tournaments`/`participants`/`matches` を1エントリずつ各エンティティスキーマで検証し、パースできたものだけ保持する（`salvageAppState`）。`currentTournamentId`・`fontSize` も個別に型チェックしフォールバック。その後 `sanitizeAppState` で参照整合性を修復。persisted がオブジェクトですらない場合のみ `current`（空初期状態）を返す最終手段に落ちる。
 
-実装: `src/store/useAppStore.ts`。
+実装: `src/store/useAppStore.ts`（`migratePersistedState`・`salvageAppState`・`useAppStore`）。
 
 ---
 

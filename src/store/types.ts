@@ -15,7 +15,6 @@ export type Tournament = {
   date: string;
   createdAt: string;
   participantIds: string[];
-  matchIds: string[];
 };
 
 export type Participant = {

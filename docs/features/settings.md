@@ -55,8 +55,7 @@
 
 確認後の動作（`resetTournament`）:
 
-- 大会に紐づく全試合（`tournament.matchIds` に含まれる全 `Match`）をストアから削除する。
-- 大会の `matchIds` を空配列にリセットする。
+- 大会に紐づく全試合（`tournamentId` が一致する全 `Match`）をストアから削除する。
 - 大会・参加者はそのまま残る。
 
 ---
@@ -85,8 +84,8 @@
 
 ## ストア操作
 
-| 操作           | スライス          | 関数               | 変更範囲                           |
-| -------------- | ----------------- | ------------------ | ---------------------------------- |
-| 大会情報の保存 | `tournamentSlice` | `updateTournament` | `name`・`date` を部分更新          |
-| 試合結果を削除 | `tournamentSlice` | `resetTournament`  | 全 `Match` 削除・`matchIds` を空に |
-| 大会を削除     | `tournamentSlice` | `deleteTournament` | 大会・参加者・試合を全削除         |
+| 操作           | スライス          | 関数               | 変更範囲                               |
+| -------------- | ----------------- | ------------------ | -------------------------------------- |
+| 大会情報の保存 | `tournamentSlice` | `updateTournament` | `name`・`date` を部分更新              |
+| 試合結果を削除 | `tournamentSlice` | `resetTournament`  | `tournamentId` 一致の全 `Match` を削除 |
+| 大会を削除     | `tournamentSlice` | `deleteTournament` | 大会・参加者・試合を全削除             |

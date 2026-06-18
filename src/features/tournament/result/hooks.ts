@@ -1,18 +1,15 @@
 import { matchSummary, realGames, winsNeededForBestOf } from "@/domain/match";
 import type { Game, Side } from "@/domain/match";
 import { computeRanking } from "@/domain/ranking";
-import { SIDE_KIND, type Match, type MatchSide, type Participant } from "@/store/types";
+import { sideName } from "@/domain/side";
+import { matchesOf } from "@/store/selectors";
+import { type Match, type Participant } from "@/store/types";
 import { useAppStore } from "@/store/useAppStore";
 import { useImageCapture } from "@/utils/imageCapture/useImageCapture";
 import { useMemo, useState } from "react";
 
 export const DISPLAY_MODE = { TABLE: "table", GRAPH: "graph" } as const;
 type DisplayMode = (typeof DISPLAY_MODE)[keyof typeof DISPLAY_MODE];
-
-const sideLabel = (side: MatchSide, participants: Record<string, Participant>) => {
-  if (side.kind === SIDE_KIND.SINGLE) return participants[side.participantId]?.name ?? "?";
-  return side.memberIds.map((id) => participants[id]?.name ?? "?").join(" / ");
-};
 
 export type MatchResultRow = {
   id: string;
@@ -34,8 +31,8 @@ const buildMatchResult = (
   const summary = matchSummary(games, winsNeeded);
   return {
     id: match.id,
-    leftName: sideLabel(match.leftSide, participants),
-    rightName: sideLabel(match.rightSide, participants),
+    leftName: sideName(match.leftSide, participants),
+    rightName: sideName(match.rightSide, participants),
     games,
     leftWins: summary.leftWins,
     rightWins: summary.rightWins,
@@ -56,20 +53,18 @@ export const useResult = (tournamentId: string) => {
       const participant = participants[id];
       if (participant) names[id] = participant.name;
     }
-    const matchList = tournament.matchIds.map((id) => matches[id]).filter(Boolean);
+    const matchList = matchesOf(matches, tournamentId);
     return computeRanking(matchList, names, winsNeededForBestOf(tournament.bestOf));
-  }, [tournament, matches, participants]);
+  }, [tournament, tournamentId, matches, participants]);
 
   const matchResults = useMemo<MatchResultRow[]>(() => {
     if (!tournament) return [];
-    return tournament.matchIds
-      .map((id) => matches[id])
-      .filter(Boolean)
+    return matchesOf(matches, tournamentId)
       .filter((match) => realGames(match.games).length > 0)
       .map((match) =>
         buildMatchResult(match, participants, winsNeededForBestOf(tournament.bestOf)),
       );
-  }, [tournament, matches, participants]);
+  }, [tournament, tournamentId, matches, participants]);
 
   // 表示中コンテナ（table全体 or 選択中1対戦）用
   const main = useImageCapture();

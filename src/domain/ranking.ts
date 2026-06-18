@@ -1,5 +1,6 @@
 import { SIDE, matchSummary } from "@/domain/match";
-import { SIDE_KIND, type Match } from "@/store/types";
+import { sideMembers } from "@/domain/side";
+import { type Match } from "@/store/types";
 
 export type RankingRow = {
   participantId: string;
@@ -15,9 +16,6 @@ export type RankingRow = {
   pointDiff: number;
   rank: number;
 };
-
-const sideMembers = (side: Match["leftSide"]): string[] =>
-  side.kind === SIDE_KIND.SINGLE ? [side.participantId] : [...side.memberIds];
 
 export const computeRanking = (
   matches: Match[],

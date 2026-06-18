@@ -1,3 +1,4 @@
+import { matchesOf } from "@/store/selectors";
 import { FORMAT, SIDE_KIND } from "@/store/types";
 import { useAppStore } from "@/store/useAppStore";
 import { beforeEach, describe, expect, it } from "vitest";
@@ -23,13 +24,12 @@ describe("createTournament", () => {
     expect(useAppStore.getState().currentTournamentId).toBe(id2);
   });
 
-  it("participantIds / matchIds は空で初期化される", () => {
+  it("participantIds は空で初期化される", () => {
     const id = useAppStore
       .getState()
       .createTournament("初期化確認", FORMAT.SINGLES, "2026-01-01", 3);
     const t = useAppStore.getState().tournaments[id];
     expect(t.participantIds).toEqual([]);
-    expect(t.matchIds).toEqual([]);
   });
 });
 
@@ -99,7 +99,7 @@ describe("deleteTournament", () => {
 });
 
 describe("resetTournament", () => {
-  it("matchIds が空になり紐づく matches が削除される", () => {
+  it("紐づく matches が全削除される", () => {
     const tId = useAppStore
       .getState()
       .createTournament("リセット大会", FORMAT.SINGLES, "2026-01-01", 5);
@@ -116,7 +116,7 @@ describe("resetTournament", () => {
     useAppStore.getState().resetTournament(tId);
     const state = useAppStore.getState();
 
-    expect(state.tournaments[tId].matchIds).toEqual([]);
+    expect(matchesOf(state.matches, tId)).toEqual([]);
     expect(state.matches[mId]).toBeUndefined();
   });
 

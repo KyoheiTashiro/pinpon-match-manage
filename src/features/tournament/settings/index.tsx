@@ -3,7 +3,9 @@ import { Button } from "@/components/ui/Button";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { ROUTES } from "@/constants/routes";
 import { useSettings } from "@/features/tournament/settings/hooks";
+import { matchesOf } from "@/store/selectors";
 import { FORMAT } from "@/store/types";
+import { useAppStore } from "@/store/useAppStore";
 import { formatDate } from "@/utils/time";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -31,6 +33,7 @@ const SettingsView = ({ tournamentId }: { tournamentId: string }) => {
     doDelete,
     cancelDelete,
   } = useSettings(tournamentId, () => navigate(ROUTES.HOME));
+  const matches = useAppStore((s) => s.matches);
 
   if (!tournament) return null;
 
@@ -100,7 +103,7 @@ const SettingsView = ({ tournamentId }: { tournamentId: string }) => {
           <dt className="font-bold">参加者</dt>
           <dd>{tournament.participantIds.length} 人</dd>
           <dt className="font-bold">試合</dt>
-          <dd>{tournament.matchIds.length} 試合</dd>
+          <dd>{matchesOf(matches, tournament.id).length} 試合</dd>
         </dl>
       )}
 

@@ -1,3 +1,4 @@
+import { matchesOf } from "@/store/selectors";
 import { SIDE_KIND, type MatchSide, type Participant } from "@/store/types";
 import type { StoreState } from "@/store/useAppStore";
 import { generateId } from "@/utils/id";
@@ -47,21 +48,15 @@ export const createParticipantSlice: StateCreator<
       const tournament = state.tournaments[tournamentId];
       if (!tournament) return;
       delete state.participants[id];
-      const remainingMatchIds: string[] = [];
-      for (const matchId of tournament.matchIds) {
-        const match = state.matches[matchId];
-        if (!match) continue;
+      for (const match of matchesOf(state.matches, tournamentId)) {
         const involves = (side: MatchSide) =>
           side.kind === SIDE_KIND.SINGLE ? side.participantId === id : side.memberIds.includes(id);
         if (involves(match.leftSide) || involves(match.rightSide)) {
-          delete state.matches[matchId];
-        } else {
-          remainingMatchIds.push(matchId);
+          delete state.matches[match.id];
         }
       }
       state.tournaments[tournamentId].participantIds = tournament.participantIds.filter(
         (pid) => pid !== id,
       );
-      state.tournaments[tournamentId].matchIds = remainingMatchIds;
     }),
 });

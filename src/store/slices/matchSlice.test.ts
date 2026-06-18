@@ -1,6 +1,9 @@
+import { matchesOf } from "@/store/selectors";
 import { FORMAT, SIDE_KIND } from "@/store/types";
 import { useAppStore } from "@/store/useAppStore";
 import { beforeEach, describe, expect, it } from "vitest";
+
+const matchIdsOf = (tId: string) => matchesOf(useAppStore.getState().matches, tId).map((m) => m.id);
 
 beforeEach(() => {
   useAppStore.getState().resetAll();
@@ -18,7 +21,7 @@ function setupSingles() {
 }
 
 describe("addManualMatch", () => {
-  it("シングルス: match が追加され tournament.matchIds に含まれる", () => {
+  it("シングルス: match が追加され tournament の試合に含まれる", () => {
     const { tId, pId1, pId2 } = setupSingles();
     const mId = useAppStore
       .getState()
@@ -29,7 +32,7 @@ describe("addManualMatch", () => {
       );
     const state = useAppStore.getState();
     expect(state.matches[mId]).toBeDefined();
-    expect(state.tournaments[tId].matchIds).toContain(mId);
+    expect(matchIdsOf(tId)).toContain(mId);
   });
 
   it("シングルス重複検出: 同一2人を再度追加すると同じ ID が返り match は1件のみ", () => {
@@ -49,7 +52,7 @@ describe("addManualMatch", () => {
         { kind: SIDE_KIND.SINGLE, participantId: pId2 },
       );
     expect(mId1).toBe(mId2);
-    expect(useAppStore.getState().tournaments[tId].matchIds).toHaveLength(1);
+    expect(matchIdsOf(tId)).toHaveLength(1);
   });
 
   it("シングルス重複検出: 左右入れ替えても同じ ID が返り match は1件のみ", () => {
@@ -70,7 +73,7 @@ describe("addManualMatch", () => {
         { kind: SIDE_KIND.SINGLE, participantId: pId1 },
       );
     expect(mId1).toBe(mId2);
-    expect(useAppStore.getState().tournaments[tId].matchIds).toHaveLength(1);
+    expect(matchIdsOf(tId)).toHaveLength(1);
   });
 
   it("シングルス: 別ペアなら別 ID で追加される", () => {
@@ -90,7 +93,7 @@ describe("addManualMatch", () => {
         { kind: SIDE_KIND.SINGLE, participantId: pId3 },
       );
     expect(mId_ab).not.toBe(mId_ac);
-    expect(useAppStore.getState().tournaments[tId].matchIds).toHaveLength(2);
+    expect(matchIdsOf(tId)).toHaveLength(2);
   });
 
   it("存在しない tournamentId では match が追加されない", () => {
@@ -123,7 +126,7 @@ describe("addManualMatch", () => {
       );
     const state = useAppStore.getState();
     expect(state.matches[mId]).toBeDefined();
-    expect(state.tournaments[tId].matchIds).toContain(mId);
+    expect(matchIdsOf(tId)).toContain(mId);
   });
 });
 
@@ -148,7 +151,7 @@ describe("updateMatch", () => {
 });
 
 describe("deleteMatch", () => {
-  it("matches から消え tournament.matchIds から除去される", () => {
+  it("matches から消え tournament の試合から除去される", () => {
     const { tId, pId1, pId2 } = setupSingles();
     const mId = useAppStore
       .getState()
@@ -162,7 +165,7 @@ describe("deleteMatch", () => {
     const state = useAppStore.getState();
 
     expect(state.matches[mId]).toBeUndefined();
-    expect(state.tournaments[tId].matchIds).not.toContain(mId);
+    expect(matchIdsOf(tId)).not.toContain(mId);
   });
 
   it("削除後に同じペアを再登録すると新しい match として追加される", () => {
@@ -184,7 +187,7 @@ describe("deleteMatch", () => {
       );
     expect(mId2).not.toBe(mId1);
     expect(useAppStore.getState().matches[mId2]).toBeDefined();
-    expect(useAppStore.getState().tournaments[tId].matchIds).toContain(mId2);
+    expect(matchIdsOf(tId)).toContain(mId2);
   });
 
   it("他の match は残る", () => {
@@ -209,8 +212,8 @@ describe("deleteMatch", () => {
 
     expect(state.matches[mId_ab]).toBeUndefined();
     expect(state.matches[mId_ac]).toBeDefined();
-    expect(state.tournaments[tId].matchIds).toContain(mId_ac);
-    expect(state.tournaments[tId].matchIds).not.toContain(mId_ab);
+    expect(matchIdsOf(tId)).toContain(mId_ac);
+    expect(matchIdsOf(tId)).not.toContain(mId_ab);
   });
 
   it("存在しない id では何も起きない", () => {

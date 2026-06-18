@@ -47,7 +47,6 @@ export const tournamentSchema = z.object({
   date: z.string(),
   createdAt: z.string(),
   participantIds: z.array(z.string()),
-  matchIds: z.array(z.string()),
 });
 
 export const appStateSchema = z.object({
@@ -67,7 +66,7 @@ void schemaMatchesAppState;
 
 /**
  * 参照整合性をサニタイズする純粋関数。
- * - matchIds / participantIds の dangling 参照を除去
+ * - participantIds の dangling 参照を除去
  * - 所属 tournament が存在しない match / participant を除去
  * - currentTournamentId が無効なら null
  */
@@ -84,14 +83,12 @@ export const sanitizeAppState = (state: AppState): AppState => {
     if (tournamentIds.has(participant.tournamentId)) participants[id] = participant;
   }
 
-  const matchIdSet = new Set(Object.keys(matches));
   const participantIdSet = new Set(Object.keys(participants));
 
   const tournaments: AppState["tournaments"] = {};
   for (const [id, tournament] of Object.entries(state.tournaments)) {
     tournaments[id] = {
       ...tournament,
-      matchIds: tournament.matchIds.filter((mid) => matchIdSet.has(mid)),
       participantIds: tournament.participantIds.filter((pid) => participantIdSet.has(pid)),
     };
   }
