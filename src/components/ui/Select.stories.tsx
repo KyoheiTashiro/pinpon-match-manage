@@ -13,7 +13,7 @@ const meta = {
   title: "UI/Select",
   component: Select,
   parameters: { layout: "padded" },
-  args: { label: "対戦形式", options, value: "singles" },
+  args: { label: "対戦形式", options, value: "singles", onChange: () => {} },
   render: function Render(args) {
     const [value, setValue] = useState(args.value);
     return <Select {...args} value={value} onChange={setValue} />;

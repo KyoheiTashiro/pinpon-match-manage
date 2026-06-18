@@ -13,7 +13,13 @@ const meta = {
   title: "UI/RadioGroup",
   component: RadioGroup,
   parameters: { layout: "padded" },
-  args: { legend: "対戦形式を選択", name: "matchType", options, value: "single" },
+  args: {
+    legend: "対戦形式を選択",
+    name: "matchType",
+    options,
+    value: "single",
+    onChange: () => {},
+  },
   render: function Render(args) {
     const [value, setValue] = useState(args.value);
     return <RadioGroup {...args} value={value} onChange={setValue} />;

@@ -15,6 +15,7 @@ const meta = {
       { value: "public", label: "公開" },
       { value: "private", label: "非公開" },
     ],
+    onChange: () => {},
   },
   // 制御コンポーネントのため state を render 側で保持する。
   render: function Render(args) {

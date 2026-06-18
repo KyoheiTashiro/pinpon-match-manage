@@ -12,7 +12,7 @@ const meta = {
   title: "UI/Tabs",
   component: Tabs,
   parameters: { layout: "padded" },
-  args: { ariaLabel: "表示モード", options, value: "table" },
+  args: { ariaLabel: "表示モード", options, value: "table", onChange: () => {} },
   render: function Render(args) {
     const [value, setValue] = useState(args.value);
     return <Tabs {...args} value={value} onChange={setValue} />;

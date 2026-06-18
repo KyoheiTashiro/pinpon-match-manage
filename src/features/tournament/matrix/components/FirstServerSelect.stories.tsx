@@ -12,6 +12,7 @@ const meta = {
     leftName: "田中 太郎",
     rightName: "鈴木 花子",
     value: SIDE.LEFT,
+    onChange: () => {},
   },
   render: function Render(args) {
     const [value, setValue] = useState(args.value);
