@@ -13,7 +13,7 @@ export const ResultModeTabs = ({ mode, setMode }: Props) => (
       role="tab"
       aria-selected={mode === DISPLAY_MODE.TABLE}
       onClick={() => setMode(DISPLAY_MODE.TABLE)}
-      className={`min-h-btn flex-1 border-b-4 text-lg font-bold transition-colors ${
+      className={`min-h-btn flex-1 rounded-t-2xl border-b-4 text-lg font-bold transition-colors ${
         mode === DISPLAY_MODE.TABLE
           ? "border-primary bg-primary/10 text-primary"
           : "border-transparent bg-white text-ink"
@@ -25,7 +25,7 @@ export const ResultModeTabs = ({ mode, setMode }: Props) => (
       role="tab"
       aria-selected={mode === DISPLAY_MODE.GRAPH}
       onClick={() => setMode(DISPLAY_MODE.GRAPH)}
-      className={`min-h-btn flex-1 border-b-4 text-lg font-bold transition-colors ${
+      className={`min-h-btn flex-1 rounded-t-2xl border-b-4 text-lg font-bold transition-colors ${
         mode === DISPLAY_MODE.GRAPH
           ? "border-primary bg-primary/10 text-primary"
           : "border-transparent bg-white text-ink"

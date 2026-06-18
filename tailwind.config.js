@@ -33,7 +33,7 @@ export default {
         loseBg: "#FEE2E2",
       },
       minHeight: { btn: "56px", input: "56px", cell: "64px" },
-      minWidth: { btn: "144px", cell: "64px" },
+      minWidth: { btn: "144px", cell: "80px" },
     },
   },
   plugins: [],

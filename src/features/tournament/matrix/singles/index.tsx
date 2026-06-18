@@ -18,14 +18,31 @@ type Props = {
   column: Player;
   match: Match | undefined;
   winsNeeded: number;
+  isLastRow: boolean;
+  isLastColumn: boolean;
   onCreate: () => void;
   onOpen: (matchId: string) => void;
 };
 
-const MatrixCell = ({ row, column, match, winsNeeded, onCreate, onOpen }: Props) => {
+const MatrixCell = ({
+  row,
+  column,
+  match,
+  winsNeeded,
+  isLastRow,
+  isLastColumn,
+  onCreate,
+  onOpen,
+}: Props) => {
+  const cellBorder = `${isLastColumn ? "" : "border-r-2"} ${isLastRow ? "" : "border-b-2"}`;
+
   if (row.id === column.id) {
+    const corner = isLastRow && isLastColumn ? "overflow-hidden rounded-br-2xl" : "";
     return (
-      <td className="min-h-cell min-w-cell border-2 border-line bg-bg" aria-label="自分">
+      <td
+        className={`min-h-cell min-w-cell border-line bg-bg ${cellBorder} ${corner}`}
+        aria-label="自分"
+      >
         <div className="h-16 w-full bg-[repeating-linear-gradient(45deg,#cbd5e1_0_8px,#94a3b8_8px_16px)]" />
       </td>
     );
@@ -48,7 +65,7 @@ const MatrixCell = ({ row, column, match, winsNeeded, onCreate, onOpen }: Props)
 
   return (
     <td
-      className={`min-h-cell min-w-cell border-2 border-line p-0 text-center ${
+      className={`min-h-cell min-w-cell border-line p-0 text-center ${cellBorder} ${
         rowWon ? "bg-winBg" : rowLost ? "bg-loseBg" : inProgress ? "bg-warning/10" : ""
       }`}
     >
@@ -75,7 +92,7 @@ const MatrixCell = ({ row, column, match, winsNeeded, onCreate, onOpen }: Props)
             <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xl leading-none text-primary transition-colors group-hover:bg-primary group-hover:text-white">
               ＋
             </span>
-            <span className="text-xs leading-none text-sub">対戦</span>
+            <span className="text-xs whitespace-nowrap leading-none text-sub">対戦</span>
           </span>
         )}
       </button>
@@ -115,52 +132,70 @@ export const SinglesMatrix = ({ tournamentId }: { tournamentId: string }) => {
                 <div className="text-xl font-extrabold">{tournament.name}</div>
                 <div className="text-sm text-sub">{tournament.date}</div>
               </div>
-              <table className="matrix w-full border-collapse">
+              <table className="matrix w-full border-separate border-spacing-0 rounded-2xl border-2 border-line">
                 <thead>
                   <tr>
                     <th
-                      className="sticky left-0 z-10 min-w-cell border-2 border-line bg-white p-2"
+                      className="sticky left-0 z-10 min-w-cell rounded-tl-2xl border-b-2 border-r-2 border-line bg-white p-2"
                       aria-label="対戦表の行列ヘッダー"
                     ></th>
-                    {players.map((player) => (
-                      <th
-                        key={player.id}
-                        className="min-w-cell whitespace-nowrap border-2 border-line p-2 text-base font-bold"
-                      >
-                        {player.name}
-                      </th>
-                    ))}
+                    {players.map((player, colIndex) => {
+                      const isLast = colIndex === players.length - 1;
+                      return (
+                        <th
+                          key={player.id}
+                          className={`min-w-cell whitespace-nowrap border-b-2 border-line p-2 text-base font-bold ${
+                            isLast ? "rounded-tr-2xl" : "border-r-2"
+                          }`}
+                        >
+                          {player.name}
+                        </th>
+                      );
+                    })}
                   </tr>
                 </thead>
                 <tbody>
-                  {players.map((row) => (
-                    <tr key={row.id}>
-                      <th
-                        scope="row"
-                        className="sticky left-0 z-10 whitespace-nowrap border-2 border-line bg-white p-2 text-left text-base font-bold"
-                      >
-                        {row.name}
-                      </th>
-                      {players.map((column) => (
-                        <MatrixCell
-                          key={column.id}
-                          row={row}
-                          column={column}
-                          match={singlesCellMatch.get([row.id, column.id].toSorted().join("|"))}
-                          winsNeeded={wins}
-                          onCreate={() => {
-                            const id = addManualMatch(
-                              tournamentId,
-                              { kind: SIDE_KIND.SINGLE, participantId: row.id },
-                              { kind: SIDE_KIND.SINGLE, participantId: column.id },
-                            );
-                            openMatch(id);
-                          }}
-                          onOpen={openMatch}
-                        />
-                      ))}
-                    </tr>
-                  ))}
+                  {players.map((row, rowIndex) => {
+                    const isLastRow = rowIndex === players.length - 1;
+                    return (
+                      <tr key={row.id}>
+                        <th
+                          scope="row"
+                          className={`sticky left-0 z-10 whitespace-nowrap border-r-2 border-line bg-white p-2 text-left text-base font-bold ${
+                            isLastRow ? "rounded-bl-2xl" : "border-b-2"
+                          }`}
+                        >
+                          {row.name}
+                        </th>
+                        {players.map((column, colIndex) => (
+                          <MatrixCell
+                            key={column.id}
+                            row={row}
+                            column={column}
+                            match={singlesCellMatch.get([row.id, column.id].toSorted().join("|"))}
+                            winsNeeded={wins}
+                            isLastRow={isLastRow}
+                            isLastColumn={colIndex === players.length - 1}
+                            onCreate={() => {
+                              const id = addManualMatch(
+                                tournamentId,
+                                {
+                                  kind: SIDE_KIND.SINGLE,
+                                  participantId: row.id,
+                                },
+                                {
+                                  kind: SIDE_KIND.SINGLE,
+                                  participantId: column.id,
+                                },
+                              );
+                              openMatch(id);
+                            }}
+                            onOpen={openMatch}
+                          />
+                        ))}
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
