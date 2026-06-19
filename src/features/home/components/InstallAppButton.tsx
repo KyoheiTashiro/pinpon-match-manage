@@ -1,4 +1,4 @@
-import { DownloadIcon } from "@/components/icons";
+import { HelpIcon } from "@/components/icons";
 import { Button } from "@/components/ui/Button";
 import { InfoModal } from "@/components/ui/InfoModal";
 import { useEffect, useState } from "react";
@@ -67,7 +67,7 @@ export const InstallAppButton = () => {
           void handleClick();
         }}
       >
-        <DownloadIcon className="mr-2 inline-block align-[-0.125em]" />
+        <HelpIcon className="mr-2 inline-block align-[-0.125em]" />
         ホーム画面に追加
       </Button>
 
