@@ -6,3 +6,15 @@ import { afterEach } from "vitest";
 afterEach(() => {
   cleanup();
 });
+
+import { vi } from "vitest";
+// jsdom は dialog のモーダル API 未実装のため polyfill
+if (!HTMLDialogElement.prototype.showModal) {
+  HTMLDialogElement.prototype.showModal = vi.fn(function (this: HTMLDialogElement) {
+    this.open = true;
+  });
+  HTMLDialogElement.prototype.close = vi.fn(function (this: HTMLDialogElement) {
+    this.open = false;
+    this.dispatchEvent(new Event("close"));
+  });
+}

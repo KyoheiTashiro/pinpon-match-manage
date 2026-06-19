@@ -60,7 +60,14 @@
         "vitest/no-focused-tests": "error",
         // テストは網羅的なケース列挙で正当に長くなる。行数での分割強制は
         // 摩擦が大きくレビュー判断に委ねる方が良いため off（max-lines-per-function と同方針）。
-        "eslint/max-lines": "off"
+        "eslint/max-lines": "off",
+        // property-based test（fast-check）は「生成された任意入力に対し性質を検証」する手法で、
+        // 入力種別（single/pair・デュース域内外・ロック範囲など）ごとに分岐して assert するのが本質。
+        // no-conditional-in-test / no-conditional-expect は分岐ごとの個別テスト化を促すルールだが、
+        // proptest では入力を分割できず（生成器が混在生成する）成立しない。テストデータ構築の
+        // 三項演算子も同ルールに掛かる。テスト層でのみ off にし、本体コードでは引き続き検出する。
+        "vitest/no-conditional-in-test": "off",
+        "vitest/no-conditional-expect": "off"
       }
     },
     {
