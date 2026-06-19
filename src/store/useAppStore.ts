@@ -24,7 +24,7 @@ export type StoreState = UiSlice & TournamentSlice & ParticipantSlice & MatchSli
  *
  * 将来スキーマ変更時はここに version 毎の変換を追加し STORAGE_VERSION を上げる。
  */
-const migratePersistedState = (persisted: unknown, fromVersion: number): unknown => {
+export const migratePersistedState = (persisted: unknown, fromVersion: number): unknown => {
   let state = persisted as Record<string, any>;
 
   if (fromVersion < 2 && state !== null && typeof state === "object" && state.tournaments) {

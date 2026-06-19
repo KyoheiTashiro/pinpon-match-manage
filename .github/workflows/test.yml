@@ -16,6 +16,7 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
-      - run: npm test
+      # カバレッジ付きでテスト実行。vitest.config.ts の threshold 未達で失敗(後退検知)
+      - run: npm run test:coverage
       # tsc --noEmit + vite build（型チェックと本番ビルドの両方を兼ねる）
       - run: npm run build
