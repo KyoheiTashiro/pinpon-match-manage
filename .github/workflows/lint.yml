@@ -15,7 +15,7 @@ jobs:
         with:
           node-version: 24
           cache: npm
-      - run: npm ci
+      - run: npm install
       # --type-aware は通常ルールに加え no-floating-promises 等の型ルールも走らせる
       - run: npm run lint:typed
       - run: npm run format:check
