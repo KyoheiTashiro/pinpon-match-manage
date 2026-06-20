@@ -15,10 +15,26 @@ const isStandalone = () =>
 
 const isIOS = () => /iPad|iPhone|iPod/u.test(navigator.userAgent);
 
+const GUIDE_VIDEOS = {
+  ios: "https://www.youtube.com/embed/LplfyGg_-Ao?si=WXXfWK_YvlzbnJTM",
+  android: "https://www.youtube.com/embed/RGQRNjhP7mk?si=mj_8ys1vmjxE0be3",
+} as const;
+
 export const InstallAppButton = () => {
   const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(null);
   const [installed, setInstalled] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyUrl = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.origin);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setCopied(false);
+    }
+  };
 
   useEffect(() => {
     if (isStandalone()) {
@@ -71,22 +87,42 @@ export const InstallAppButton = () => {
       </Button>
 
       <InfoModal open={showGuide} title="ホーム画面に追加" onClose={() => setShowGuide(false)}>
-        {isIOS() ? (
-          <ol className="list-inside list-decimal space-y-2 text-base leading-relaxed">
-            <li>Safariで このページ を開く</li>
-            <li>
-              下部 共有ボタン <span aria-hidden>⬆️</span> をタップ
-            </li>
-            <li>「ホーム画面に追加」を選択</li>
-            <li>右上「追加」をタップ</li>
-          </ol>
-        ) : (
-          <ol className="list-inside list-decimal space-y-2 text-base leading-relaxed">
-            <li>ブラウザのメニュー（︙ または ⋯）を開く</li>
-            <li>「アプリをインストール」または「ホーム画面に追加」を選択</li>
-            <li>確認ダイアログで追加</li>
-          </ol>
-        )}
+        <div className="space-y-4">
+          <div className="aspect-video w-full overflow-hidden rounded-xl">
+            {/* YouTube 埋め込みは sandbox 無し前提。sandbox を付けると script と same-origin の両立が必要になり再生不可。 */}
+            {/* oxlint-disable-next-line react/iframe-missing-sandbox */}
+            <iframe
+              src={isIOS() ? GUIDE_VIDEOS.ios : GUIDE_VIDEOS.android}
+              title="ホーム画面に追加 手順動画"
+              className="h-full w-full"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerPolicy="strict-origin-when-cross-origin"
+              allowFullScreen
+            />
+          </div>
+
+          <div className="space-y-2">
+            <p className="text-sm font-bold">アプリのURL</p>
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                readOnly
+                value={window.location.origin}
+                className="border-line min-w-0 flex-1 rounded-lg border-2 bg-slate-50 px-3 py-2 text-sm"
+                onFocus={(event) => event.currentTarget.select()}
+              />
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => {
+                  void handleCopyUrl();
+                }}
+              >
+                {copied ? "コピー済" : "コピー"}
+              </Button>
+            </div>
+          </div>
+        </div>
       </InfoModal>
     </>
   );
