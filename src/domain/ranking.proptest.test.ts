@@ -207,13 +207,15 @@ describe("computeRanking — PAIR(ダブルス)プロパティテスト", () => 
   });
 
   it("PAIR試合: 同じペア内の2人は常に wins/losses/played が一致する", () => {
-    // ペアメンバーは同じ試合に参加し、同じ勝敗を共有するため統計が一致する
+    // ペアメンバーは同じ試合に参加し、同じ勝敗を共有するため統計が一致する。
+    // これは「単一試合」の性質。複数試合をまたぐと同一参加者が別ペアに属し得て
+    // 累積統計が相方とズレるため（正当な挙動）、各試合を単独で計算して検証する。
     fc.assert(
       fc.property(fc.array(matchWithPairArb, { minLength: 1, maxLength: 3 }), (matches) => {
-        const names = buildParticipantNames(matches);
-        const rows = computeRanking(matches, names);
-        const rowMap = new Map(rows.map((r) => [r.participantId, r]));
         for (const match of matches) {
+          const single = [match];
+          const rows = computeRanking(single, buildParticipantNames(single));
+          const rowMap = new Map(rows.map((r) => [r.participantId, r]));
           if (match.leftSide.kind === SIDE_KIND.PAIR) {
             const [idA, idB] = match.leftSide.memberIds;
             const rowA = rowMap.get(idA);
