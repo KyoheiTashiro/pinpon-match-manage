@@ -355,7 +355,7 @@ describe("Select", () => {
     expect(labelledById).toBeTruthy();
     const ids = (labelledById ?? "").split(" ");
     expect(ids).toHaveLength(2);
-    const labelEl = document.querySelector(`[id="${ids[0]!}"]`);
+    const labelEl = document.querySelector(`[id="${ids[0]}"]`);
     expect(labelEl?.textContent).toBe("フルーツ");
   });
 

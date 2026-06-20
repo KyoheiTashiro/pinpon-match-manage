@@ -26,16 +26,16 @@ const meta = {
   args: {
     games,
     gameIndex: 2,
-    setGameIndex: fn(),
+    setGameIndex: fn<(index: number) => void>(),
     lockedFromIndex: 3,
     showResult: false,
     showNextGameBtn: false,
     showResultBtn: false,
     showBackBtn: false,
     nextGameIndex: 3,
-    onBack: fn(),
-    onShowResult: fn(),
-    onCloseAll: fn(),
+    onBack: fn<() => void>(),
+    onShowResult: fn<() => void>(),
+    onCloseAll: fn<() => void>(),
   },
 } satisfies Meta<typeof ScoreboardHeader>;
 

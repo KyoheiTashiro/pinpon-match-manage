@@ -157,9 +157,9 @@ describe("trimTrailingEmptyGames プロパティテスト", () => {
           const result = trimTrailingEmptyGames(games, lockedStartIndex);
           // 結果の中に lockedStartIndex 以降の空ゲームが存在しない
           for (let i = 0; i < result.length; i++) {
-            const originalIndex = games.indexOf(result[i]!);
+            const originalIndex = games.indexOf(result[i]);
             if (originalIndex >= lockedStartIndex) {
-              expect(result[i]!.leftScore !== 0 || result[i]!.rightScore !== 0).toBe(true);
+              expect(result[i].leftScore !== 0 || result[i].rightScore !== 0).toBe(true);
             }
           }
         },

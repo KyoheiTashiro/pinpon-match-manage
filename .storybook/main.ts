@@ -10,8 +10,11 @@ const config: StorybookConfig = {
   viteFinal: (cfg) => ({
     ...cfg,
     plugins: (cfg.plugins ?? []).flat(Infinity).filter((p) => {
+      const plugin: unknown = p;
       const name =
-        p && typeof p === "object" && "name" in p ? String((p as { name?: unknown }).name) : "";
+        plugin && typeof plugin === "object" && "name" in plugin
+          ? String((plugin as { name: unknown }).name)
+          : "";
       return !name.includes("pwa");
     }),
   }),

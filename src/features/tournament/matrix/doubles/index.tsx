@@ -36,7 +36,7 @@ export const DoublesMatrix = ({ tournamentId }: { tournamentId: string }) => {
 
   const renderField = (name: FieldName) => {
     const excluded = new Set(
-      (Object.keys(FIELD_LABELS) as FieldName[])
+      ([...LEFT_FIELDS, ...RIGHT_FIELDS] satisfies FieldName[])
         .filter((key) => key !== name)
         .map((key) => values[key])
         .filter(Boolean),

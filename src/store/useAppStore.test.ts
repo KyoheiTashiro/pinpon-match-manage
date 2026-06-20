@@ -4,10 +4,25 @@
  * salvageAppState は merge.test.ts でカバー済のため重複させない。
  */
 
-import { FONT_SIZE, FORMAT } from "@/store/types";
+import { FONT_SIZE, FORMAT, type AppState } from "@/store/types";
 import { describe, expect, it } from "vitest";
 
 import { migratePersistedState } from "./useAppStore";
+
+/**
+ * migratePersistedState は unknown を返すため、テストで構造化アクセスする際に
+ * AppState として安全に絞り込むためのヘルパー。
+ * オブジェクトであることを実行時に検証してから型述語で絞り込む。
+ */
+const isAppState = (value: unknown): value is AppState =>
+  value !== null && typeof value === "object";
+
+const asAppState = (value: unknown): AppState => {
+  if (!isAppState(value)) {
+    throw new Error("expected migrated state to be an object");
+  }
+  return value;
+};
 
 // ---------------------------------------------------------------------------
 // v1 → v2 マイグレーション: bestOf フィールドの補完
@@ -33,7 +48,7 @@ describe("migratePersistedState: v1 → v2 (bestOf 補完)", () => {
       fontSize: FONT_SIZE.NORMAL,
     };
 
-    const result = migratePersistedState(persisted, 1) as any;
+    const result = asAppState(migratePersistedState(persisted, 1));
 
     expect(result.tournaments.t1.bestOf).toBe(5);
   });
@@ -48,7 +63,7 @@ describe("migratePersistedState: v1 → v2 (bestOf 補完)", () => {
       fontSize: FONT_SIZE.NORMAL,
     };
 
-    const result = migratePersistedState(persisted, 1) as any;
+    const result = asAppState(migratePersistedState(persisted, 1));
 
     expect(result.tournaments.t1.bestOf).toBe(3);
   });
@@ -66,7 +81,7 @@ describe("migratePersistedState: v1 → v2 (bestOf 補完)", () => {
       fontSize: FONT_SIZE.NORMAL,
     };
 
-    const result = migratePersistedState(persisted, 1) as any;
+    const result = asAppState(migratePersistedState(persisted, 1));
 
     // bestOf なし → 5 に補完
     expect(result.tournaments.t1.bestOf).toBe(5);
@@ -84,7 +99,7 @@ describe("migratePersistedState: v1 → v2 (bestOf 補完)", () => {
       fontSize: FONT_SIZE.LARGE,
     };
 
-    const result = migratePersistedState(persisted, 1) as any;
+    const result = asAppState(migratePersistedState(persisted, 1));
 
     expect(result.participants.p1).toBeDefined();
     expect(result.currentTournamentId).toBe("t1");
@@ -116,7 +131,7 @@ describe("migratePersistedState: fromVersion=2 (変換不要)", () => {
       fontSize: FONT_SIZE.NORMAL,
     };
 
-    const result = migratePersistedState(persisted, 2) as any;
+    const result = asAppState(migratePersistedState(persisted, 2));
 
     expect(result.tournaments.t1.bestOf).toBe(3);
   });
@@ -182,7 +197,7 @@ describe("migratePersistedState: 不正入力・境界ケース", () => {
       fontSize: FONT_SIZE.NORMAL,
     };
 
-    const result = migratePersistedState(persisted, 1) as any;
+    const result = asAppState(migratePersistedState(persisted, 1));
 
     expect(result.tournaments).toEqual({});
   });
@@ -205,7 +220,7 @@ describe("migratePersistedState: 不正入力・境界ケース", () => {
       fontSize: FONT_SIZE.NORMAL,
     };
 
-    const result = migratePersistedState(persisted, 0) as any;
+    const result = asAppState(migratePersistedState(persisted, 0));
 
     expect(result.tournaments.t1.bestOf).toBe(5);
   });

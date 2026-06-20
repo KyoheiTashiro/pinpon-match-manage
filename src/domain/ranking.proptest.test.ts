@@ -344,7 +344,7 @@ describe("computeRanking — 同順位飛び(1,1,3形式)プロパティテス�
           const rows = computeRanking([], nameMap);
           // 全員 rank=1 かつ名前が localeCompare("ja") 昇順
           for (let i = 1; i < rows.length; i++) {
-            expect(rows[i - 1]!.name.localeCompare(rows[i]!.name, "ja")).toBeLessThanOrEqual(0);
+            expect(rows[i - 1].name.localeCompare(rows[i].name, "ja")).toBeLessThanOrEqual(0);
           }
         },
       ),

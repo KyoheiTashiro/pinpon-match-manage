@@ -60,7 +60,7 @@ describe("gameProgress プロパティテスト", () => {
         (log, firstServer) => {
           const progress = gameProgress(log, firstServer);
           for (let i = 0; i < log.length; i++) {
-            expect(progress[i]!.scorer).toBe(log[i]);
+            expect(progress[i].scorer).toBe(log[i]);
           }
         },
       ),
@@ -76,8 +76,8 @@ describe("gameProgress プロパティテスト", () => {
         (log, firstServer) => {
           const progress = gameProgress(log, firstServer);
           for (let i = 1; i < progress.length; i++) {
-            const prev = progress[i - 1]!;
-            const curr = progress[i]!;
+            const prev = progress[i - 1];
+            const curr = progress[i];
             if (curr.scorer === SIDE.LEFT) {
               expect(curr.left).toBe(prev.left + 1);
               expect(curr.right).toBe(prev.right);
@@ -102,9 +102,9 @@ describe("gameProgress プロパティテスト", () => {
           const progress = gameProgress(log, firstServer);
           // 合計21点以降のステップ: 隣接する2点のサーバーが必ず異なる
           for (let i = 0; i < progress.length; i++) {
-            const curr = progress[i]!;
+            const curr = progress[i];
             if (curr.index > 20 && i > 0) {
-              const prev = progress[i - 1]!;
+              const prev = progress[i - 1];
               // デュース域では毎点交代
               expect(curr.server).toBe(prev.server === SIDE.LEFT ? SIDE.RIGHT : SIDE.LEFT);
             }

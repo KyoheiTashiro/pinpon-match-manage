@@ -50,7 +50,15 @@
     // （根本対処として noUncheckedIndexedAccess 有効化は別途検討。新規 tsc エラー誘発のため本件では見送り。）
     "typescript/strict-boolean-expressions": "off"
   },
-  "ignorePatterns": ["dist", "dev-dist", "node_modules", "**/*.config.{ts,js}"],
+  // .lintstagedrc.mjs は型情報を持たない plain JS のため type-aware ルールが
+  // files 引数を any 扱いして誤検知する。*.config.{ts,js} と同様にツール設定なので除外する。
+  "ignorePatterns": [
+    "dist",
+    "dev-dist",
+    "node_modules",
+    "**/*.config.{ts,js}",
+    ".lintstagedrc.mjs"
+  ],
   "overrides": [
     {
       "files": ["**/*.test.{ts,tsx}", "**/*.spec.{ts,tsx}"],

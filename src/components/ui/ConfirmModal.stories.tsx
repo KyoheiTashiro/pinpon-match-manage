@@ -12,8 +12,8 @@ const meta = {
     open: true,
     title: "削除しますか？",
     message: "この操作は取り消せません。",
-    onConfirm: fn(),
-    onCancel: fn(),
+    onConfirm: fn<() => void>(),
+    onCancel: fn<() => void>(),
   },
   argTypes: {
     destructive: { control: "boolean" },

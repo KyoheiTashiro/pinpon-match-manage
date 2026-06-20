@@ -17,30 +17,51 @@ import { immer } from "zustand/middleware/immer";
 
 export type StoreState = UiSlice & TournamentSlice & ParticipantSlice & MatchSlice;
 
+/** unknown を「プレーンなレコード」へ安全に絞り込む型述語（配列・null は除外）。 */
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  value !== null && typeof value === "object" && !Array.isArray(value);
+
+/** version N → N+1 の単一ステップ変換。入力は前段の出力（Record 確定済み）。 */
+type Migration = (persisted: Record<string, unknown>) => Record<string, unknown>;
+
+/** v1 → v2: 各 Tournament に bestOf を補完（v1 は5ゲーム制固定）。 */
+const migrateV1ToV2: Migration = (persisted) => {
+  if (!isRecord(persisted.tournaments)) return persisted;
+  const tournaments = Object.fromEntries(
+    Object.entries(persisted.tournaments).map(([id, tournament]) => [
+      id,
+      isRecord(tournament) && tournament.bestOf === undefined
+        ? { ...tournament, bestOf: 5 }
+        : tournament,
+    ]),
+  );
+  return { ...persisted, tournaments };
+};
+
+/**
+ * fromVersion → fromVersion+1 の変換テーブル。キー = 変換元バージョン。
+ * 将来スキーマ変更時は migrateVNToVN+1 を追加・登録し STORAGE_VERSION を上げる。
+ *
+ * @see {@link STORAGE_VERSION} 現バージョン定義（src/constants/storage.ts）
+ */
+const migrations: Readonly<Record<number, Migration>> = {
+  1: migrateV1ToV2,
+};
+
 /**
  * スキーマ変更時のデータマイグレーション。
- * バージョン毎に変換を行い、最終的に現バージョンの shape に近い unknown を返す。
+ * fromVersion から現バージョンまで変換ステップを順に適用する。
  * merge/safeParse がその後に型検証・サニタイズを行うため、完全な型を返す必要はない。
  *
- * 将来スキーマ変更時はここに version 毎の変換を追加し STORAGE_VERSION を上げる。
+ * @see {@link STORAGE_VERSION} 変換先となる現バージョン（src/constants/storage.ts）
  */
 export const migratePersistedState = (persisted: unknown, fromVersion: number): unknown => {
-  let state = persisted as Record<string, any>;
+  if (!isRecord(persisted)) return persisted;
 
-  if (fromVersion < 2 && state !== null && typeof state === "object" && state.tournaments) {
-    // v1 → v2: Tournament に bestOf フィールドを補完（v1 は5ゲーム制固定）
-    const tournaments = { ...state.tournaments };
-    for (const id of Object.keys(tournaments)) {
-      if (tournaments[id].bestOf === undefined) {
-        tournaments[id] = { ...tournaments[id], bestOf: 5 };
-      }
-    }
-    state = { ...state, tournaments };
+  let state = persisted;
+  for (let version = fromVersion; version < STORAGE_VERSION; version++) {
+    state = migrations[version]?.(state) ?? state;
   }
-
-  // fromVersion >= 2: 現在のバージョン。変換不要。
-  // 将来スキーマ変更時はここに version 毎の変換を追加し STORAGE_VERSION を上げる。
-
   return state;
 };
 
@@ -51,16 +72,16 @@ export const migratePersistedState = (persisted: unknown, fromVersion: number): 
  */
 export const salvageAppState = (persisted: unknown, current: AppState): AppState => {
   // null / 配列 / プリミティブなど「オブジェクトでない」場合は諦めて current を返す
-  if (persisted === null || typeof persisted !== "object" || Array.isArray(persisted)) {
+  if (!isRecord(persisted)) {
     return current;
   }
 
-  const raw = persisted as Record<string, any>;
+  const raw = persisted;
 
   // tournaments
   const tournaments: AppState["tournaments"] = {};
   if (raw.tournaments !== null && typeof raw.tournaments === "object") {
-    for (const [id, value] of Object.entries(raw.tournaments as object)) {
+    for (const [id, value] of Object.entries(raw.tournaments)) {
       const result = tournamentSchema.safeParse(value);
       if (result.success) tournaments[id] = result.data;
     }
@@ -69,7 +90,7 @@ export const salvageAppState = (persisted: unknown, current: AppState): AppState
   // participants
   const participants: AppState["participants"] = {};
   if (raw.participants !== null && typeof raw.participants === "object") {
-    for (const [id, value] of Object.entries(raw.participants as object)) {
+    for (const [id, value] of Object.entries(raw.participants)) {
       const result = participantSchema.safeParse(value);
       if (result.success) participants[id] = result.data;
     }
@@ -78,7 +99,7 @@ export const salvageAppState = (persisted: unknown, current: AppState): AppState
   // matches
   const matches: AppState["matches"] = {};
   if (raw.matches !== null && typeof raw.matches === "object") {
-    for (const [id, value] of Object.entries(raw.matches as object)) {
+    for (const [id, value] of Object.entries(raw.matches)) {
       const result = matchSchema.safeParse(value);
       if (result.success) matches[id] = result.data;
     }
@@ -87,15 +108,16 @@ export const salvageAppState = (persisted: unknown, current: AppState): AppState
   // currentTournamentId: string | null のみ受け入れる
   const currentTournamentId =
     raw.currentTournamentId === null || typeof raw.currentTournamentId === "string"
-      ? (raw.currentTournamentId as string | null)
+      ? raw.currentTournamentId
       : null;
 
   // fontSize: 有効な FontSize 列挙値のみ受け入れ、それ以外は current の値にフォールバック
-  const validFontSizes = Object.values(FONT_SIZE) as string[];
-  const fontSize =
-    typeof raw.fontSize === "string" && validFontSizes.includes(raw.fontSize)
-      ? (raw.fontSize as AppState["fontSize"])
-      : current.fontSize;
+  const validFontSizes: readonly string[] = Object.values(FONT_SIZE);
+  const isValidFontSize = (value: unknown): value is AppState["fontSize"] =>
+    typeof value === "string" && validFontSizes.includes(value);
+  const fontSize: AppState["fontSize"] = isValidFontSize(raw.fontSize)
+    ? raw.fontSize
+    : current.fontSize;
 
   const partial: AppState = { tournaments, participants, matches, currentTournamentId, fontSize };
   return { ...current, ...sanitizeAppState(partial) };

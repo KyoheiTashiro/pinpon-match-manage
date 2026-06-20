@@ -32,9 +32,10 @@ describe("generateId", () => {
 
   describe("crypto.randomUUID への委譲", () => {
     const FIXED_UUID = "11111111-2222-4333-a444-555555555555";
+    let randomUUIDSpy: ReturnType<typeof vi.spyOn>;
 
     beforeEach(() => {
-      vi.spyOn(globalThis.crypto, "randomUUID").mockReturnValue(FIXED_UUID);
+      randomUUIDSpy = vi.spyOn(globalThis.crypto, "randomUUID").mockReturnValue(FIXED_UUID);
     });
 
     afterEach(() => {
@@ -43,7 +44,7 @@ describe("generateId", () => {
 
     it("crypto.randomUUID を1回呼び出す", () => {
       generateId();
-      expect(globalThis.crypto.randomUUID).toHaveBeenCalledTimes(1);
+      expect(randomUUIDSpy).toHaveBeenCalledTimes(1);
     });
 
     it("crypto.randomUUID の戻り値をそのまま返す", () => {

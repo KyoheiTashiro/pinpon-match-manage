@@ -77,7 +77,7 @@ describe("ConfirmModal", () => {
 
   it("open=true→false 遷移で dialog.close() が呼ばれる", () => {
     const { rerender } = render(<ConfirmModal {...defaultProps} open={true} />);
-    const dialog = document.querySelector("dialog") as HTMLDialogElement;
+    const dialog = document.querySelector<HTMLDialogElement>("dialog")!;
     const closeSpy = vi.spyOn(dialog, "close");
     rerender(<ConfirmModal {...defaultProps} open={false} />);
     expect(closeSpy).toHaveBeenCalledTimes(1);

@@ -86,7 +86,7 @@ describe("InfoModal", () => {
         <p>内容</p>
       </InfoModal>,
     );
-    const dialog = document.querySelector("dialog") as HTMLDialogElement;
+    const dialog = document.querySelector<HTMLDialogElement>("dialog")!;
     const closeSpy = vi.spyOn(dialog, "close");
     rerender(
       <InfoModal {...defaultProps} open={false}>

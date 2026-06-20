@@ -11,7 +11,7 @@ const meta = {
     open: true,
     title: "ルール説明",
     children: "11点先取・2点差。デュースは無制限に続きます。",
-    onClose: fn(),
+    onClose: fn<() => void>(),
   },
 } satisfies Meta<typeof InfoModal>;
 
