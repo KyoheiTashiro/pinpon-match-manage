@@ -64,15 +64,14 @@ type AppState = {
 - ダブルスのペアはエンティティ化せず `memberIds[2]` のみ。同ペアの再結成は識別不可
 - `pointLog` は `Side[]`。例: `['R','R','L','R',...]` — 1本目R得点、2本目R、3本目L。点数進行グラフの真実源（[result-graph.md](../features/result-graph.md) 参照）
 
-### 永続化（zustand persist）
+### 永続化
 
-- ストアキー（`name`）: `pinpon-match-manage:v1`
-- スキーマ `version`: `2`
-- ミドルウェア構成: `persist(immer(...))`。スライス（`uiSlice` / `tournamentSlice` / `participantSlice` / `matchSlice`）を合成。
-- `migrate`: バージョン毎の変換を `migratePersistedState(persisted, fromVersion)` で実施。v1→v2 では各 `Tournament` へ `bestOf` を補完（`bestOf ?? 5`）。将来のスキーマ変更はこの関数に追加し `STORAGE_VERSION` を上げる。
-- `merge` (サルベージ戦略): `appStateSchema.safeParse` が成功すればそのまま適用。失敗した場合は全捨てせず、`tournaments`/`participants`/`matches` を1エントリずつ各エンティティスキーマで検証し、パースできたものだけ保持する（`salvageAppState`）。`currentTournamentId`・`fontSize` も個別に型チェックしフォールバック。その後 `sanitizeAppState` で参照整合性を修復。persisted がオブジェクトですらない場合のみ `current`（空初期状態）を返す最終手段に落ちる。
+データは zustand persist で LocalStorage へ保存。
 
-実装: `src/store/useAppStore.ts`（`migratePersistedState`・`salvageAppState`・`useAppStore`）。
+- ストアキー: `pinpon-match-manage:v1` ／ スキーマ `version`: `2`
+- 読込時に `migrate`（バージョン変換）→ `merge`（検証・サニタイズ・サルベージ）を通す
+
+ストア構成・スライス・アクション・migrate / merge / sanitize の詳細 → **[store.md](store.md)**。
 
 ---
 

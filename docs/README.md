@@ -15,6 +15,7 @@
 
 - [tech-stack.md](architecture/tech-stack.md) — 技術スタック（HashRouter採用理由含む）
 - [data-model.md](architecture/data-model.md) — データモデル・ロジック仕様
+- [store.md](architecture/store.md) — ストア設計（useAppStore・スライス・永続化・migrate/merge）
 - [directory-structure.md](architecture/directory-structure.md) — ディレクトリ構成
 
 ### デザイン
