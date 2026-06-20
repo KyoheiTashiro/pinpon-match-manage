@@ -1,5 +1,5 @@
 import App from "@/App";
-import { ErrorBoundary, SwUpdatePrompt } from "@/components/system";
+import { ErrorBoundary } from "@/components/system";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { HashRouter } from "react-router-dom";
@@ -12,7 +12,6 @@ ReactDOM.createRoot(document.querySelector("#root")!).render(
       <HashRouter>
         <App />
       </HashRouter>
-      <SwUpdatePrompt />
     </ErrorBoundary>
   </React.StrictMode>,
 );
