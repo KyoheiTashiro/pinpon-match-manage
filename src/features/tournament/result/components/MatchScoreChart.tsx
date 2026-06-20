@@ -23,23 +23,19 @@ const sideRow = (side: Side, selfSide: Side): Row => (side === selfSide ? ROW.TO
 const sideScore = (point: ProgressPoint, side: Side): number =>
   side === SIDE.LEFT ? point.left : point.right;
 
-const rallyCell = (point: ProgressPoint, row: Row, selfSide: Side): Cell => {
+const rallyCell = (point: ProgressPoint, row: Row, selfSide: Side, isLast: boolean): Cell => {
   const rowSide = row === ROW.TOP ? selfSide : selfSide === SIDE.LEFT ? SIDE.RIGHT : SIDE.LEFT;
+  const isScorer = sideRow(point.scorer, selfSide) === row;
   return {
     value: sideScore(point, rowSide),
-    className:
-      sideRow(point.scorer, selfSide) === row
-        ? "bg-blue-500 text-white"
-        : "bg-neutral-200 text-neutral-700",
+    className: isScorer
+      ? isLast
+        ? "bg-amber-300 text-green-800"
+        : "bg-blue-500 text-white"
+      : "bg-neutral-200 text-neutral-700",
     serving: sideRow(point.server, selfSide) === row,
   };
 };
-
-const finalCell = (value: number, opponent: number): Cell => ({
-  value,
-  className: `bg-amber-300 ${value > opponent ? "text-green-800" : "text-neutral-700"}`,
-  serving: false,
-});
 
 const ScoreCircle = ({ value, className, serving }: Cell) => (
   <div
@@ -121,7 +117,7 @@ export const MatchScoreChart = ({ match, selfSide }: Props) => {
               game.pointLog!,
               gameFirstServer(match.firstServer, realIndex),
             );
-            const svgWidth = (points.length + 1) * COL_WIDTH; // ラリー列 + 最終スコア列
+            const svgWidth = points.length * COL_WIDTH; // ラリー列
             const final = points.at(-1);
             const finalTop = selfSide === SIDE.LEFT ? (final?.left ?? 0) : (final?.right ?? 0);
             const finalBot = selfSide === SIDE.LEFT ? (final?.right ?? 0) : (final?.left ?? 0);
@@ -196,16 +192,10 @@ export const MatchScoreChart = ({ match, selfSide }: Props) => {
                         <Column
                           key={point.index}
                           left={index * COL_WIDTH}
-                          top={rallyCell(point, ROW.TOP, selfSide)}
-                          bottom={rallyCell(point, ROW.BOT, selfSide)}
+                          top={rallyCell(point, ROW.TOP, selfSide, index === points.length - 1)}
+                          bottom={rallyCell(point, ROW.BOT, selfSide, index === points.length - 1)}
                         />
                       ))}
-
-                      <Column
-                        left={points.length * COL_WIDTH}
-                        top={finalCell(finalTop, finalBot)}
-                        bottom={finalCell(finalBot, finalTop)}
-                      />
                     </div>
                   </div>
                 </div>
