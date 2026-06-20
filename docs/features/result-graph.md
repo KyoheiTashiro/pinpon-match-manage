@@ -2,8 +2,7 @@
 
 # 点数進行グラフ（結果画面）
 
-実装: `src/features/tournament/result/components/MatchScoreChart.tsx`（1対戦ブロック）、
-`src/features/tournament/result/components/ScoreProgressChart.tsx`（グラフ本体）、
+実装: `src/features/tournament/result/components/MatchScoreChart.tsx`（1対戦分のグラフ本体・SVG）、
 `src/domain/scoreProgress.ts`（導出ロジック）
 
 試合の「結果」タブのグラフモードで、ゲームごとの点数進行を表示する。
@@ -57,14 +56,14 @@ export const gameProgress = (pointLog: Side[], firstServerOfGame: Side): Progres
 
 **配置先**: 結果タブ（`/#/tournaments/:id/result`）の**グラフモード**。
 
-- `src/features/tournament/result/index.tsx`（`ResultView`）が `useResultRows` から `matchResults` を取得し、`game.pointLog && game.pointLog.length > 0` を持つゲームが1件以上ある試合のみ `graphMatches` としてフィルタリングする。
-- セレクトメニューで1対戦を選択し、`GraphView` が選択中の対戦を `MatchScoreChart` で表示する。
-- `MatchScoreChart` は `ScoreProgressChart` を `games`, `leftName`, `rightName`, `matchFirstServer` を渡して呼び出す。
+- `src/features/tournament/result/index.tsx`（`ResultView`）が `useResult` から `matchResults` を取得し、`game.pointLog && game.pointLog.length > 0` を持つゲームが1件以上ある試合のみ `graphMatches` としてフィルタリングする。
+- `Select`（`label="対戦を選択"`）で1対戦を選択し、選択中の対戦（`selectedMatch: MatchResultRow`）を `MatchScoreChart match={selectedMatch}` で表示する。
+- `MatchScoreChart` は内部で `realGames(match.games)` を `pointLog` ありで絞り込み、ゲームごとに `gameProgress` と SVG 描画を行う（グラフ本体は同コンポーネントに統合）。
 - `pointLog` を持つゲームが1本もない試合はグラフモードの選択肢に現れない。
 
 ---
 
-## 4. UI仕様（ScoreProgressChart）
+## 4. UI仕様（MatchScoreChart）
 
 ### 4.1 全体レイアウト
 
@@ -81,7 +80,7 @@ export const gameProgress = (pointLog: Side[], firstServerOfGame: Side): Progres
 - 見出し「ゲーム {N}」（左揃え・太字）。
 - 各ブロックは **上下2段**（上段=左選手 / 下段=右選手）。`swapped` の概念はなく、常に `leftName`=上段・`rightName`=下段の固定表示。
 - **横軸 = ラリー番号**（1本ごとに1列）。列数 = `pointLog.length`。
-- `pointLog` のないゲームはブロックを描画しない（`ScoreProgressChart` が内部でフィルタリング）。
+- `pointLog` のないゲームはブロックを描画しない（`MatchScoreChart` が内部でフィルタリング）。`pointLog` を持つゲームが1本もない場合は「得点記録なし」と表示する。
 
 ### 4.2 スコアノード（丸）
 
@@ -128,6 +127,8 @@ export const gameProgress = (pointLog: Side[], firstServerOfGame: Side): Progres
 - `useImageCapture` フックを使用し、`saving` 中は両ボタンとも `disabled`。
 
 ---
+
+> 注: 旧版の独立 `ScoreProgressChart.tsx` / `GraphView` は廃止され、グラフ本体・1対戦ブロックは `MatchScoreChart.tsx` に統合された。
 
 ## 6. 配色
 

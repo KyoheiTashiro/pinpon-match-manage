@@ -2,7 +2,7 @@
 
 ルート: 結果タブ (`/#/tournaments/:id/result`・HashRouter) — 大会参加者の勝敗集計・順位・対戦結果を表示する画面。
 
-実装: `src/features/tournament/result/`（`index.tsx`, `hooks.ts`, `TableMode.tsx`, `components.tsx`）
+実装: `src/features/tournament/result/`（`index.tsx`, `hooks.ts`, `components/{RankingTable, MatchResultsTable, MatchScoreChart, SaveImageButtons, AllMatchesCapture}.tsx`）
 
 ## 画面構成（表示モード切替）
 
@@ -11,10 +11,10 @@
 | サブタブ                 | 内容                                                   |
 | ------------------------ | ------------------------------------------------------ |
 | **点数表**（デフォルト） | 順位表 + 対戦結果テーブル                              |
-| **グラフ**               | 点数進行グラフ（[result-graph.md](./result-graph.md)） |
+| **点数グラフ**           | 点数進行グラフ（[result-graph.md](./result-graph.md)） |
 
-- 切替はタブ内ローカル状態（URL・LocalStorage には保持しない）。
-- **グラフモード**では、`pointLog` を持つゲームが1本以上ある試合のみ選択肢に表示される。選択ドロップダウンで1対戦を選ぶと、その対戦のグラフが表示される。`pointLog` を持つ試合が1件もない場合は「対戦結果がありません。」と表示する。
+- サブタブUIは共通 `Tabs` コンポーネント（`ariaLabel="表示モード"`）。切替はタブ内ローカル状態（`mode` ステート・URL・LocalStorage には保持しない）。
+- **グラフモード**では、`pointLog` を持つゲームが1本以上ある試合のみ選択肢に表示される。選択ドロップダウン（`Select` `label="対戦を選択"`）で1対戦を選ぶと、その対戦のグラフが表示される。`pointLog` を持つ試合が1件もない場合は「対戦結果がありません。」と表示する。
 - サブタブUI・対戦選択ドロップダウンは画像保存の対象外。大会名・日付ヘッダは両モードとも画像に含まれる。
 
 ## 画像保存
@@ -29,7 +29,7 @@
 
 ## 点数表モード
 
-`TableMode.tsx` が担当。順位表と対戦結果テーブルを縦に並べる。
+`ResultView`（`index.tsx`）が点数表モード時に `RankingTable` と `MatchResultsTable` を縦に並べてレンダリングする。
 
 ### 順位表
 
@@ -94,10 +94,10 @@ pointDiff     pointsFor - pointsAgainst
 
 ## データフロー
 
-`src/features/tournament/result/hooks.ts` の `useResultRows` が Zustand ストアからデータを取得し、`computeRanking` と `buildMatchResult` でビューモデルを構築する。
+`src/features/tournament/result/hooks.ts` の `useResult` が Zustand ストアからデータを取得し、`computeRanking` と `buildMatchResult` でビューモデルを構築する。
 
 - **`rows`**: `RankingRow[]`。順位表の各行。
-- **`matchResults`**: `MatchResultRow[]`。`realGames` でスコアが 0-0 でないゲームのある試合のみ含む。
+- **`matchResults`**: `MatchResultRow[]`。`realGames(match.games).length > 0`（実プレイ分のゲームがある）試合のみ含む。
 - **`tournament`**: 現在の大会オブジェクト（`Tournament`型）。
 
 `MatchResultRow` の主要フィールド:

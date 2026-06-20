@@ -58,9 +58,9 @@
 - `src/domain/**`: lines 98 / functions 100 / branches 95 / statements 98
 - `src/store/**`: lines 95 / functions 95 / branches 88 / statements 95
 - `src/utils/id.ts`: 100 / 100 / 100 / 100
-- `src/utils/time.ts`: lines 95 / functions 90 / branches 80 / statements 95
+- `src/utils/time.ts`: lines 95 / functions 90 / branches 75 / statements 95
 
-除外: `*.test.{ts,tsx}` / `*.stories.tsx` / `src/test/**` / `src/main.tsx` / `**/types.ts`
+除外: `*.test.{ts,tsx}` / `*.stories.tsx` / `src/test/**` / `src/main.tsx` / `**/types.ts` / `src/components/system/**`（PWA SW連携 glue。`virtual:pwa-register/react` 依存で未カバー走査時に JSX をパースできず除外）
 
 ## アクセシビリティ
 

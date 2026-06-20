@@ -8,23 +8,23 @@
 
 - **trigger**: `main` ブランチへの push + `workflow_dispatch`（手動実行）
 - **runner**: `ubuntu-slim`
-- **Node**: 20
+- **Node**: 24
 - **ジョブ分離**: `build` ジョブと `deploy` ジョブに分離
 - **concurrency**: `group: pages`、`cancel-in-progress: true`（重複実行を自動キャンセル）
 
 ### build ジョブ
 
-1. `actions/checkout@v4`
-2. `actions/setup-node@v4` (Node 20、npm キャッシュ有効)
+1. `actions/checkout@v7`
+2. `actions/setup-node@v6` (Node 24、npm キャッシュ有効)
 3. `npm ci`
 4. `npm run build`
-5. `actions/configure-pages@v5`
-6. `actions/upload-pages-artifact@v3` (`path: dist`)
+5. `actions/configure-pages@v6`
+6. `actions/upload-pages-artifact@v5` (`path: dist`)
 
 ### deploy ジョブ
 
 - `needs: build`
-- `actions/deploy-pages@v4` で GitHub Pages へデプロイ
+- `actions/deploy-pages@v5` で GitHub Pages へデプロイ
 - environment: `github-pages`
 
 ## Vite 設定

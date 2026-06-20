@@ -88,6 +88,8 @@
 
 ## 6.10 Tailwind 設定
 
+Tailwind CSS v4（`@tailwindcss/vite` プラグイン）採用。下記の JS 設定は `src/styles/index.css` の `@config "../../tailwind.config.js"` で継続利用している。
+
 ```js
 // tailwind.config.js
 theme: {
@@ -116,7 +118,7 @@ theme: {
       loseBg:  '#FEE2E2',
     },
     minHeight: { btn: '56px', input: '56px', cell: '64px' },
-    minWidth:  { btn: '144px', cell: '64px' },
+    minWidth:  { btn: '144px', cell: '80px' },
   },
 }
 ```

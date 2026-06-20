@@ -2,9 +2,11 @@
 
 ルート: 対戦表タブ (`/#/tournaments/:id/matrix`・HashRouter) + 試合詳細モーダル + スコアボード（ポータル） — 総当たり組合せの表示・試合詳細入力・スコアボードを統合する画面群。
 
+実装: 対戦表本体は `src/features/tournament/matrix/`（`index.tsx` が形式に応じ `singles/index.tsx` の `SinglesMatrix` / `doubles/index.tsx` の `DoublesMatrix` を出し分け）。試合詳細モーダル・サーブ選択・画像保存ボタンは `matrix/components/`（`MatchModal.tsx` / `FirstServerSelect.tsx` / `SaveImageButton.tsx`）。スコアボードは `src/features/tournament/scoreboard/`。
+
 ## マトリクス表示
 
-### シングルス (`SinglesMatrix`)
+### シングルス (`SinglesMatrix` — `matrix/singles/index.tsx`)
 
 - 縦軸・横軸に参加者名を並べた表形式。参加者が2人未満の場合は「参加者を2人以上 登録してください。」を表示
 - セル内容:
@@ -16,11 +18,11 @@
 - 1列目（行ラベル列）は `sticky left-0` でスクロール時固定
 - 表全体は `overflow-x-auto` でスマホ横スクロール対応
 
-### ダブルス (`DoublesMatrix`)
+### ダブルス (`DoublesMatrix` — `matrix/doubles/index.tsx`)
 
 - 見出し: 「対戦表（ダブルス）」
 - 参加者が4人未満の場合は「参加者を4人以上 登録してください。」を表示
-- 4人以上の場合はフォーム（`DoublesMatchForm`）を上部に表示
+- 4人以上の場合は試合追加フォーム（`DoublesMatrix` 内にインライン実装。ペア選択フォームの zod スキーマは `matrix/doubles/schema.ts`）を上部に表示
 - 試合一覧はリスト形式（`<ul>`）で表示。各行に「ペア名 対 ペア名」「ゲーム取得数」「勝者名 の勝ち / 途中」を表示
 - 試合がない場合は「まだ試合がありません。」を表示
 - 試合が1件以上あれば「画像で保存」ボタンを表示
@@ -32,11 +34,11 @@
 ## 組合せ生成
 
 - シングルス: マトリクスのセルをタップすると試合を作成。同一組合せが既に存在する場合は既存の試合モーダルを開く（重複追加なし）
-- ダブルス: 試合フォーム（`DoublesMatchForm`）から手動追加。事前のペア固定なし
+- ダブルス: `DoublesMatrix` 内の試合追加フォームから手動追加。事前のペア固定なし
   - フォームラベル: 「試合を追加」（見出し）、「左ペア」「右ペア」（ペア区分ラベル）
-  - 各フィールドのラベル: 「左1」「左2」「右1」「右2」
-  - ドロップダウンのプレースホルダー: 「— 選んでください —」
-  - 4人全員が異なる参加者でなければならない（バリデーション: 「4人とも異なる選手を選んでください」）
+  - 各フィールドのラベル: 「左1」「左2」「右1」「右2」（`Select` で選択）
+  - ドロップダウンのプレースホルダー: 「選んでください」。すでに選択済みの参加者は他フィールドの選択肢から除外される
+  - 4人全員が異なる参加者でなければならない（`doublesPairSchema` のバリデーション: 「4人とも異なる選手を選んでください」）
   - 送信ボタンラベル: 「試合を追加して入力へ」。バリデーションが通っていない間は disabled
   - 追加成功時はフォームをリセットし、作成した試合のモーダルをすぐに開く
 
@@ -107,6 +109,8 @@
 > ```
 
 ## スコアボード (`ScoreboardScreen`)
+
+実装: `src/features/tournament/scoreboard/`（`index.tsx` が `components/ScoreboardScreen.tsx` を re-export。`ScoreboardHeader` / `ScoreInputView` / `ScoreColumn` / `MatchResultView` も `scoreboard/components/`）。
 
 試合進行中に選手・観客から視認しやすい大型スコア表示専用画面。`createPortal` で `document.body` 直下に描画するフルスクリーンモーダル（独立ルートなし、`z-[60]`）。
 
@@ -197,7 +201,7 @@
 - 右カラム: 同上（右側）
 - `swapped` 状態を反映して表示する
 
-> 点数進行グラフ（`ScoreProgressChart`）の詳細仕様は [result-graph.md](result-graph.md) を参照。スコアボードの結果画面内にグラフを表示する場合は同ドキュメントの導線を確認すること。
+> 点数進行グラフ（`MatchScoreChart`）の詳細仕様は [result-graph.md](result-graph.md) を参照。スコアボードの結果画面内にグラフを表示する場合は同ドキュメントの導線を確認すること。
 
 ### スコアボード入力の永続化
 
