@@ -91,7 +91,7 @@ export const MatchScoreChart = ({ match, selfSide }: Props) => {
     .filter(({ game }) => game.pointLog?.length);
 
   return (
-    <div className="border-line border-t-2 pt-4 first:border-t-0 first:pt-2">
+    <div className="border-line border-t-2 pt-4 font-bold first:border-t-0 first:pt-2">
       <div className="mb-1 flex items-center gap-1 text-base">
         {match.winner === selfSide && (
           <span className="inline-flex rounded-full bg-yellow-400 p-1 text-sm text-white">

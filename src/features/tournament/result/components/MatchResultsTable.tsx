@@ -1,3 +1,4 @@
+import { TrophyIcon } from "@/components/icons/TrophyIcon";
 import { SIDE } from "@/domain/match";
 import type { MatchResultRow } from "@/features/tournament/result/hooks";
 
@@ -46,11 +47,25 @@ export const MatchResultsTable = ({ matchResults, bestOf }: Props) => {
                   <td
                     className={`border-line border-r-2 p-2 text-base whitespace-nowrap ${rowBorder}`}
                   >
-                    <span className={match.winner === SIDE.LEFT ? "" : "text-sub"}>
+                    <span
+                      className={`inline-flex items-center gap-1 ${match.winner === SIDE.LEFT ? "" : "text-sub"}`}
+                    >
+                      {match.winner === SIDE.LEFT && (
+                        <span className="inline-flex shrink-0 rounded-full bg-yellow-400 p-0.5 text-xs text-white">
+                          <TrophyIcon />
+                        </span>
+                      )}
                       {match.leftName}
                     </span>
                     <span className="text-sub"> vs </span>
-                    <span className={match.winner === SIDE.RIGHT ? "" : "text-sub"}>
+                    <span
+                      className={`inline-flex items-center gap-1 ${match.winner === SIDE.RIGHT ? "" : "text-sub"}`}
+                    >
+                      {match.winner === SIDE.RIGHT && (
+                        <span className="inline-flex shrink-0 rounded-full bg-yellow-400 p-0.5 text-xs text-white">
+                          <TrophyIcon />
+                        </span>
+                      )}
                       {match.rightName}
                     </span>
                   </td>
