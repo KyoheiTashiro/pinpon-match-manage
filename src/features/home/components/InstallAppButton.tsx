@@ -24,17 +24,6 @@ export const InstallAppButton = () => {
   const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(null);
   const [installed, setInstalled] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
-  const [copied, setCopied] = useState(false);
-
-  const handleCopyUrl = async () => {
-    try {
-      await navigator.clipboard.writeText(window.location.origin);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      setCopied(false);
-    }
-  };
 
   useEffect(() => {
     if (isStandalone()) {
@@ -99,28 +88,6 @@ export const InstallAppButton = () => {
               referrerPolicy="strict-origin-when-cross-origin"
               allowFullScreen
             />
-          </div>
-
-          <div className="space-y-2">
-            <p className="text-sm font-bold">アプリのURL</p>
-            <div className="flex items-center gap-2">
-              <input
-                type="text"
-                readOnly
-                value={window.location.origin}
-                className="border-line min-w-0 flex-1 rounded-lg border-2 bg-slate-50 px-3 py-2 text-sm"
-                onFocus={(event) => event.currentTarget.select()}
-              />
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => {
-                  void handleCopyUrl();
-                }}
-              >
-                {copied ? "コピー済" : "コピー"}
-              </Button>
-            </div>
           </div>
         </div>
       </InfoModal>
