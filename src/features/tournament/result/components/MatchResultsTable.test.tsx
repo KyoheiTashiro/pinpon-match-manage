@@ -15,6 +15,8 @@ const makeMatchResult = (overrides: Partial<MatchResultRow> = {}): MatchResultRo
   id: "m1",
   leftName: "選手A",
   rightName: "選手B",
+  leftMembers: ["a"],
+  rightMembers: ["b"],
   games: [],
   leftWins: 0,
   rightWins: 0,

@@ -9,6 +9,8 @@ const matchResults: MatchResultRow[] = [
     id: "m1",
     leftName: "田中 太郎",
     rightName: "鈴木 花子",
+    leftMembers: ["a"],
+    rightMembers: ["b"],
     games: [
       { leftScore: 11, rightScore: 8 },
       { leftScore: 9, rightScore: 11 },
@@ -23,6 +25,8 @@ const matchResults: MatchResultRow[] = [
     id: "m2",
     leftName: "佐藤 健",
     rightName: "高橋 美咲",
+    leftMembers: ["c"],
+    rightMembers: ["d"],
     games: [
       { leftScore: 7, rightScore: 11 },
       { leftScore: 5, rightScore: 11 },
@@ -54,6 +58,8 @@ export const BestOf5: Story = {
         id: "m1",
         leftName: "田中 太郎",
         rightName: "鈴木 花子",
+        leftMembers: ["a"],
+        rightMembers: ["b"],
         games: [
           { leftScore: 11, rightScore: 8 },
           { leftScore: 9, rightScore: 11 },

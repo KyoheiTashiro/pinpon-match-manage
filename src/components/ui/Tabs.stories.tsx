@@ -4,15 +4,15 @@ import { useState } from "react";
 import { Tabs } from "./Tabs";
 
 const options = [
-  { value: "table", label: "点数表" },
-  { value: "graph", label: "点数グラフ" },
+  { value: "overall", label: "全体" },
+  { value: "graph", label: "グラフ" },
 ];
 
 const meta = {
   title: "UI/Tabs",
   component: Tabs,
   parameters: { layout: "padded" },
-  args: { ariaLabel: "表示モード", options, value: "table", onChange: () => {} },
+  args: { ariaLabel: "表示モード", options, value: "overall", onChange: () => {} },
   render: function Render(args) {
     const [value, setValue] = useState(args.value);
     return <Tabs {...args} value={value} onChange={setValue} />;

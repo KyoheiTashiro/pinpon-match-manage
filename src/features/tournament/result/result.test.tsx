@@ -49,8 +49,8 @@ describe("ResultTab", () => {
     });
     renderResult();
     expect(screen.getByRole("heading", { name: "結果" })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "点数表" })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "点数グラフ" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "全体" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "グラフ" })).toBeInTheDocument();
   });
 
   it("デフォルトで RankingTable / MatchResultsTable の見出しが見える", () => {
@@ -70,7 +70,7 @@ describe("ResultTab", () => {
     expect(rankingHeaders.length + noData.length).toBeGreaterThanOrEqual(1);
   });
 
-  it("「点数グラフ」タブクリック → graphMatches なし → 「対戦結果がありません。」", async () => {
+  it("「グラフ」タブクリック → graphMatches なし → 「対戦結果がありません。」", async () => {
     const user = userEvent.setup();
     seedStore({
       tournaments: {
@@ -94,7 +94,7 @@ describe("ResultTab", () => {
     });
     renderResult();
 
-    await user.click(screen.getByRole("tab", { name: "点数グラフ" }));
+    await user.click(screen.getByRole("tab", { name: "グラフ" }));
 
     await waitFor(() => {
       expect(screen.getByText("対戦結果がありません。")).toBeInTheDocument();
@@ -122,11 +122,11 @@ describe("ResultTab", () => {
     });
     renderResult();
 
-    await user.click(screen.getByRole("tab", { name: "点数グラフ" }));
+    await user.click(screen.getByRole("tab", { name: "グラフ" }));
 
-    // Select「対戦を選択」が表示される
+    // Select「参加者を選択」が表示される
     await waitFor(() => {
-      expect(screen.getByText("対戦を選択")).toBeInTheDocument();
+      expect(screen.getByText("参加者を選択")).toBeInTheDocument();
     });
 
     // MatchScoreChart の「ゲーム 1」が見える（テキストノードが分割されるため getAllByText で確認）
@@ -146,7 +146,7 @@ describe("ResultTab", () => {
     });
     renderResult();
 
-    await user.click(screen.getByRole("tab", { name: "点数グラフ" }));
+    await user.click(screen.getByRole("tab", { name: "グラフ" }));
 
     await waitFor(() => {
       expect(screen.getByText("対戦結果がありません。")).toBeInTheDocument();
@@ -177,7 +177,7 @@ describe("ResultTab", () => {
     expect(screen.queryByRole("heading", { name: "結果" })).not.toBeInTheDocument();
   });
 
-  it("グラフモードで Select を操作すると表示対象が切り替わる", async () => {
+  it("グラフモードで参加者 Select を操作すると表示対象が切り替わる", async () => {
     const user = userEvent.setup();
     const log1 = gameFromLog(["L", "R", "L", "L", "R", "R", "L", "L", "L", "L", "L"]);
     const log2 = gameFromLog(["R", "L", "R", "R", "L", "L", "R", "R", "R", "R", "R"]);
@@ -192,6 +192,7 @@ describe("ResultTab", () => {
         p4: makeParticipant({ id: "p4", tournamentId: "t1", name: "選手D" }),
       },
       matches: {
+        // p1 vs p2 の対戦（pointLog あり）
         m1: makeMatch({
           id: "m1",
           tournamentId: "t1",
@@ -199,6 +200,7 @@ describe("ResultTab", () => {
           rightSide: { kind: SIDE_KIND.SINGLE, participantId: "p2" },
           games: [log1],
         }),
+        // p3 vs p4 の対戦（pointLog あり）
         m2: makeMatch({
           id: "m2",
           tournamentId: "t1",
@@ -210,27 +212,28 @@ describe("ResultTab", () => {
     });
     renderResult();
 
-    await user.click(screen.getByRole("tab", { name: "点数グラフ" }));
+    await user.click(screen.getByRole("tab", { name: "グラフ" }));
 
-    // Select トリガーボタンが表示されるまで待つ
+    // 参加者 Select トリガーが表示されるまで待つ（初期選択は p1=選手A → m1 が表示）
     await waitFor(() => {
-      expect(screen.getByText("対戦を選択")).toBeInTheDocument();
+      expect(screen.getByText("参加者を選択")).toBeInTheDocument();
     });
+    expect(screen.getAllByText("選手A").length).toBeGreaterThanOrEqual(1);
+    expect(screen.queryByText("選手C")).not.toBeInTheDocument();
 
-    // listbox を開く（aria-haspopup="listbox" ボタンをクリック）
-    const trigger = screen.getByRole("button", { name: /選手A vs 選手B/u });
+    // 参加者セレクトを開いて 選手C に切り替え
+    const trigger = screen.getByRole("button", { name: /選手A/u });
     await user.click(trigger);
-
-    // 選手C vs 選手D オプションをクリック
     await waitFor(() => {
-      expect(screen.getByRole("option", { name: "選手C vs 選手D" })).toBeInTheDocument();
+      expect(screen.getByRole("option", { name: "選手C" })).toBeInTheDocument();
     });
-    await user.click(screen.getByRole("option", { name: "選手C vs 選手D" }));
+    await user.click(screen.getByRole("option", { name: "選手C" }));
 
-    // 選手C/Dがチャートに表示される
+    // 選手C が関わる m2 のチャートに切り替わる
     await waitFor(() => {
       expect(screen.getAllByText("選手C").length).toBeGreaterThanOrEqual(1);
     });
+    expect(screen.queryByText("選手A")).not.toBeInTheDocument();
   });
 
   it("未完了試合のみ(realGames=0)のとき MatchResultsTable に「データがありません」が出る", () => {
@@ -274,7 +277,7 @@ describe("ResultTab", () => {
     });
     renderResult();
 
-    await user.click(screen.getByRole("tab", { name: "点数グラフ" }));
+    await user.click(screen.getByRole("tab", { name: "グラフ" }));
 
     // selectedMatch は null でない → MatchScoreChart が描画される（「ゲーム 1」が見える）
     await waitFor(() => {

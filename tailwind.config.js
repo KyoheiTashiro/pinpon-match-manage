@@ -24,7 +24,7 @@ export default {
         ink: "#0F172A",
         sub: "#1E293B",
         primary: "#1D4ED8",
-        success: "#15803D",
+        success: "#16A34A",
         danger: "#B91C1C",
         warning: "#B45309",
         line: "#475569",

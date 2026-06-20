@@ -12,18 +12,27 @@ const SVG_HEIGHT = ROW_HEIGHT * 2; // 上下2行ぶん
 const ROW = { TOP: "top", BOT: "bot" } as const;
 type Row = (typeof ROW)[keyof typeof ROW];
 
-// 表示マッピング: 左=上段, 右=下段（入れ替えなし）
-const sideRow = (side: Side): Row => (side === SIDE.LEFT ? ROW.TOP : ROW.BOT);
 const rowCenterY = (row: Row) => (row === ROW.TOP ? ROW_HEIGHT / 2 : ROW_HEIGHT + ROW_HEIGHT / 2);
 
 type Cell = { value: number; className: string; serving: boolean };
 
-const rallyCell = (point: ProgressPoint, row: Row): Cell => ({
-  value: row === ROW.TOP ? point.left : point.right,
-  className:
-    sideRow(point.scorer) === row ? "bg-blue-500 text-white" : "bg-neutral-200 text-neutral-700",
-  serving: sideRow(point.server) === row,
-});
+// 表示マッピング: 選択参加者(selfSide)を上段、相手を下段に正規化する。
+const sideRow = (side: Side, selfSide: Side): Row => (side === selfSide ? ROW.TOP : ROW.BOT);
+
+const sideScore = (point: ProgressPoint, side: Side): number =>
+  side === SIDE.LEFT ? point.left : point.right;
+
+const rallyCell = (point: ProgressPoint, row: Row, selfSide: Side): Cell => {
+  const rowSide = row === ROW.TOP ? selfSide : selfSide === SIDE.LEFT ? SIDE.RIGHT : SIDE.LEFT;
+  return {
+    value: sideScore(point, rowSide),
+    className:
+      sideRow(point.scorer, selfSide) === row
+        ? "bg-blue-500 text-white"
+        : "bg-neutral-200 text-neutral-700",
+    serving: sideRow(point.server, selfSide) === row,
+  };
+};
 
 const finalCell = (value: number, opponent: number): Cell => ({
   value,
@@ -64,9 +73,14 @@ const Column = ({ left, top, bottom }: { left: number; top: Cell; bottom: Cell }
 // ----- 1対戦グラフブロック（表示用・off-screen用の共通コンポーネント） -----
 type Props = {
   match: MatchResultRow;
+  selfSide: Side;
 };
 
-export const MatchScoreChart = ({ match }: Props) => {
+export const MatchScoreChart = ({ match, selfSide }: Props) => {
+  const oppSide = selfSide === SIDE.LEFT ? SIDE.RIGHT : SIDE.LEFT;
+  const selfName = selfSide === SIDE.LEFT ? match.leftName : match.rightName;
+  const oppName = selfSide === SIDE.LEFT ? match.rightName : match.leftName;
+
   const chartGames = realGames(match.games)
     .map((game, realIndex) => ({ game, realIndex }))
     .filter(({ game }) => game.pointLog?.length);
@@ -74,13 +88,9 @@ export const MatchScoreChart = ({ match }: Props) => {
   return (
     <div className="pt-2">
       <div className="mb-1 text-base">
-        <span className={`text-xl ${match.winner === SIDE.LEFT ? "font-extrabold" : "text-sub"}`}>
-          {match.leftName}
-        </span>
+        <span className={`text-xl ${match.winner === selfSide ? "" : "text-sub"}`}>{selfName}</span>
         <span className="text-sub"> vs </span>
-        <span className={`text-xl ${match.winner === SIDE.RIGHT ? "font-extrabold" : "text-sub"}`}>
-          {match.rightName}
-        </span>
+        <span className={`text-xl ${match.winner === oppSide ? "" : "text-sub"}`}>{oppName}</span>
       </div>
 
       {chartGames.length === 0 ? (
@@ -94,15 +104,15 @@ export const MatchScoreChart = ({ match }: Props) => {
             );
             const svgWidth = (points.length + 1) * COL_WIDTH; // ラリー列 + 最終スコア列
             const final = points.at(-1);
-            const finalTop = final?.left ?? 0;
-            const finalBot = final?.right ?? 0;
+            const finalTop = selfSide === SIDE.LEFT ? (final?.left ?? 0) : (final?.right ?? 0);
+            const finalBot = selfSide === SIDE.LEFT ? (final?.right ?? 0) : (final?.left ?? 0);
 
             // 連続するラリーの得点者ドットを結ぶ線分
             const lines = points.slice(1).map((point, index) => ({
               x1: index * COL_WIDTH + COL_WIDTH / 2,
-              y1: rowCenterY(sideRow(points[index].scorer)),
+              y1: rowCenterY(sideRow(points[index].scorer, selfSide)),
               x2: (index + 1) * COL_WIDTH + COL_WIDTH / 2,
-              y2: rowCenterY(sideRow(point.scorer)),
+              y2: rowCenterY(sideRow(point.scorer, selfSide)),
             }));
 
             return (
@@ -116,9 +126,9 @@ export const MatchScoreChart = ({ match }: Props) => {
                     className="flex shrink-0 flex-col"
                     style={{ minWidth: 64, height: SVG_HEIGHT }}
                   >
-                    {[match.leftName, match.rightName].map((name, row) => (
+                    {[selfName, oppName].map((name, row) => (
                       <div
-                        key={row === 0 ? "left" : "right"}
+                        key={row === 0 ? "self" : "opp"}
                         className="text-ink flex items-center justify-end pr-2 text-sm font-bold whitespace-nowrap"
                         style={{ height: ROW_HEIGHT }}
                       >
@@ -154,8 +164,8 @@ export const MatchScoreChart = ({ match }: Props) => {
                         <Column
                           key={point.index}
                           left={index * COL_WIDTH}
-                          top={rallyCell(point, ROW.TOP)}
-                          bottom={rallyCell(point, ROW.BOT)}
+                          top={rallyCell(point, ROW.TOP, selfSide)}
+                          bottom={rallyCell(point, ROW.BOT, selfSide)}
                         />
                       ))}
 

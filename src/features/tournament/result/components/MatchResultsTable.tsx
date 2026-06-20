@@ -43,12 +43,14 @@ export const MatchResultsTable = ({ matchResults, bestOf }: Props) => {
               const rowBorder = rowIndex < matchResults.length - 1 ? "border-b-2" : "";
               return (
                 <tr key={match.id}>
-                  <td className={`border-line border-r-2 p-2 text-base ${rowBorder}`}>
-                    <span className={match.winner === SIDE.LEFT ? "font-extrabold" : "text-sub"}>
+                  <td
+                    className={`border-line border-r-2 p-2 text-base whitespace-nowrap ${rowBorder}`}
+                  >
+                    <span className={match.winner === SIDE.LEFT ? "" : "text-sub"}>
                       {match.leftName}
                     </span>
                     <span className="text-sub"> vs </span>
-                    <span className={match.winner === SIDE.RIGHT ? "font-extrabold" : "text-sub"}>
+                    <span className={match.winner === SIDE.RIGHT ? "" : "text-sub"}>
                       {match.rightName}
                     </span>
                   </td>
@@ -69,13 +71,9 @@ export const MatchResultsTable = ({ matchResults, bestOf }: Props) => {
                         key={gameIndex}
                         className={`border-line border-r-2 p-2 text-center text-base whitespace-nowrap ${rowBorder}`}
                       >
-                        <span className={game.leftScore > game.rightScore ? "font-extrabold" : ""}>
-                          {game.leftScore}
-                        </span>
+                        <span>{game.leftScore}</span>
                         <span className="text-sub">-</span>
-                        <span className={game.rightScore > game.leftScore ? "font-extrabold" : ""}>
-                          {game.rightScore}
-                        </span>
+                        <span>{game.rightScore}</span>
                       </td>
                     );
                   })}

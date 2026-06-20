@@ -1,25 +1,45 @@
-import { matchSummary, realGames, winsNeededForBestOf } from "@/domain/match";
+import { SIDE, matchSummary, realGames, winsNeededForBestOf } from "@/domain/match";
 import type { Game, Side } from "@/domain/match";
 import { computeRanking } from "@/domain/ranking";
-import { sideName } from "@/domain/side";
+import { sideMembers, sideName } from "@/domain/side";
 import { matchesOf } from "@/store/selectors";
 import { type Match, type Participant } from "@/store/types";
 import { useAppStore } from "@/store/useAppStore";
 import { useImageCapture } from "@/utils/imageCapture/useImageCapture";
 import { useMemo, useState } from "react";
 
-export const DISPLAY_MODE = { TABLE: "table", GRAPH: "graph" } as const;
+export const DISPLAY_MODE = {
+  OVERALL: "overall",
+  GRAPH: "graph",
+  INDIVIDUAL: "individual",
+} as const;
 type DisplayMode = (typeof DISPLAY_MODE)[keyof typeof DISPLAY_MODE];
+
+export const MATCH_RESULT = { WIN: "win", LOSE: "lose" } as const;
+type MatchResult = (typeof MATCH_RESULT)[keyof typeof MATCH_RESULT];
 
 export type MatchResultRow = {
   id: string;
   leftName: string;
   rightName: string;
+  leftMembers: string[];
+  rightMembers: string[];
   games: Game[];
   leftWins: number;
   rightWins: number;
   winner: Side | null;
   firstServer: Side;
+};
+
+/** 選択した参加者を「自分(左)」に正規化した1対戦。 */
+export type PersonalMatchRow = {
+  id: string;
+  selfName: string;
+  opponentName: string;
+  selfWins: number;
+  oppWins: number;
+  games: { selfScore: number; oppScore: number }[];
+  result: MatchResult | null;
 };
 
 const buildMatchResult = (
@@ -33,6 +53,8 @@ const buildMatchResult = (
     id: match.id,
     leftName: sideName(match.leftSide, participants),
     rightName: sideName(match.rightSide, participants),
+    leftMembers: sideMembers(match.leftSide),
+    rightMembers: sideMembers(match.rightSide),
     games,
     leftWins: summary.leftWins,
     rightWins: summary.rightWins,
@@ -68,47 +90,76 @@ export const useResult = (tournamentId: string) => {
 
   // 表示中コンテナ（table全体 or 選択中1対戦）用
   const main = useImageCapture();
-  // off-screen 全対戦版用
-  const allMatches = useImageCapture();
-  const [mode, setMode] = useState<DisplayMode>(DISPLAY_MODE.TABLE);
+  const [mode, setMode] = useState<DisplayMode>(DISPLAY_MODE.OVERALL);
 
-  // ログのある対戦のみ選択肢に出す
-  const graphMatches = useMemo(
-    () =>
-      matchResults.filter((match) =>
-        match.games.some((game) => game.pointLog && game.pointLog.length > 0),
-      ),
-    [matchResults],
-  );
-  const graphOptions = useMemo(
-    () => graphMatches.map((m) => ({ value: m.id, label: `${m.leftName} vs ${m.rightName}` })),
-    [graphMatches],
-  );
+  // 個人モード: 参加者セレクト
+  const participantOptions = useMemo(() => {
+    if (!tournament) return [];
+    return tournament.participantIds
+      .map((id) => ({ value: id, label: participants[id]?.name ?? "?" }))
+      .filter((o) => o.label !== "?");
+  }, [tournament, participants]);
 
-  const [selectedMatchId, setSelectedMatchId] = useState<string | null>(null);
-  // 初期選択: graphMatches が変わったときに未選択 or 消えた id をリセット
-  const resolvedSelectedId =
-    selectedMatchId !== null && graphMatches.some((m) => m.id === selectedMatchId)
-      ? selectedMatchId
-      : (graphMatches[0]?.id ?? null);
-  const selectedMatch = graphMatches.find((m) => m.id === resolvedSelectedId) ?? null;
+  const [selectedParticipantId, setSelectedParticipantId] = useState<string | null>(null);
+  const resolvedParticipantId =
+    selectedParticipantId !== null &&
+    participantOptions.some((o) => o.value === selectedParticipantId)
+      ? selectedParticipantId
+      : (participantOptions[0]?.value ?? null);
 
-  const isSaving = main.saving || allMatches.saving;
+  // 選択者を「自分(左)」に正規化した対戦一覧
+  const personalMatches = useMemo<PersonalMatchRow[]>(() => {
+    if (resolvedParticipantId === null) return [];
+    const pid = resolvedParticipantId;
+    return matchResults
+      .filter((m) => m.leftMembers.includes(pid) || m.rightMembers.includes(pid))
+      .map((m) => {
+        const selfIsLeft = m.leftMembers.includes(pid);
+        const selfSide = selfIsLeft ? SIDE.LEFT : SIDE.RIGHT;
+        return {
+          id: m.id,
+          selfName: selfIsLeft ? m.leftName : m.rightName,
+          opponentName: selfIsLeft ? m.rightName : m.leftName,
+          selfWins: selfIsLeft ? m.leftWins : m.rightWins,
+          oppWins: selfIsLeft ? m.rightWins : m.leftWins,
+          games: m.games.map((g) => ({
+            selfScore: selfIsLeft ? g.leftScore : g.rightScore,
+            oppScore: selfIsLeft ? g.rightScore : g.leftScore,
+          })),
+          result:
+            m.winner === null ? null : m.winner === selfSide ? MATCH_RESULT.WIN : MATCH_RESULT.LOSE,
+        };
+      });
+  }, [matchResults, resolvedParticipantId]);
+
+  // グラフ用: 選択参加者が関わる pointLog ありの対戦（選択者を上段=selfSideに正規化）
+  const chartMatches = useMemo(() => {
+    if (resolvedParticipantId === null) return [];
+    const pid = resolvedParticipantId;
+    return matchResults
+      .filter((m) => m.leftMembers.includes(pid) || m.rightMembers.includes(pid))
+      .filter((m) => m.games.some((g) => g.pointLog && g.pointLog.length > 0))
+      .map((m) => ({
+        match: m,
+        selfSide: m.leftMembers.includes(pid) ? SIDE.LEFT : SIDE.RIGHT,
+      }));
+  }, [matchResults, resolvedParticipantId]);
+
+  const isSaving = main.saving;
 
   return {
     tournament,
     rows,
     matchResults,
     main,
-    allMatches,
     mode,
     setMode,
-    graphMatches,
-    graphOptions,
-    selectedMatchId,
-    setSelectedMatchId,
-    resolvedSelectedId,
-    selectedMatch,
+    chartMatches,
+    participantOptions,
+    selectedParticipantId,
+    setSelectedParticipantId,
+    resolvedParticipantId,
+    personalMatches,
     isSaving,
   };
 };

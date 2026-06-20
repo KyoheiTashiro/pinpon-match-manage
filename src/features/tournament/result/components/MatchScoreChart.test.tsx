@@ -9,6 +9,8 @@ const makeMatchResultRow = (overrides: Partial<MatchResultRow> = {}): MatchResul
   id: "m1",
   leftName: "選手A",
   rightName: "選手B",
+  leftMembers: ["a"],
+  rightMembers: ["b"],
   games: [],
   leftWins: 0,
   rightWins: 0,
@@ -20,7 +22,7 @@ const makeMatchResultRow = (overrides: Partial<MatchResultRow> = {}): MatchResul
 describe("MatchScoreChart", () => {
   it("games が空 → 「得点記録なし」が表示される", () => {
     const match = makeMatchResultRow({ games: [] });
-    render(<MatchScoreChart match={match} />);
+    render(<MatchScoreChart match={match} selfSide="L" />);
     expect(screen.getByText("得点記録なし")).toBeInTheDocument();
   });
 
@@ -28,7 +30,7 @@ describe("MatchScoreChart", () => {
     const match = makeMatchResultRow({
       games: [makeGame({ leftScore: 11, rightScore: 5 })],
     });
-    render(<MatchScoreChart match={match} />);
+    render(<MatchScoreChart match={match} selfSide="L" />);
     expect(screen.getByText("得点記録なし")).toBeInTheDocument();
   });
 
@@ -36,7 +38,7 @@ describe("MatchScoreChart", () => {
     const match = makeMatchResultRow({
       games: [gameFromLog(["L", "R", "L", "L", "R"])],
     });
-    render(<MatchScoreChart match={match} />);
+    render(<MatchScoreChart match={match} selfSide="L" />);
     expect(screen.getByText("ゲーム 1")).toBeInTheDocument();
   });
 
@@ -46,7 +48,7 @@ describe("MatchScoreChart", () => {
       rightName: "選手B",
       games: [gameFromLog(["L", "R", "L", "L", "R"])],
     });
-    render(<MatchScoreChart match={match} />);
+    render(<MatchScoreChart match={match} selfSide="L" />);
     // 選手名はヘッダとチャート列の両方に出るため getAllByText を使う
     expect(screen.getAllByText("選手A").length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText("選手B").length).toBeGreaterThanOrEqual(1);
@@ -57,7 +59,7 @@ describe("MatchScoreChart", () => {
     const match = makeMatchResultRow({
       games: [gameFromLog(["L", "R", "L"])],
     });
-    const { container } = render(<MatchScoreChart match={match} />);
+    const { container } = render(<MatchScoreChart match={match} selfSide="L" />);
     const lines = container.querySelectorAll("line");
     expect(lines.length).toBeGreaterThanOrEqual(2);
   });
@@ -69,7 +71,7 @@ describe("MatchScoreChart", () => {
     const match = makeMatchResultRow({
       games: [gameFromLog(["L", "R", "L"])],
     });
-    const { container } = render(<MatchScoreChart match={match} />);
+    const { container } = render(<MatchScoreChart match={match} selfSide="L" />);
     // ScoreCircle の div.rounded-full は数値を持つ
     const circles = container.querySelectorAll(".rounded-full");
     // 各列 2 個 × 4 列 = 8 個以上（サーブインジケータの rounded-full も含まれることがある）
@@ -80,7 +82,7 @@ describe("MatchScoreChart", () => {
     const match = makeMatchResultRow({
       games: [gameFromLog(["L", "R", "L", "L", "R"]), gameFromLog(["R", "L", "R", "R", "L"])],
     });
-    render(<MatchScoreChart match={match} />);
+    render(<MatchScoreChart match={match} selfSide="L" />);
     expect(screen.getByText("ゲーム 1")).toBeInTheDocument();
     expect(screen.getByText("ゲーム 2")).toBeInTheDocument();
   });
@@ -96,7 +98,7 @@ describe("MatchScoreChart", () => {
       winner: "L",
       games: [gameFromLog(["L", "R", "L", "L", "R", "R", "L", "L", "L", "L", "L"])],
     });
-    const { container } = render(<MatchScoreChart match={match} />);
+    const { container } = render(<MatchScoreChart match={match} selfSide="L" />);
     // ヘッダの div.mb-1 内の span 要素を確認
     const header = container.querySelector(".mb-1");
     const spans = header?.querySelectorAll("span");
@@ -112,7 +114,7 @@ describe("MatchScoreChart", () => {
       winner: "R",
       games: [gameFromLog(["R", "L", "R", "R", "L", "L", "R", "R", "R", "R", "R"])],
     });
-    const { container } = render(<MatchScoreChart match={match} />);
+    const { container } = render(<MatchScoreChart match={match} selfSide="L" />);
     const header = container.querySelector(".mb-1");
     const spans = header?.querySelectorAll("span");
     expect(spans?.[2]?.className).toMatch(/font-extrabold/u);
@@ -128,7 +130,7 @@ describe("MatchScoreChart", () => {
       "L",
     ];
     const match = makeMatchResultRow({ games: [gameFromLog(log)] });
-    const { container } = render(<MatchScoreChart match={match} />);
+    const { container } = render(<MatchScoreChart match={match} selfSide="L" />);
     // チャート内の Column は .absolute.flex.flex-col で描画される
     // ラリー列 = log.length、最終スコア列 = 1 → 合計 log.length + 1
     const columns = container.querySelectorAll(".absolute.flex.flex-col");
@@ -143,7 +145,7 @@ describe("MatchScoreChart", () => {
       firstServer: "L",
       games: [gameFromLog(game1log), gameFromLog(game2log)],
     });
-    const { container } = render(<MatchScoreChart match={match} />);
+    const { container } = render(<MatchScoreChart match={match} selfSide="L" />);
     // G2が描画されること
     expect(screen.getByText("ゲーム 2")).toBeInTheDocument();
     // サーブ権インジケータ (bg-orange-500) が存在すること
@@ -153,7 +155,7 @@ describe("MatchScoreChart", () => {
 
   it("pointLog 1点(L) → final列 top=1/bot=0 が bg-amber-300 セルで表示される", () => {
     const match = makeMatchResultRow({ games: [gameFromLog(["L"])] });
-    const { container } = render(<MatchScoreChart match={match} />);
+    const { container } = render(<MatchScoreChart match={match} selfSide="L" />);
     // finalCell は bg-amber-300 クラスを持つ
     const finalCells = container.querySelectorAll(".bg-amber-300");
     expect(finalCells.length).toBe(2); // top と bot の 2 つ

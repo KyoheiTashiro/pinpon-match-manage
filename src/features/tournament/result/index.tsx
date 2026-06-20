@@ -1,10 +1,11 @@
-import { Select, Tabs } from "@/components/ui";
-import { AllMatchesCapture } from "@/features/tournament/result/components/AllMatchesCapture";
+import { DownloadIcon } from "@/components/icons";
+import { Button, Select, Tabs } from "@/components/ui";
 import { MatchResultsTable } from "@/features/tournament/result/components/MatchResultsTable";
 import { MatchScoreChart } from "@/features/tournament/result/components/MatchScoreChart";
+import { PersonalMatchResults } from "@/features/tournament/result/components/PersonalMatchResults";
 import { RankingTable } from "@/features/tournament/result/components/RankingTable";
-import { SaveImageButtons } from "@/features/tournament/result/components/SaveImageButtons";
 import { DISPLAY_MODE, useResult } from "@/features/tournament/result/hooks";
+import { FORMAT } from "@/store/types";
 import { useParams } from "react-router-dom";
 
 export const ResultTab = () => {
@@ -19,21 +20,20 @@ const ResultView = ({ tournamentId }: { tournamentId: string }) => {
     rows,
     matchResults,
     main,
-    allMatches,
     mode,
     setMode,
-    graphMatches,
-    graphOptions,
-    setSelectedMatchId,
-    resolvedSelectedId,
-    selectedMatch,
+    chartMatches,
+    participantOptions,
+    setSelectedParticipantId,
+    resolvedParticipantId,
+    personalMatches,
     isSaving,
   } = useResult(tournamentId);
 
   if (!tournament) return null;
 
   const renderContent = () => {
-    if (mode === DISPLAY_MODE.TABLE) {
+    if (mode === DISPLAY_MODE.OVERALL) {
       return (
         <>
           <RankingTable rows={rows} />
@@ -41,11 +41,25 @@ const ResultView = ({ tournamentId }: { tournamentId: string }) => {
         </>
       );
     }
-    if (graphMatches.length === 0) {
+    if (mode === DISPLAY_MODE.INDIVIDUAL) {
+      if (participantOptions.length === 0) {
+        return <p className="text-sub">参加者がいません。</p>;
+      }
+      return <PersonalMatchResults matches={personalMatches} bestOf={tournament.bestOf} />;
+    }
+    if (participantOptions.length === 0) {
+      return <p className="text-sub">参加者がいません。</p>;
+    }
+    if (chartMatches.length === 0) {
       return <p className="text-sub">対戦結果がありません。</p>;
     }
-    if (!selectedMatch) return null;
-    return <MatchScoreChart match={selectedMatch} />;
+    return (
+      <div className="space-y-6">
+        {chartMatches.map(({ match, selfSide }) => (
+          <MatchScoreChart key={match.id} match={match} selfSide={selfSide} />
+        ))}
+      </div>
+    );
   };
 
   return (
@@ -62,22 +76,27 @@ const ResultView = ({ tournamentId }: { tournamentId: string }) => {
             value={mode}
             onChange={setMode}
             options={[
-              { value: DISPLAY_MODE.TABLE, label: "点数表" },
-              { value: DISPLAY_MODE.GRAPH, label: "点数グラフ" },
+              { value: DISPLAY_MODE.OVERALL, label: "全体" },
+              {
+                value: DISPLAY_MODE.INDIVIDUAL,
+                label: tournament.format === FORMAT.SINGLES ? "個人" : "ペア",
+              },
+              { value: DISPLAY_MODE.GRAPH, label: "グラフ" },
             ]}
           />
 
-          {/* グラフモード時のみ表示するセレクタ（画像保存対象外） */}
-          {mode === DISPLAY_MODE.GRAPH && graphMatches.length > 0 && (
-            <div className="sm:max-w-md">
-              <Select
-                label="対戦を選択"
-                value={resolvedSelectedId}
-                onChange={setSelectedMatchId}
-                options={graphOptions}
-              />
-            </div>
-          )}
+          {/* 個人・グラフモードで表示する参加者セレクタ（画像保存対象外） */}
+          {(mode === DISPLAY_MODE.INDIVIDUAL || mode === DISPLAY_MODE.GRAPH) &&
+            participantOptions.length > 0 && (
+              <div className="sm:max-w-md">
+                <Select
+                  label="参加者を選択"
+                  value={resolvedParticipantId}
+                  onChange={setSelectedParticipantId}
+                  options={participantOptions}
+                />
+              </div>
+            )}
 
           {/* 画像保存対象コンテンツ */}
           <div className="overflow-x-auto">
@@ -95,24 +114,12 @@ const ResultView = ({ tournamentId }: { tournamentId: string }) => {
           </div>
 
           {/* 保存ボタン（画像対象外） */}
-          <SaveImageButtons
-            mode={mode}
-            main={main}
-            allMatches={allMatches}
-            isSaving={isSaving}
-            selectedMatch={selectedMatch}
-            graphMatches={graphMatches}
-          />
-
-          {/* off-screen 全対戦版（graphモード時のみ、画像取得用） */}
-          {mode === DISPLAY_MODE.GRAPH && graphMatches.length > 0 && (
-            <AllMatchesCapture
-              captureRef={allMatches.ref}
-              name={tournament.name}
-              date={tournament.date}
-              graphMatches={graphMatches}
-            />
-          )}
+          <Button className="w-fit" onClick={() => void main.save()} disabled={isSaving}>
+            <span className="inline-flex items-center justify-center gap-2">
+              <DownloadIcon />
+              {main.saving ? "保存中…" : "画像で保存"}
+            </span>
+          </Button>
         </>
       )}
     </div>

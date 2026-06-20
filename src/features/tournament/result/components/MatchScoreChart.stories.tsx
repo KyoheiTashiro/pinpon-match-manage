@@ -34,6 +34,8 @@ const match: MatchResultRow = {
   id: "m1",
   leftName: "田中 太郎",
   rightName: "鈴木 花子",
+  leftMembers: ["a"],
+  rightMembers: ["b"],
   games: [game(11, 8), game(9, 11), game(11, 9)],
   leftWins: 2,
   rightWins: 1,
@@ -45,7 +47,7 @@ const meta = {
   title: "Tournament/MatchScoreChart",
   component: MatchScoreChart,
   parameters: { layout: "padded" },
-  args: { match },
+  args: { match, selfSide: L },
 } satisfies Meta<typeof MatchScoreChart>;
 
 export default meta;
