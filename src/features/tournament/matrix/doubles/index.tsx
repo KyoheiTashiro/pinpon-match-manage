@@ -1,7 +1,7 @@
+import { DownloadIcon } from "@/components/icons";
 import { Button, Select } from "@/components/ui";
 import { matchSummary, SIDE } from "@/domain/match";
 import { MatchModal } from "@/features/tournament/matrix/components/MatchModal";
-import { SaveImageButton } from "@/features/tournament/matrix/components/SaveImageButton";
 import { useDoublesMatrix, MIN_PLAYERS_DOUBLES } from "@/features/tournament/matrix/doubles/hooks";
 import type { DoublesPairForm } from "@/features/tournament/matrix/doubles/schema";
 import { sideName } from "@/features/tournament/matrix/hooks";
@@ -135,12 +135,12 @@ export const DoublesMatrix = ({ tournamentId }: { tournamentId: string }) => {
       </div>
 
       {players.length >= MIN_PLAYERS_DOUBLES && matchList.length > 0 && (
-        <SaveImageButton
-          saving={saving}
-          onSave={() => {
-            void save();
-          }}
-        />
+        <Button className="w-fit" onClick={() => void save()} disabled={saving}>
+          <span className="inline-flex items-center justify-center gap-2">
+            <DownloadIcon />
+            {saving ? "保存中…" : "画像で保存"}
+          </span>
+        </Button>
       )}
 
       {openMatchId && (

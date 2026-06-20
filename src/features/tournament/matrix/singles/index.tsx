@@ -1,6 +1,7 @@
+import { DownloadIcon } from "@/components/icons";
+import { Button } from "@/components/ui";
 import { matchSummary, winsNeededForBestOf, SIDE } from "@/domain/match";
 import { MatchModal } from "@/features/tournament/matrix/components/MatchModal";
-import { SaveImageButton } from "@/features/tournament/matrix/components/SaveImageButton";
 import {
   involvesSingle,
   useSinglesMatrix,
@@ -200,12 +201,12 @@ export const SinglesMatrix = ({ tournamentId }: { tournamentId: string }) => {
               </table>
             </div>
           </div>
-          <SaveImageButton
-            saving={saving}
-            onSave={() => {
-              void save();
-            }}
-          />
+          <Button className="w-fit" onClick={() => void save()} disabled={saving}>
+            <span className="inline-flex items-center justify-center gap-2">
+              <DownloadIcon />
+              {saving ? "保存中…" : "画像で保存"}
+            </span>
+          </Button>
         </>
       )}
 
