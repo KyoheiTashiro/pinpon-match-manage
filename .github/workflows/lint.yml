@@ -17,5 +17,7 @@ jobs:
           cache: npm
       - run: npm ci
       # --type-aware は通常ルールに加え no-floating-promises 等の型ルールも走らせる
-      - run: npm run lint:typed
+      # --format=github で ::error file=...,line=... を出力し、PR の Files changed に該当行へ
+      # インライン注釈を表示する（どのコードで起きているか一目で分かる）
+      - run: npm run lint:typed -- --format=github
       - run: npm run format:check
