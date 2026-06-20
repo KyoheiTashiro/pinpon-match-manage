@@ -125,21 +125,6 @@ describe("SettingsTab", () => {
     });
   });
 
-  it("開催日を空にすると「開催日を選択してください」エラー", async () => {
-    renderSettings();
-    const user = userEvent.setup();
-
-    await user.click(screen.getByRole("button", { name: "編集" }));
-
-    const dateInput = screen.getByLabelText("開催日");
-    await user.clear(dateInput);
-    await user.tab(); // blur でバリデーション発火
-
-    await waitFor(() => {
-      expect(screen.getByText("開催日を選択してください")).toBeInTheDocument();
-    });
-  });
-
   it("「試合結果を削除」→「削除する」で resetTournament が呼ばれ試合が消える", async () => {
     // マッチを先に seed
     seedStore({
@@ -224,9 +209,9 @@ describe("SettingsTab", () => {
 
     await user.click(screen.getByRole("button", { name: "編集" }));
 
-    const dateInput = screen.getByLabelText("開催日");
-    await user.clear(dateInput);
-    await user.type(dateInput, "2026-12-31");
+    // Calendar コンポーネントでの日付選択（seed は 2026-01-01 なので同月内の別日を選ぶ）
+    await user.click(screen.getByRole("button", { name: "開催日" }));
+    await user.click(await screen.findByRole("button", { name: "2026年1月15日" }));
 
     const saveBtn = screen.getByRole("button", { name: "保存" });
     await waitFor(() => {
@@ -235,7 +220,7 @@ describe("SettingsTab", () => {
     await user.click(saveBtn);
 
     await waitFor(() => {
-      expect(useAppStore.getState().tournaments["t1"]?.date).toBe("2026-12-31");
+      expect(useAppStore.getState().tournaments["t1"]?.date).toBe("2026-01-15");
     });
   });
 

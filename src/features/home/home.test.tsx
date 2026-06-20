@@ -44,10 +44,7 @@ describe("Home", () => {
     await user.clear(screen.getByLabelText("大会名"));
     await user.type(screen.getByLabelText("大会名"), "テスト大会");
 
-    // 開催日を入力（type="date" input への直接入力）
-    const dateInput = screen.getByLabelText("開催日");
-    await user.clear(dateInput);
-    await user.type(dateInput, "2026-06-01");
+    // 開催日は defaultValues で当日が設定済み（Calendar コンポーネント）
 
     const submitBtn = screen.getByRole("button", { name: "作る" });
     expect(submitBtn).not.toBeDisabled();
@@ -83,10 +80,13 @@ describe("Home", () => {
 
     expect(screen.getByText("春季大会")).toBeInTheDocument();
 
-    // モーダルを開く
-    await user.click(screen.getByRole("button", { name: "データ初期化" }));
+    // 設定モーダルを開く
+    await user.click(screen.getByRole("button", { name: "設定" }));
 
-    // モーダルのキャンセルボタンが現れるのを待つ（ConfirmModal が表示されている証拠）
+    // モーダル内の「データ初期化」をクリック
+    await user.click(await screen.findByRole("button", { name: "データ初期化" }));
+
+    // インライン確認の「やめる」が現れるのを待つ
     const cancelBtn = await screen.findByRole("button", { name: "やめる" });
 
     // キャンセルをクリック
@@ -108,9 +108,13 @@ describe("Home", () => {
 
     expect(screen.getByText("春季大会")).toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: "データ初期化" }));
+    // 設定モーダルを開く
+    await user.click(screen.getByRole("button", { name: "設定" }));
 
-    // モーダルの確定ボタンが現れるのを待つ
+    // モーダル内の「データ初期化」をクリック
+    await user.click(await screen.findByRole("button", { name: "データ初期化" }));
+
+    // インライン確認の「全て消す」が現れるのを待つ
     const confirmBtn = await screen.findByRole("button", { name: "全て消す" });
 
     // 確定をクリック

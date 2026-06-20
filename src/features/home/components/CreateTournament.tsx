@@ -1,5 +1,4 @@
-import { CalendarIcon } from "@/components/icons";
-import { Button, RadioGroup } from "@/components/ui";
+import { Button, Calendar, RadioGroup } from "@/components/ui";
 import type { FormType } from "@/features/home/schema";
 import { FORMAT, BEST_OF_OPTIONS } from "@/store/types";
 import { type BaseSyntheticEvent } from "react";
@@ -55,22 +54,19 @@ export const CreateTournament = ({ form, submit, onCancel }: Props) => (
         />
       )}
     />
-    <label className="flex flex-col gap-1">
+    <div className="flex flex-col gap-1">
       <span className="font-bold">開催日</span>
-      <div className="relative">
-        <input
-          {...form.register("date")}
-          type="date"
-          aria-label="開催日"
-          onClick={(e) => e.currentTarget.showPicker?.()}
-          className="min-h-input border-line w-full appearance-none rounded-xl border-2 bg-white pr-12 pl-3 text-lg [&::-webkit-calendar-picker-indicator]:opacity-0"
-        />
-        <CalendarIcon className="text-line pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-2xl" />
-      </div>
+      <Controller
+        name="date"
+        control={form.control}
+        render={({ field }) => (
+          <Calendar value={field.value} onChange={field.onChange} ariaLabel="開催日" />
+        )}
+      />
       {form.formState.errors.date && (
         <span className="text-danger text-sm">{form.formState.errors.date.message}</span>
       )}
-    </label>
+    </div>
     <div className="flex flex-wrap justify-end gap-3">
       <Button variant="secondary" type="button" onClick={onCancel}>
         キャンセル
