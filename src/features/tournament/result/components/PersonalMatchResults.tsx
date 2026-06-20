@@ -7,10 +7,12 @@ type Props = {
 };
 
 export const PersonalMatchResults = ({ matches }: Props) => {
+  const selfName = matches[0]?.selfName;
+  const title = selfName ? `${selfName}さんの対戦結果` : "対戦結果";
   if (matches.length === 0) {
     return (
       <div className="space-y-2 pt-2">
-        <div className="text-base font-extrabold">対戦結果</div>
+        <div className="text-xl font-extrabold">{title}</div>
         <div className="border-line text-sub rounded-2xl border-2 p-4 text-center text-base">
           データがありません
         </div>
@@ -19,13 +21,13 @@ export const PersonalMatchResults = ({ matches }: Props) => {
   }
   return (
     <div className="space-y-2 pt-2">
-      <div className="text-base font-extrabold">対戦結果</div>
+      <div className="text-xl font-extrabold">{title}</div>
       <div className="space-y-3">
         {matches.map((match) => (
           <div key={match.id} className="border-line overflow-hidden rounded-2xl border-2 py-4">
-            <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] items-center justify-items-center gap-2">
+            <div className="divide-line grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] items-stretch divide-x">
               {/* 自分 */}
-              <div className="flex min-w-0 flex-col items-center justify-center gap-1">
+              <div className="flex min-w-0 flex-col items-center justify-center gap-1 px-4">
                 <div className="flex h-10 w-full items-center justify-center">
                   {match.result === MATCH_RESULT.WIN && (
                     <div className="rounded-full bg-yellow-400 p-1.5 text-lg text-white">
@@ -34,7 +36,7 @@ export const PersonalMatchResults = ({ matches }: Props) => {
                   )}
                 </div>
                 <span
-                  className={`max-w-24 truncate text-lg ${match.result === MATCH_RESULT.WIN ? "" : "text-sub"}`}
+                  className={`max-w-24 text-center text-lg break-words ${match.result === MATCH_RESULT.WIN ? "" : "text-sub"}`}
                 >
                   {match.selfName}
                 </span>
@@ -46,21 +48,20 @@ export const PersonalMatchResults = ({ matches }: Props) => {
               </div>
 
               {/* ゲームスコア */}
-              <div className="border-line flex w-full min-w-0 flex-col gap-1 border-x sm:px-6">
+              <div className="flex w-full min-w-0 flex-col justify-center gap-1 px-4">
                 {match.games.map((game, i) => (
-                  // eslint-disable-next-line react/no-array-index-key
                   <div
                     key={i}
-                    className="grid grid-cols-[1fr_auto_1fr] items-center text-lg tabular-nums"
+                    className="flex items-center justify-center gap-2 text-lg tabular-nums"
                   >
                     <span
-                      className={`text-right ${game.selfScore > game.oppScore ? "text-success" : ""}`}
+                      className={`w-7 text-center ${game.selfScore > game.oppScore ? "text-success" : ""}`}
                     >
                       {game.selfScore}
                     </span>
-                    <span className="text-sub px-2">-</span>
+                    <span className="text-sub">-</span>
                     <span
-                      className={`text-left ${game.oppScore > game.selfScore ? "text-success" : ""}`}
+                      className={`w-7 text-center ${game.oppScore > game.selfScore ? "text-success" : ""}`}
                     >
                       {game.oppScore}
                     </span>
@@ -69,7 +70,7 @@ export const PersonalMatchResults = ({ matches }: Props) => {
               </div>
 
               {/* 相手 */}
-              <div className="flex min-w-0 flex-col items-center justify-center gap-1">
+              <div className="flex min-w-0 flex-col items-center justify-center gap-1 px-4">
                 <div className="flex h-10 w-full items-center justify-center">
                   {match.result === MATCH_RESULT.LOSE && (
                     <div className="rounded-full bg-yellow-400 p-1.5 text-lg text-white">
@@ -78,7 +79,7 @@ export const PersonalMatchResults = ({ matches }: Props) => {
                   )}
                 </div>
                 <span
-                  className={`max-w-24 truncate text-lg ${match.result === MATCH_RESULT.LOSE ? "" : "text-sub"}`}
+                  className={`max-w-24 text-center text-lg break-words ${match.result === MATCH_RESULT.LOSE ? "" : "text-sub"}`}
                 >
                   {match.opponentName}
                 </span>

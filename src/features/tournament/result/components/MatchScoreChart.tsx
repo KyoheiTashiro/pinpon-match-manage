@@ -1,5 +1,6 @@
+import { TrophyIcon } from "@/components/icons/TrophyIcon";
 import type { Side } from "@/domain/match";
-import { SIDE, gameFirstServer, realGames } from "@/domain/match";
+import { SIDE, gameFirstServer, matchSummary, realGames } from "@/domain/match";
 import { gameProgress, type ProgressPoint } from "@/domain/scoreProgress";
 import type { MatchResultRow } from "@/features/tournament/result/hooks";
 
@@ -81,16 +82,34 @@ export const MatchScoreChart = ({ match, selfSide }: Props) => {
   const selfName = selfSide === SIDE.LEFT ? match.leftName : match.rightName;
   const oppName = selfSide === SIDE.LEFT ? match.rightName : match.leftName;
 
+  const { leftWins, rightWins } = matchSummary(realGames(match.games));
+  const selfWins = selfSide === SIDE.LEFT ? leftWins : rightWins;
+  const oppWins = selfSide === SIDE.LEFT ? rightWins : leftWins;
+
   const chartGames = realGames(match.games)
     .map((game, realIndex) => ({ game, realIndex }))
     .filter(({ game }) => game.pointLog?.length);
 
   return (
-    <div className="pt-2">
-      <div className="mb-1 text-base">
+    <div className="border-line border-t-2 pt-4 first:border-t-0 first:pt-2">
+      <div className="mb-1 flex items-center gap-1 text-base">
+        {match.winner === selfSide && (
+          <span className="inline-flex rounded-full bg-yellow-400 p-1 text-sm text-white">
+            <TrophyIcon />
+          </span>
+        )}
         <span className={`text-xl ${match.winner === selfSide ? "" : "text-sub"}`}>{selfName}</span>
         <span className="text-sub"> vs </span>
+        {match.winner === oppSide && (
+          <span className="inline-flex rounded-full bg-yellow-400 p-1 text-sm text-white">
+            <TrophyIcon />
+          </span>
+        )}
         <span className={`text-xl ${match.winner === oppSide ? "" : "text-sub"}`}>{oppName}</span>
+        <span className="text-xl tabular-nums">
+          {" "}
+          ({selfWins}-{oppWins})
+        </span>
       </div>
 
       {chartGames.length === 0 ? (
@@ -116,25 +135,38 @@ export const MatchScoreChart = ({ match, selfSide }: Props) => {
             }));
 
             return (
-              <div key={realIndex}>
-                <div className="text-ink mb-2 text-left text-base font-bold">
-                  ゲーム {realIndex + 1}
-                </div>
+              <div key={realIndex} className="border-line rounded-lg border-2 p-3">
                 <div className="flex items-stretch">
+                  {/* ゲーム番号 */}
+                  <div
+                    className="text-ink flex shrink-0 items-center pr-2 text-base font-bold"
+                    style={{ height: SVG_HEIGHT }}
+                  >
+                    G{realIndex + 1}
+                  </div>
+
                   {/* プレイヤー名の列 */}
                   <div
                     className="flex shrink-0 flex-col"
                     style={{ minWidth: 64, height: SVG_HEIGHT }}
                   >
-                    {[selfName, oppName].map((name, row) => (
-                      <div
-                        key={row === 0 ? "self" : "opp"}
-                        className="text-ink flex items-center justify-end pr-2 text-sm font-bold whitespace-nowrap"
-                        style={{ height: ROW_HEIGHT }}
-                      >
-                        {name}
-                      </div>
-                    ))}
+                    {[selfName, oppName].map((name, row) => {
+                      const won = row === 0 ? finalTop > finalBot : finalBot > finalTop;
+                      return (
+                        <div
+                          key={row === 0 ? "self" : "opp"}
+                          className="text-ink flex items-center justify-end gap-1 pr-2 text-sm font-bold whitespace-nowrap"
+                          style={{ height: ROW_HEIGHT }}
+                        >
+                          {won && (
+                            <span className="inline-flex rounded-full bg-yellow-400 p-1 text-xs text-white">
+                              <TrophyIcon />
+                            </span>
+                          )}
+                          {name}
+                        </div>
+                      );
+                    })}
                   </div>
 
                   {/* チャート本体（画像取得のため overflow-x-auto は付けず全幅描画） */}

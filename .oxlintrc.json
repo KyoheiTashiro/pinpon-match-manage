@@ -87,7 +87,8 @@
         "src/features/tournament/matrix/components/MatchModal.tsx",
         "src/features/tournament/matrix/components/GameList.tsx",
         "src/features/tournament/scoreboard/components/ScoreboardHeader.tsx",
-        "src/features/tournament/matrix/components/scoreboard/ScoreProgressChart.tsx"
+        "src/features/tournament/matrix/components/scoreboard/ScoreProgressChart.tsx",
+        "src/features/tournament/result/components/PersonalMatchResults.tsx"
       ],
       "rules": {
         "react/no-array-index-key": "off"

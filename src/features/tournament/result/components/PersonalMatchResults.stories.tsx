@@ -34,6 +34,52 @@ const matches: PersonalMatchRow[] = [
   },
 ];
 
+// ストレート勝ち (3-0)
+const straightWin: PersonalMatchRow = {
+  id: "m3",
+  selfName: "田中 太郎",
+  opponentName: "山田 次郎",
+  selfWins: 3,
+  oppWins: 0,
+  games: [
+    { selfScore: 11, oppScore: 4 },
+    { selfScore: 11, oppScore: 2 },
+    // { selfScore: 11, oppScore: 6 },
+  ],
+  result: "win",
+};
+
+// デュース接戦
+const deuceMatch: PersonalMatchRow = {
+  id: "m4",
+  selfName: "田中 太郎",
+  opponentName: "高橋 美咲",
+  selfWins: 3,
+  oppWins: 2,
+  games: [
+    { selfScore: 13, oppScore: 11 },
+    { selfScore: 9, oppScore: 11 },
+    { selfScore: 14, oppScore: 12 },
+    { selfScore: 10, oppScore: 12 },
+    { selfScore: 12, oppScore: 10 },
+  ],
+  result: "win",
+};
+
+// 未確定 (result: null)
+const pending: PersonalMatchRow = {
+  id: "m5",
+  selfName: "田中 太郎",
+  opponentName: "伊藤 大輔",
+  selfWins: 1,
+  oppWins: 1,
+  games: [
+    { selfScore: 11, oppScore: 8 },
+    { selfScore: 6, oppScore: 11 },
+  ],
+  result: null,
+};
+
 const meta = {
   title: "Tournament/PersonalMatchResults",
   component: PersonalMatchResults,
@@ -52,4 +98,16 @@ export const SingleMatch: Story = {
 
 export const Empty: Story = {
   args: { matches: [] },
+};
+
+export const StraightWin: Story = {
+  args: { matches: [straightWin] },
+};
+
+export const DeuceMatch: Story = {
+  args: { matches: [deuceMatch] },
+};
+
+export const Pending: Story = {
+  args: { matches: [pending] },
 };
