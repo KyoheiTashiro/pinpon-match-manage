@@ -114,6 +114,8 @@ describe("sideName プロパティテスト", () => {
         fc.string({ minLength: 1, maxLength: 8 }),
         fc.string({ minLength: 1, maxLength: 8 }),
         (idA, nameA, idB, nameB) => {
+          // idA === idB だと participants[id] が後勝ちで上書きされ name が一意に定まらないため除外
+          fc.pre(idA !== idB);
           const side = { kind: SIDE_KIND.PAIR, memberIds: [idA, idB] as [string, string] };
           const participants: Record<string, Participant> = {
             [idA]: { id: idA, tournamentId: "t", name: nameA },
@@ -133,6 +135,8 @@ describe("sideName プロパティテスト", () => {
         fc.string({ minLength: 1, maxLength: 8 }),
         fc.string({ minLength: 1, maxLength: 8 }).filter((id) => !(id in Object.prototype)),
         (idA, nameA, idB) => {
+          // idA === idB だと未登録のはずの idB が participants[idA] で解決され "?" にならないため除外
+          fc.pre(idA !== idB);
           const side = { kind: SIDE_KIND.PAIR, memberIds: [idA, idB] as [string, string] };
           const participants: Record<string, Participant> = {
             [idA]: { id: idA, tournamentId: "t", name: nameA },
