@@ -17,6 +17,7 @@ export const useHome = (onCreated: (id: string) => void) => {
 
   const [creating, setCreating] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const formMethods = useForm<FormType>({
     resolver: zodResolver(Schema),
@@ -40,8 +41,15 @@ export const useHome = (onCreated: (id: string) => void) => {
   const doReset = () => {
     resetAll();
     setConfirmReset(false);
+    setSettingsOpen(false);
   };
   const cancelReset = () => setConfirmReset(false);
+
+  const openSettings = () => setSettingsOpen(true);
+  const closeSettings = () => {
+    setSettingsOpen(false);
+    setConfirmReset(false);
+  };
 
   return {
     list,
@@ -54,5 +62,8 @@ export const useHome = (onCreated: (id: string) => void) => {
     askReset,
     doReset,
     cancelReset,
+    settingsOpen,
+    openSettings,
+    closeSettings,
   };
 };

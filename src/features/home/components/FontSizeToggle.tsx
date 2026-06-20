@@ -19,7 +19,6 @@ export const FontSizeToggle = () => {
 
   return (
     <Toggle
-      label="文字"
       ariaLabel="文字サイズ"
       value={fontSize}
       options={FONT_SIZE_OPTIONS}

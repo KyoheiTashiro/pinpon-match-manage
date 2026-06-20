@@ -1,9 +1,9 @@
-import { ChevronDownIcon } from "@/components/icons";
-import { Button, ConfirmModal } from "@/components/ui";
+import { ChevronDownIcon, GearIcon } from "@/components/icons";
+import { Button } from "@/components/ui";
 import { tournamentPath } from "@/constants/routes";
 import { CreateTournament } from "@/features/home/components/CreateTournament";
-import { FontSizeToggle } from "@/features/home/components/FontSizeToggle";
 import { InstallAppButton } from "@/features/home/components/InstallAppButton";
+import { SettingsModal } from "@/features/home/components/SettingsModal";
 import { useHome } from "@/features/home/hooks";
 import { formatDate } from "@/utils/time";
 import { useNavigate } from "react-router-dom";
@@ -22,6 +22,9 @@ export const Home = () => {
     askReset,
     doReset,
     cancelReset,
+    settingsOpen,
+    openSettings,
+    closeSettings,
   } = useHome((id) => {
     void navigate(tournamentPath(id));
   });
@@ -30,7 +33,14 @@ export const Home = () => {
     <div className="text-ink min-h-screen bg-white">
       <header className="bg-primary flex flex-wrap items-center justify-between gap-3 p-4 text-white">
         <h1 className="text-2xl font-extrabold">卓ログ</h1>
-        <FontSizeToggle />
+        <button
+          type="button"
+          aria-label="設定"
+          onClick={openSettings}
+          className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl text-2xl transition-colors hover:bg-white/10"
+        >
+          <GearIcon />
+        </button>
       </header>
 
       <main className="mx-auto max-w-3xl space-y-6 p-4">
@@ -77,21 +87,16 @@ export const Home = () => {
 
         <div className="border-line flex flex-col items-start gap-3 border-t-2 pt-6 sm:flex-row">
           <InstallAppButton />
-          <Button variant="danger" onClick={askReset}>
-            データ初期化
-          </Button>
         </div>
       </main>
 
-      <ConfirmModal
-        open={confirmReset}
-        title="データ初期化"
-        message="全ての大会・参加者・対戦結果を削除します。取り消せません。本当に削除しますか?"
-        confirmLabel="全て消す"
-        cancelLabel="やめる"
-        destructive
-        onConfirm={doReset}
-        onCancel={cancelReset}
+      <SettingsModal
+        open={settingsOpen}
+        onClose={closeSettings}
+        confirmReset={confirmReset}
+        askReset={askReset}
+        doReset={doReset}
+        cancelReset={cancelReset}
       />
     </div>
   );
