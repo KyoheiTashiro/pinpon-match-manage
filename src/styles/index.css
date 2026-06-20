@@ -1,6 +1,6 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+/* v4 は CSS ファースト設定だが、既存の JS 設定(色/フォント/サイズ)を @config で継続利用する */
+@config "../../tailwind.config.js";
 
 html {
   font-size: 18px;
