@@ -38,7 +38,7 @@ const meta = {
   title: "Tournament/PersonalMatchResults",
   component: PersonalMatchResults,
   parameters: { layout: "padded" },
-  args: { matches, bestOf: 5 },
+  args: { matches },
 } satisfies Meta<typeof PersonalMatchResults>;
 
 export default meta;
@@ -47,7 +47,7 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {};
 
 export const SingleMatch: Story = {
-  args: { matches: matches.slice(0, 1), bestOf: 5 },
+  args: { matches: matches.slice(0, 1) },
 };
 
 export const Empty: Story = {

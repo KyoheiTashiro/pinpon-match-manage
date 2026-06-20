@@ -45,7 +45,7 @@ const ResultView = ({ tournamentId }: { tournamentId: string }) => {
       if (participantOptions.length === 0) {
         return <p className="text-sub">参加者がいません。</p>;
       }
-      return <PersonalMatchResults matches={personalMatches} bestOf={tournament.bestOf} />;
+      return <PersonalMatchResults matches={personalMatches} />;
     }
     if (participantOptions.length === 0) {
       return <p className="text-sub">参加者がいません。</p>;
