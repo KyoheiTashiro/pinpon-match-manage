@@ -131,9 +131,9 @@ describe("MatchScoreChart", () => {
     const match = makeMatchResultRow({ games: [gameFromLog(log)] });
     const { container } = render(<MatchScoreChart match={match} selfSide="L" />);
     // チャート内の Column は .absolute.flex.flex-col で描画される
-    // ラリー列 = log.length、最終スコア列 = 1 → 合計 log.length + 1
+    // final列は廃止。ラリー列のみ = log.length
     const columns = container.querySelectorAll(".absolute.flex.flex-col");
-    expect(columns.length).toBe(log.length + 1);
+    expect(columns.length).toBe(log.length);
   });
 
   it("2ゲーム目(realIndex=1)では firstServer が opposite になる（サーブ権インジケータあり）", () => {
@@ -152,14 +152,12 @@ describe("MatchScoreChart", () => {
     expect(indicators.length).toBeGreaterThanOrEqual(1);
   });
 
-  it("pointLog 1点(L) → final列 top=1/bot=0 が bg-amber-300 セルで表示される", () => {
+  it("pointLog 1点(L) → 最終ラリー列の得点者セルが bg-amber-300 で表示される", () => {
     const match = makeMatchResultRow({ games: [gameFromLog(["L"])] });
     const { container } = render(<MatchScoreChart match={match} selfSide="L" />);
-    // finalCell は bg-amber-300 クラスを持つ
+    // 最終ラリー列の得点者(L=self=top)セルのみ bg-amber-300
     const finalCells = container.querySelectorAll(".bg-amber-300");
-    expect(finalCells.length).toBe(2); // top と bot の 2 つ
-    const texts = Array.from(finalCells).map((el) => el.textContent);
-    expect(texts).toContain("1");
-    expect(texts).toContain("0");
+    expect(finalCells.length).toBe(1);
+    expect(finalCells[0]?.textContent).toBe("1");
   });
 });
