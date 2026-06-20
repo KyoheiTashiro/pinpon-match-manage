@@ -1,6 +1,5 @@
 import { ChevronDownIcon } from "@/components/icons";
-import { Button } from "@/components/ui/Button";
-import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { Button, ConfirmModal } from "@/components/ui";
 import { tournamentPath } from "@/constants/routes";
 import { CreateTournament } from "@/features/home/components/CreateTournament";
 import { FontSizeToggle } from "@/features/home/components/FontSizeToggle";

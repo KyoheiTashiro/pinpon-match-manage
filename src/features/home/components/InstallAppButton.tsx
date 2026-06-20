@@ -1,6 +1,5 @@
 import { HelpIcon } from "@/components/icons";
-import { Button } from "@/components/ui/Button";
-import { InfoModal } from "@/components/ui/InfoModal";
+import { Button, InfoModal } from "@/components/ui";
 import { useEffect, useState } from "react";
 
 type BeforeInstallPromptEvent = Event & {

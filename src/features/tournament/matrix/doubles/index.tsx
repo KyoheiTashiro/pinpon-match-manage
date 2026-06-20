@@ -1,5 +1,4 @@
-import { Button } from "@/components/ui/Button";
-import { Select } from "@/components/ui/Select";
+import { Button, Select } from "@/components/ui";
 import { matchSummary, SIDE } from "@/domain/match";
 import { MatchModal } from "@/features/tournament/matrix/components/MatchModal";
 import { SaveImageButton } from "@/features/tournament/matrix/components/SaveImageButton";

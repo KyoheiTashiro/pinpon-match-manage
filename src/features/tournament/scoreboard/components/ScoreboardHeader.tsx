@@ -1,5 +1,5 @@
 import { ChevronDownIcon } from "@/components/icons";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui";
 import type { Game } from "@/domain/match";
 import { isGameFinished } from "@/domain/match";
 

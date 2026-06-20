@@ -1,6 +1,5 @@
 import { CalendarIcon } from "@/components/icons";
-import { Button } from "@/components/ui/Button";
-import { RadioGroup } from "@/components/ui/RadioGroup";
+import { Button, RadioGroup } from "@/components/ui";
 import type { FormType } from "@/features/home/schema";
 import { FORMAT, BEST_OF_OPTIONS } from "@/store/types";
 import { type BaseSyntheticEvent } from "react";

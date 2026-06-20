@@ -1,5 +1,4 @@
-import { Button } from "@/components/ui/Button";
-import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { Button, ConfirmModal } from "@/components/ui";
 import { useParticipants } from "@/features/tournament/participants/hooks";
 import { useParams } from "react-router-dom";
 

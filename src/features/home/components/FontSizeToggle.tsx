@@ -1,4 +1,4 @@
-import { Toggle, type ToggleOption } from "@/components/ui/Toggle";
+import { Toggle, type ToggleOption } from "@/components/ui";
 import { FONT_SIZE, type FontSize } from "@/store/types";
 import { useAppStore } from "@/store/useAppStore";
 import { useEffect } from "react";

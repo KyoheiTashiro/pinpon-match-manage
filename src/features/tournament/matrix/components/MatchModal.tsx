@@ -1,6 +1,5 @@
 import { ChevronDownIcon } from "@/components/icons";
-import { Button } from "@/components/ui/Button";
-import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { Button, ConfirmModal } from "@/components/ui";
 import type { Game, Side } from "@/domain/match";
 import { SIDE, gameWinner, isGameFinished, winsNeededForBestOf } from "@/domain/match";
 import {

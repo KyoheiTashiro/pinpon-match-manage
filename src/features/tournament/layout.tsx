@@ -1,5 +1,5 @@
 import { UsersIcon, PaddleIcon, TrophyIcon, GearIcon, ChevronDownIcon } from "@/components/icons";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui";
 import { ROUTES, TAB_PATH } from "@/constants/routes";
 import { FORMAT } from "@/store/types";
 import { useAppStore } from "@/store/useAppStore";

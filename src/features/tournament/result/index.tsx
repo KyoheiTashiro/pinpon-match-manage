@@ -1,5 +1,4 @@
-import { Select } from "@/components/ui/Select";
-import { Tabs } from "@/components/ui/Tabs";
+import { Select, Tabs } from "@/components/ui";
 import { AllMatchesCapture } from "@/features/tournament/result/components/AllMatchesCapture";
 import { MatchResultsTable } from "@/features/tournament/result/components/MatchResultsTable";
 import { MatchScoreChart } from "@/features/tournament/result/components/MatchScoreChart";

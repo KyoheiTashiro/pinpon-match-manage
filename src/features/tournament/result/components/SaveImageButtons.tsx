@@ -1,5 +1,5 @@
 import { DownloadIcon } from "@/components/icons";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui";
 import { DISPLAY_MODE, useResult } from "@/features/tournament/result/hooks";
 import type { MatchResultRow } from "@/features/tournament/result/hooks";
 

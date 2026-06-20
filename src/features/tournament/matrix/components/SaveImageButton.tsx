@@ -1,5 +1,5 @@
 import { DownloadIcon } from "@/components/icons";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui";
 
 type Props = { saving: boolean; onSave: () => void };
 

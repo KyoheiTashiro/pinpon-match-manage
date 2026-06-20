@@ -1,6 +1,5 @@
 import { CalendarIcon } from "@/components/icons";
-import { Button } from "@/components/ui/Button";
-import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { Button, ConfirmModal } from "@/components/ui";
 import { ROUTES } from "@/constants/routes";
 import { useSettings } from "@/features/tournament/settings/hooks";
 import { matchesOf } from "@/store/selectors";
