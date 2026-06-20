@@ -22,6 +22,11 @@ export default defineConfig({
         "src/test/**",
         "src/main.tsx",
         "src/**/types.ts",
+        // PWA Service Worker 連携 glue。virtual:pwa-register/react に依存し unit テスト不能。
+        // include 指定時 coverage-v8 は未カバーファイルも走査するが(vitest v4 は coverage.all
+        // 廃止で include 有れば常時走査)、この未カバー走査用 transform では仮想モジュールを
+        // 解決できず JSX が素のまま parseAstAsync に渡り "Unexpected JSX expression" で落ちる。
+        "src/components/system/**",
       ],
       // ロジック層のみ厳格ゲート。component(.tsx)は重要部のみ方針なので全体ゲートしない。
       // 実測(domain 100/100/98, store 96/100/90, utils 100)に対し数%の余白を残した
@@ -30,7 +35,9 @@ export default defineConfig({
         "src/domain/**": { lines: 98, functions: 100, branches: 95, statements: 98 },
         "src/store/**": { lines: 95, functions: 95, branches: 88, statements: 95 },
         "src/utils/id.ts": { lines: 100, functions: 100, branches: 100, statements: 100 },
-        "src/utils/time.ts": { lines: 95, functions: 90, branches: 80, statements: 95 },
+        // branches 75: line14 の `?.value ?? ""` フォールバックは formatToParts が
+        // 常に year/month/day を返すため実行不能。到達不能分岐ぶん 75 が実測上限。
+        "src/utils/time.ts": { lines: 95, functions: 90, branches: 75, statements: 95 },
       },
     },
   },

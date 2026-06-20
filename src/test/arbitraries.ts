@@ -3,6 +3,13 @@ import { SIDE, scoresFromLog, type Game, type Side } from "@/domain/match";
 import { SIDE_KIND, type Match, type MatchSide } from "@/store/types";
 import * as fc from "fast-check";
 
+// participantId / memberId 用の ID arbitrary。
+// Object.prototype のプロパティ名("toString" 等)はプレーンオブジェクトのルックアップで
+// prototype 由来の値を拾い `names[id] ?? "?"` の "?" フォールバックをすり抜けるため除外する。
+// 実 ID は nanoid 生成でこれらと衝突しないため、テスト固有の偽陽性を防ぐだけの絞り込み。
+const idArb = (maxLength = 8): fc.Arbitrary<string> =>
+  fc.string({ minLength: 1, maxLength: maxLength }).filter((id) => !(id in Object.prototype));
+
 // サイド（"L" | "R"）の arbitrary
 export const sideArb: fc.Arbitrary<Side> = fc.constantFrom(SIDE.LEFT, SIDE.RIGHT);
 
@@ -34,13 +41,14 @@ export const finishedGameArb: fc.Arbitrary<Game> = fc
   );
 
 // single の MatchSide
-const singleSideArb: fc.Arbitrary<MatchSide> = fc
-  .string({ minLength: 1, maxLength: 8 })
-  .map((id) => ({ kind: SIDE_KIND.SINGLE, participantId: id }));
+const singleSideArb: fc.Arbitrary<MatchSide> = idArb().map((id) => ({
+  kind: SIDE_KIND.SINGLE,
+  participantId: id,
+}));
 
 // pair の MatchSide
 const pairSideArb: fc.Arbitrary<MatchSide> = fc
-  .tuple(fc.string({ minLength: 1, maxLength: 8 }), fc.string({ minLength: 1, maxLength: 8 }))
+  .tuple(idArb(), idArb())
   .map(([a, b]) => ({ kind: SIDE_KIND.PAIR, memberIds: [a, b] as [string, string] }));
 
 // single/pair 両方出る MatchSide arbitrary
@@ -48,7 +56,7 @@ export const matchSideArb: fc.Arbitrary<MatchSide> = fc.oneof(singleSideArb, pai
 
 // single vs single の Match arbitrary（leftSide/rightSide は別 participantId）
 export const matchArb: fc.Arbitrary<Match> = fc
-  .tuple(fc.string({ minLength: 1, maxLength: 8 }), fc.string({ minLength: 1, maxLength: 8 }))
+  .tuple(idArb(), idArb())
   .filter(([a, b]) => a !== b)
   .chain(([leftId, rightId]) =>
     fc.record({
@@ -64,12 +72,7 @@ export const matchArb: fc.Arbitrary<Match> = fc
 // PAIR を含む Match arbitrary（ranking の doubles 検証用）
 // leftSide/rightSide はどちらも pairSideArb を使い、全メンバーIDが一意
 export const matchWithPairArb: fc.Arbitrary<Match> = fc
-  .tuple(
-    fc.string({ minLength: 1, maxLength: 6 }),
-    fc.string({ minLength: 1, maxLength: 6 }),
-    fc.string({ minLength: 1, maxLength: 6 }),
-    fc.string({ minLength: 1, maxLength: 6 }),
-  )
+  .tuple(idArb(6), idArb(6), idArb(6), idArb(6))
   .filter(([a, b, c, d]) => new Set([a, b, c, d]).size === 4)
   .chain(([a, b, c, d]) =>
     fc.record({
