@@ -1,3 +1,4 @@
+import "@/test/seedInject";
 import App from "@/App";
 import { ErrorBoundary } from "@/components/system";
 import React from "react";
