@@ -36,7 +36,12 @@ export const TournamentLayout = () => {
     return (
       <div className="p-6 text-center">
         <p className="mb-4 text-lg">大会が見つかりません。</p>
-        <button onClick={() => navigate(ROUTES.HOME)} className="text-lg text-primary underline">
+        <button
+          onClick={() => {
+            void navigate(ROUTES.HOME);
+          }}
+          className="text-primary text-lg underline"
+        >
           一覧へ戻る
         </button>
       </div>
@@ -44,12 +49,14 @@ export const TournamentLayout = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white pb-24 text-ink">
-      <header className="flex flex-wrap items-center gap-3 bg-primary p-4 text-white">
+    <div className="text-ink min-h-screen bg-white pb-24">
+      <header className="bg-primary flex flex-wrap items-center gap-3 p-4 text-white">
         <Button
           variant="white"
           size="sm"
-          onClick={() => navigate(ROUTES.HOME)}
+          onClick={() => {
+            void navigate(ROUTES.HOME);
+          }}
           className="inline-flex items-center gap-1"
           aria-label="大会一覧へ戻る"
         >
@@ -69,7 +76,7 @@ export const TournamentLayout = () => {
 
       <nav
         aria-label="メインタブ"
-        className="fixed inset-x-0 bottom-0 z-50 grid grid-cols-4 border-t-4 border-line bg-white"
+        className="border-line fixed inset-x-0 bottom-0 z-50 grid grid-cols-4 border-t-4 bg-white"
       >
         {tabs.map(({ to, label, Icon }) => (
           <NavLink
@@ -77,7 +84,7 @@ export const TournamentLayout = () => {
             to={to}
             className={({ isActive }) =>
               `flex min-h-[72px] flex-col items-center justify-center py-2 font-bold ${
-                isActive ? "bg-primary text-white" : "bg-white text-ink"
+                isActive ? "bg-primary text-white" : "text-ink bg-white"
               }`
             }
           >

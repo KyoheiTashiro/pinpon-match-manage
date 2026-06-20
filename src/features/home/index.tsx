@@ -23,11 +23,13 @@ export const Home = () => {
     askReset,
     doReset,
     cancelReset,
-  } = useHome((id) => navigate(tournamentPath(id)));
+  } = useHome((id) => {
+    void navigate(tournamentPath(id));
+  });
 
   return (
-    <div className="min-h-screen bg-white text-ink">
-      <header className="flex flex-wrap items-center justify-between gap-3 bg-primary p-4 text-white">
+    <div className="text-ink min-h-screen bg-white">
+      <header className="bg-primary flex flex-wrap items-center justify-between gap-3 p-4 text-white">
         <h1 className="text-2xl font-extrabold">卓ログ</h1>
         <FontSizeToggle />
       </header>
@@ -49,20 +51,22 @@ export const Home = () => {
 
         <section aria-label="大会一覧">
           {list.length === 0 ? (
-            <p className="py-8 text-center text-base text-sub">
+            <p className="text-sub py-8 text-center text-base">
               まだ大会がありません。上のボタンから作成してください。
             </p>
           ) : (
-            <ul className="divide-y-2 divide-line overflow-hidden rounded-2xl border-2 border-line">
+            <ul className="divide-line border-line divide-y-2 overflow-hidden rounded-2xl border-2">
               {list.map((tournament) => (
                 <li key={tournament.id}>
                   <button
-                    onClick={() => navigate(tournamentPath(tournament.id))}
-                    className="flex min-h-[72px] w-full items-center justify-between gap-3 p-4 text-left hover:bg-bg"
+                    onClick={() => {
+                      void navigate(tournamentPath(tournament.id));
+                    }}
+                    className="hover:bg-bg flex min-h-[72px] w-full items-center justify-between gap-3 p-4 text-left"
                   >
                     <div>
                       <div className="text-xl font-extrabold">{tournament.name}</div>
-                      <div className="text-base text-sub">{formatDate(tournament.date)}</div>
+                      <div className="text-sub text-base">{formatDate(tournament.date)}</div>
                     </div>
                     <ChevronDownIcon className="-rotate-90 text-2xl" />
                   </button>
@@ -72,7 +76,7 @@ export const Home = () => {
           )}
         </section>
 
-        <div className="flex flex-col items-start gap-3 border-t-2 border-line pt-6 sm:flex-row">
+        <div className="border-line flex flex-col items-start gap-3 border-t-2 pt-6 sm:flex-row">
           <InstallAppButton />
           <Button variant="danger" onClick={askReset}>
             データ初期化
