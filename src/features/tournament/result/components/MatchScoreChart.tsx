@@ -37,7 +37,7 @@ const ScoreCircle = ({ value, className, serving }: Cell) => (
     style={{ height: ROW_HEIGHT, width: COL_WIDTH }}
   >
     <div
-      className={`flex select-none items-center justify-center rounded-full text-sm font-bold ${className}`}
+      className={`flex items-center justify-center rounded-full text-sm font-bold select-none ${className}`}
       style={{ width: CIRCLE_SIZE, height: CIRCLE_SIZE }}
     >
       {value}
@@ -107,7 +107,7 @@ export const MatchScoreChart = ({ match }: Props) => {
 
             return (
               <div key={realIndex}>
-                <div className="mb-2 text-left text-base font-bold text-ink">
+                <div className="text-ink mb-2 text-left text-base font-bold">
                   ゲーム {realIndex + 1}
                 </div>
                 <div className="flex items-stretch">
@@ -119,7 +119,7 @@ export const MatchScoreChart = ({ match }: Props) => {
                     {[match.leftName, match.rightName].map((name, row) => (
                       <div
                         key={row === 0 ? "left" : "right"}
-                        className="flex items-center justify-end whitespace-nowrap pr-2 text-sm font-bold text-ink"
+                        className="text-ink flex items-center justify-end pr-2 text-sm font-bold whitespace-nowrap"
                         style={{ height: ROW_HEIGHT }}
                       >
                         {name}

@@ -76,7 +76,7 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        className="my-4 w-full max-w-2xl rounded-2xl border-4 border-line bg-white p-4 sm:p-6"
+        className="border-line my-4 w-full max-w-2xl rounded-2xl border-4 bg-white p-4 sm:p-6"
         onClick={(event) => event.stopPropagation()}
         onKeyDown={(event) => event.stopPropagation()}
       >
@@ -88,7 +88,7 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
             type="button"
             onClick={onClose}
             aria-label="閉じる"
-            className="flex h-10 w-10 items-center justify-center rounded-lg border-2 border-line bg-white text-2xl font-extrabold leading-none transition hover:bg-bg active:scale-95"
+            className="border-line hover:bg-bg flex h-10 w-10 items-center justify-center rounded-lg border-2 bg-white text-2xl leading-none font-extrabold transition active:scale-95"
           >
             ×
           </button>
@@ -96,7 +96,7 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
 
         <div className="mb-4 text-center text-2xl font-extrabold">
           {leftName}
-          <span className="mx-3 text-line">対</span>
+          <span className="text-line mx-3">対</span>
           {rightName}
         </div>
 
@@ -116,7 +116,7 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
           </Button>
         </div>
 
-        <ul className="mb-4 space-y-2 divide-y-2 divide-line overflow-hidden rounded-xl border-2 border-line">
+        <ul className="divide-line border-line mb-4 space-y-2 divide-y-2 overflow-hidden rounded-xl border-2">
           {games.map((game, gameIndex) => {
             const locked = gameIndex >= lockedFromIndex;
             const empty = game.leftScore === 0 && game.rightScore === 0;
@@ -132,20 +132,20 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
                 <span className="px-3 py-1 text-base font-extrabold">ゲーム{gameIndex + 1}</span>
                 <span className="text-xl font-extrabold tabular-nums">
                   {locked && empty ? (
-                    <span className="text-base font-bold text-sub">入力不可</span>
+                    <span className="text-sub text-base font-bold">入力不可</span>
                   ) : empty ? (
-                    <span className="text-base font-bold text-sub">未入力</span>
+                    <span className="text-sub text-base font-bold">未入力</span>
                   ) : (
                     <>
                       <span className={winner === SIDE.LEFT ? "text-success" : ""}>
                         {game.leftScore}
                       </span>
-                      <span className="mx-2 text-sub">-</span>
+                      <span className="text-sub mx-2">-</span>
                       <span className={winner === SIDE.RIGHT ? "text-success" : ""}>
                         {game.rightScore}
                       </span>
                       {!winner && !empty && !isGameFinished(game) && (
-                        <span className="ml-2 text-sm font-bold text-sub">(進行中)</span>
+                        <span className="text-sub ml-2 text-sm font-bold">(進行中)</span>
                       )}
                     </>
                   )}

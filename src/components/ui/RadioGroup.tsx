@@ -21,10 +21,10 @@ export const RadioGroup = <T extends string | number>({
       {options.map((option) => (
         <label
           key={String(option.value)}
-          className={`flex min-h-btn cursor-pointer items-center gap-2 rounded-xl border-2 px-4 ${
+          className={`min-h-btn flex cursor-pointer items-center gap-2 rounded-xl border-2 px-4 ${
             value === option.value
               ? "border-primary bg-primary text-white"
-              : "border-line bg-white text-ink"
+              : "border-line text-ink bg-white"
           }`}
         >
           <input

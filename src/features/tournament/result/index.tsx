@@ -87,9 +87,9 @@ const ResultView = ({ tournamentId }: { tournamentId: string }) => {
               className="inline-block min-w-full space-y-2 bg-white p-3 align-top"
             >
               {/* 大会名・日付ヘッダ（両モード共通） */}
-              <div className="border-b-2 border-line pb-2">
+              <div className="border-line border-b-2 pb-2">
                 <div className="text-xl font-extrabold">{tournament.name}</div>
-                <div className="text-sm text-sub">{tournament.date}</div>
+                <div className="text-sub text-sm">{tournament.date}</div>
               </div>
               {renderContent()}
             </div>

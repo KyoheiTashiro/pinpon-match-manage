@@ -68,7 +68,7 @@ export const ScoreColumn = ({
           />
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
             <span
-              className={`text-[clamp(6rem,44vh,28rem)] font-extrabold tabular-nums leading-none ${scoreColor}`}
+              className={`text-[clamp(6rem,44vh,28rem)] leading-none font-extrabold tabular-nums ${scoreColor}`}
             >
               {score}
             </span>
@@ -85,7 +85,7 @@ export const ScoreColumn = ({
       />
 
       {disabled && (
-        <div className="text-xs shrink-0 text-center text-white/50 sm:text-sm">入力不可</div>
+        <div className="shrink-0 text-center text-xs text-white/50 sm:text-sm">入力不可</div>
       )}
     </div>
   );

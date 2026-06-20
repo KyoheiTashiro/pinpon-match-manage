@@ -76,7 +76,7 @@ export const ScoreboardHeader = ({
           <button
             type="button"
             onClick={() => setGameIndex(nextGameIndex)}
-            className="rounded-lg border-2 border-success bg-success px-4 py-2 text-base font-extrabold text-white transition hover:brightness-110 active:scale-95"
+            className="border-success bg-success rounded-lg border-2 px-4 py-2 text-base font-extrabold text-white transition hover:brightness-110 active:scale-95"
           >
             次に進む
           </button>
@@ -85,7 +85,7 @@ export const ScoreboardHeader = ({
           <button
             type="button"
             onClick={onShowResult}
-            className="rounded-lg border-2 border-success bg-success px-4 py-2 text-base font-extrabold text-white transition hover:brightness-110 active:scale-95"
+            className="border-success bg-success rounded-lg border-2 px-4 py-2 text-base font-extrabold text-white transition hover:brightness-110 active:scale-95"
           >
             結果を見る
           </button>
@@ -97,7 +97,7 @@ export const ScoreboardHeader = ({
               onBack();
               onCloseAll?.();
             }}
-            className="rounded-lg border-2 border-success bg-success px-4 py-2 text-base font-extrabold text-white transition hover:brightness-110 active:scale-95"
+            className="border-success bg-success rounded-lg border-2 px-4 py-2 text-base font-extrabold text-white transition hover:brightness-110 active:scale-95"
           >
             対戦表に戻る
           </button>

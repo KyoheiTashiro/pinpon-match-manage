@@ -50,7 +50,7 @@ export const ScoreboardScreen = (props: Props) => {
       role="dialog"
       aria-modal="true"
       tabIndex={-1}
-      className="fixed inset-0 z-[60] flex select-none flex-col overflow-x-hidden bg-blue-800 text-white"
+      className="fixed inset-0 z-[60] flex flex-col overflow-x-hidden bg-blue-800 text-white select-none"
       style={{
         touchAction: "none",
         paddingTop: "env(safe-area-inset-top)",
@@ -77,9 +77,9 @@ export const ScoreboardScreen = (props: Props) => {
       />
 
       {isPortrait && (
-        <div className="bg-amber-500 px-2 py-1 text-center text-sm font-extrabold leading-tight text-black">
+        <div className="bg-amber-500 px-2 py-1 text-center text-sm leading-tight font-extrabold text-black">
           端末を横向きにしてください
-          <span className="text-xs block font-bold">
+          <span className="block text-xs font-bold">
             （画面の回転ロックがオンの場合は、解除してください）
           </span>
         </div>

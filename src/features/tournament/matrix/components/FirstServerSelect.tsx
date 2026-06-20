@@ -9,7 +9,7 @@ type Props = {
 };
 
 export const FirstServerSelect = ({ leftName, rightName, value, onChange }: Props) => (
-  <fieldset className="mb-4 rounded-xl border-2 border-line p-3">
+  <fieldset className="border-line mb-4 rounded-xl border-2 p-3">
     <legend className="px-2 font-bold">最初のサーブ</legend>
     <div className="flex flex-col gap-2 sm:flex-row">
       {([SIDE.LEFT, SIDE.RIGHT] as Side[]).map((side) => {
@@ -28,7 +28,7 @@ export const FirstServerSelect = ({ leftName, rightName, value, onChange }: Prop
               checked={value === side}
               onChange={() => onChange(side)}
               aria-label={`最初のサーブ: ${name}`}
-              className="h-5 w-5 accent-primary"
+              className="accent-primary h-5 w-5"
             />
             <span className="font-bold">{name}</span>
           </label>

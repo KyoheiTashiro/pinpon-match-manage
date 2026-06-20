@@ -17,7 +17,7 @@ export const Toggle = <T extends string | number>({
 }: Props<T>) => (
   <div role="radiogroup" aria-label={ariaLabel} className="flex items-center gap-2">
     {label && <span className="text-base font-bold">{label}</span>}
-    <div className="inline-flex items-center gap-1 rounded-xl border-2 border-line bg-bg p-1">
+    <div className="border-line bg-bg inline-flex items-center gap-1 rounded-xl border-2 p-1">
       {options.map((opt) => {
         const selected = value === opt.value;
         return (
@@ -28,8 +28,8 @@ export const Toggle = <T extends string | number>({
             onClick={() => onChange(opt.value)}
             className={`min-h-[40px] min-w-[64px] rounded-lg px-3 transition ${
               selected
-                ? "bg-white font-extrabold text-ink shadow-md"
-                : "bg-transparent font-medium text-sub hover:text-ink"
+                ? "text-ink bg-white font-extrabold shadow-md"
+                : "text-sub hover:text-ink bg-transparent font-medium"
             }`}
           >
             {opt.label}

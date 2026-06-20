@@ -71,7 +71,7 @@ const MatrixCell = ({
     >
       <button
         onClick={() => (match ? onOpen(match.id) : onCreate())}
-        className="group relative h-full min-h-cell w-full cursor-pointer p-2 text-lg font-extrabold transition hover:bg-bg active:scale-95"
+        className="group min-h-cell hover:bg-bg relative h-full w-full cursor-pointer p-2 text-lg font-extrabold transition active:scale-95"
         aria-label={
           hasScore
             ? `${row.name} 対 ${column.name} ${rowWins}-${columnWins}${inProgress ? " 途中" : ""} 編集`
@@ -84,15 +84,15 @@ const MatrixCell = ({
             {summary?.finished ? (
               <span className="block text-sm">{rowWon ? "勝" : "負"}</span>
             ) : (
-              <span className="block text-sm text-warning">途中</span>
+              <span className="text-warning block text-sm">途中</span>
             )}
           </span>
         ) : (
           <span className="flex flex-col items-center justify-center gap-1">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xl leading-none text-primary transition-colors group-hover:bg-primary group-hover:text-white">
+            <span className="bg-primary/10 text-primary group-hover:bg-primary flex h-8 w-8 items-center justify-center rounded-full text-xl leading-none transition-colors group-hover:text-white">
               ＋
             </span>
-            <span className="text-xs whitespace-nowrap leading-none text-sub">対戦</span>
+            <span className="text-sub text-xs leading-none whitespace-nowrap">対戦</span>
           </span>
         )}
       </button>
@@ -128,15 +128,15 @@ export const SinglesMatrix = ({ tournamentId }: { tournamentId: string }) => {
         <>
           <div className="overflow-x-auto">
             <div ref={ref} className="inline-block min-w-full space-y-2 bg-white p-3 align-top">
-              <div className="border-b-2 border-line pb-2">
+              <div className="border-line border-b-2 pb-2">
                 <div className="text-xl font-extrabold">{tournament.name}</div>
-                <div className="text-sm text-sub">{tournament.date}</div>
+                <div className="text-sub text-sm">{tournament.date}</div>
               </div>
-              <table className="matrix w-full border-separate border-spacing-0 rounded-2xl border-2 border-line">
+              <table className="matrix border-line w-full border-separate border-spacing-0 rounded-2xl border-2">
                 <thead>
                   <tr>
                     <th
-                      className="sticky left-0 z-10 min-w-cell rounded-tl-2xl border-b-2 border-r-2 border-line bg-white p-2"
+                      className="min-w-cell border-line sticky left-0 z-10 rounded-tl-2xl border-r-2 border-b-2 bg-white p-2"
                       aria-label="対戦表の行列ヘッダー"
                     ></th>
                     {players.map((player, colIndex) => {
@@ -144,7 +144,7 @@ export const SinglesMatrix = ({ tournamentId }: { tournamentId: string }) => {
                       return (
                         <th
                           key={player.id}
-                          className={`min-w-cell whitespace-nowrap border-b-2 border-line p-2 text-base font-bold ${
+                          className={`min-w-cell border-line border-b-2 p-2 text-base font-bold whitespace-nowrap ${
                             isLast ? "rounded-tr-2xl" : "border-r-2"
                           }`}
                         >
@@ -161,7 +161,7 @@ export const SinglesMatrix = ({ tournamentId }: { tournamentId: string }) => {
                       <tr key={row.id}>
                         <th
                           scope="row"
-                          className={`sticky left-0 z-10 whitespace-nowrap border-r-2 border-line bg-white p-2 text-left text-base font-bold ${
+                          className={`border-line sticky left-0 z-10 border-r-2 bg-white p-2 text-left text-base font-bold whitespace-nowrap ${
                             isLastRow ? "rounded-bl-2xl" : "border-b-2"
                           }`}
                         >

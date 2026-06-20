@@ -52,7 +52,7 @@ export const Variants: Story = {
 export const OnPrimaryBar: Story = {
   parameters: { backgrounds: { default: "primary" } },
   render: (args) => (
-    <div className="flex flex-wrap gap-3 rounded-xl bg-primary p-4">
+    <div className="bg-primary flex flex-wrap gap-3 rounded-xl p-4">
       <Button {...args} variant="white">
         White
       </Button>

@@ -64,13 +64,13 @@ export const ScoreInputView = ({
       />
 
       <div className="flex min-w-[140px] flex-col items-center justify-center border-x border-white/20 px-1 sm:px-2">
-        <div className="mt-2 text-[clamp(3rem,12vw,9rem)] font-extrabold tabular-nums leading-none">
+        <div className="mt-2 text-[clamp(3rem,12vw,9rem)] leading-none font-extrabold tabular-nums">
           <span className={matchWinner === SIDE.LEFT ? "text-green-500" : ""}>{leftWins}</span>
           <span className="mx-1 text-white/40">-</span>
           <span className={matchWinner === SIDE.RIGHT ? "text-green-500" : ""}>{rightWins}</span>
         </div>
         {locked && (
-          <div className="text-xs mt-3 font-extrabold text-amber-300 sm:text-sm">入力不可</div>
+          <div className="mt-3 text-xs font-extrabold text-amber-300 sm:text-sm">入力不可</div>
         )}
         <button
           type="button"

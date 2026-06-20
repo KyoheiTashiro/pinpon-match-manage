@@ -13,7 +13,7 @@ export const Tabs = <T extends string | number>({
   options,
   onChange,
 }: Props<T>) => (
-  <div className="flex border-b-2 border-line" role="tablist" aria-label={ariaLabel}>
+  <div className="border-line flex border-b-2" role="tablist" aria-label={ariaLabel}>
     {options.map((option) => (
       <button
         key={String(option.value)}
@@ -23,7 +23,7 @@ export const Tabs = <T extends string | number>({
         className={`min-h-btn flex-1 rounded-t-2xl border-b-4 text-lg font-bold transition-colors ${
           value === option.value
             ? "border-primary bg-primary/10 text-primary"
-            : "border-transparent bg-white text-ink"
+            : "text-ink border-transparent bg-white"
         }`}
       >
         {option.label}

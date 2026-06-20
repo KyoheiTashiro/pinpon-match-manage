@@ -11,7 +11,7 @@ export const MatchResultsTable = ({ matchResults, bestOf }: Props) => {
     return (
       <div className="space-y-2 pt-2">
         <div className="text-base font-extrabold">対戦結果</div>
-        <div className="rounded-2xl border-2 border-line p-4 text-center text-base text-sub">
+        <div className="border-line text-sub rounded-2xl border-2 p-4 text-center text-base">
           データがありません
         </div>
       </div>
@@ -20,22 +20,22 @@ export const MatchResultsTable = ({ matchResults, bestOf }: Props) => {
   return (
     <div className="space-y-2 pt-2">
       <div className="text-base font-extrabold">対戦結果</div>
-      <div className="overflow-hidden rounded-2xl border-2 border-line">
+      <div className="border-line overflow-hidden rounded-2xl border-2">
         <table className="w-full border-collapse">
           <thead>
             <tr className="bg-bg">
-              <th className="whitespace-nowrap border-b-2 border-r-2 border-line p-2 text-left text-base">
+              <th className="border-line border-r-2 border-b-2 p-2 text-left text-base whitespace-nowrap">
                 対戦
               </th>
               {Array.from({ length: bestOf }, (_, index) => (
                 <th
                   key={index}
-                  className="whitespace-nowrap border-b-2 border-r-2 border-line p-2 text-base"
+                  className="border-line border-r-2 border-b-2 p-2 text-base whitespace-nowrap"
                 >
                   G{index + 1}
                 </th>
               ))}
-              <th className="whitespace-nowrap border-b-2 border-line p-2 text-base">セット</th>
+              <th className="border-line border-b-2 p-2 text-base whitespace-nowrap">セット</th>
             </tr>
           </thead>
           <tbody>
@@ -43,7 +43,7 @@ export const MatchResultsTable = ({ matchResults, bestOf }: Props) => {
               const rowBorder = rowIndex < matchResults.length - 1 ? "border-b-2" : "";
               return (
                 <tr key={match.id}>
-                  <td className={`border-r-2 border-line p-2 text-base ${rowBorder}`}>
+                  <td className={`border-line border-r-2 p-2 text-base ${rowBorder}`}>
                     <span className={match.winner === SIDE.LEFT ? "font-extrabold" : "text-sub"}>
                       {match.leftName}
                     </span>
@@ -58,7 +58,7 @@ export const MatchResultsTable = ({ matchResults, bestOf }: Props) => {
                       return (
                         <td
                           key={gameIndex}
-                          className={`border-r-2 border-line p-2 text-center text-base text-sub ${rowBorder}`}
+                          className={`border-line text-sub border-r-2 p-2 text-center text-base ${rowBorder}`}
                         >
                           -
                         </td>
@@ -67,7 +67,7 @@ export const MatchResultsTable = ({ matchResults, bestOf }: Props) => {
                     return (
                       <td
                         key={gameIndex}
-                        className={`whitespace-nowrap border-r-2 border-line p-2 text-center text-base ${rowBorder}`}
+                        className={`border-line border-r-2 p-2 text-center text-base whitespace-nowrap ${rowBorder}`}
                       >
                         <span className={game.leftScore > game.rightScore ? "font-extrabold" : ""}>
                           {game.leftScore}
@@ -80,7 +80,7 @@ export const MatchResultsTable = ({ matchResults, bestOf }: Props) => {
                     );
                   })}
                   <td
-                    className={`whitespace-nowrap border-line p-2 text-center text-base font-bold ${rowBorder}`}
+                    className={`border-line p-2 text-center text-base font-bold whitespace-nowrap ${rowBorder}`}
                   >
                     {match.leftWins}-{match.rightWins}
                   </td>

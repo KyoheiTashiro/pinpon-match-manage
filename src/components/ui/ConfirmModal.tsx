@@ -47,7 +47,7 @@ export const ConfirmModal = ({
       onClick={(event) => {
         if (event.target === dialogRef.current) onCancel();
       }}
-      className="m-auto w-full max-w-md rounded-2xl border-4 border-line bg-white text-ink backdrop:bg-black/40"
+      className="border-line text-ink m-auto w-full max-w-md rounded-2xl border-4 bg-white backdrop:bg-black/40"
     >
       <div className="p-6">
         <h2 id={titleId} className="mb-4 text-xl font-extrabold">

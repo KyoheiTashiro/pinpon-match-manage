@@ -13,7 +13,7 @@ type Props = {
 };
 
 export const CreateTournament = ({ form, submit, onCancel }: Props) => (
-  <form onSubmit={submit} className="space-y-4 rounded-2xl border-4 border-primary p-4">
+  <form onSubmit={submit} className="border-primary space-y-4 rounded-2xl border-4 p-4">
     <h2 className="text-xl font-extrabold">新しい大会</h2>
     <label className="flex flex-col gap-1">
       <span className="font-bold">大会名</span>
@@ -21,10 +21,10 @@ export const CreateTournament = ({ form, submit, onCancel }: Props) => (
         {...form.register("name")}
         placeholder="例: 春の大会"
         aria-label="大会名"
-        className="min-h-input rounded-xl border-2 border-line px-3 text-lg"
+        className="min-h-input border-line rounded-xl border-2 px-3 text-lg"
       />
       {form.formState.errors.name && (
-        <span className="text-sm text-danger">{form.formState.errors.name.message}</span>
+        <span className="text-danger text-sm">{form.formState.errors.name.message}</span>
       )}
     </label>
     <Controller
@@ -64,12 +64,12 @@ export const CreateTournament = ({ form, submit, onCancel }: Props) => (
           type="date"
           aria-label="開催日"
           onClick={(e) => e.currentTarget.showPicker?.()}
-          className="min-h-input w-full appearance-none rounded-xl border-2 border-line bg-white pl-3 pr-12 text-lg [&::-webkit-calendar-picker-indicator]:opacity-0"
+          className="min-h-input border-line w-full appearance-none rounded-xl border-2 bg-white pr-12 pl-3 text-lg [&::-webkit-calendar-picker-indicator]:opacity-0"
         />
-        <CalendarIcon className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-2xl text-line" />
+        <CalendarIcon className="text-line pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-2xl" />
       </div>
       {form.formState.errors.date && (
-        <span className="text-sm text-danger">{form.formState.errors.date.message}</span>
+        <span className="text-danger text-sm">{form.formState.errors.date.message}</span>
       )}
     </label>
     <div className="flex flex-wrap justify-end gap-3">

@@ -125,7 +125,7 @@ export const Select = <T extends string | number>({
   return (
     <div className="flex items-center gap-2">
       {label && (
-        <span id={labelId} className="shrink-0 text-sm font-bold text-ink">
+        <span id={labelId} className="text-ink shrink-0 text-sm font-bold">
           {label}
         </span>
       )}
@@ -141,7 +141,7 @@ export const Select = <T extends string | number>({
           id={triggerId}
           onClick={() => (isOpen ? close() : open())}
           onKeyDown={handleTriggerKeyDown}
-          className="flex min-h-btn w-full items-center justify-between gap-2 rounded-xl border-2 border-line bg-white px-3 text-left text-base font-bold text-ink disabled:opacity-50"
+          className="min-h-btn border-line text-ink flex w-full items-center justify-between gap-2 rounded-xl border-2 bg-white px-3 text-left text-base font-bold disabled:opacity-50"
         >
           <span className="truncate">{selectedOption ? selectedOption.label : placeholder}</span>
           <ChevronDownIcon
@@ -162,7 +162,7 @@ export const Select = <T extends string | number>({
             }
             tabIndex={-1}
             onKeyDown={handleListKeyDown}
-            className="absolute left-0 right-0 top-full z-50 mt-1 max-h-64 overflow-y-auto rounded-xl border-2 border-line bg-white shadow"
+            className="border-line absolute top-full right-0 left-0 z-50 mt-1 max-h-64 overflow-y-auto rounded-xl border-2 bg-white shadow"
           >
             {options.map((option, index) => {
               const isSelected = option.value === value;

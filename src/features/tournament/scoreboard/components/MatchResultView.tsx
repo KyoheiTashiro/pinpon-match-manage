@@ -30,14 +30,14 @@ export const MatchResultView = ({
       <div className="grid w-full max-w-6xl grid-cols-3 items-center gap-x-6 gap-y-4 sm:gap-x-10">
         <div className="flex flex-col items-center gap-4">
           <div
-            className={`text-[clamp(4rem,12vw,12rem)] font-extrabold tabular-nums leading-none ${
+            className={`text-[clamp(4rem,12vw,12rem)] leading-none font-extrabold tabular-nums ${
               matchWinner === SIDE.LEFT ? "text-green-500" : ""
             }`}
           >
             {leftWins}
           </div>
           <div
-            className={`break-words text-center text-[clamp(2rem,5vw,5rem)] font-extrabold ${
+            className={`text-center text-[clamp(2rem,5vw,5rem)] font-extrabold break-words ${
               matchWinner === SIDE.LEFT ? "text-green-500" : ""
             }`}
           >
@@ -59,14 +59,14 @@ export const MatchResultView = ({
         </div>
         <div className="flex flex-col items-center gap-4">
           <div
-            className={`text-[clamp(4rem,12vw,12rem)] font-extrabold tabular-nums leading-none ${
+            className={`text-[clamp(4rem,12vw,12rem)] leading-none font-extrabold tabular-nums ${
               matchWinner === SIDE.RIGHT ? "text-green-500" : ""
             }`}
           >
             {rightWins}
           </div>
           <div
-            className={`break-words text-center text-[clamp(2rem,5vw,5rem)] font-extrabold ${
+            className={`text-center text-[clamp(2rem,5vw,5rem)] font-extrabold break-words ${
               matchWinner === SIDE.RIGHT ? "text-green-500" : ""
             }`}
           >

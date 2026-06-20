@@ -30,10 +30,10 @@ export class ErrorBoundary extends React.Component<Props, State> {
     }
 
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-bg p-6">
+      <div className="bg-bg flex min-h-screen flex-col items-center justify-center gap-6 p-6">
         <div className="flex flex-col items-center gap-2 text-center">
-          <p className="text-2xl font-bold text-ink">問題が発生しました</p>
-          <p className="text-sm text-ink/60">
+          <p className="text-ink text-2xl font-bold">問題が発生しました</p>
+          <p className="text-ink/60 text-sm">
             予期しないエラーが発生しました。再読み込みするか、ホームに戻ってください。
           </p>
         </div>

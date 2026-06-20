@@ -39,22 +39,22 @@ const ParticipantsView = ({ tournamentId }: { tournamentId: string }) => {
           {...addForm.register("name")}
           placeholder="名前"
           aria-label="参加者名"
-          className="min-h-input min-w-[200px] flex-1 rounded-xl border-2 border-line px-3 text-lg"
+          className="min-h-input border-line min-w-[200px] flex-1 rounded-xl border-2 px-3 text-lg"
         />
         <Button type="submit" disabled={!addForm.formState.isValid}>
           追加
         </Button>
         {addForm.formState.errors.name && (
-          <span className="basis-full text-sm text-danger">
+          <span className="text-danger basis-full text-sm">
             {addForm.formState.errors.name.message}
           </span>
         )}
       </form>
 
       {list.length === 0 ? (
-        <p className="py-6 text-base text-sub">まだ参加者がいません。</p>
+        <p className="text-sub py-6 text-base">まだ参加者がいません。</p>
       ) : (
-        <ul className="divide-y-2 divide-line overflow-hidden rounded-2xl border-2 border-line">
+        <ul className="divide-line border-line divide-y-2 overflow-hidden rounded-2xl border-2">
           {list.map((participant) => (
             <li key={participant.id} className="flex items-center gap-2 p-3">
               {editingId === participant.id ? (
@@ -67,7 +67,7 @@ const ParticipantsView = ({ tournamentId }: { tournamentId: string }) => {
                   <input
                     {...editForm.register("name")}
                     aria-label="参加者名を編集"
-                    className="min-h-input min-w-0 basis-full rounded-xl border-2 border-line px-3 text-lg sm:flex-1 sm:basis-0"
+                    className="min-h-input border-line min-w-0 basis-full rounded-xl border-2 px-3 text-lg sm:flex-1 sm:basis-0"
                   />
                   <Button
                     type="submit"
@@ -81,7 +81,7 @@ const ParticipantsView = ({ tournamentId }: { tournamentId: string }) => {
                     やめる
                   </Button>
                   {editForm.formState.errors.name && (
-                    <span className="basis-full text-sm text-danger">
+                    <span className="text-danger basis-full text-sm">
                       {editForm.formState.errors.name.message}
                     </span>
                   )}

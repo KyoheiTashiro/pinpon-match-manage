@@ -12,20 +12,20 @@ type Props = {
 export const AllMatchesCapture = ({ captureRef, name, date, graphMatches }: Props) => (
   <div
     aria-hidden
-    className="pointer-events-none absolute -left-[99999px] top-0 h-0 overflow-hidden"
+    className="pointer-events-none absolute top-0 -left-[99999px] h-0 overflow-hidden"
   >
     <div ref={captureRef} className="space-y-2 bg-white p-3">
       {/* 大会名・日付ヘッダ */}
-      <div className="border-b-2 border-line pb-2">
+      <div className="border-line border-b-2 pb-2">
         <div className="text-xl font-extrabold">{name}</div>
-        <div className="text-sm text-sub">{date}</div>
+        <div className="text-sub text-sm">{date}</div>
       </div>
       {/* 全対戦を縦積み（対戦ごとに区切り線） */}
       <div>
         {graphMatches.map((match) => (
           <div
             key={match.id}
-            className="mt-6 border-t-2 border-line pt-6 first:mt-0 first:border-t-0 first:pt-0"
+            className="border-line mt-6 border-t-2 pt-6 first:mt-0 first:border-t-0 first:pt-0"
           >
             <MatchScoreChart match={match} />
           </div>
