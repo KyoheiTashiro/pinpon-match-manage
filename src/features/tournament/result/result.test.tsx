@@ -129,8 +129,8 @@ describe("ResultTab", () => {
       expect(screen.getByText("参加者を選択")).toBeInTheDocument();
     });
 
-    // MatchScoreChart の「ゲーム 1」が見える（テキストノードが分割されるため getAllByText で確認）
-    expect(screen.getAllByText(/ゲーム\s*1/u).length).toBeGreaterThanOrEqual(1);
+    // MatchScoreChart の「G1」が見える（テキストノードが分割されるため getAllByText で確認）
+    expect(screen.getAllByText(/G\s*1/u).length).toBeGreaterThanOrEqual(1);
   });
 
   it("graphMatches なし → 「対戦結果がありません。」", async () => {
@@ -279,9 +279,9 @@ describe("ResultTab", () => {
 
     await user.click(screen.getByRole("tab", { name: "グラフ" }));
 
-    // selectedMatch は null でない → MatchScoreChart が描画される（「ゲーム 1」が見える）
+    // selectedMatch は null でない → MatchScoreChart が描画される（「G1」が見える）
     await waitFor(() => {
-      expect(screen.getAllByText(/ゲーム\s*1/u).length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText(/G\s*1/u).length).toBeGreaterThanOrEqual(1);
     });
   });
 });

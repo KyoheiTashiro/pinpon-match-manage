@@ -63,24 +63,24 @@ describe("MatchResultsTable", () => {
     expect(screen.getByText("5")).toBeInTheDocument();
   });
 
-  it("winner=LEFT → leftName が font-extrabold クラスを持つ", () => {
+  it("winner=LEFT → leftName は text-sub を持たず、rightName が text-sub", () => {
     const games = [makeGame({ leftScore: 11, rightScore: 5 })];
     const matchResults = [
       makeMatchResult({ winner: SIDE.LEFT, leftName: "選手A", rightName: "選手B", games }),
     ];
     render(<MatchResultsTable matchResults={matchResults} bestOf={5} />);
-    const leftNameEl = screen.getByText("選手A");
-    expect(leftNameEl.className).toMatch(/font-extrabold/u);
+    expect(screen.getByText("選手A").className).not.toMatch(/text-sub/u);
+    expect(screen.getByText("選手B").className).toMatch(/text-sub/u);
   });
 
-  it("winner=RIGHT → rightName が font-extrabold クラスを持つ", () => {
+  it("winner=RIGHT → rightName は text-sub を持たず、leftName が text-sub", () => {
     const games = [makeGame({ leftScore: 5, rightScore: 11 })];
     const matchResults = [
       makeMatchResult({ winner: SIDE.RIGHT, leftName: "選手A", rightName: "選手B", games }),
     ];
     render(<MatchResultsTable matchResults={matchResults} bestOf={5} />);
-    const rightNameEl = screen.getByText("選手B");
-    expect(rightNameEl.className).toMatch(/font-extrabold/u);
+    expect(screen.getByText("選手B").className).not.toMatch(/text-sub/u);
+    expect(screen.getByText("選手A").className).toMatch(/text-sub/u);
   });
 
   it("セット数セルに leftWins-rightWins が表示される", () => {

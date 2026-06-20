@@ -34,12 +34,12 @@ describe("MatchScoreChart", () => {
     expect(screen.getByText("得点記録なし")).toBeInTheDocument();
   });
 
-  it("pointLog あり → 「ゲーム 1」見出しが表示される", () => {
+  it("pointLog あり → 「G1」見出しが表示される", () => {
     const match = makeMatchResultRow({
       games: [gameFromLog(["L", "R", "L", "L", "R"])],
     });
     render(<MatchScoreChart match={match} selfSide="L" />);
-    expect(screen.getByText("ゲーム 1")).toBeInTheDocument();
+    expect(screen.getByText("G1")).toBeInTheDocument();
   });
 
   it("pointLog あり → 左右選手名が表示される", () => {
@@ -78,20 +78,20 @@ describe("MatchScoreChart", () => {
     expect(circles.length).toBeGreaterThanOrEqual(8);
   });
 
-  it("複数ゲーム → 「ゲーム 1」「ゲーム 2」両方が表示される", () => {
+  it("複数ゲーム → 「G1」「G2」両方が表示される", () => {
     const match = makeMatchResultRow({
       games: [gameFromLog(["L", "R", "L", "L", "R"]), gameFromLog(["R", "L", "R", "R", "L"])],
     });
     render(<MatchScoreChart match={match} selfSide="L" />);
-    expect(screen.getByText("ゲーム 1")).toBeInTheDocument();
-    expect(screen.getByText("ゲーム 2")).toBeInTheDocument();
+    expect(screen.getByText("G1")).toBeInTheDocument();
+    expect(screen.getByText("G2")).toBeInTheDocument();
   });
 
   // -----------------------------------------------------------------------
   // 追加テスト
   // -----------------------------------------------------------------------
 
-  it("winner===LEFT → leftName が font-extrabold、rightName が text-sub", () => {
+  it("winner===LEFT → leftName が強調(text-sub なし)、rightName が text-sub", () => {
     const match = makeMatchResultRow({
       leftName: "選手A",
       rightName: "選手B",
@@ -99,15 +99,14 @@ describe("MatchScoreChart", () => {
       games: [gameFromLog(["L", "R", "L", "L", "R", "R", "L", "L", "L", "L", "L"])],
     });
     const { container } = render(<MatchScoreChart match={match} selfSide="L" />);
-    // ヘッダの div.mb-1 内の span 要素を確認
+    // ヘッダの名前 span (.text-xl) は selfName, oppName, スコア の順
     const header = container.querySelector(".mb-1");
-    const spans = header?.querySelectorAll("span");
-    // spans[0]=leftName, spans[1]=" vs ", spans[2]=rightName
-    expect(spans?.[0]?.className).toMatch(/font-extrabold/u);
-    expect(spans?.[2]?.className).toMatch(/text-sub/u);
+    const nameSpans = header?.querySelectorAll("span.text-xl");
+    expect(nameSpans?.[0]?.className).not.toMatch(/text-sub/u);
+    expect(nameSpans?.[1]?.className).toMatch(/text-sub/u);
   });
 
-  it("winner===RIGHT → rightName が font-extrabold", () => {
+  it("winner===RIGHT → rightName が強調(text-sub なし)、leftName が text-sub", () => {
     const match = makeMatchResultRow({
       leftName: "選手A",
       rightName: "選手B",
@@ -116,9 +115,9 @@ describe("MatchScoreChart", () => {
     });
     const { container } = render(<MatchScoreChart match={match} selfSide="L" />);
     const header = container.querySelector(".mb-1");
-    const spans = header?.querySelectorAll("span");
-    expect(spans?.[2]?.className).toMatch(/font-extrabold/u);
-    expect(spans?.[0]?.className).toMatch(/text-sub/u);
+    const nameSpans = header?.querySelectorAll("span.text-xl");
+    expect(nameSpans?.[1]?.className).not.toMatch(/text-sub/u);
+    expect(nameSpans?.[0]?.className).toMatch(/text-sub/u);
   });
 
   it("デュースゲーム(10-10→12-10) → ラリー列数が pointLog の長さと一致する", () => {
@@ -147,7 +146,7 @@ describe("MatchScoreChart", () => {
     });
     const { container } = render(<MatchScoreChart match={match} selfSide="L" />);
     // G2が描画されること
-    expect(screen.getByText("ゲーム 2")).toBeInTheDocument();
+    expect(screen.getByText("G2")).toBeInTheDocument();
     // サーブ権インジケータ (bg-orange-500) が存在すること
     const indicators = container.querySelectorAll(".bg-orange-500");
     expect(indicators.length).toBeGreaterThanOrEqual(1);

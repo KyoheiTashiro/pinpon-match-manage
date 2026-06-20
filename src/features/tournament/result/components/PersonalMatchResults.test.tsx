@@ -35,44 +35,33 @@ describe("PersonalMatchResults", () => {
     expect(screen.getByText("1")).toBeInTheDocument();
   });
 
-  it("result=win → selfName が font-extrabold、opponentName が text-sub", () => {
+  it("result=win → selfName は強調(text-sub なし)、opponentName が text-sub", () => {
     render(<PersonalMatchResults matches={[makeRow({ result: "win" })]} />);
-    // ヘッダ部とスコアボード名前セルの両方に同名が出る可能性があるのでAllByTextで
-    const selfEls = screen.getAllByText("選手A");
-    expect(selfEls.some((el) => el.className.includes("font-extrabold"))).toBe(true);
-    const oppEls = screen.getAllByText("選手B");
-    expect(oppEls.some((el) => el.className.includes("text-sub"))).toBe(true);
+    expect(screen.getByText("選手A").className).not.toMatch(/text-sub/u);
+    expect(screen.getByText("選手B").className).toMatch(/text-sub/u);
   });
 
-  it("result=lose → opponentName が font-extrabold", () => {
+  it("result=lose → opponentName は強調(text-sub なし)、selfName が text-sub", () => {
     render(<PersonalMatchResults matches={[makeRow({ result: "lose" })]} />);
-    const oppEls = screen.getAllByText("選手B");
-    expect(oppEls.some((el) => el.className.includes("font-extrabold"))).toBe(true);
-    const selfEls = screen.getAllByText("選手A");
-    expect(selfEls.some((el) => el.className.includes("text-sub"))).toBe(true);
+    expect(screen.getByText("選手B").className).not.toMatch(/text-sub/u);
+    expect(screen.getByText("選手A").className).toMatch(/text-sub/u);
   });
 
-  it("自分が勝ったゲームのselfScoreがfont-extrabold", () => {
+  it("自分が勝ったゲームのselfScoreが text-success", () => {
     const matches = [makeRow({ games: [{ selfScore: 11, oppScore: 9 }], selfWins: 1, oppWins: 0 })];
     render(<PersonalMatchResults matches={matches} />);
-    const eleven = screen.getByText("11");
-    expect(eleven.className).toMatch(/font-extrabold/u);
+    expect(screen.getByText("11").className).toMatch(/text-success/u);
     // oppScoreの9は通常表示
-    expect(screen.getByText("9").className).not.toMatch(/font-extrabold/u);
+    expect(screen.getByText("9").className).not.toMatch(/text-success/u);
   });
 
-  it("games が bestOf より少ない → 未入力セルは '-'", () => {
+  it("games の数だけスコア行を表示する（未入力パディングなし）", () => {
     const matches = [makeRow({ games: [{ selfScore: 11, oppScore: 5 }] })];
     render(<PersonalMatchResults matches={matches} />);
-    // bestOf=5, games=1 → 未入力4ゲーム × 自分行+相手行 = 8つ "-"
-    expect(screen.getAllByText("-").length).toBeGreaterThanOrEqual(4);
-  });
-
-  it("bestOf=3 → G1〜G3 のみ、G4 は無い", () => {
-    render(<PersonalMatchResults matches={[makeRow()]} />);
-    expect(screen.getByText("G1")).toBeInTheDocument();
-    expect(screen.getByText("G3")).toBeInTheDocument();
-    expect(screen.queryByText("G4")).not.toBeInTheDocument();
+    expect(screen.getByText("11")).toBeInTheDocument();
+    expect(screen.getByText("5")).toBeInTheDocument();
+    // 区切りダッシュは入力済み1ゲーム分のみ
+    expect(screen.getAllByText("-").length).toBe(1);
   });
 
   it("複数対戦をブロックとして並べる", () => {
