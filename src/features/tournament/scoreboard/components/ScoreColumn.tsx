@@ -1,6 +1,9 @@
 /** スコア入力の上限値。 */
 const MAX_SCORE = 50;
 
+/** この点以降スコアを常時黄色表示する閾値。 */
+const ALWAYS_HIGHLIGHT_SCORE = 10;
+
 type Props = {
   name: string;
   score: number;
@@ -29,7 +32,11 @@ export const ScoreColumn = ({
   onSub,
 }: Props) => {
   const highlight = isGameWinner || isMatchWinner;
-  const scoreColor = highlight ? "text-green-500" : isMatchPoint ? "text-yellow-400" : "text-white";
+  const scoreColor = highlight
+    ? "text-green-500"
+    : isMatchPoint || score >= ALWAYS_HIGHLIGHT_SCORE
+      ? "text-yellow-400"
+      : "text-white";
 
   return (
     <div
