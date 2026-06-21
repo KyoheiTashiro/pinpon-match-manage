@@ -20,8 +20,8 @@ export const PersonalMatchResults = ({ matches }: Props) => {
     );
   }
   return (
-    <div className="space-y-2 pt-2">
-      <div className="text-xl font-extrabold">{title}</div>
+    <div className="-mx-3 space-y-2 pt-2">
+      <div className="px-2 text-xl font-extrabold">{title}</div>
       <div className="space-y-3">
         {matches.map((match) => (
           <div key={match.id} className="border-line overflow-hidden rounded-2xl border-2 py-4">
@@ -36,7 +36,7 @@ export const PersonalMatchResults = ({ matches }: Props) => {
                   )}
                 </div>
                 <span
-                  className={`max-w-24 text-center text-lg break-words ${match.result === MATCH_RESULT.WIN ? "" : "text-sub"}`}
+                  className={`w-full text-center text-lg break-words ${match.result === MATCH_RESULT.WIN ? "" : "text-sub"}`}
                 >
                   {match.selfName}
                 </span>
@@ -79,7 +79,7 @@ export const PersonalMatchResults = ({ matches }: Props) => {
                   )}
                 </div>
                 <span
-                  className={`max-w-24 text-center text-lg break-words ${match.result === MATCH_RESULT.LOSE ? "" : "text-sub"}`}
+                  className={`w-full text-center text-lg break-words ${match.result === MATCH_RESULT.LOSE ? "" : "text-sub"}`}
                 >
                   {match.opponentName}
                 </span>
