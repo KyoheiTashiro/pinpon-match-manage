@@ -1,10 +1,10 @@
 import { DownloadIcon } from "@/components/icons";
 import { Button, Select } from "@/components/ui";
 import { matchSummary, SIDE } from "@/domain/match";
-import { MatchModal } from "@/features/tournament/matrix/components/MatchModal";
-import { useDoublesMatrix, MIN_PLAYERS_DOUBLES } from "@/features/tournament/matrix/doubles/hooks";
-import type { DoublesPairForm } from "@/features/tournament/matrix/doubles/schema";
-import { sideName } from "@/features/tournament/matrix/hooks";
+import { MatchModal } from "@/features/tournament/matches/components/MatchModal";
+import { useDoubles, MIN_PLAYERS_DOUBLES } from "@/features/tournament/matches/doubles/hooks";
+import type { DoublesPairForm } from "@/features/tournament/matches/doubles/schema";
+import { sideName } from "@/features/tournament/matches/hooks";
 import { Controller } from "react-hook-form";
 
 type FieldName = keyof DoublesPairForm;
@@ -13,7 +13,7 @@ const FIELD_LABELS: Record<FieldName, string> = { l1: "左1", l2: "左2", r1: "�
 const LEFT_FIELDS: FieldName[] = ["l1", "l2"];
 const RIGHT_FIELDS: FieldName[] = ["r1", "r2"];
 
-export const DoublesMatrix = ({ tournamentId }: { tournamentId: string }) => {
+export const DoublesList = ({ tournamentId }: { tournamentId: string }) => {
   const {
     tournament,
     participants,
@@ -28,7 +28,7 @@ export const DoublesMatrix = ({ tournamentId }: { tournamentId: string }) => {
     ref,
     saving,
     save,
-  } = useDoublesMatrix(tournamentId);
+  } = useDoubles(tournamentId);
   const values = pairForm.watch();
 
   if (!tournament) return null;

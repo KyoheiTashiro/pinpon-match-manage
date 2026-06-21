@@ -1,4 +1,4 @@
-import { MatchModal } from "@/features/tournament/matrix/components/MatchModal";
+import { MatchModal } from "@/features/tournament/matches/components/MatchModal";
 import type { Participant } from "@/store/types";
 import { useAppStore } from "@/store/useAppStore";
 import { makeTournament, makeParticipant, makeMatch } from "@/test/factories";

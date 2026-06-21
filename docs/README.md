@@ -35,7 +35,7 @@
 
 - [features/home.md](features/home.md) — 大会一覧・新規作成
 - [features/participants.md](features/participants.md) — 参加者管理
-- [features/matrix.md](features/matrix.md) — マトリクス表・試合詳細・スコアボード
+- [features/matches.md](features/matches.md) — 対戦表・試合詳細・スコアボード
 - [features/ranking.md](features/ranking.md) — 結果タブ（順位表・点数表）
 - [features/result-graph.md](features/result-graph.md) — 点数進行グラフ
 - [features/settings.md](features/settings.md) — 大会設定・リセット
@@ -48,7 +48,7 @@
 
 - 大会管理（作成/切替/削除/全リセット） → [features/home.md](features/home.md)、[features/settings.md](features/settings.md)
 - 参加者管理 → [features/participants.md](features/participants.md)
-- 組合せ生成・試合詳細・マトリクス・スコアボード → [features/matrix.md](features/matrix.md)
+- 組合せ生成・試合詳細・対戦表・スコアボード → [features/matches.md](features/matches.md)
 - 点数進行グラフ（結果画面） → [features/result-graph.md](features/result-graph.md)
 - 順位表 → [features/ranking.md](features/ranking.md)
 - リセット → [features/settings.md](features/settings.md)
@@ -69,16 +69,16 @@
 
 ## 画面一覧
 
-| #   | ルート                 | 画面                                                         |
-| --- | ---------------------- | ------------------------------------------------------------ |
-| 1   | `/#/`                  | [大会一覧・新規作成](features/home.md)                       |
-| 2   | `/#/tournaments/:id`   | 大会ダッシュボード（タブ切替）                               |
-| 2-a | タブ: 参加者           | [参加者管理](features/participants.md)                       |
-| 2-b | タブ: 対戦表           | [マトリクス表](features/matrix.md)                           |
-| 2-c | タブ: 結果（`result`） | [結果タブ — 点数表/グラフ サブタブ2つ](features/ranking.md)  |
-| 2-d | タブ: 設定             | [大会設定・リセット](features/settings.md)                   |
-| 3   | モーダル               | [試合詳細入力](features/matrix.md)                           |
-| 4   | モーダル（ポータル）   | [スコアボード（試合進行中・横向き前提）](features/matrix.md) |
+| #   | ルート                 | 画面                                                          |
+| --- | ---------------------- | ------------------------------------------------------------- |
+| 1   | `/#/`                  | [大会一覧・新規作成](features/home.md)                        |
+| 2   | `/#/tournaments/:id`   | 大会ダッシュボード（タブ切替）                                |
+| 2-a | タブ: 参加者           | [参加者管理](features/participants.md)                        |
+| 2-b | タブ: 対戦表           | [対戦表](features/matches.md)                                 |
+| 2-c | タブ: 結果（`result`） | [結果タブ — 点数表/グラフ サブタブ2つ](features/ranking.md)   |
+| 2-d | タブ: 設定             | [大会設定・リセット](features/settings.md)                    |
+| 3   | モーダル               | [試合詳細入力](features/matches.md)                           |
+| 4   | モーダル（ポータル）   | [スコアボード（試合進行中・横向き前提）](features/matches.md) |
 
 各画面のワイヤーは `features/` 配下参照。
 

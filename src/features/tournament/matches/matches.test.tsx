@@ -1,11 +1,11 @@
-import { MatchMatrixTab } from "@/features/tournament/matrix";
+import { MatchesTab } from "@/features/tournament/matches";
 import { makeTournament, makeParticipant, makeMatch } from "@/test/factories";
 import { renderWithStore, seedStore, setupStoreIsolation } from "@/test/renderWithStore";
 import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, beforeEach, vi } from "vitest";
 
-// SinglesMatrix → MatchModal → ScoreboardScreen で matchMedia が必要
+// SinglesList → MatchModal → ScoreboardScreen で matchMedia が必要
 Object.defineProperty(window, "matchMedia", {
   writable: true,
   value: vi.fn<(query: string) => MediaQueryList>().mockImplementation((query: string) => ({
@@ -21,11 +21,11 @@ Object.defineProperty(window, "matchMedia", {
 });
 
 const ROUTE_OPTIONS = {
-  initialEntries: ["/tournaments/t1/matrix"],
-  routePath: "/tournaments/:tournamentId/matrix",
+  initialEntries: ["/tournaments/t1/matches"],
+  routePath: "/tournaments/:tournamentId/matches",
 };
 
-describe("MatchMatrixTab", () => {
+describe("MatchesTab", () => {
   beforeEach(setupStoreIsolation);
 
   it("参加者 1 人以下 → 案内文表示", () => {
@@ -39,12 +39,12 @@ describe("MatchMatrixTab", () => {
       matches: {},
     });
 
-    renderWithStore(<MatchMatrixTab />, ROUTE_OPTIONS);
+    renderWithStore(<MatchesTab />, ROUTE_OPTIONS);
 
     expect(screen.getByText("参加者を2人以上 登録してください。")).toBeInTheDocument();
   });
 
-  it("2 人以上 → 対戦表テーブル・選手名がヘッダ/行に出る", () => {
+  it("2 人以上 → 全ペアが一覧行に出る", () => {
     seedStore({
       tournaments: {
         t1: makeTournament({
@@ -61,17 +61,10 @@ describe("MatchMatrixTab", () => {
       matches: {},
     });
 
-    renderWithStore(<MatchMatrixTab />, ROUTE_OPTIONS);
+    renderWithStore(<MatchesTab />, ROUTE_OPTIONS);
 
-    // 選手名がテーブルヘッダ・行見出しに出る
-    const playerAElements = screen.getAllByText("選手A");
-    expect(playerAElements.length).toBeGreaterThanOrEqual(1);
-    const playerBElements = screen.getAllByText("選手B");
-    expect(playerBElements.length).toBeGreaterThanOrEqual(1);
-
-    // 対角線セルに "自分" ラベルが2つある
-    const selfCells = screen.getAllByLabelText("自分");
-    expect(selfCells).toHaveLength(2);
+    // N=2 → 1ペアの行が出る（未対戦なので「対戦追加」ボタン）
+    expect(screen.getByRole("button", { name: "選手A 対 選手B 対戦追加" })).toBeInTheDocument();
   });
 
   it("空セルクリック → MatchModal が開く", async () => {
@@ -92,7 +85,7 @@ describe("MatchMatrixTab", () => {
       matches: {},
     });
 
-    renderWithStore(<MatchMatrixTab />, ROUTE_OPTIONS);
+    renderWithStore(<MatchesTab />, ROUTE_OPTIONS);
 
     const addBtn = screen.getByRole("button", { name: "選手A 対 選手B 対戦追加" });
     await user.click(addBtn);
@@ -137,15 +130,14 @@ describe("MatchMatrixTab", () => {
       },
     });
 
-    renderWithStore(<MatchMatrixTab />, ROUTE_OPTIONS);
+    renderWithStore(<MatchesTab />, ROUTE_OPTIONS);
 
-    // 選手A行の対選手B列: 2-0 と "勝" が表示される (match は finished なので "途中" は付かない)
+    // 勝者(選手A)を左・スコア 2-0、「終了」バッジ表示
     expect(screen.getByRole("button", { name: "選手A 対 選手B 2-0 編集" })).toBeInTheDocument();
-    // 選手A から見て 勝 テキスト
-    expect(screen.getByText("勝")).toBeInTheDocument();
+    expect(screen.getByText("終了")).toBeInTheDocument();
   });
 
-  it("format=doubles の tournament では DoublesMatrix (対戦表（ダブルス）) が表示される", () => {
+  it("format=doubles の tournament では DoublesList (対戦表（ダブルス）) が表示される", () => {
     seedStore({
       tournaments: {
         t1: makeTournament({
@@ -164,16 +156,16 @@ describe("MatchMatrixTab", () => {
       matches: {},
     });
 
-    renderWithStore(<MatchMatrixTab />, ROUTE_OPTIONS);
+    renderWithStore(<MatchesTab />, ROUTE_OPTIONS);
 
     expect(screen.getByText("対戦表（ダブルス）")).toBeInTheDocument();
-    // SinglesMatrix の見出しは表示されない
+    // SinglesList の見出しは表示されない
     expect(screen.queryByText("対戦表")).not.toBeInTheDocument();
   });
 
   it("tournamentId なし（routeに含まれない）の場合は null を返す", () => {
     // routePath を指定しないと useParams が tournamentId を解決できない
-    renderWithStore(<MatchMatrixTab />, {
+    renderWithStore(<MatchesTab />, {
       initialEntries: ["/"],
     });
 
@@ -214,7 +206,7 @@ describe("MatchMatrixTab", () => {
       },
     });
 
-    renderWithStore(<MatchMatrixTab />, ROUTE_OPTIONS);
+    renderWithStore(<MatchesTab />, ROUTE_OPTIONS);
 
     // aria-label に "途中" が含まれるセルボタンが存在する
     // ゲームスコアは途中なのでゲーム勝ち数は 0-0、aria-label は "0-0 途中 編集"
@@ -258,7 +250,7 @@ describe("MatchMatrixTab", () => {
       },
     });
 
-    renderWithStore(<MatchMatrixTab />, ROUTE_OPTIONS);
+    renderWithStore(<MatchesTab />, ROUTE_OPTIONS);
 
     // 既存 match セル（編集ボタン）をクリック
     const editBtn = screen.getByRole("button", { name: "選手A 対 選手B 2-0 編集" });
@@ -288,7 +280,7 @@ describe("MatchMatrixTab", () => {
       matches: {},
     });
 
-    renderWithStore(<MatchMatrixTab />, ROUTE_OPTIONS);
+    renderWithStore(<MatchesTab />, ROUTE_OPTIONS);
 
     // 空セルクリックで modal を開く
     await user.click(screen.getByRole("button", { name: "選手A 対 選手B 対戦追加" }));
@@ -304,27 +296,5 @@ describe("MatchMatrixTab", () => {
     await waitFor(() => {
       expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     });
-  });
-
-  it("参加者 2 人以上のとき SaveImageButton(画像で保存) が表示される", () => {
-    seedStore({
-      tournaments: {
-        t1: makeTournament({
-          id: "t1",
-          format: "singles",
-          bestOf: 5,
-          participantIds: ["p1", "p2"],
-        }),
-      },
-      participants: {
-        p1: makeParticipant({ id: "p1", name: "選手A", tournamentId: "t1" }),
-        p2: makeParticipant({ id: "p2", name: "選手B", tournamentId: "t1" }),
-      },
-      matches: {},
-    });
-
-    renderWithStore(<MatchMatrixTab />, ROUTE_OPTIONS);
-
-    expect(screen.getByText("画像で保存")).toBeInTheDocument();
   });
 });

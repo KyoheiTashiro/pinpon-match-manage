@@ -15,7 +15,7 @@ type Tab = {
 
 const tabs: Tab[] = [
   { to: TAB_PATH.PARTICIPANTS, label: "参加者", Icon: UsersIcon },
-  { to: TAB_PATH.MATRIX, label: "対戦表", Icon: PaddleIcon },
+  { to: TAB_PATH.MATCHES, label: "対戦", Icon: PaddleIcon },
   { to: TAB_PATH.RESULT, label: "結果", Icon: TrophyIcon },
   { to: TAB_PATH.SETTINGS, label: "設定", Icon: GearIcon },
 ];

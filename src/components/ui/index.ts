@@ -1,3 +1,4 @@
+export { Badge } from "@/components/ui/Badge";
 export { Button } from "@/components/ui/Button";
 export { Calendar } from "@/components/ui/Calendar";
 export { ConfirmModal } from "@/components/ui/ConfirmModal";

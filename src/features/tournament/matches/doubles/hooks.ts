@@ -3,8 +3,8 @@ import {
   doublesPairSchema,
   type DoublesPairForm,
   doublesPairDefaults,
-} from "@/features/tournament/matrix/doubles/schema";
-import { useMatrix, useMatchModal } from "@/features/tournament/matrix/hooks";
+} from "@/features/tournament/matches/doubles/schema";
+import { useMatches, useMatchModal } from "@/features/tournament/matches/hooks";
 import { SIDE_KIND } from "@/store/types";
 import { useAppStore } from "@/store/useAppStore";
 import { useImageCapture } from "@/utils/imageCapture/useImageCapture";
@@ -14,8 +14,8 @@ import { useForm } from "react-hook-form";
 /** 対戦表を成立させる最小参加人数（ダブルス）。 */
 export const MIN_PLAYERS_DOUBLES = 4;
 
-export const useDoublesMatrix = (tournamentId: string) => {
-  const { tournament, participants, matchList, players } = useMatrix(tournamentId);
+export const useDoubles = (tournamentId: string) => {
+  const { tournament, participants, matchList, players } = useMatches(tournamentId);
   const { openMatchId, openMatch, closeMatch } = useMatchModal();
   const { ref, saving, save } = useImageCapture();
   const addManualMatch = useAppStore((state) => state.addManualMatch);

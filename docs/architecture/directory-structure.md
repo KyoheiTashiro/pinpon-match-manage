@@ -44,7 +44,7 @@ src/
 │       │   ├── index.tsx
 │       │   ├── hooks.ts
 │       │   └── schema.ts           // 参加者名の zod スキーマ
-│       ├── matrix/                 // 対戦表タブ・試合詳細
+│       ├── matches/                 // 対戦表タブ・試合詳細
 │       │   ├── index.tsx           // 形式に応じ Singles/Doubles を出し分け
 │       │   ├── hooks.ts
 │       │   ├── components/
@@ -52,10 +52,10 @@ src/
 │       │   │   ├── MatchModal.tsx         // 試合詳細モーダル（点数加減UIはScoreboardへ）
 │       │   │   └── SaveImageButton.tsx    // 対戦表の画像保存ボタン
 │       │   ├── singles/
-│       │   │   ├── index.tsx       // SinglesMatrix（シングルス対戦表）
+│       │   │   ├── index.tsx       // SinglesList（シングルス対戦表）
 │       │   │   └── hooks.ts
 │       │   └── doubles/
-│       │       ├── index.tsx       // DoublesMatrix（ダブルス対戦表＋試合追加フォーム）
+│       │       ├── index.tsx       // DoublesList（ダブルス対戦表＋試合追加フォーム）
 │       │       ├── hooks.ts
 │       │       └── schema.ts       // ダブルス試合追加フォームの zod スキーマ
 │       ├── scoreboard/             // スコアボード（試合進行中・横向き前提）
@@ -100,7 +100,7 @@ src/
 
 ## 補足
 
-- ルーターは `main.tsx` の `HashRouter`。ルート定義は `App.tsx`（`/` 大会一覧、`/tournaments/:tournamentId` 配下に participants / matrix / result / settings タブ）。
+- ルーターは `main.tsx` の `HashRouter`。ルート定義は `App.tsx`（`/` 大会一覧、`/tournaments/:tournamentId` 配下に participants / matches / result / settings タブ）。
 - `features/tournament/result/` は App.tsx のルート `result`（「結果」タブ）に対応。点数表・グラフのサブタブを内包する。
 - `domain/scoreProgress.ts` は点数進行グラフ用の純粋関数を提供（[features/result-graph.md](../features/result-graph.md) 参照）。
 - `result/components/MatchScoreChart.tsx` は SVG ベースのグラフ本体コンポーネント（結果タブのグラフモードで使用）。レイアウト寸法定数（`COL_WIDTH` / `ROW_HEIGHT` / `CIRCLE_SIZE`）は同ファイル内に定義。

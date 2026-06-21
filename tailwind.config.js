@@ -26,7 +26,7 @@ export default {
         primary: "#1D4ED8",
         success: "#16A34A",
         danger: "#B91C1C",
-        warning: "#B45309",
+        warning: "#FBBF24",
         line: "#475569",
         bg: "#F1F5F9",
         winBg: "#DCFCE7",

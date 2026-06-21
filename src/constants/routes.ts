@@ -8,7 +8,7 @@ export const ROUTE_PARAM = {
 /** 大会内タブのパス(相対)。 */
 export const TAB_PATH = {
   PARTICIPANTS: "participants",
-  MATRIX: "matrix",
+  MATCHES: "matches",
   RESULT: "result",
   SETTINGS: "settings",
 } as const;

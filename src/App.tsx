@@ -1,7 +1,7 @@
 import { ROUTES, TAB_PATH } from "@/constants/routes";
 import { Home } from "@/features/home";
 import { TournamentLayout } from "@/features/tournament/layout";
-import { MatchMatrixTab } from "@/features/tournament/matrix";
+import { MatchesTab } from "@/features/tournament/matches";
 import { ParticipantsTab } from "@/features/tournament/participants";
 import { ResultTab } from "@/features/tournament/result";
 import { SettingsTab } from "@/features/tournament/settings";
@@ -14,7 +14,7 @@ export default function App() {
       <Route path={ROUTES.TOURNAMENT} element={<TournamentLayout />}>
         <Route index element={<Navigate to={TAB_PATH.PARTICIPANTS} replace />} />
         <Route path={TAB_PATH.PARTICIPANTS} element={<ParticipantsTab />} />
-        <Route path={TAB_PATH.MATRIX} element={<MatchMatrixTab />} />
+        <Route path={TAB_PATH.MATCHES} element={<MatchesTab />} />
         <Route path={TAB_PATH.RESULT} element={<ResultTab />} />
         <Route path={TAB_PATH.SETTINGS} element={<SettingsTab />} />
       </Route>

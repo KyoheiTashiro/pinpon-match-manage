@@ -8,8 +8,8 @@ import {
   lockedGameStartIndex,
   firstPlayableGameIndex,
 } from "@/domain/matchGames";
-import { FirstServerSelect } from "@/features/tournament/matrix/components/FirstServerSelect";
-import { sideName } from "@/features/tournament/matrix/hooks";
+import { FirstServerSelect } from "@/features/tournament/matches/components/FirstServerSelect";
+import { sideName } from "@/features/tournament/matches/hooks";
 import { ScoreboardScreen } from "@/features/tournament/scoreboard";
 import type { Participant } from "@/store/types";
 import { useAppStore } from "@/store/useAppStore";

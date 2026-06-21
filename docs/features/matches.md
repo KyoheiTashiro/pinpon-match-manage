@@ -1,12 +1,12 @@
 親: [README.md](../README.md)
 
-ルート: 対戦表タブ (`/#/tournaments/:id/matrix`・HashRouter) + 試合詳細モーダル + スコアボード（ポータル） — 総当たり組合せの表示・試合詳細入力・スコアボードを統合する画面群。
+ルート: 対戦表タブ (`/#/tournaments/:id/matches`・HashRouter) + 試合詳細モーダル + スコアボード（ポータル） — 総当たり組合せの表示・試合詳細入力・スコアボードを統合する画面群。
 
-実装: 対戦表本体は `src/features/tournament/matrix/`（`index.tsx` が形式に応じ `singles/index.tsx` の `SinglesMatrix` / `doubles/index.tsx` の `DoublesMatrix` を出し分け）。試合詳細モーダル・サーブ選択・画像保存ボタンは `matrix/components/`（`MatchModal.tsx` / `FirstServerSelect.tsx` / `SaveImageButton.tsx`）。スコアボードは `src/features/tournament/scoreboard/`。
+実装: 対戦表本体は `src/features/tournament/matches/`（`index.tsx` が形式に応じ `singles/index.tsx` の `SinglesList` / `doubles/index.tsx` の `DoublesList` を出し分け）。試合詳細モーダル・サーブ選択・画像保存ボタンは `matches/components/`（`MatchModal.tsx` / `FirstServerSelect.tsx` / `SaveImageButton.tsx`）。スコアボードは `src/features/tournament/scoreboard/`。
 
-## マトリクス表示
+## 対戦表示
 
-### シングルス (`SinglesMatrix` — `matrix/singles/index.tsx`)
+### シングルス (`SinglesList` — `matches/singles/index.tsx`)
 
 - 縦軸・横軸に参加者名を並べた表形式。参加者が2人未満の場合は「参加者を2人以上 登録してください。」を表示
 - セル内容:
@@ -18,11 +18,11 @@
 - 1列目（行ラベル列）は `sticky left-0` でスクロール時固定
 - 表全体は `overflow-x-auto` でスマホ横スクロール対応
 
-### ダブルス (`DoublesMatrix` — `matrix/doubles/index.tsx`)
+### ダブルス (`DoublesList` — `matches/doubles/index.tsx`)
 
 - 見出し: 「対戦表（ダブルス）」
 - 参加者が4人未満の場合は「参加者を4人以上 登録してください。」を表示
-- 4人以上の場合は試合追加フォーム（`DoublesMatrix` 内にインライン実装。ペア選択フォームの zod スキーマは `matrix/doubles/schema.ts`）を上部に表示
+- 4人以上の場合は試合追加フォーム（`DoublesList` 内にインライン実装。ペア選択フォームの zod スキーマは `matches/doubles/schema.ts`）を上部に表示
 - 試合一覧はリスト形式（`<ul>`）で表示。各行に「ペア名 対 ペア名」「ゲーム取得数」「勝者名 の勝ち / 途中」を表示
 - 試合がない場合は「まだ試合がありません。」を表示
 - 試合が1件以上あれば「画像で保存」ボタンを表示
@@ -33,8 +33,8 @@
 
 ## 組合せ生成
 
-- シングルス: マトリクスのセルをタップすると試合を作成。同一組合せが既に存在する場合は既存の試合モーダルを開く（重複追加なし）
-- ダブルス: `DoublesMatrix` 内の試合追加フォームから手動追加。事前のペア固定なし
+- シングルス: 対戦一覧の行をタップすると試合を作成。同一組合せが既に存在する場合は既存の試合モーダルを開く（重複追加なし）
+- ダブルス: `DoublesList` 内の試合追加フォームから手動追加。事前のペア固定なし
   - フォームラベル: 「試合を追加」（見出し）、「左ペア」「右ペア」（ペア区分ラベル）
   - 各フィールドのラベル: 「左1」「左2」「右1」「右2」（`Select` で選択）
   - ドロップダウンのプレースホルダー: 「選んでください」。すでに選択済みの参加者は他フィールドの選択肢から除外される

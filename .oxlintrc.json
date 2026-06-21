@@ -84,10 +84,10 @@
       // 得点経過チャートのラリー列・SVG 線分は append-only の時系列。
       // いずれも並べ替え・途中挿入が起きないため index キーが正当。
       "files": [
-        "src/features/tournament/matrix/components/MatchModal.tsx",
-        "src/features/tournament/matrix/components/GameList.tsx",
+        "src/features/tournament/matches/components/MatchModal.tsx",
+        "src/features/tournament/matches/components/GameList.tsx",
         "src/features/tournament/scoreboard/components/ScoreboardHeader.tsx",
-        "src/features/tournament/matrix/components/scoreboard/ScoreProgressChart.tsx",
+        "src/features/tournament/matches/components/scoreboard/ScoreProgressChart.tsx",
         "src/features/tournament/result/components/PersonalMatchResults.tsx"
       ],
       "rules": {
@@ -105,7 +105,7 @@
       "files": [
         "src/components/ui/Toggle.tsx",
         "src/components/ui/Select.tsx",
-        "src/features/tournament/matrix/components/MatchModal.tsx",
+        "src/features/tournament/matches/components/MatchModal.tsx",
         "src/features/tournament/scoreboard/components/ScoreboardScreen.tsx"
       ],
       "rules": {

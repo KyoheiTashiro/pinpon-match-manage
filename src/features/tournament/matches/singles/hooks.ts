@@ -1,4 +1,4 @@
-import { useMatrix, useMatchModal } from "@/features/tournament/matrix/hooks";
+import { useMatches, useMatchModal } from "@/features/tournament/matches/hooks";
 import { SIDE_KIND, type Match } from "@/store/types";
 import { useMemo } from "react";
 
@@ -9,8 +9,8 @@ export const involvesSingle = (match: Match, id: string) =>
   (match.leftSide.kind === SIDE_KIND.SINGLE && match.leftSide.participantId === id) ||
   (match.rightSide.kind === SIDE_KIND.SINGLE && match.rightSide.participantId === id);
 
-export const useSinglesMatrix = (tournamentId: string) => {
-  const { tournament, participants, matchList, players } = useMatrix(tournamentId);
+export const useSingles = (tournamentId: string) => {
+  const { tournament, participants, matchList, players } = useMatches(tournamentId);
   const { openMatchId, openMatch, closeMatch } = useMatchModal();
 
   const singlesCellMatch = useMemo(() => {
@@ -26,10 +26,22 @@ export const useSinglesMatrix = (tournamentId: string) => {
     return map;
   }, [matchList]);
 
+  // 参加者の登録順から i < j の全ペアを列挙（行の並びは安定）。
+  const allPairs = useMemo(() => {
+    const pairs: { a: (typeof players)[number]; b: (typeof players)[number] }[] = [];
+    for (let i = 0; i < players.length; i++) {
+      for (let j = i + 1; j < players.length; j++) {
+        pairs.push({ a: players[i], b: players[j] });
+      }
+    }
+    return pairs;
+  }, [players]);
+
   return {
     tournament,
     participants,
     players,
+    allPairs,
     singlesCellMatch,
     openMatchId,
     openMatch,

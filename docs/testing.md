@@ -41,7 +41,7 @@
 
 - `@testing-library/react` でコンポーネント・feature 単位のテスト
   - 共通 UI（`src/components/ui/*.test.tsx`）: Button / Select / Toggle / RadioGroup / Tabs / ConfirmModal / InfoModal
-  - feature（`src/features/**/*.test.tsx`）: home / matrix（singles・doubles）/ participants / scoreboard / settings / result（RankingTable / MatchResultsTable / MatchScoreChart）
+  - feature（`src/features/**/*.test.tsx`）: home / matches（singles・doubles）/ participants / scoreboard / settings / result（RankingTable / MatchResultsTable / MatchScoreChart）
 - **Storybook** でコンポーネント単位の見た目・状態を確認
   - 起動: `npm run storybook`（dev・ポート6006） / ビルド: `npm run build-storybook`
   - story配置: 各コンポーネント隣に `*.stories.tsx`（`src/**/*.stories.@(tsx|mdx)`）

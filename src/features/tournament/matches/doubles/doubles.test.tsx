@@ -1,4 +1,4 @@
-import { DoublesMatrix } from "@/features/tournament/matrix/doubles";
+import { DoublesList } from "@/features/tournament/matches/doubles";
 import { FORMAT, SIDE_KIND } from "@/store/types";
 import { useAppStore } from "@/store/useAppStore";
 import { makeTournament, makeParticipant, makeMatch, gameFromLog } from "@/test/factories";
@@ -60,7 +60,7 @@ const selectOption = async (
 // ---------------------------------------------------------------------------
 // テスト
 // ---------------------------------------------------------------------------
-describe("DoublesMatrix", () => {
+describe("DoublesList", () => {
   beforeEach(setupStoreIsolation);
 
   // -------------------------------------------------------------------------
@@ -84,7 +84,7 @@ describe("DoublesMatrix", () => {
       matches: {},
     });
 
-    renderWithStore(<DoublesMatrix tournamentId="t1" />);
+    renderWithStore(<DoublesList tournamentId="t1" />);
 
     expect(screen.getByText("参加者を4人以上 登録してください。")).toBeInTheDocument();
     expect(screen.queryByText("試合を追加")).not.toBeInTheDocument();
@@ -107,7 +107,7 @@ describe("DoublesMatrix", () => {
       matches: {},
     });
 
-    renderWithStore(<DoublesMatrix tournamentId="t1" />);
+    renderWithStore(<DoublesList tournamentId="t1" />);
 
     expect(screen.getByText("参加者を4人以上 登録してください。")).toBeInTheDocument();
   });
@@ -117,7 +117,7 @@ describe("DoublesMatrix", () => {
   // -------------------------------------------------------------------------
   it("参加者 4 人以上 → 「試合を追加」フォームと Select 4 つが表示される", () => {
     seedDoublesTournament();
-    renderWithStore(<DoublesMatrix tournamentId="t1" />);
+    renderWithStore(<DoublesList tournamentId="t1" />);
 
     expect(screen.getByText("試合を追加")).toBeInTheDocument();
     // 左1/左2/右1/右2 のラベルが表示される
@@ -132,7 +132,7 @@ describe("DoublesMatrix", () => {
   // -------------------------------------------------------------------------
   it("試合なし → 「まだ試合がありません。」が表示される", () => {
     seedDoublesTournament();
-    renderWithStore(<DoublesMatrix tournamentId="t1" />);
+    renderWithStore(<DoublesList tournamentId="t1" />);
 
     expect(screen.getByText("まだ試合がありません。")).toBeInTheDocument();
   });
@@ -142,7 +142,7 @@ describe("DoublesMatrix", () => {
   // -------------------------------------------------------------------------
   it("Select 未選択時 → 「試合を追加して入力へ」ボタンが disabled", () => {
     seedDoublesTournament();
-    renderWithStore(<DoublesMatrix tournamentId="t1" />);
+    renderWithStore(<DoublesList tournamentId="t1" />);
 
     const addBtn = screen.getByRole("button", { name: "試合を追加して入力へ" });
     expect(addBtn).toBeDisabled();
@@ -154,7 +154,7 @@ describe("DoublesMatrix", () => {
   it("4 つの Select で別々の選手を選択 → ボタン有効化 → 追加で store に PAIR match が増え MatchModal が開く", async () => {
     const user = userEvent.setup();
     seedDoublesTournament();
-    renderWithStore(<DoublesMatrix tournamentId="t1" />);
+    renderWithStore(<DoublesList tournamentId="t1" />);
 
     // 初期状態: ボタン disabled
     const addBtn = screen.getByRole("button", { name: "試合を追加して入力へ" });
@@ -230,7 +230,7 @@ describe("DoublesMatrix", () => {
       },
     });
 
-    renderWithStore(<DoublesMatrix tournamentId="t1" />);
+    renderWithStore(<DoublesList tournamentId="t1" />);
 
     // 試合一覧: 「左ペア名 対 右ペア名」パターン
     // sideName の実装: PAIR は "選手A・選手B" のような表示を期待
@@ -277,7 +277,7 @@ describe("DoublesMatrix", () => {
       },
     });
 
-    renderWithStore(<DoublesMatrix tournamentId="t1" />);
+    renderWithStore(<DoublesList tournamentId="t1" />);
 
     // 2-0 スコア表示
     expect(screen.getByText("2-0")).toBeInTheDocument();
@@ -287,11 +287,11 @@ describe("DoublesMatrix", () => {
   });
 
   // -------------------------------------------------------------------------
-  // 9. MatchModal Tab 経由テスト: MatchMatrixTab で format=doubles → DoublesMatrix が表示
+  // 9. MatchModal Tab 経由テスト: MatchesTab で format=doubles → DoublesList が表示
   // -------------------------------------------------------------------------
   it("format=doubles の tournament では「対戦表（ダブルス）」見出しが表示される", () => {
     seedDoublesTournament();
-    renderWithStore(<DoublesMatrix tournamentId="t1" />);
+    renderWithStore(<DoublesList tournamentId="t1" />);
 
     expect(screen.getByText("対戦表（ダブルス）")).toBeInTheDocument();
   });
@@ -302,7 +302,7 @@ describe("DoublesMatrix", () => {
   it("同一選手を複数フィールドで選択するとボタンが disabled のまま", async () => {
     const user = userEvent.setup();
     seedDoublesTournament();
-    renderWithStore(<DoublesMatrix tournamentId="t1" />);
+    renderWithStore(<DoublesList tournamentId="t1" />);
 
     const addBtn = screen.getByRole("button", { name: "試合を追加して入力へ" });
 
@@ -323,7 +323,7 @@ describe("DoublesMatrix", () => {
   it("3 フィールドのみ選択してボタン disabled", async () => {
     const user = userEvent.setup();
     seedDoublesTournament();
-    renderWithStore(<DoublesMatrix tournamentId="t1" />);
+    renderWithStore(<DoublesList tournamentId="t1" />);
 
     const addBtn = screen.getByRole("button", { name: "試合を追加して入力へ" });
 
@@ -340,7 +340,7 @@ describe("DoublesMatrix", () => {
   it("試合追加後フォームがリセットされボタンが再び disabled になる", async () => {
     const user = userEvent.setup();
     seedDoublesTournament();
-    renderWithStore(<DoublesMatrix tournamentId="t1" />);
+    renderWithStore(<DoublesList tournamentId="t1" />);
 
     const addBtn = screen.getByRole("button", { name: "試合を追加して入力へ" });
 
@@ -408,7 +408,7 @@ describe("DoublesMatrix", () => {
       },
     });
 
-    renderWithStore(<DoublesMatrix tournamentId="t1" />);
+    renderWithStore(<DoublesList tournamentId="t1" />);
 
     // 試合一覧のボタンをクリック（match listのli内のbutton）
     // 「試合を追加して入力へ」以外の対戦ボタンを選択する
@@ -454,14 +454,14 @@ describe("DoublesMatrix", () => {
       },
     });
 
-    renderWithStore(<DoublesMatrix tournamentId="t1" />);
+    renderWithStore(<DoublesList tournamentId="t1" />);
 
     expect(screen.getByText("画像で保存")).toBeInTheDocument();
   });
 
   it("試合 0 件のとき SaveImageButton が表示されない", () => {
     seedDoublesTournament();
-    renderWithStore(<DoublesMatrix tournamentId="t1" />);
+    renderWithStore(<DoublesList tournamentId="t1" />);
 
     expect(screen.queryByText("画像で保存")).not.toBeInTheDocument();
   });
@@ -498,7 +498,7 @@ describe("DoublesMatrix", () => {
       },
     });
 
-    renderWithStore(<DoublesMatrix tournamentId="t1" />);
+    renderWithStore(<DoublesList tournamentId="t1" />);
 
     const allButtons = screen.getAllByRole("button", { name: /対/u });
     const matchBtn = allButtons.find((el) => !el.textContent?.includes("試合を追加"))!;

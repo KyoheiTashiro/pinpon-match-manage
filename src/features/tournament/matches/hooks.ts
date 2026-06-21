@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 
 export { sideMembers, sideName } from "@/domain/side";
 
-export const useMatrix = (tournamentId: string) => {
+export const useMatches = (tournamentId: string) => {
   const tournament = useAppStore((state) => state.tournaments[tournamentId]);
   const participants = useAppStore((state) => state.participants);
   const matches = useAppStore((state) => state.matches);
