@@ -2,34 +2,33 @@
 
 ルート: 結果タブ (`/#/tournaments/:id/result`・HashRouter) — 大会参加者の勝敗集計・順位・対戦結果を表示する画面。
 
-実装: `src/features/tournament/result/`（`index.tsx`, `hooks.ts`, `components/{RankingTable, MatchResultsTable, MatchScoreChart, SaveImageButtons, AllMatchesCapture}.tsx`）
+実装: `src/features/tournament/result/`（`index.tsx`, `hooks.ts`, `components/{RankingTable, MatchResultsTable, MatchScoreChart, PersonalMatchResults}.tsx`）
 
 ## 画面構成（表示モード切替）
 
-「結果」見出しの直下・画面上部に **サブタブ2つ** を置き、表示モードを切り替える。
+「結果」見出しの直下・画面上部に **サブタブ3つ** を置き、表示モードを切り替える。
 
-| サブタブ                 | 内容                                                   |
-| ------------------------ | ------------------------------------------------------ |
-| **点数表**（デフォルト） | 順位表 + 対戦結果テーブル                              |
-| **点数グラフ**           | 点数進行グラフ（[result-graph.md](./result-graph.md)） |
+| サブタブ                       | 内容                                                              |
+| ------------------------------ | ----------------------------------------------------------------- |
+| **全体**（デフォルト）         | 順位表（`RankingTable`）+ 対戦結果テーブル（`MatchResultsTable`） |
+| **個人**（ダブルスは**ペア**） | 選択した参加者の対戦結果一覧（`PersonalMatchResults`）            |
+| **グラフ**                     | 点数進行グラフ（[result-graph.md](./result-graph.md)）            |
 
 - サブタブUIは共通 `Tabs` コンポーネント（`ariaLabel="表示モード"`）。切替はタブ内ローカル状態（`mode` ステート・URL・LocalStorage には保持しない）。
-- **グラフモード**では、`pointLog` を持つゲームが1本以上ある試合のみ選択肢に表示される。選択ドロップダウン（`Select` `label="対戦を選択"`）で1対戦を選ぶと、その対戦のグラフが表示される。`pointLog` を持つ試合が1件もない場合は「対戦結果がありません。」と表示する。
-- サブタブUI・対戦選択ドロップダウンは画像保存の対象外。大会名・日付ヘッダは両モードとも画像に含まれる。
+- **個人モード・グラフモード**では、画面上部に参加者選択ドロップダウン（`Select` `label="参加者を選択"`）を表示し、選択した参加者のデータを表示する。
+- **グラフモード**では、選択した参加者に関わる対戦のうち `pointLog` を持つゲームが1本以上あるものを表示する。`pointLog` を持つ対戦が1件もない場合は「対戦結果がありません。」と表示する。
+- サブタブUI・参加者選択ドロップダウンは画像保存の対象外。大会名・日付ヘッダは全モードとも画像に含まれる。
 
 ## 画像保存
 
-`useImageCapture` を使用。両モードともメインコンテンツ（`ref`が付いたdiv）を画像化する。
+`useImageCapture` を使用。全モード共通でメインコンテンツ（`ref`が付いたdiv）を画像化する。
 
-- **点数表モード**: 「画像で保存」→「点数表」ボタン1つ。クリックで点数表全体を画像保存する。
-- **グラフモード**: 「画像で保存」→「表示中の対戦」ボタンと「全ての対戦」ボタンの2つ。
-  - 「表示中の対戦」: 選択中の1対戦グラフを画像保存する（ファイル名に対戦者名が入る）。
-  - 「全ての対戦」: 画面外に off-screen レンダリングした全対戦グラフをまとめて1枚の画像として保存する。
-  - どちらのボタンも保存中は `disabled`。保存中は「保存中…」と表示。
+- 「画像で保存」ボタン1つ（`DownloadIcon` 付き）。クリックで表示中のコンテンツ全体を画像保存する。
+- 保存中は `disabled`、ラベルが「保存中…」に変わる。
 
-## 点数表モード
+## 全体モード
 
-`ResultView`（`index.tsx`）が点数表モード時に `RankingTable` と `MatchResultsTable` を縦に並べてレンダリングする。
+`ResultView`（`index.tsx`）が全体モード時に `RankingTable` と `MatchResultsTable` を縦に並べてレンダリングする。
 
 ### 順位表
 
@@ -47,11 +46,25 @@
 
 ### 対戦結果テーブル
 
-試合結果が1件以上あるときのみ表示する。見出し「対戦結果」。
+見出し「対戦結果」。試合結果が0件の場合は「データがありません」を表示する。
 
 - 列: 「対戦」（`左選手名 vs 右選手名`）、`G1`〜`G{bestOf}` の各ゲームスコア、「セット」（ゲームセット数 `N-N`）。
-- 勝者の名前は太字（`font-extrabold`）、敗者は薄字（`text-sub`）。
-- 各ゲームのセルに `勝側スコア-敗側スコア` を表示（勝側スコアは太字）。該当ゲームが未実施なら `-`。
+- 対戦列: 勝者名は通常色（`text-ink`）、敗者名は薄字（`text-sub`）。勝者名の左にトロフィーアイコンを表示。未確定の場合は両者とも薄字。
+- 各ゲームのセルに `leftScore-rightScore`（左スコア-右スコア）を表示。該当ゲームが未実施（`match.games[gameIndex]` が存在しない）なら `-`。
+
+## 個人モード（ダブルスはペアモード）
+
+`PersonalMatchResults` が選択した参加者の対戦結果を縦に並べる。
+
+- 参加者選択ドロップダウンで選択した参加者（`resolvedParticipantId`）を「自分」として、その参加者が出場した全対戦を表示する。
+- 各対戦カードは3カラム構成（自分 / ゲームスコア / 相手）:
+  - 自分カラム: 勝者にトロフィーアイコン。ゲーム取得数を大型表示（`text-[3rem]`）。勝ちは `text-success`、それ以外は `text-sub`。
+  - 中央カラム: ゲームごとの点数を縦に並べる（自分側スコア / 相手側スコア）。勝った側のスコアは `text-success`。
+  - 相手カラム: 同上（相手視点）。
+- 対戦がない場合は「データがありません」を表示する。
+- 見出しは「{参加者名}さんの対戦結果」。
+
+---
 
 ## 順位算出ロジック
 
@@ -106,9 +119,11 @@ pointDiff     pointsFor - pointsAgainst
 id: string;
 leftName: string;
 rightName: string;
-games: Game[];          // realGames() 適用済み
+leftMembers: string[];   // 左サイドの参加者ID一覧（個人モード・グラフモードの絞り込みに使用）
+rightMembers: string[];  // 右サイドの参加者ID一覧
+games: Game[];           // realGames() 適用済み
 leftWins: number;
 rightWins: number;
-winner: "L" | "R" | null;
-firstServer: Side;      // グラフのサーブ算出に使用
+winner: Side | null;     // SIDE.LEFT / SIDE.RIGHT / null
+firstServer: Side;       // グラフのサーブ算出に使用
 ```

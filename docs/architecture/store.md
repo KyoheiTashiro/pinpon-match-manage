@@ -29,7 +29,7 @@ useAppStore = create<StoreState>()(
 | ------------------ | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- | ---------------------------- |
 | `uiSlice`          | `fontSize`                           | `setFontSize`                                                                                                          | `slices/uiSlice.ts`          |
 | `tournamentSlice`  | `tournaments`, `currentTournamentId` | `createTournament` / `updateTournament` / `deleteTournament` / `setCurrentTournament` / `resetTournament` / `resetAll` | `slices/tournamentSlice.ts`  |
-| `participantSlice` | `participants`                       | `addParticipant` / `updateParticipant` / `removeParticipant`                                                           | `slices/participantSlice.ts` |
+| `participantSlice` | `participants`                       | `addParticipant` / `addParticipants` / `updateParticipant` / `removeParticipant`                                       | `slices/participantSlice.ts` |
 | `matchSlice`       | `matches`                            | `addManualMatch` / `updateMatch` / `deleteMatch`                                                                       | `slices/matchSlice.ts`       |
 
 - スライスは互いの状態へ `StoreState` 経由で到達可能（`set` は全ストアのドラフト、`get()` は全状態）。例: `addParticipant` は `participantSlice` だが `tournaments[id].participantIds` も更新。
@@ -44,6 +44,7 @@ useAppStore = create<StoreState>()(
 - `resetTournament(id)` → 配下 `matches` のみ削除。参加者・大会は残す（再戦用）。
 - `resetAll()` → 3スライスを初期値へ一括リセット（`Object.assign(state, tournamentInitial, participantInitial, matchInitial)`）。`fontSize` は維持。
 - `addParticipant(tournamentId, name, affiliation?)` → `name.trim()`。`participants[id]` 追加 + 親 `participantIds.push(id)`。対象大会が無ければ no-op。
+- `addParticipants(tournamentId, names)` → 複数名を一括追加。各 `name` を `trim()` し、空文字・既存名（重複）はスキップ。対象大会が無ければ no-op。
 - `removeParticipant(tournamentId, id)` → 当該 participant 削除 + その参加者が絡む `matches` を**カスケード削除**（single/pair 双方を判定）+ `participantIds` から除去。
 - `addManualMatch(tournamentId, left, right)` → **シングルス同士は重複ガード**: 同一2人（左右入替含む）の既存試合があれば新規作成せず既存 `id` を返す。新規時 `games: []`・`firstServer: SIDE.LEFT`。
 - `updateTournament` / `updateParticipant` / `updateMatch` → 対象が無ければ no-op。`Object.assign` でパッチ。`updateParticipant` は `name` を常に `trim()`。
@@ -97,6 +98,7 @@ useAppStore = create<StoreState>()(
 ストアに置かず導出する値:
 
 - 大会所属 match: `matchesOf(matches, tournamentId)`（`src/store/selectors.ts`）。`Tournament` は match の配列を持たず `Match.tournamentId`（FK）から導出。挿入順 = `matches` レコードのキー順。
+- 過去参加者名一覧: `pastParticipantNamesOf(participants, currentTournamentId)`（`src/store/selectors.ts`）。現在の大会以外の参加者名を trim・重複除去・名前順ソートして返す（過去参加者一括追加機能用）。
 - 試合進行状態・勝敗: `matchSummary(games, winsNeeded)`（`src/domain/match.ts`）。
 - 順位: [features/ranking.md](../features/ranking.md) 参照。
 

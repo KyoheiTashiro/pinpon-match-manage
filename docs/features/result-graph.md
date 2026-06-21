@@ -56,10 +56,11 @@ export const gameProgress = (pointLog: Side[], firstServerOfGame: Side): Progres
 
 **配置先**: 結果タブ（`/#/tournaments/:id/result`）の**グラフモード**。
 
-- `src/features/tournament/result/index.tsx`（`ResultView`）が `useResult` から `matchResults` を取得し、`game.pointLog && game.pointLog.length > 0` を持つゲームが1件以上ある試合のみ `graphMatches` としてフィルタリングする。
-- `Select`（`label="対戦を選択"`）で1対戦を選択し、選択中の対戦（`selectedMatch: MatchResultRow`）を `MatchScoreChart match={selectedMatch}` で表示する。
+- `ResultView` 上部の参加者選択ドロップダウン（`Select` `label="参加者を選択"`）で参加者を1人選択する。
+- `useResult` の `chartMatches` が、選択した参加者が関わる対戦のうち `pointLog` を持つゲームが1本以上ある対戦を抽出し、選択者を `selfSide` として正規化する（`chartMatches: { match: MatchResultRow, selfSide: Side }[]`）。
+- 該当対戦が1件もない場合は「対戦結果がありません。」を表示する。
+- 該当対戦がある場合は対戦ごとに `MatchScoreChart match={match} selfSide={selfSide}` を縦に並べて表示する。
 - `MatchScoreChart` は内部で `realGames(match.games)` を `pointLog` ありで絞り込み、ゲームごとに `gameProgress` と SVG 描画を行う（グラフ本体は同コンポーネントに統合）。
-- `pointLog` を持つゲームが1本もない試合はグラフモードの選択肢に現れない。
 
 ---
 
@@ -70,15 +71,16 @@ export const gameProgress = (pointLog: Side[], firstServerOfGame: Side): Progres
 ゲームごとに1ブロックを縦積みする。各ブロック構成:
 
 ```
-ゲーム 1
- 左選手名  ⓪ ⓪ ① ①  ...  最終スコア
- 右選手名  ① ② ② ③  ...  最終スコア
-ゲーム 2
+G1
+ 自分（selfSide）  ⓪ ⓪ ① ①  ...  最終スコア
+ 相手              ① ② ② ③  ...  最終スコア
+G2
  ...
 ```
 
-- 見出し「ゲーム {N}」（左揃え・太字）。
-- 各ブロックは **上下2段**（上段=左選手 / 下段=右選手）。`swapped` の概念はなく、常に `leftName`=上段・`rightName`=下段の固定表示。
+- ブロック左端にゲーム番号（`G{N}`、実ゲームインデックス+1）を表示（左揃え・太字）。
+- 各ブロックは **上下2段**（上段=選択参加者 `selfSide` / 下段=相手）。`selfSide` が `SIDE.LEFT` なら左選手が上段、`SIDE.RIGHT` なら右選手が上段。
+- プレイヤー名は各ゲームブロックの左端（右揃え）に表示。ゲームの勝者にはトロフィーアイコンを付加する。
 - **横軸 = ラリー番号**（1本ごとに1列）。列数 = `pointLog.length`。
 - `pointLog` のないゲームはブロックを描画しない（`MatchScoreChart` が内部でフィルタリング）。`pointLog` を持つゲームが1本もない場合は「得点記録なし」と表示する。
 
@@ -121,10 +123,10 @@ export const gameProgress = (pointLog: Side[], firstServerOfGame: Side): Progres
 
 ## 5. 画像保存
 
-- 保存ボタンは `SaveImageButtons`（モード別にボタン構成を切替）が担当する。
-- 「表示中の対戦」ボタン: 選択中の対戦グラフを1枚の画像として保存する。ファイル名に `${leftName} vs ${rightName}` を付加する。
-- 「全ての対戦」ボタン: `AllMatchesCapture` が画面外（`position: absolute; left: -99999px`）に全対戦を縦積みで off-screen レンダリングし、それを画像化する。各対戦の間には区切り線（`border-t-2 border-line`）が入る。
-- `useImageCapture` フックを使用し、`saving` 中は両ボタンとも `disabled`。
+- 画像保存は `ResultView` の `useImageCapture`（`main` オブジェクト）が担当する。
+- グラフモードでも保存ボタンは「画像で保存」1つのみ（`DownloadIcon` 付き）。
+- 保存対象はメインコンテンツ全体（大会名・日付ヘッダ + 表示中のグラフブロック群）。
+- `saving` 中はボタンが `disabled`、ラベルが「保存中…」に変わる。
 
 ---
 

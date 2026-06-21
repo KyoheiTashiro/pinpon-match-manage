@@ -8,15 +8,14 @@
 
 ### シングルス (`SinglesList` — `matches/singles/index.tsx`)
 
-- 縦軸・横軸に参加者名を並べた表形式。参加者が2人未満の場合は「参加者を2人以上 登録してください。」を表示
-- セル内容:
-  - 未対戦: `＋` アイコン + 「対戦」テキスト。タップで試合を新規作成しモーダルを開く
-  - 対戦済（進行中）: ゲーム取得数（例 `1-0`）+ 「途中」（`text-warning` 色）+ セル背景 `bg-warning/10`
-  - 対戦済（終了）: ゲーム取得数（例 `3-1`）+ 「勝」または「負」。勝者セルは `bg-winBg`、敗者セルは `bg-loseBg`
-  - 自セル: 斜線パターン `repeating-linear-gradient(45deg,#cbd5e1_0_8px,#94a3b8_8px_16px)` で黒塗り相当
-- 対称セル（B vs A）は同一の `Match` オブジェクトを参照し、行・列の関係で左右を反転して表示する
-- 1列目（行ラベル列）は `sticky left-0` でスクロール時固定
-- 表全体は `overflow-x-auto` でスマホ横スクロール対応
+- 参加者が2人未満の場合は「参加者を2人以上 登録してください。」を表示
+- 2人以上の場合は全ペアをリスト形式（`<ul>`）で表示する。大会名・日付を上部に表示
+- 各行の構成（`i < j` の全組合せ順）:
+  - 未対戦: Badge「対戦」（`tone="primary"` `appearance="solid"`）を右端に表示。タップで試合を新規作成しモーダルを開く
+  - 対戦済（進行中）: ゲーム取得数（例 `1-0`）+ Badge「途中」（`tone="warning"`）。行背景 `bg-warning/10`
+  - 対戦済（終了）: ゲーム取得数 + Badge「終了」（`tone="success"`）。行背景 `bg-winBg`。勝者名の左に金色トロフィーアイコンを表示
+  - 終了時は勝者を上・敗者を下に並べ替えて表示する
+- 行右端に `ChevronDownIcon`（`-rotate-90`）を配置
 
 ### ダブルス (`DoublesList` — `matches/doubles/index.tsx`)
 
@@ -151,10 +150,10 @@
 
 - 上部: 選手名（`text-base sm:text-2xl font-extrabold`）。ゲーム勝者または試合勝者の場合 `text-green-500`
 - 中央: スコア数字（`text-[clamp(6rem,44vh,28rem)]`）。カード内上半分タップで +1、下半分タップで −1
-  - 点数色: ゲーム勝者または試合勝者 → `text-green-500`、マッチポイント状態 → `text-yellow-400`、通常 → `text-white`
+  - 点数色: ゲーム勝者または試合勝者 → `text-green-500`、マッチポイント状態（`isGamePoint` が true）またはスコアが10以上 → `text-yellow-400`、通常 → `text-white`
   - 試合勝者カラムは背景が `bg-success/20 border-success`、それ以外は `bg-neutral-900 border-white/30`
   - スコアカード中央に横線（黒・3px）を挟んで上下半分を視覚的に分割
-  - +1 ボタン: `score >= 30` のときも disabled。ゲーム勝者側はすでにゲーム終了しているため disabled（`disableAdd={winner === side}`）
+  - +1 ボタン: `score >= 50`（`MAX_SCORE`）のときも disabled。ゲーム勝者側はすでにゲーム終了しているため disabled（`disableAdd={winner === side}`）
   - −1 ボタン: `score <= 0` または「直前の得点者が自分でない（`canSub === false`）」場合 disabled。最後に得点した側しかundo不可
   - ロック済の場合は全ボタン disabled、「入力不可」テキストを下部に表示（`text-white/50`）
 - 下部: サーブ権インジケーター（`h-2 sm:h-3 rounded-full`）。サーブ権あり → `bg-orange-500`、なし → 透明
