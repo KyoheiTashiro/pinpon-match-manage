@@ -29,7 +29,7 @@ const formatDisplay = (value: string) => {
   if (!parsed) return "";
   const { y, m, d } = parsed;
   const w = WEEKDAYS[new Date(y, m, d).getDay()];
-  return `${y}年${m + 1}月${d}日（${w}）`;
+  return `${y}/${pad(m + 1)}/${pad(d)}（${w}）`;
 };
 
 type Props = {
@@ -203,81 +203,88 @@ export const Calendar = ({
       </button>
 
       {isOpen && (
-        <dialog
-          open
-          aria-label={ariaLabel}
-          onKeyDown={handleGridKeyDown}
-          className="border-line absolute top-full right-0 left-0 z-50 mt-1 w-full rounded-xl border-2 bg-white p-3 shadow"
-        >
-          <div className="mb-2 flex items-center justify-between">
-            <button
-              type="button"
-              aria-label="前の月"
-              onClick={() => goMonth(-1)}
-              className="text-ink min-h-btn flex w-10 items-center justify-center rounded-lg"
-            >
-              <ChevronDownIcon width={20} height={20} className="rotate-90" />
-            </button>
-            <span aria-live="polite" className="text-ink text-base font-bold">
-              {view.y}年{view.m + 1}月
-            </span>
-            <button
-              type="button"
-              aria-label="次の月"
-              onClick={() => goMonth(1)}
-              className="text-ink min-h-btn flex w-10 items-center justify-center rounded-lg"
-            >
-              <ChevronDownIcon width={20} height={20} className="-rotate-90" />
-            </button>
-          </div>
-
-          <table
-            ref={gridRef}
-            tabIndex={-1}
-            aria-label={`${view.y}年${view.m + 1}月`}
-            className="w-full table-fixed border-separate border-spacing-1 outline-none"
+        <>
+          <div
+            className="fixed inset-0 z-40 bg-black/40"
+            aria-hidden
+            onPointerDown={() => close()}
+          />
+          <dialog
+            open
+            aria-label={ariaLabel}
+            onKeyDown={handleGridKeyDown}
+            className="border-line fixed top-1/2 left-1/2 z-50 w-80 -translate-x-1/2 -translate-y-1/2 rounded-xl border-2 bg-white p-4 shadow-xl"
           >
-            <thead>
-              <tr>
-                {WEEKDAYS.map((w) => (
-                  <th key={w} scope="col" className="text-line text-center text-xs font-bold">
-                    {w}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {weeks.map((week, wi) => (
-                <tr key={`week-${uid}-${wi.toString()}`}>
-                  {week.map((day, di) =>
-                    day === null ? (
-                      <td key={`empty-${uid}-${wi.toString()}-${di.toString()}`} aria-hidden />
-                    ) : (
-                      <td key={day} className="p-0">
-                        <button
-                          type="button"
-                          aria-label={`${view.y}年${view.m + 1}月${day}日`}
-                          aria-pressed={isSelected(day)}
-                          aria-current={isToday(day) ? "date" : undefined}
-                          onClick={() => selectDay(day)}
-                          className={`min-h-btn flex w-full items-center justify-center rounded-lg text-base font-bold ${
-                            isSelected(day)
-                              ? "bg-primary text-white"
-                              : isToday(day)
-                                ? "border-primary text-primary border-2 bg-white"
-                                : "text-ink hover:bg-line/10 bg-white"
-                          }`}
-                        >
-                          {day}
-                        </button>
-                      </td>
-                    ),
-                  )}
+            <div className="mb-2 flex items-center justify-between">
+              <button
+                type="button"
+                aria-label="前の月"
+                onClick={() => goMonth(-1)}
+                className="text-ink min-h-btn flex w-10 items-center justify-center rounded-lg"
+              >
+                <ChevronDownIcon width={20} height={20} className="rotate-90" />
+              </button>
+              <span aria-live="polite" className="text-ink text-base font-bold">
+                {view.y}年{view.m + 1}月
+              </span>
+              <button
+                type="button"
+                aria-label="次の月"
+                onClick={() => goMonth(1)}
+                className="text-ink min-h-btn flex w-10 items-center justify-center rounded-lg"
+              >
+                <ChevronDownIcon width={20} height={20} className="-rotate-90" />
+              </button>
+            </div>
+
+            <table
+              ref={gridRef}
+              tabIndex={-1}
+              aria-label={`${view.y}年${view.m + 1}月`}
+              className="w-full table-fixed border-separate border-spacing-1 outline-none"
+            >
+              <thead>
+                <tr>
+                  {WEEKDAYS.map((w) => (
+                    <th key={w} scope="col" className="text-line text-center text-xs font-bold">
+                      {w}
+                    </th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </dialog>
+              </thead>
+              <tbody>
+                {weeks.map((week, wi) => (
+                  <tr key={`week-${uid}-${wi.toString()}`}>
+                    {week.map((day, di) =>
+                      day === null ? (
+                        <td key={`empty-${uid}-${wi.toString()}-${di.toString()}`} aria-hidden />
+                      ) : (
+                        <td key={day} className="p-0">
+                          <button
+                            type="button"
+                            aria-label={`${view.y}年${view.m + 1}月${day}日`}
+                            aria-pressed={isSelected(day)}
+                            aria-current={isToday(day) ? "date" : undefined}
+                            onClick={() => selectDay(day)}
+                            className={`min-h-btn flex w-full items-center justify-center text-base font-bold ${
+                              isSelected(day)
+                                ? "bg-primary rounded-lg text-white"
+                                : isToday(day)
+                                  ? "border-primary text-primary rounded-lg border-2 bg-white"
+                                  : "text-ink hover:bg-line/10 rounded-lg bg-white"
+                            }`}
+                          >
+                            {day}
+                          </button>
+                        </td>
+                      ),
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </dialog>
+        </>
       )}
     </div>
   );
