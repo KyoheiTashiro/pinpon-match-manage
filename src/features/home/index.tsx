@@ -6,26 +6,14 @@ import { InstallAppButton } from "@/features/home/components/InstallAppButton";
 import { SettingsModal } from "@/features/home/components/SettingsModal";
 import { useHome } from "@/features/home/hooks";
 import { formatDate } from "@/utils/time";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export const Home = () => {
   const navigate = useNavigate();
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
-  const {
-    list,
-    creating,
-    setCreating,
-    closeForm,
-    form,
-    submit,
-    confirmReset,
-    askReset,
-    doReset,
-    cancelReset,
-    settingsOpen,
-    openSettings,
-    closeSettings,
-  } = useHome((id) => {
+  const { list, creating, setCreating, closeForm, form, submit } = useHome((id) => {
     void navigate(tournamentPath(id));
   });
 
@@ -36,7 +24,7 @@ export const Home = () => {
         <button
           type="button"
           aria-label="設定"
-          onClick={openSettings}
+          onClick={() => setSettingsOpen(true)}
           className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl text-2xl transition-colors hover:bg-white/10"
         >
           <GearIcon />
@@ -90,14 +78,7 @@ export const Home = () => {
         </div>
       </main>
 
-      <SettingsModal
-        open={settingsOpen}
-        onClose={closeSettings}
-        confirmReset={confirmReset}
-        askReset={askReset}
-        doReset={doReset}
-        cancelReset={cancelReset}
-      />
+      <SettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} />
     </div>
   );
 };
