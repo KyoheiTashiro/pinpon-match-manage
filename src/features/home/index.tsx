@@ -32,7 +32,7 @@ export const Home = () => {
   return (
     <div className="text-ink min-h-screen bg-white">
       <header className="bg-primary flex flex-wrap items-center justify-between gap-3 p-4 text-white">
-        <h1 className="text-2xl font-extrabold">卓ログ</h1>
+        <h1 className="text-2xl font-extrabold">卓ログ🐕</h1>
         <button
           type="button"
           aria-label="設定"
