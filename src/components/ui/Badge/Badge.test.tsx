@@ -40,6 +40,22 @@ describe("Badge", () => {
     expect(el.className).toMatch(/text-danger/u);
   });
 
+  it("デフォルト (size=md) で px-3 py-1 text-sm が描画される", () => {
+    render(<Badge>中</Badge>);
+    const el = screen.getByText("中");
+    expect(el.className).toMatch(/px-3/u);
+    expect(el.className).toMatch(/py-1/u);
+    expect(el.className).toMatch(/text-sm/u);
+  });
+
+  it("size='sm' で px-2 py-0.5 text-xs が描画される", () => {
+    render(<Badge size="sm">小</Badge>);
+    const el = screen.getByText("小");
+    expect(el.className).toMatch(/px-2/u);
+    expect(el.className).toMatch(/py-0\.5/u);
+    expect(el.className).toMatch(/text-xs/u);
+  });
+
   it("カスタム className が追記されデフォルトクラスも維持される", () => {
     render(<Badge className="my-custom-class">カスタム</Badge>);
     const el = screen.getByText("カスタム");

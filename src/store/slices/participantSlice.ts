@@ -7,6 +7,7 @@ import type { StateCreator } from "zustand";
 export type ParticipantSlice = {
   participants: Record<string, Participant>;
   addParticipant: (tournamentId: string, name: string, affiliation?: string) => string;
+  addParticipants: (tournamentId: string, names: string[]) => void;
   updateParticipant: (id: string, patch: Partial<Participant>) => void;
   removeParticipant: (tournamentId: string, id: string) => void;
 };
@@ -34,6 +35,23 @@ export const createParticipantSlice: StateCreator<
     });
     return id;
   },
+
+  addParticipants: (tournamentId, names) =>
+    set((state) => {
+      const tournament = state.tournaments[tournamentId];
+      if (!tournament) return;
+      const existingNames = new Set(
+        tournament.participantIds.map((id) => state.participants[id]?.name.trim()).filter(Boolean),
+      );
+      for (const name of names) {
+        const trimmed = name.trim();
+        if (!trimmed || existingNames.has(trimmed)) continue;
+        const id = generateId();
+        state.participants[id] = { id, tournamentId, name: trimmed };
+        state.tournaments[tournamentId].participantIds.push(id);
+        existingNames.add(trimmed);
+      }
+    }),
 
   updateParticipant: (id, patch) =>
     set((state) => {

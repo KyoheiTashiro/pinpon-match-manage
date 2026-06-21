@@ -296,4 +296,164 @@ describe("ParticipantsTab", () => {
     expect(screen.queryByText("参加者")).not.toBeInTheDocument();
     expect(screen.queryByLabelText("参加者名")).not.toBeInTheDocument();
   });
+
+  describe("過去参加者ピッカー", () => {
+    it("過去の参加者がいない場合「過去から選ぶ」ボタンが disabled", () => {
+      renderParticipants();
+
+      const pastBtn = screen.getByRole("button", { name: "過去から選ぶ" });
+      expect(pastBtn).toBeDisabled();
+    });
+
+    it("過去の参加者がいる場合「過去から選ぶ」ボタンが有効", () => {
+      seedStore({
+        tournaments: {
+          t1: makeTournament({ id: "t1" }),
+          t2: makeTournament({ id: "t2", participantIds: ["p2"] }),
+        },
+        participants: {
+          p2: makeParticipant({ id: "p2", tournamentId: "t2", name: "選手X" }),
+        },
+      });
+
+      renderParticipants();
+
+      const pastBtn = screen.getByRole("button", { name: "過去から選ぶ" });
+      expect(pastBtn).not.toBeDisabled();
+    });
+
+    it("「過去から選ぶ」ボタンクリックでモーダルが開く", async () => {
+      seedStore({
+        tournaments: {
+          t1: makeTournament({ id: "t1" }),
+          t2: makeTournament({ id: "t2", participantIds: ["p2"] }),
+        },
+        participants: {
+          p2: makeParticipant({ id: "p2", tournamentId: "t2", name: "選手X" }),
+        },
+      });
+
+      renderParticipants();
+      const user = userEvent.setup();
+
+      await user.click(screen.getByRole("button", { name: "過去から選ぶ" }));
+
+      await waitFor(() => {
+        expect(document.querySelector("dialog[open]")).toBeInTheDocument();
+      });
+      expect(screen.getByText("過去から選ぶ", { selector: "h2" })).toBeInTheDocument();
+    });
+
+    it("候補を選んで追加するとt1の参加者に加わる", async () => {
+      seedStore({
+        tournaments: {
+          t1: makeTournament({ id: "t1" }),
+          t2: makeTournament({ id: "t2", participantIds: ["p2"] }),
+        },
+        participants: {
+          p2: makeParticipant({ id: "p2", tournamentId: "t2", name: "選手X" }),
+        },
+      });
+
+      renderParticipants();
+      const user = userEvent.setup();
+
+      await user.click(screen.getByRole("button", { name: "過去から選ぶ" }));
+
+      await waitFor(() => {
+        expect(document.querySelector("dialog[open]")).toBeInTheDocument();
+      });
+
+      // チェックボックスをオン
+      await user.click(screen.getByRole("checkbox", { name: /選手X/u }));
+
+      // 追加ボタンをクリック
+      await user.click(screen.getByRole("button", { name: "追加" }));
+
+      await waitFor(() => {
+        expect(screen.getByText("選手X")).toBeInTheDocument();
+      });
+    });
+
+    it("既に追加済みの参加者は disabled + 「追加済み」表示", async () => {
+      seedStore({
+        tournaments: {
+          t1: makeTournament({ id: "t1", participantIds: ["p1"] }),
+          t2: makeTournament({ id: "t2", participantIds: ["p2"] }),
+        },
+        participants: {
+          p1: makeParticipant({ id: "p1", tournamentId: "t1", name: "選手X" }),
+          p2: makeParticipant({ id: "p2", tournamentId: "t2", name: "選手X" }),
+        },
+      });
+
+      renderParticipants();
+      const user = userEvent.setup();
+
+      await user.click(screen.getByRole("button", { name: "過去から選ぶ" }));
+
+      await waitFor(() => {
+        expect(document.querySelector("dialog[open]")).toBeInTheDocument();
+      });
+
+      const checkbox = screen.getByRole("checkbox", { name: /選手X/u });
+      expect(checkbox).toBeDisabled();
+      expect(screen.getByText("追加済み")).toBeInTheDocument();
+    });
+
+    it("何も選ばないと「追加」ボタンが disabled", async () => {
+      seedStore({
+        tournaments: {
+          t1: makeTournament({ id: "t1" }),
+          t2: makeTournament({ id: "t2", participantIds: ["p2"] }),
+        },
+        participants: {
+          p2: makeParticipant({ id: "p2", tournamentId: "t2", name: "選手X" }),
+        },
+      });
+
+      renderParticipants();
+      const user = userEvent.setup();
+
+      await user.click(screen.getByRole("button", { name: "過去から選ぶ" }));
+
+      await waitFor(() => {
+        expect(document.querySelector("dialog[open]")).toBeInTheDocument();
+      });
+
+      // 「追加」ボタンは disabled（何も選択していない）
+      // モーダル内のボタン「追加」を取得
+      const addBtn = screen.getAllByRole("button", { name: "追加" });
+      // モーダル内の追加ボタン（フォームの追加ボタンではなくモーダルのもの）
+      const modalAddBtn = addBtn.find((btn) => btn.closest("dialog"));
+      expect(modalAddBtn).toBeDisabled();
+    });
+
+    it("「やめる」でモーダルが閉じる", async () => {
+      seedStore({
+        tournaments: {
+          t1: makeTournament({ id: "t1" }),
+          t2: makeTournament({ id: "t2", participantIds: ["p2"] }),
+        },
+        participants: {
+          p2: makeParticipant({ id: "p2", tournamentId: "t2", name: "選手X" }),
+        },
+      });
+
+      renderParticipants();
+      const user = userEvent.setup();
+
+      await user.click(screen.getByRole("button", { name: "過去から選ぶ" }));
+
+      await waitFor(() => {
+        expect(document.querySelector("dialog[open]")).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByRole("button", { name: "やめる" }));
+
+      await waitFor(() => {
+        expect(document.querySelector("dialog[open]")).not.toBeInTheDocument();
+      });
+    });
+  });
 });

@@ -1,4 +1,5 @@
 import { Schema, type FormType, defaultValues } from "@/features/tournament/participants/schema";
+import { pastParticipantNamesOf } from "@/store/selectors";
 import { useAppStore } from "@/store/useAppStore";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
@@ -8,13 +9,23 @@ export const useParticipants = (tournamentId: string) => {
   const tournament = useAppStore((state) => state.tournaments[tournamentId]);
   const participants = useAppStore((state) => state.participants);
   const addParticipant = useAppStore((state) => state.addParticipant);
+  const addParticipants = useAppStore((state) => state.addParticipants);
   const updateParticipant = useAppStore((state) => state.updateParticipant);
   const removeParticipant = useAppStore((state) => state.removeParticipant);
 
   const list = tournament?.participantIds.map((id) => participants[id]).filter(Boolean) ?? [];
 
+  const currentNames = new Set(list.map((p) => p.name.trim()));
+
+  const pastCandidates = pastParticipantNamesOf(participants, tournamentId).map((name) => ({
+    name,
+    alreadyAdded: currentNames.has(name),
+  }));
+
   const [editingId, setEditingId] = useState<string | null>(null);
   const [removeTarget, setRemoveTarget] = useState<string | null>(null);
+  const [pastPickerOpen, setPastPickerOpen] = useState(false);
+  const [pastSelected, setPastSelected] = useState<Set<string>>(new Set());
 
   const addForm = useForm<FormType>({
     resolver: zodResolver(Schema),
@@ -50,6 +61,27 @@ export const useParticipants = (tournamentId: string) => {
   };
   const cancelRemove = () => setRemoveTarget(null);
 
+  const openPastPicker = () => setPastPickerOpen(true);
+  const closePastPicker = () => {
+    setPastPickerOpen(false);
+    setPastSelected(new Set());
+  };
+  const togglePast = (name: string) => {
+    setPastSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(name)) {
+        next.delete(name);
+      } else {
+        next.add(name);
+      }
+      return next;
+    });
+  };
+  const confirmAddPast = () => {
+    addParticipants(tournamentId, [...pastSelected]);
+    closePastPicker();
+  };
+
   return {
     list,
     addForm,
@@ -63,5 +95,12 @@ export const useParticipants = (tournamentId: string) => {
     askRemove,
     doRemove,
     cancelRemove,
+    pastCandidates,
+    pastPickerOpen,
+    pastSelected,
+    openPastPicker,
+    closePastPicker,
+    togglePast,
+    confirmAddPast,
   };
 };

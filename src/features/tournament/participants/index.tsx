@@ -1,5 +1,6 @@
 import { Button, ConfirmModal } from "@/components/ui";
 import { useParticipants } from "@/features/tournament/participants/hooks";
+import { PastParticipantModal } from "@/features/tournament/participants/PastParticipantModal";
 import { useParams } from "react-router-dom";
 
 export const ParticipantsTab = () => {
@@ -22,6 +23,13 @@ const ParticipantsView = ({ tournamentId }: { tournamentId: string }) => {
     askRemove,
     doRemove,
     cancelRemove,
+    pastCandidates,
+    pastPickerOpen,
+    pastSelected,
+    openPastPicker,
+    closePastPicker,
+    togglePast,
+    confirmAddPast,
   } = useParticipants(tournamentId);
 
   return (
@@ -38,16 +46,24 @@ const ParticipantsView = ({ tournamentId }: { tournamentId: string }) => {
           {...addForm.register("name")}
           placeholder="名前"
           aria-label="参加者名"
-          className="min-h-input border-line min-w-[200px] flex-1 rounded-xl border-2 px-3 text-lg"
+          className="min-h-input border-line min-w-[280px] flex-1 rounded-xl border-2 px-3 text-lg"
         />
-        <Button type="submit" disabled={!addForm.formState.isValid}>
-          追加
-        </Button>
         {addForm.formState.errors.name && (
           <span className="text-danger basis-full text-sm">
             {addForm.formState.errors.name.message}
           </span>
         )}
+        <Button type="submit" disabled={!addForm.formState.isValid}>
+          追加
+        </Button>
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={openPastPicker}
+          disabled={pastCandidates.length === 0}
+        >
+          履歴
+        </Button>
       </form>
 
       {list.length === 0 ? (
@@ -116,6 +132,15 @@ const ParticipantsView = ({ tournamentId }: { tournamentId: string }) => {
         destructive
         onConfirm={doRemove}
         onCancel={cancelRemove}
+      />
+
+      <PastParticipantModal
+        open={pastPickerOpen}
+        candidates={pastCandidates}
+        selected={pastSelected}
+        onToggle={togglePast}
+        onConfirm={confirmAddPast}
+        onCancel={closePastPicker}
       />
     </div>
   );

@@ -184,3 +184,49 @@ describe("removeParticipant", () => {
     expect(useAppStore.getState().participants[pId]).toBeDefined();
   });
 });
+
+describe("addParticipants", () => {
+  it("複数の名前を一括追加できる", () => {
+    const tId = setupTournament();
+    useAppStore.getState().addParticipants(tId, ["田中", "山田", "佐藤"]);
+    const state = useAppStore.getState();
+    const names = state.tournaments[tId].participantIds.map((id) => state.participants[id].name);
+    expect(names).toContain("田中");
+    expect(names).toContain("山田");
+    expect(names).toContain("佐藤");
+    expect(names).toHaveLength(3);
+  });
+
+  it("現大会に既に存在する同名(trim比較)はスキップされる", () => {
+    const tId = setupTournament();
+    useAppStore.getState().addParticipant(tId, "田中");
+    useAppStore.getState().addParticipants(tId, ["田中", "山田"]);
+    const state = useAppStore.getState();
+    const names = state.tournaments[tId].participantIds.map((id) => state.participants[id].name);
+    expect(names.filter((n) => n === "田中")).toHaveLength(1);
+    expect(names).toContain("山田");
+  });
+
+  it("names の中の重複もスキップされる", () => {
+    const tId = setupTournament();
+    useAppStore.getState().addParticipants(tId, ["田中", "田中"]);
+    const state = useAppStore.getState();
+    const names = state.tournaments[tId].participantIds.map((id) => state.participants[id].name);
+    expect(names.filter((n) => n === "田中")).toHaveLength(1);
+  });
+
+  it("trim 後に一致する名前はスキップされる", () => {
+    const tId = setupTournament();
+    useAppStore.getState().addParticipant(tId, "田中");
+    useAppStore.getState().addParticipants(tId, ["  田中  "]);
+    const state = useAppStore.getState();
+    const names = state.tournaments[tId].participantIds.map((id) => state.participants[id].name);
+    expect(names.filter((n) => n === "田中")).toHaveLength(1);
+  });
+
+  it("存在しない tournamentId では何も起きない", () => {
+    const initialParticipantCount = Object.keys(useAppStore.getState().participants).length;
+    useAppStore.getState().addParticipants("ghost-tournament", ["田中"]);
+    expect(Object.keys(useAppStore.getState().participants)).toHaveLength(initialParticipantCount);
+  });
+});

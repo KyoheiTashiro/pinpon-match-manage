@@ -2,11 +2,18 @@ import type { HTMLAttributes, ReactNode } from "react";
 
 type Tone = "primary" | "success" | "warning" | "danger" | "neutral";
 type Appearance = "solid" | "soft" | "outline";
+type Size = "sm" | "md";
 
 type Props = HTMLAttributes<HTMLSpanElement> & {
   tone?: Tone;
   appearance?: Appearance;
+  size?: Size;
   children: ReactNode;
+};
+
+const sizes: Record<Size, string> = {
+  sm: "px-2 py-0.5 text-xs",
+  md: "px-3 py-1 text-sm",
 };
 
 const styles: Record<Appearance, Record<Tone, string>> = {
@@ -36,13 +43,14 @@ const styles: Record<Appearance, Record<Tone, string>> = {
 export const Badge = ({
   tone = "primary",
   appearance = "soft",
+  size = "md",
   className = "",
   children,
   ...rest
 }: Props) => (
   <span
     {...rest}
-    className={`inline-flex items-center justify-center rounded-full px-3 py-1 text-sm font-bold whitespace-nowrap ${styles[appearance][tone]} ${className}`}
+    className={`inline-flex items-center justify-center rounded-full font-bold whitespace-nowrap ${sizes[size]} ${styles[appearance][tone]} ${className}`}
   >
     {children}
   </span>
