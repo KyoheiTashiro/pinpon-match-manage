@@ -39,7 +39,7 @@ export const Button = ({
   <button
     ref={ref}
     {...rest}
-    className={`${sizes[size]} rounded-xl font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${styles[variant]} ${className}`}
+    className={`${sizes[size]} cursor-pointer rounded-xl font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${styles[variant]} ${className}`}
   >
     {children}
   </button>
