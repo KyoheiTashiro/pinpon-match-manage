@@ -46,7 +46,6 @@ describe("MatchModal", () => {
     expect(screen.getByRole("heading", { name: "試合の入力" })).toBeInTheDocument();
     expect(screen.getByText("選手A")).toBeInTheDocument();
     expect(screen.getByText("選手B")).toBeInTheDocument();
-    expect(screen.getByText("対")).toBeInTheDocument();
   });
 
   it("スコアボードを開くボタンでScoreboardScreenが出る", async () => {

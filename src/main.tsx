@@ -13,7 +13,7 @@ registerSW({
     if (!registration) return;
     document.addEventListener("visibilitychange", () => {
       if (document.visibilityState === "visible") {
-        registration.update();
+        void registration.update();
       }
     });
   },
