@@ -93,12 +93,6 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
           </button>
         </div>
 
-        <div className="mb-4 text-center text-2xl font-extrabold">
-          {leftName}
-          <span className="text-line mx-3">対</span>
-          {rightName}
-        </div>
-
         <FirstServerSelect
           leftName={leftName}
           rightName={rightName}
