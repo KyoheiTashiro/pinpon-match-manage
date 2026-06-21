@@ -9,10 +9,10 @@ describe("Calendar", () => {
     expect(screen.getByText("日付を選んで")).toBeInTheDocument();
   });
 
-  it("value を日本語フォーマットで表示", () => {
+  it("value をフォーマットして表示", () => {
     render(<Calendar value="2026-06-21" onChange={vi.fn<() => void>()} />);
     // 2026-06-21 は日曜
-    expect(screen.getByText("2026年6月21日（日）")).toBeInTheDocument();
+    expect(screen.getByText("2026/06/21（日）")).toBeInTheDocument();
   });
 
   it("初期クローズ状態では dialog 非表示", () => {
