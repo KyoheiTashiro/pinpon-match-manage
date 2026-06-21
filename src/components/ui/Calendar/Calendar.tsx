@@ -7,6 +7,10 @@ import { useEffect, useId, useMemo, useRef, useState } from "react";
 
 const WEEKDAYS = ["日", "月", "火", "水", "木", "金", "土"];
 
+// 曜日ヘッダの文字色（日=赤 / 土=青 / 平日=line）。
+const weekdayColor = (weekday: number) =>
+  weekday === 0 ? "text-danger" : weekday === 6 ? "text-primary" : "text-line";
+
 const pad = (n: number) => String(n).padStart(2, "0");
 
 const toISO = (y: number, m: number, d: number) => `${y}-${pad(m + 1)}-${pad(d)}`;
@@ -71,12 +75,13 @@ export const Calendar = ({
   // キーボード移動用カーソル日（1始まり）。
   const [cursor, setCursor] = useState(selected?.d ?? today.d);
 
-  // 開いたとき選択日（無ければ今日）の月へ合わせる。
+  // 開いたとき選択日（無ければ今日）の月へ合わせ、グリッドへフォーカス。
   useEffect(() => {
     if (!isOpen) return;
     const base = selected ?? today;
     setView({ y: base.y, m: base.m });
     setCursor(base.d);
+    gridRef.current?.focus();
   }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // 外クリックで閉じる。
@@ -97,21 +102,15 @@ export const Calendar = ({
     };
   }, [isOpen]);
 
-  // 開いたらグリッドへフォーカス。
-  useEffect(() => {
-    if (isOpen) gridRef.current?.focus();
-  }, [isOpen]);
-
   const daysInMonth = new Date(view.y, view.m + 1, 0).getDate();
   const firstWeekday = new Date(view.y, view.m, 1).getDay();
-  // 月初までの空セル + 日付セルを 7 日ずつの週に分割。
+  // 月初までの空セル + 日付セル。末尾も 7 の倍数になるよう null 埋めし週に分割。
   const cells: (number | null)[] = [
-    ...Array.from<null>({ length: firstWeekday }).fill(null),
+    ...Array.from({ length: firstWeekday }, () => null),
     ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
   ];
   while (cells.length % 7 !== 0) cells.push(null);
-  const weeks: (number | null)[][] = [];
-  for (let i = 0; i < cells.length; i += 7) weeks.push(cells.slice(i, i + 7));
+  const weeks = Array.from({ length: cells.length / 7 }, (_, i) => cells.slice(i * 7, i * 7 + 7));
 
   const close = (returnFocus = true) => {
     setIsOpen(false);
@@ -184,6 +183,13 @@ export const Calendar = ({
     selected !== null && selected.y === view.y && selected.m === view.m && selected.d === day;
   const isToday = (day: number) => today.y === view.y && today.m === view.m && today.d === day;
 
+  const dayClass = (day: number) => {
+    const base = "min-h-btn flex w-full items-center justify-center rounded-lg text-base font-bold";
+    if (isSelected(day)) return `${base} bg-primary text-white`;
+    if (isToday(day)) return `${base} border-primary text-primary border-2 bg-white`;
+    return `${base} text-ink hover:bg-line/10 bg-white`;
+  };
+
   return (
     <div ref={wrapperRef} className="relative">
       <button
@@ -222,7 +228,7 @@ export const Calendar = ({
                 onClick={() => goMonth(-1)}
                 className="text-ink min-h-btn flex w-10 items-center justify-center rounded-lg"
               >
-                <ChevronDownIcon width={20} height={20} className="rotate-90" />
+                <ChevronDownIcon width={28} height={28} className="rotate-90" />
               </button>
               <span aria-live="polite" className="text-ink text-base font-bold">
                 {view.y}年{view.m + 1}月
@@ -233,7 +239,7 @@ export const Calendar = ({
                 onClick={() => goMonth(1)}
                 className="text-ink min-h-btn flex w-10 items-center justify-center rounded-lg"
               >
-                <ChevronDownIcon width={20} height={20} className="-rotate-90" />
+                <ChevronDownIcon width={28} height={28} className="-rotate-90" />
               </button>
             </div>
 
@@ -245,8 +251,12 @@ export const Calendar = ({
             >
               <thead>
                 <tr>
-                  {WEEKDAYS.map((w) => (
-                    <th key={w} scope="col" className="text-line text-center text-xs font-bold">
+                  {WEEKDAYS.map((w, i) => (
+                    <th
+                      key={w}
+                      scope="col"
+                      className={`text-center text-xs font-bold ${weekdayColor(i)}`}
+                    >
                       {w}
                     </th>
                   ))}
@@ -266,13 +276,7 @@ export const Calendar = ({
                             aria-pressed={isSelected(day)}
                             aria-current={isToday(day) ? "date" : undefined}
                             onClick={() => selectDay(day)}
-                            className={`min-h-btn flex w-full items-center justify-center text-base font-bold ${
-                              isSelected(day)
-                                ? "bg-primary rounded-lg text-white"
-                                : isToday(day)
-                                  ? "border-primary text-primary rounded-lg border-2 bg-white"
-                                  : "text-ink hover:bg-line/10 rounded-lg bg-white"
-                            }`}
+                            className={dayClass(day)}
                           >
                             {day}
                           </button>
