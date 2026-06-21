@@ -1,7 +1,7 @@
 import { ParticipantsTab } from "@/features/tournament/participants";
 import { makeTournament, makeParticipant } from "@/test/factories";
 import { renderWithStore, seedStore, setupStoreIsolation } from "@/test/renderWithStore";
-import { screen, waitFor } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, beforeEach } from "vitest";
 
@@ -298,14 +298,14 @@ describe("ParticipantsTab", () => {
   });
 
   describe("過去参加者ピッカー", () => {
-    it("過去の参加者がいない場合「過去から選ぶ」ボタンが disabled", () => {
+    it("過去の参加者がいない場合「履歴」ボタンが disabled", () => {
       renderParticipants();
 
-      const pastBtn = screen.getByRole("button", { name: "過去から選ぶ" });
+      const pastBtn = screen.getByRole("button", { name: "履歴" });
       expect(pastBtn).toBeDisabled();
     });
 
-    it("過去の参加者がいる場合「過去から選ぶ」ボタンが有効", () => {
+    it("過去の参加者がいる場合「履歴」ボタンが有効", () => {
       seedStore({
         tournaments: {
           t1: makeTournament({ id: "t1" }),
@@ -318,11 +318,11 @@ describe("ParticipantsTab", () => {
 
       renderParticipants();
 
-      const pastBtn = screen.getByRole("button", { name: "過去から選ぶ" });
+      const pastBtn = screen.getByRole("button", { name: "履歴" });
       expect(pastBtn).not.toBeDisabled();
     });
 
-    it("「過去から選ぶ」ボタンクリックでモーダルが開く", async () => {
+    it("「履歴」ボタンクリックでモーダルが開く", async () => {
       seedStore({
         tournaments: {
           t1: makeTournament({ id: "t1" }),
@@ -336,12 +336,12 @@ describe("ParticipantsTab", () => {
       renderParticipants();
       const user = userEvent.setup();
 
-      await user.click(screen.getByRole("button", { name: "過去から選ぶ" }));
+      await user.click(screen.getByRole("button", { name: "履歴" }));
 
       await waitFor(() => {
         expect(document.querySelector("dialog[open]")).toBeInTheDocument();
       });
-      expect(screen.getByText("過去から選ぶ", { selector: "h2" })).toBeInTheDocument();
+      expect(screen.getByText("履歴から追加", { selector: "h2" })).toBeInTheDocument();
     });
 
     it("候補を選んで追加するとt1の参加者に加わる", async () => {
@@ -358,7 +358,7 @@ describe("ParticipantsTab", () => {
       renderParticipants();
       const user = userEvent.setup();
 
-      await user.click(screen.getByRole("button", { name: "過去から選ぶ" }));
+      await user.click(screen.getByRole("button", { name: "履歴" }));
 
       await waitFor(() => {
         expect(document.querySelector("dialog[open]")).toBeInTheDocument();
@@ -367,11 +367,14 @@ describe("ParticipantsTab", () => {
       // チェックボックスをオン
       await user.click(screen.getByRole("checkbox", { name: /選手X/u }));
 
-      // 追加ボタンをクリック
-      await user.click(screen.getByRole("button", { name: "追加" }));
+      // モーダル内の「追加」ボタンをクリック（フォームの submit 追加と区別）
+      const dialog = within(screen.getByRole("dialog"));
+      await user.click(dialog.getByRole("button", { name: "追加" }));
 
+      // モーダル外（参加者リスト）に 選手X が追加されたことを確認
       await waitFor(() => {
-        expect(screen.getByText("選手X")).toBeInTheDocument();
+        const inList = screen.getAllByText("選手X").filter((el) => !el.closest("dialog"));
+        expect(inList.length).toBeGreaterThan(0);
       });
     });
 
@@ -390,7 +393,7 @@ describe("ParticipantsTab", () => {
       renderParticipants();
       const user = userEvent.setup();
 
-      await user.click(screen.getByRole("button", { name: "過去から選ぶ" }));
+      await user.click(screen.getByRole("button", { name: "履歴" }));
 
       await waitFor(() => {
         expect(document.querySelector("dialog[open]")).toBeInTheDocument();
@@ -398,7 +401,7 @@ describe("ParticipantsTab", () => {
 
       const checkbox = screen.getByRole("checkbox", { name: /選手X/u });
       expect(checkbox).toBeDisabled();
-      expect(screen.getByText("追加済み")).toBeInTheDocument();
+      expect(screen.getByText("追加済")).toBeInTheDocument();
     });
 
     it("何も選ばないと「追加」ボタンが disabled", async () => {
@@ -415,7 +418,7 @@ describe("ParticipantsTab", () => {
       renderParticipants();
       const user = userEvent.setup();
 
-      await user.click(screen.getByRole("button", { name: "過去から選ぶ" }));
+      await user.click(screen.getByRole("button", { name: "履歴" }));
 
       await waitFor(() => {
         expect(document.querySelector("dialog[open]")).toBeInTheDocument();
@@ -443,7 +446,7 @@ describe("ParticipantsTab", () => {
       renderParticipants();
       const user = userEvent.setup();
 
-      await user.click(screen.getByRole("button", { name: "過去から選ぶ" }));
+      await user.click(screen.getByRole("button", { name: "履歴" }));
 
       await waitFor(() => {
         expect(document.querySelector("dialog[open]")).toBeInTheDocument();
