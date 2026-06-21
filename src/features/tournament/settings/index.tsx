@@ -1,6 +1,6 @@
 import { Button, Calendar, ConfirmModal } from "@/components/ui";
 import { ROUTES } from "@/constants/routes";
-import { useSettings } from "@/features/tournament/settings/hooks";
+import { DIALOG, useSettings } from "@/features/tournament/settings/hooks";
 import { matchesOf } from "@/store/selectors";
 import { FORMAT } from "@/store/types";
 import { useAppStore } from "@/store/useAppStore";
@@ -23,14 +23,12 @@ const SettingsView = ({ tournamentId }: { tournamentId: string }) => {
     startEdit,
     cancelEdit,
     saveEdit,
-    confirmReset,
-    askReset,
+    dialog,
+    openReset,
+    openDelete,
+    closeDialog,
     doReset,
-    cancelReset,
-    confirmDelete,
-    askDelete,
     doDelete,
-    cancelDelete,
   } = useSettings(tournamentId, () => {
     void navigate(ROUTES.HOME);
   });
@@ -106,39 +104,39 @@ const SettingsView = ({ tournamentId }: { tournamentId: string }) => {
       )}
 
       <div className="border-line space-y-3 border-t-2 pt-4">
-        <Button variant="dangerOutline" onClick={askReset}>
+        <Button variant="dangerOutline" onClick={openReset}>
           試合結果を削除
         </Button>
         <p className="text-sub text-sm">大会・参加者は残し、試合の記録だけを削除します。</p>
       </div>
 
       <div className="border-line space-y-3 border-t-2 pt-4">
-        <Button variant="danger" onClick={askDelete}>
+        <Button variant="danger" onClick={openDelete}>
           大会を削除
         </Button>
         <p className="text-sub text-sm">大会・参加者・試合を全て削除します。</p>
       </div>
 
       <ConfirmModal
-        open={confirmReset}
+        open={dialog === DIALOG.reset}
         title="試合結果を削除"
         message="この大会の試合記録を全て削除します。参加者は残ります。"
         confirmLabel="削除する"
         cancelLabel="やめる"
         destructive
         onConfirm={doReset}
-        onCancel={cancelReset}
+        onCancel={closeDialog}
       />
 
       <ConfirmModal
-        open={confirmDelete}
+        open={dialog === DIALOG.delete}
         title="大会を削除"
         message="大会・参加者・試合を全て削除します。取り消せません。"
         confirmLabel="削除する"
         cancelLabel="やめる"
         destructive
         onConfirm={doDelete}
-        onCancel={cancelDelete}
+        onCancel={closeDialog}
       />
     </div>
   );

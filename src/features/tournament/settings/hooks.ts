@@ -4,6 +4,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
+export const DIALOG = { reset: "reset", delete: "delete" } as const;
+type Dialog = (typeof DIALOG)[keyof typeof DIALOG];
+
 export const useSettings = (tournamentId: string, onDeleted: () => void) => {
   const tournament = useAppStore((state) => state.tournaments[tournamentId]);
   const updateTournament = useAppStore((state) => state.updateTournament);
@@ -11,8 +14,8 @@ export const useSettings = (tournamentId: string, onDeleted: () => void) => {
   const deleteTournament = useAppStore((state) => state.deleteTournament);
 
   const [editing, setEditing] = useState(false);
-  const [confirmReset, setConfirmReset] = useState(false);
-  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [dialog, setDialog] = useState<Dialog | null>(null);
+  const closeDialog = () => setDialog(null);
 
   const form = useForm<FormType>({
     resolver: zodResolver(Schema),
@@ -32,20 +35,15 @@ export const useSettings = (tournamentId: string, onDeleted: () => void) => {
     setEditing(false);
   });
 
-  const askReset = () => setConfirmReset(true);
   const doReset = () => {
     resetTournament(tournamentId);
-    setConfirmReset(false);
+    closeDialog();
   };
-  const cancelReset = () => setConfirmReset(false);
-
-  const askDelete = () => setConfirmDelete(true);
   const doDelete = () => {
     deleteTournament(tournamentId);
-    setConfirmDelete(false);
+    closeDialog();
     onDeleted();
   };
-  const cancelDelete = () => setConfirmDelete(false);
 
   return {
     tournament,
@@ -54,13 +52,11 @@ export const useSettings = (tournamentId: string, onDeleted: () => void) => {
     startEdit,
     cancelEdit,
     saveEdit,
-    confirmReset,
-    askReset,
+    dialog,
+    openReset: () => setDialog(DIALOG.reset),
+    openDelete: () => setDialog(DIALOG.delete),
+    closeDialog,
     doReset,
-    cancelReset,
-    confirmDelete,
-    askDelete,
     doDelete,
-    cancelDelete,
   };
 };
