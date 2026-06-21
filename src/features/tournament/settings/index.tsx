@@ -106,7 +106,7 @@ const SettingsView = ({ tournamentId }: { tournamentId: string }) => {
       )}
 
       <div className="border-line space-y-3 border-t-2 pt-4">
-        <Button variant="danger" onClick={askReset}>
+        <Button variant="dangerOutline" onClick={askReset}>
           試合結果を削除
         </Button>
         <p className="text-sub text-sm">大会・参加者は残し、試合の記録だけを削除します。</p>

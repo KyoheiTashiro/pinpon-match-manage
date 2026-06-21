@@ -36,7 +36,7 @@ export const ScoreboardHeader = ({
     <div className="flex shrink-0 items-center justify-between border-b border-white/20 px-3 py-2">
       <Button
         type="button"
-        variant="secondary"
+        variant="white"
         size="sm"
         onClick={onBack}
         aria-label="戻る"
