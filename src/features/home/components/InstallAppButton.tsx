@@ -15,6 +15,8 @@ const isStandalone = () =>
 
 const isIOS = () => /iPad|iPhone|iPod/u.test(navigator.userAgent);
 
+const isMobile = () => /iPad|iPhone|iPod|Android/u.test(navigator.userAgent);
+
 const GUIDE_VIDEOS = {
   ios: "https://www.youtube.com/embed/LplfyGg_-Ao?si=WXXfWK_YvlzbnJTM",
   android: "https://www.youtube.com/embed/RGQRNjhP7mk?si=mj_8ys1vmjxE0be3",
@@ -59,8 +61,9 @@ export const InstallAppButton = () => {
       setDeferred(null);
       return;
     }
-    // deferred 非対応ブラウザ(iOS Safari / Android Firefox 等) → 手動手順ガイド
-    setShowGuide(true);
+    // deferred 非対応はモバイルのみ手動手順ガイド。PC はネイティブ install prompt 専用で
+    // フォールバックなし(beforeinstallprompt 無しでは prompt をプログラムから呼べないため)。
+    if (isMobile()) setShowGuide(true);
   };
 
   return (
