@@ -33,7 +33,7 @@ export const RadioGroup = <T extends string | number>({
             checked={value === option.value}
             onChange={() => onChange(option.value)}
             aria-label={option.label}
-            className="h-5 w-5"
+            className="h-4 w-4"
           />
           <span className="text-lg font-bold">{option.label}</span>
         </label>

@@ -1,5 +1,5 @@
 import { Button, InfoModal } from "@/components/ui";
-import { FontSizeToggle } from "@/features/home/components/FontSizeToggle";
+import { FontSizeRadio } from "@/features/home/components/FontSizeRadio";
 
 type Props = {
   open: boolean;
@@ -21,8 +21,7 @@ export const SettingsModal = ({
   <InfoModal open={open} title="設定" onClose={onClose}>
     <div className="flex flex-col gap-6">
       <div className="flex flex-col items-start gap-2">
-        <span className="text-base font-bold">文字サイズ</span>
-        <FontSizeToggle />
+        <FontSizeRadio />
       </div>
       <div className="border-line flex flex-col items-start gap-2 border-t-2 pt-6">
         <span className="text-base font-bold">データ管理</span>

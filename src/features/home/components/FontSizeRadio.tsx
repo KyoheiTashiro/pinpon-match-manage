@@ -1,14 +1,15 @@
-import { Toggle, type ToggleOption } from "@/components/ui";
+import { RadioGroup } from "@/components/ui";
 import { FONT_SIZE, type FontSize } from "@/store/types";
 import { useAppStore } from "@/store/useAppStore";
 import { useEffect } from "react";
 
-const FONT_SIZE_OPTIONS: ToggleOption<FontSize>[] = Object.values(FONT_SIZE).map((size) => ({
-  value: size,
-  label: size === FONT_SIZE.NORMAL ? "標準" : size === FONT_SIZE.LARGE ? "大" : "特大",
-}));
+const FONT_SIZE_OPTIONS = [
+  { value: FONT_SIZE.NORMAL, label: "標準" },
+  { value: FONT_SIZE.LARGE, label: "大" },
+  { value: FONT_SIZE.XLARGE, label: "特大" },
+] as const satisfies { value: FontSize; label: string }[];
 
-export const FontSizeToggle = () => {
+export const FontSizeRadio = () => {
   const fontSize = useAppStore((state) => state.fontSize);
   const setFontSize = useAppStore((state) => state.setFontSize);
 
@@ -18,8 +19,9 @@ export const FontSizeToggle = () => {
   }, [fontSize]);
 
   return (
-    <Toggle
-      ariaLabel="文字サイズ"
+    <RadioGroup
+      legend="文字サイズ"
+      name="font-size"
       value={fontSize}
       options={FONT_SIZE_OPTIONS}
       onChange={setFontSize}
