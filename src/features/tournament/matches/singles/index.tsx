@@ -112,9 +112,13 @@ export const SinglesList = ({ tournamentId }: { tournamentId: string }) => {
                           終了
                         </Badge>
                       ) : inProgress ? (
-                        <Badge tone="warning">途中</Badge>
+                        <Badge tone="warning" appearance="solid">
+                          途中
+                        </Badge>
                       ) : (
-                        <Badge tone="primary">対戦</Badge>
+                        <Badge tone="primary" appearance="solid">
+                          対戦
+                        </Badge>
                       )}
                     </span>
                     <ChevronDownIcon className="size-7 flex-shrink-0 -rotate-90 text-[#94a3b8]" />
