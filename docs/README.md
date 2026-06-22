@@ -11,6 +11,10 @@
 
 ## ドキュメント目次
 
+### 規約
+
+- [coding-standards.md](coding-standards.md) — コーディング規約（命名・構成・型・状態管理・テスト・言語方針）
+
 ### アーキテクチャ
 
 - [tech-stack.md](architecture/tech-stack.md) — 技術スタック（HashRouter採用理由含む）
