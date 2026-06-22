@@ -1,67 +1,20 @@
 import { SIDE } from "@/domain/match";
-import type { Side } from "@/domain/match";
 import { ScoreColumn } from "@/features/tournament/scoreboard/components/ScoreColumn";
-
-type Props = {
-  leftName: string;
-  rightName: string;
-  leftScore: number;
-  rightScore: number;
-  leftWins: number;
-  rightWins: number;
-  winner: Side | null;
-  matchWinner: Side | null;
-  leftMatchPoint: boolean;
-  rightMatchPoint: boolean;
-  server: Side | null;
-  locked: boolean;
-  swapped: boolean;
-  onSwap: () => void;
-  onAddLeft: () => void;
-  onSubLeft: () => void;
-  onAddRight: () => void;
-  onSubRight: () => void;
-  canSubLeft: boolean;
-  canSubRight: boolean;
-};
+import type { ScoreInputProps } from "@/features/tournament/scoreboard/types";
 
 export const ScoreInputView = ({
-  leftName,
-  rightName,
-  leftScore,
-  rightScore,
+  left,
+  right,
   leftWins,
   rightWins,
-  winner,
   matchWinner,
-  leftMatchPoint,
-  rightMatchPoint,
-  server,
   locked,
   swapped,
   onSwap,
-  onAddLeft,
-  onSubLeft,
-  onAddRight,
-  onSubRight,
-  canSubLeft,
-  canSubRight,
-}: Props) => {
+}: ScoreInputProps) => {
   return (
     <div className="grid min-h-0 flex-1 grid-cols-[1fr_auto_1fr] items-stretch">
-      <ScoreColumn
-        name={leftName}
-        score={leftScore}
-        isGameWinner={winner === SIDE.LEFT}
-        isMatchWinner={matchWinner === SIDE.LEFT}
-        isMatchPoint={leftMatchPoint}
-        isServing={server === SIDE.LEFT}
-        disabled={locked}
-        disableAdd={winner === SIDE.LEFT}
-        canSub={canSubLeft}
-        onAdd={onAddLeft}
-        onSub={onSubLeft}
-      />
+      <ScoreColumn {...left} />
 
       <div className="flex min-w-[140px] flex-col items-center justify-center border-x border-white/20 px-1 sm:px-2">
         <div className="mt-2 text-[clamp(3rem,12vw,9rem)] leading-none font-extrabold tabular-nums">
@@ -83,19 +36,7 @@ export const ScoreInputView = ({
         </button>
       </div>
 
-      <ScoreColumn
-        name={rightName}
-        score={rightScore}
-        isGameWinner={winner === SIDE.RIGHT}
-        isMatchWinner={matchWinner === SIDE.RIGHT}
-        isMatchPoint={rightMatchPoint}
-        isServing={server === SIDE.RIGHT}
-        disabled={locked}
-        disableAdd={winner === SIDE.RIGHT}
-        canSub={canSubRight}
-        onAdd={onAddRight}
-        onSub={onSubRight}
-      />
+      <ScoreColumn {...right} />
     </div>
   );
 };

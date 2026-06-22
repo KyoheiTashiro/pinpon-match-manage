@@ -1,45 +1,23 @@
-import type { Game, Side } from "@/domain/match";
 import { MatchResultView } from "@/features/tournament/scoreboard/components/MatchResultView";
 import { ScoreboardHeader } from "@/features/tournament/scoreboard/components/ScoreboardHeader";
 import { ScoreInputView } from "@/features/tournament/scoreboard/components/ScoreInputView";
-import { useScoreboard } from "@/features/tournament/scoreboard/hooks";
+import { useScoreboard, type UseScoreboardProps } from "@/features/tournament/scoreboard/hooks";
 import { createPortal } from "react-dom";
 
-type Props = {
-  leftName: string;
-  rightName: string;
-  games: Game[];
-  setGames: (games: Game[]) => void;
-  lockedFromIndex: number;
-  initialGameIndex: number;
-  winsNeeded: number;
-  matchFirstServer: Side;
-  onBack: () => void;
-  onCloseAll?: () => void;
-};
-
-export const ScoreboardScreen = (props: Props) => {
+export const ScoreboardScreen = (props: UseScoreboardProps) => {
   const {
     gameIndex,
     setGameIndex,
-    swapped,
-    isPortrait,
-    display,
-    locked,
-    nextGameIndex,
+    showResult,
     showNextGameBtn,
     showResultBtn,
     showBackBtn,
-    showResult,
-    canSubLeft,
-    canSubRight,
-    onSwap,
-    onShowResult,
-    onAddLeft,
-    onSubLeft,
-    onAddRight,
-    onSubRight,
+    nextGameIndex,
+    isPortrait,
+    scoreInputProps,
+    matchResultProps,
     onBack,
+    onShowResult,
     onCloseAll,
   } = useScoreboard(props);
 
@@ -86,38 +64,9 @@ export const ScoreboardScreen = (props: Props) => {
       )}
 
       {showResult ? (
-        <MatchResultView
-          leftName={display.leftName}
-          rightName={display.rightName}
-          leftWins={display.leftWins}
-          rightWins={display.rightWins}
-          matchWinner={display.matchWinner}
-          games={props.games}
-          swapped={swapped}
-        />
+        <MatchResultView {...matchResultProps} games={props.games} />
       ) : (
-        <ScoreInputView
-          leftName={display.leftName}
-          rightName={display.rightName}
-          leftScore={display.leftScore}
-          rightScore={display.rightScore}
-          leftWins={display.leftWins}
-          rightWins={display.rightWins}
-          winner={display.winner}
-          matchWinner={display.matchWinner}
-          leftMatchPoint={display.leftMatchPoint}
-          rightMatchPoint={display.rightMatchPoint}
-          server={display.server}
-          locked={locked}
-          swapped={swapped}
-          onSwap={onSwap}
-          onAddLeft={onAddLeft}
-          onSubLeft={onSubLeft}
-          onAddRight={onAddRight}
-          onSubRight={onSubRight}
-          canSubLeft={canSubLeft}
-          canSubRight={canSubRight}
-        />
+        <ScoreInputView {...scoreInputProps} />
       )}
     </div>,
     document.body,

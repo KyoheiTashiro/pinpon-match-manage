@@ -73,34 +73,26 @@ export const ScoreboardHeader = ({
       </div>
       <div className="flex min-w-[110px] justify-end">
         {showNextGameBtn && (
-          <button
-            type="button"
-            onClick={() => setGameIndex(nextGameIndex)}
-            className="border-success bg-success rounded-lg border-2 px-4 py-2 text-base font-extrabold text-white transition hover:brightness-110 active:scale-95"
-          >
+          <Button variant="success" size="sm" onClick={() => setGameIndex(nextGameIndex)}>
             次に進む
-          </button>
+          </Button>
         )}
         {showResultBtn && (
-          <button
-            type="button"
-            onClick={onShowResult}
-            className="border-success bg-success rounded-lg border-2 px-4 py-2 text-base font-extrabold text-white transition hover:brightness-110 active:scale-95"
-          >
+          <Button variant="success" size="sm" onClick={onShowResult}>
             結果を見る
-          </button>
+          </Button>
         )}
         {showBackBtn && (
-          <button
-            type="button"
+          <Button
+            variant="success"
+            size="sm"
             onClick={() => {
               onBack();
               onCloseAll?.();
             }}
-            className="border-success bg-success rounded-lg border-2 px-4 py-2 text-base font-extrabold text-white transition hover:brightness-110 active:scale-95"
           >
             対戦表に戻る
-          </button>
+          </Button>
         )}
       </div>
     </div>

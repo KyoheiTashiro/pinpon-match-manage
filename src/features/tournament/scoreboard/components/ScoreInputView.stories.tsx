@@ -1,8 +1,32 @@
 import { SIDE } from "@/domain/match";
+import type { SideView } from "@/features/tournament/scoreboard/types";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { fn } from "storybook/test";
 
 import { ScoreInputView } from "./ScoreInputView";
+
+const baseLeft: SideView = {
+  name: "田中 太郎",
+  score: 8,
+  isGameWinner: false,
+  isMatchWinner: false,
+  isMatchPoint: false,
+  isServing: true,
+  disabled: false,
+  disableAdd: false,
+  canSub: true,
+  onAdd: fn<() => void>(),
+  onSub: fn<() => void>(),
+};
+
+const baseRight: SideView = {
+  ...baseLeft,
+  name: "鈴木 花子",
+  score: 6,
+  isServing: false,
+  onAdd: fn<() => void>(),
+  onSub: fn<() => void>(),
+};
 
 const meta = {
   title: "Tournament/ScoreInputView",
@@ -16,26 +40,14 @@ const meta = {
     ),
   ],
   args: {
-    leftName: "田中 太郎",
-    rightName: "鈴木 花子",
-    leftScore: 8,
-    rightScore: 6,
+    left: baseLeft,
+    right: baseRight,
     leftWins: 1,
     rightWins: 0,
-    winner: null,
     matchWinner: null,
-    leftMatchPoint: false,
-    rightMatchPoint: false,
-    server: SIDE.LEFT,
     locked: false,
     swapped: false,
     onSwap: fn<() => void>(),
-    onAddLeft: fn<() => void>(),
-    onSubLeft: fn<() => void>(),
-    onAddRight: fn<() => void>(),
-    onSubRight: fn<() => void>(),
-    canSubLeft: true,
-    canSubRight: true,
   },
 } satisfies Meta<typeof ScoreInputView>;
 
@@ -46,33 +58,34 @@ export const InProgress: Story = {};
 
 export const LeftMatchPoint: Story = {
   args: {
-    leftScore: 10,
-    rightScore: 7,
-    leftMatchPoint: true,
-    server: SIDE.LEFT,
+    left: { ...baseLeft, score: 10, isMatchPoint: true, isServing: true },
+    right: { ...baseRight, score: 7 },
   },
 };
 
 export const GameWonByRight: Story = {
   args: {
-    leftScore: 9,
-    rightScore: 11,
-    winner: SIDE.RIGHT,
-    server: SIDE.RIGHT,
+    left: { ...baseLeft, score: 9, isServing: false },
+    right: { ...baseRight, score: 11, isGameWinner: true, disableAdd: true, isServing: true },
   },
 };
 
 export const Locked: Story = {
   args: {
-    locked: true,
-    leftScore: 11,
-    rightScore: 8,
+    left: {
+      ...baseLeft,
+      score: 11,
+      isGameWinner: true,
+      isMatchWinner: true,
+      isServing: false,
+      disabled: true,
+      disableAdd: true,
+      canSub: false,
+    },
+    right: { ...baseRight, score: 8, isServing: false, disabled: true, canSub: false },
     leftWins: 3,
     rightWins: 1,
     matchWinner: SIDE.LEFT,
-    winner: SIDE.LEFT,
-    server: null,
-    canSubLeft: false,
-    canSubRight: false,
+    locked: true,
   },
 };

@@ -11,6 +11,11 @@ import {
   matchSummary,
   undoLastPoint,
 } from "@/domain/match";
+import type {
+  MatchResultProps,
+  ScoreInputProps,
+  SideView,
+} from "@/features/tournament/scoreboard/types";
 import { useState, useSyncExternalStore } from "react";
 
 const PORTRAIT_QUERY = "(orientation: portrait) and (max-width: 900px)";
@@ -28,7 +33,7 @@ const isGamePoint = (score: number, opponent: number) => {
   return nextScore >= GAME_POINT && nextScore - opponent >= WIN_DIFF;
 };
 
-type UseScoreboardProps = {
+export type UseScoreboardProps = {
   leftName: string;
   rightName: string;
   games: Game[];
@@ -75,32 +80,15 @@ export const useScoreboard = ({
   const rightMatchPoint =
     gameOpen && current ? isGamePoint(current.rightScore, current.leftScore) : false;
 
-  const display = {
-    current,
-    rawWinner,
-    rawMatchWinner,
-    winner: pick(rawWinner, flip(rawWinner)),
-    matchWinner: pick(rawMatchWinner, flip(rawMatchWinner)),
-    leftName: pick(leftName, rightName),
-    rightName: pick(rightName, leftName),
-    leftScore: pick(current?.leftScore ?? 0, current?.rightScore ?? 0),
-    rightScore: pick(current?.rightScore ?? 0, current?.leftScore ?? 0),
-    leftWins: pick(summary.leftWins, summary.rightWins),
-    rightWins: pick(summary.rightWins, summary.leftWins),
-    server: pick(rawServer, flip(rawServer)),
-    leftMatchPoint: pick(leftMatchPoint, rightMatchPoint),
-    rightMatchPoint: pick(rightMatchPoint, leftMatchPoint),
-    currentFinished: current ? isGameFinished(current) : false,
-  };
+  const currentFinished = current ? isGameFinished(current) : false;
 
   const locked = gameIndex >= lockedFromIndex;
   const nextGameIndex = gameIndex + 1;
   const canAdvance =
-    !display.rawMatchWinner && nextGameIndex < games.length && nextGameIndex < lockedFromIndex;
-  const showNextGameBtn =
-    display.currentFinished && !!display.rawWinner && canAdvance && !showResult;
-  const showResultBtn = !!display.rawMatchWinner && !showResult;
-  const showBackBtn = !!display.rawMatchWinner && showResult;
+    !rawMatchWinner && nextGameIndex < games.length && nextGameIndex < lockedFromIndex;
+  const showNextGameBtn = currentFinished && !!rawWinner && canAdvance && !showResult;
+  const showResultBtn = !!rawMatchWinner && !showResult;
+  const showBackBtn = !!rawMatchWinner && showResult;
 
   const toActual = (displaySide: Side): Side => (swapped ? opposite(displaySide) : displaySide);
 
@@ -121,27 +109,77 @@ export const useScoreboard = ({
   const canSubLeft = rawLastScorer === toActual(SIDE.LEFT);
   const canSubRight = rawLastScorer === toActual(SIDE.RIGHT);
 
+  const matchWinner = pick(rawMatchWinner, flip(rawMatchWinner));
+  const winner = pick(rawWinner, flip(rawWinner));
+  const server = pick(rawServer, flip(rawServer));
+  const displayLeftName = pick(leftName, rightName);
+  const displayRightName = pick(rightName, leftName);
+  const displayLeftWins = pick(summary.leftWins, summary.rightWins);
+  const displayRightWins = pick(summary.rightWins, summary.leftWins);
+  const displayLeftScore = pick(current?.leftScore ?? 0, current?.rightScore ?? 0);
+  const displayRightScore = pick(current?.rightScore ?? 0, current?.leftScore ?? 0);
+  const displayLeftMatchPoint = pick(leftMatchPoint, rightMatchPoint);
+  const displayRightMatchPoint = pick(rightMatchPoint, leftMatchPoint);
+
+  const sideView = (
+    side: Side,
+    name: string,
+    score: number,
+    isMatchPoint: boolean,
+    canSub: boolean,
+  ): SideView => ({
+    name,
+    score,
+    isGameWinner: winner === side,
+    isMatchWinner: matchWinner === side,
+    isMatchPoint,
+    isServing: server === side,
+    disabled: locked,
+    disableAdd: winner === side,
+    canSub,
+    onAdd: () => addPoint(side),
+    onSub: () => undoPoint(side),
+  });
+
+  const scoreInputProps: ScoreInputProps = {
+    left: sideView(SIDE.LEFT, displayLeftName, displayLeftScore, displayLeftMatchPoint, canSubLeft),
+    right: sideView(
+      SIDE.RIGHT,
+      displayRightName,
+      displayRightScore,
+      displayRightMatchPoint,
+      canSubRight,
+    ),
+    leftWins: displayLeftWins,
+    rightWins: displayRightWins,
+    matchWinner,
+    locked,
+    swapped,
+    onSwap: () => setSwapped((previous) => !previous),
+  };
+
+  const matchResultProps: Omit<MatchResultProps, "games"> = {
+    leftName: displayLeftName,
+    rightName: displayRightName,
+    leftWins: displayLeftWins,
+    rightWins: displayRightWins,
+    matchWinner,
+    swapped,
+  };
+
   return {
     gameIndex,
     setGameIndex,
-    swapped,
-    isPortrait,
-    display,
-    locked,
-    nextGameIndex,
+    showResult,
     showNextGameBtn,
     showResultBtn,
     showBackBtn,
-    showResult,
-    canSubLeft,
-    canSubRight,
-    onSwap: () => setSwapped((previous) => !previous),
-    onShowResult: () => setShowResult(true),
-    onAddLeft: () => addPoint(SIDE.LEFT),
-    onSubLeft: () => undoPoint(SIDE.LEFT),
-    onAddRight: () => addPoint(SIDE.RIGHT),
-    onSubRight: () => undoPoint(SIDE.RIGHT),
+    nextGameIndex,
+    isPortrait,
+    scoreInputProps,
+    matchResultProps,
     onBack,
+    onShowResult: () => setShowResult(true),
     onCloseAll,
   };
 };

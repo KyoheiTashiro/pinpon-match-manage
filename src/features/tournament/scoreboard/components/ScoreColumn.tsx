@@ -1,22 +1,10 @@
+import type { SideView } from "@/features/tournament/scoreboard/types";
+
 /** スコア入力の上限値。 */
 const MAX_SCORE = 50;
 
 /** この点以降スコアを常時黄色表示する閾値。 */
 const ALWAYS_HIGHLIGHT_SCORE = 10;
-
-type Props = {
-  name: string;
-  score: number;
-  isGameWinner: boolean;
-  isMatchWinner: boolean;
-  isMatchPoint: boolean;
-  isServing: boolean;
-  disabled: boolean;
-  disableAdd?: boolean;
-  canSub?: boolean;
-  onAdd: () => void;
-  onSub: () => void;
-};
 
 export const ScoreColumn = ({
   name,
@@ -30,7 +18,7 @@ export const ScoreColumn = ({
   canSub,
   onAdd,
   onSub,
-}: Props) => {
+}: SideView) => {
   const highlight = isGameWinner || isMatchWinner;
   const scoreColor = highlight
     ? "text-green-500"
@@ -63,14 +51,14 @@ export const ScoreColumn = ({
             type="button"
             aria-label={`${name} を1増やす`}
             onClick={onAdd}
-            disabled={disabled || (disableAdd ?? false) || score >= MAX_SCORE}
+            disabled={disabled || disableAdd || score >= MAX_SCORE}
             className="absolute inset-x-0 top-0 h-1/2 w-full transition hover:bg-white/5 active:bg-white/10 disabled:opacity-40 disabled:hover:bg-transparent"
           />
           <button
             type="button"
             aria-label={`${name} を1減らす`}
             onClick={onSub}
-            disabled={disabled || score <= 0 || canSub === false}
+            disabled={disabled || score <= 0 || !canSub}
             className="absolute inset-x-0 bottom-0 h-1/2 w-full transition hover:bg-white/5 active:bg-white/10 disabled:opacity-40 disabled:hover:bg-transparent"
           />
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center">

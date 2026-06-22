@@ -1,16 +1,5 @@
-import { SIDE } from "@/domain/match";
-import type { Game, Side } from "@/domain/match";
-import { isGameFinished } from "@/domain/match";
-
-type Props = {
-  leftName: string;
-  rightName: string;
-  leftWins: number;
-  rightWins: number;
-  matchWinner: Side | null;
-  games: Game[];
-  swapped: boolean;
-};
+import { SIDE, isGameFinished } from "@/domain/match";
+import type { MatchResultProps } from "@/features/tournament/scoreboard/types";
 
 export const MatchResultView = ({
   leftName,
@@ -20,7 +9,7 @@ export const MatchResultView = ({
   matchWinner,
   games,
   swapped,
-}: Props) => {
+}: MatchResultProps) => {
   const playedGames = games
     .map((game, gameIndex) => ({ game, gameIndex }))
     .filter(({ game }) => isGameFinished(game) || game.leftScore > 0 || game.rightScore > 0);
