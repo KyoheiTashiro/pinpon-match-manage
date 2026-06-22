@@ -8,7 +8,7 @@ const makeRow = (overrides: Partial<PersonalMatchRow> = {}): PersonalMatchRow =>
   selfName: "選手A",
   opponentName: "選手B",
   selfWins: 0,
-  oppWins: 0,
+  opponentWins: 0,
   games: [],
   result: null,
   ...overrides,
@@ -21,14 +21,14 @@ describe("PersonalMatchResults", () => {
   });
 
   it("対戦名を表示する", () => {
-    const matches = [makeRow({ selfWins: 3, oppWins: 1 })];
+    const matches = [makeRow({ selfWins: 3, opponentWins: 1 })];
     render(<PersonalMatchResults matches={matches} />);
     expect(screen.getAllByText("選手A").length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText("選手B").length).toBeGreaterThanOrEqual(1);
   });
 
-  it("総合セット数を個別に表示する(selfWins=3, oppWins=1)", () => {
-    const matches = [makeRow({ selfWins: 3, oppWins: 1 })];
+  it("総合セット数を個別に表示する(selfWins=3, opponentWins=1)", () => {
+    const matches = [makeRow({ selfWins: 3, opponentWins: 1 })];
     render(<PersonalMatchResults matches={matches} />);
     // 計セルに 3 と 1 が出る
     expect(screen.getByText("3")).toBeInTheDocument();
@@ -48,15 +48,17 @@ describe("PersonalMatchResults", () => {
   });
 
   it("自分が勝ったゲームのselfScoreが text-success", () => {
-    const matches = [makeRow({ games: [{ selfScore: 11, oppScore: 9 }], selfWins: 1, oppWins: 0 })];
+    const matches = [
+      makeRow({ games: [{ selfScore: 11, opponentScore: 9 }], selfWins: 1, opponentWins: 0 }),
+    ];
     render(<PersonalMatchResults matches={matches} />);
     expect(screen.getByText("11").className).toMatch(/text-success/u);
-    // oppScoreの9は通常表示
+    // opponentScoreの9は通常表示
     expect(screen.getByText("9").className).not.toMatch(/text-success/u);
   });
 
   it("games の数だけスコア行を表示する（未入力パディングなし）", () => {
-    const matches = [makeRow({ games: [{ selfScore: 11, oppScore: 5 }] })];
+    const matches = [makeRow({ games: [{ selfScore: 11, opponentScore: 5 }] })];
     render(<PersonalMatchResults matches={matches} />);
     expect(screen.getByText("11")).toBeInTheDocument();
     expect(screen.getByText("5")).toBeInTheDocument();

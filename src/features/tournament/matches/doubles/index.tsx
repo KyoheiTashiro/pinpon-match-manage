@@ -9,9 +9,14 @@ import { Controller } from "react-hook-form";
 
 type FieldName = keyof DoublesPairForm;
 
-const FIELD_LABELS: Record<FieldName, string> = { l1: "左1", l2: "左2", r1: "右1", r2: "右2" };
-const LEFT_FIELDS: FieldName[] = ["l1", "l2"];
-const RIGHT_FIELDS: FieldName[] = ["r1", "r2"];
+const FIELD_LABELS: Record<FieldName, string> = {
+  left1: "左1",
+  left2: "左2",
+  right1: "右1",
+  right2: "右2",
+};
+const LEFT_FIELDS: FieldName[] = ["left1", "left2"];
+const RIGHT_FIELDS: FieldName[] = ["right1", "right2"];
 
 export const DoublesList = ({ tournamentId }: { tournamentId: string }) => {
   const {
@@ -41,8 +46,8 @@ export const DoublesList = ({ tournamentId }: { tournamentId: string }) => {
         .filter(Boolean),
     );
     const options = players
-      .filter((p) => !excluded.has(p.id))
-      .map((p) => ({ value: p.id, label: p.name }));
+      .filter((participant) => !excluded.has(participant.id))
+      .map((participant) => ({ value: participant.id, label: participant.name }));
     return (
       <Controller
         key={name}

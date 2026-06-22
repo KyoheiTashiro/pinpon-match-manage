@@ -89,7 +89,9 @@ export const sanitizeAppState = (state: AppState): AppState => {
   for (const [id, tournament] of Object.entries(state.tournaments)) {
     tournaments[id] = {
       ...tournament,
-      participantIds: tournament.participantIds.filter((pid) => participantIdSet.has(pid)),
+      participantIds: tournament.participantIds.filter((participantId) =>
+        participantIdSet.has(participantId),
+      ),
     };
   }
 

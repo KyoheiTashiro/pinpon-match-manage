@@ -74,7 +74,7 @@ export const createParticipantSlice: StateCreator<
         }
       }
       state.tournaments[tournamentId].participantIds = tournament.participantIds.filter(
-        (pid) => pid !== id,
+        (participantId) => participantId !== id,
       );
     }),
 });

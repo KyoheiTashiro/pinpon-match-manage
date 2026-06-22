@@ -80,7 +80,7 @@ export const MatchScoreChart = ({ match, selfSide }: Props) => {
 
   // hooks 側で既に realGames() 適用済みの leftWins/rightWins を再利用
   const selfWins = selfSide === SIDE.LEFT ? match.leftWins : match.rightWins;
-  const oppWins = selfSide === SIDE.LEFT ? match.rightWins : match.leftWins;
+  const opponentWins = selfSide === SIDE.LEFT ? match.rightWins : match.leftWins;
 
   // hooks 側で既に realGames() 適用済みの match.games から pointLog あるゲームだけ抽出
   const chartGames = match.games
@@ -97,7 +97,7 @@ export const MatchScoreChart = ({ match, selfSide }: Props) => {
         <span className={`text-xl ${match.winner === oppSide ? "" : "text-sub"}`}>{oppName}</span>
         <span className="text-xl tabular-nums">
           {" "}
-          ({selfWins}-{oppWins})
+          ({selfWins}-{opponentWins})
         </span>
       </div>
 
@@ -143,7 +143,7 @@ export const MatchScoreChart = ({ match, selfSide }: Props) => {
                       const won = row === 0 ? finalTop > finalBot : finalBot > finalTop;
                       return (
                         <div
-                          key={row === 0 ? "self" : "opp"}
+                          key={row === 0 ? "self" : "opponent"}
                           className="text-ink flex items-center justify-end gap-1 pr-2 text-sm font-bold whitespace-nowrap"
                           style={{ height: ROW_HEIGHT }}
                         >

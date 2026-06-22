@@ -21,15 +21,12 @@ import {
 } from "@/store/types";
 import { makeMatch, makeParticipant, makeTournament } from "@/test/factories";
 
-// ---------------------------------------------------------------------------
 // seedデータ生成 — dev:seed 用。VITE_SEED 時のみ seedInject.ts から呼ばれる。
-// シングルス・ダブルス各 bestOf 3/5/7 を網羅(計6大会)。
-// 各大会: 完了2件(① pointLog付き / ② スコア直書き)・進行中1件・未着手1件。
-// ---------------------------------------------------------------------------
+// シングルス・ダブルス各 bestOf 3/5/7 を網羅(計6大会)。各大会: 完了2件・進行中1件・未着手1件。
 
 // pointLog の配列から addPointToGame を逐次適用して Game を組む
 const buildGameFromLog = (log: Side[]): Game =>
-  log.reduce<Game>((g, side) => addPointToGame(g, side), { leftScore: 0, rightScore: 0 });
+  log.reduce<Game>((built, side) => addPointToGame(built, side), { leftScore: 0, rightScore: 0 });
 
 // 11点先取(loserScore は 0〜9)。winner/loser を交互に加点した自然なログ。
 const finishedLog = (winner: Side, loserScore: number): Side[] => {
@@ -57,7 +54,6 @@ const deuceLog = (winner: Side): Side[] => {
   const loser = opposite(winner);
   return [...Array.from<Side>({ length: 10 }).flatMap(() => [winner, loser]), winner, winner];
 };
-
 // 完了ゲームのスコア(pointLog なし)。winner が 11、loser が loserScore。
 const scoreGame = (winner: Side, loserScore: number): Game =>
   winner === SIDE.LEFT
@@ -68,19 +64,19 @@ const scoreGame = (winner: Side, loserScore: number): Game =>
 // 最終ゲームは必ず winner(そこで試合決着)。loser の勝ちは前半に分散。
 const winPattern = (winsNeeded: number, loserWins: number): Array<"W" | "L"> => {
   const total = winsNeeded + loserWins;
-  const arr: Array<"W" | "L"> = Array.from({ length: total }, () => "W");
+  const results: Array<"W" | "L"> = Array.from({ length: total }, () => "W");
   let placed = 0;
-  for (let i = 1; i < total - 1 && placed < loserWins; i += 2) {
-    arr[i] = "L";
+  for (let index = 1; index < total - 1 && placed < loserWins; index += 2) {
+    results[index] = "L";
     placed++;
   }
-  for (let i = 0; i < total - 1 && placed < loserWins; i++) {
-    if (arr[i] === "W") {
-      arr[i] = "L";
+  for (let index = 0; index < total - 1 && placed < loserWins; index++) {
+    if (results[index] === "W") {
+      results[index] = "L";
       placed++;
     }
   }
-  return arr;
+  return results;
 };
 
 const LOSER_SCORES = [7, 9, 5, 8, 6];
@@ -95,11 +91,11 @@ const completedGames = (
   deuceLast = false,
 ): Game[] => {
   const pattern = winPattern(winsNeeded, loserWins);
-  return pattern.map((g, i) => {
-    const side = g === "W" ? winner : opposite(winner);
-    const isLast = i === pattern.length - 1;
+  return pattern.map((result, index) => {
+    const side = result === "W" ? winner : opposite(winner);
+    const isLast = index === pattern.length - 1;
     if (deuceLast && isLast) return buildGameFromLog(deuceLog(side));
-    const loserScore = LOSER_SCORES[i % LOSER_SCORES.length];
+    const loserScore = LOSER_SCORES[index % LOSER_SCORES.length];
     return withLog ? buildGameFromLog(finishedLog(side, loserScore)) : scoreGame(side, loserScore);
   });
 };
@@ -119,11 +115,11 @@ type Player = { name: string; affiliation?: string };
 
 // offset から count 名を取り出す。偶数番目に所属を付与。
 const playersFor = (offset: number, count: number): Player[] =>
-  Array.from({ length: count }, (_, i) => {
-    const idx = (offset + i) % NAME_POOL.length;
-    return i % 2 === 0
-      ? { name: NAME_POOL[idx], affiliation: AFFILIATIONS[idx % AFFILIATIONS.length] }
-      : { name: NAME_POOL[idx] };
+  Array.from({ length: count }, (_, index) => {
+    const poolIndex = (offset + index) % NAME_POOL.length;
+    return index % 2 === 0
+      ? { name: NAME_POOL[poolIndex], affiliation: AFFILIATIONS[poolIndex % AFFILIATIONS.length] }
+      : { name: NAME_POOL[poolIndex] };
   });
 
 // 大会ビルダー — 1大会分の Tournament / Participant[] / Match[] を生成。
@@ -179,9 +175,9 @@ const buildTournament = (spec: TournamentSpec): BuiltTournament => {
     teams.push(pIds.slice(i, i + teamSize));
   }
 
-  const mk = (n: number, left: string[], right: string[], games: Game[]): Match =>
+  const buildMatch = (matchNumber: number, left: string[], right: string[], games: Game[]): Match =>
     makeMatch({
-      id: `m-${spec.prefix}${n}`,
+      id: `m-${spec.prefix}${matchNumber}`,
       tournamentId: spec.id,
       leftSide: sideOf(spec.format, left),
       rightSide: sideOf(spec.format, right),
@@ -191,13 +187,18 @@ const buildTournament = (spec: TournamentSpec): BuiltTournament => {
 
   const matches: Match[] = [
     // 【完了①】pointLog付き。左 winsNeeded-0(ストレート)。最終ゲームはデュース。
-    mk(1, teams[0], teams[1], completedGames(SIDE.LEFT, winsNeeded, 0, true, true)),
+    buildMatch(1, teams[0], teams[1], completedGames(SIDE.LEFT, winsNeeded, 0, true, true)),
     // 【完了②】スコア直書き。右 winsNeeded-(winsNeeded-1) のフルゲーム接戦。
-    mk(2, teams[2], teams[3], completedGames(SIDE.RIGHT, winsNeeded, winsNeeded - 1, false)),
+    buildMatch(
+      2,
+      teams[2],
+      teams[3],
+      completedGames(SIDE.RIGHT, winsNeeded, winsNeeded - 1, false),
+    ),
     // 【進行中】1ゲーム完了 + 1ゲーム途中。
-    mk(3, teams[0], teams[2], inProgressGames()),
+    buildMatch(3, teams[0], teams[2], inProgressGames()),
     // 【未着手】
-    mk(4, teams[1], teams[3], []),
+    buildMatch(4, teams[1], teams[3], []),
   ];
 
   return { tournament, participants, matches };
@@ -280,14 +281,16 @@ const SPECS: TournamentSpec[] = [
 export const buildSeedState = (): AppState => {
   const built = SPECS.map((spec) => buildTournament(spec));
 
-  const tournaments = built.map((b) => b.tournament);
-  const participants = built.flatMap((b) => b.participants);
-  const matches = built.flatMap((b) => b.matches);
+  const tournaments = built.map((tournament) => tournament.tournament);
+  const participants = built.flatMap((tournament) => tournament.participants);
+  const matches = built.flatMap((tournament) => tournament.matches);
 
   const state: AppState = {
-    tournaments: Object.fromEntries(tournaments.map((t) => [t.id, t])),
-    participants: Object.fromEntries(participants.map((p) => [p.id, p])),
-    matches: Object.fromEntries(matches.map((m) => [m.id, m])),
+    tournaments: Object.fromEntries(tournaments.map((tournament) => [tournament.id, tournament])),
+    participants: Object.fromEntries(
+      participants.map((participant) => [participant.id, participant]),
+    ),
+    matches: Object.fromEntries(matches.map((match) => [match.id, match])),
     currentTournamentId: "t-s5",
     fontSize: FONT_SIZE.NORMAL,
   };

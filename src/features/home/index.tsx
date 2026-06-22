@@ -35,8 +35,8 @@ export const Home = () => {
         {creating ? (
           <CreateTournament
             form={form}
-            submit={(e) => {
-              void submit(e);
+            submit={(event) => {
+              void submit(event);
             }}
             onCancel={closeForm}
           />

@@ -29,8 +29,8 @@ export const useDoubles = (tournamentId: string) => {
   const submit = pairForm.handleSubmit((data) => {
     const id = addManualMatch(
       tournamentId,
-      { kind: SIDE_KIND.PAIR, memberIds: [data.l1, data.l2] },
-      { kind: SIDE_KIND.PAIR, memberIds: [data.r1, data.r2] },
+      { kind: SIDE_KIND.PAIR, memberIds: [data.left1, data.left2] },
+      { kind: SIDE_KIND.PAIR, memberIds: [data.right1, data.right2] },
     );
     pairForm.reset();
     openMatch(id);

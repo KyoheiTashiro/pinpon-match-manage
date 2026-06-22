@@ -50,15 +50,15 @@ export const PersonalMatchResults = ({ matches }: Props) => {
                     className="flex items-center justify-center gap-2 text-lg tabular-nums"
                   >
                     <span
-                      className={`w-7 text-center ${game.selfScore > game.oppScore ? "text-success" : ""}`}
+                      className={`w-7 text-center ${game.selfScore > game.opponentScore ? "text-success" : ""}`}
                     >
                       {game.selfScore}
                     </span>
                     <span className="text-sub">-</span>
                     <span
-                      className={`w-7 text-center ${game.oppScore > game.selfScore ? "text-success" : ""}`}
+                      className={`w-7 text-center ${game.opponentScore > game.selfScore ? "text-success" : ""}`}
                     >
-                      {game.oppScore}
+                      {game.opponentScore}
                     </span>
                   </div>
                 ))}
@@ -77,7 +77,7 @@ export const PersonalMatchResults = ({ matches }: Props) => {
                 <span
                   className={`text-[3rem] leading-none font-extrabold tabular-nums ${match.result === MATCH_RESULT.LOSE ? "text-success" : "text-sub"}`}
                 >
-                  {match.oppWins}
+                  {match.opponentWins}
                 </span>
               </div>
             </div>

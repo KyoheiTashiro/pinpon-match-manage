@@ -11,29 +11,30 @@ const WEEKDAYS = ["日", "月", "火", "水", "木", "金", "土"];
 const weekdayColor = (weekday: number) =>
   weekday === 0 ? "text-danger" : weekday === 6 ? "text-primary" : "text-line";
 
-const pad = (n: number) => String(n).padStart(2, "0");
+const pad = (value: number) => String(value).padStart(2, "0");
 
-const toISO = (y: number, m: number, d: number) => `${y}-${pad(m + 1)}-${pad(d)}`;
+const toISO = (year: number, month: number, day: number) => `${year}-${pad(month + 1)}-${pad(day)}`;
 
-// "YYYY-MM-DD" → {y, m(0-based), d}。不正値は null。
+// "YYYY-MM-DD" → {year, month(0-based), day}。不正値は null。
 const parseISO = (value: string) => {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/u.exec(value);
   if (!match) return null;
-  const y = Number(match[1]);
-  const m = Number(match[2]) - 1;
-  const d = Number(match[3]);
-  const date = new Date(y, m, d);
+  const year = Number(match[1]);
+  const month = Number(match[2]) - 1;
+  const day = Number(match[3]);
+  const date = new Date(year, month, day);
   // 2/30 等の桁あふれを弾く
-  if (date.getFullYear() !== y || date.getMonth() !== m || date.getDate() !== d) return null;
-  return { y, m, d };
+  if (date.getFullYear() !== year || date.getMonth() !== month || date.getDate() !== day)
+    return null;
+  return { year, month, day };
 };
 
 const formatDisplay = (value: string) => {
   const parsed = parseISO(value);
   if (!parsed) return "";
-  const { y, m, d } = parsed;
-  const w = WEEKDAYS[new Date(y, m, d).getDay()];
-  return `${y}/${pad(m + 1)}/${pad(d)}（${w}）`;
+  const { year, month, day } = parsed;
+  const w = WEEKDAYS[new Date(year, month, day).getDay()];
+  return `${year}/${pad(month + 1)}/${pad(day)}（${w}）`;
 };
 
 type Props = {
@@ -62,36 +63,36 @@ export const Calendar = ({
 
   const today = useMemo(() => {
     const now = new Date();
-    return { y: now.getFullYear(), m: now.getMonth(), d: now.getDate() };
+    return { year: now.getFullYear(), month: now.getMonth(), day: now.getDate() };
   }, []);
 
   const selected = parseISO(value);
 
   // 表示中の年月。selected を基準、無ければ今日。
   const [view, setView] = useState(() => ({
-    y: selected?.y ?? today.y,
-    m: selected?.m ?? today.m,
+    year: selected?.year ?? today.year,
+    month: selected?.month ?? today.month,
   }));
   // キーボード移動用カーソル日（1始まり）。
-  const [cursor, setCursor] = useState(selected?.d ?? today.d);
+  const [cursor, setCursor] = useState(selected?.day ?? today.day);
 
   // 開いたとき選択日（無ければ今日）の月へ合わせ、グリッドへフォーカス。
   useEffect(() => {
     if (!isOpen) return;
     const base = selected ?? today;
-    setView({ y: base.y, m: base.m });
-    setCursor(base.d);
+    setView({ year: base.year, month: base.month });
+    setCursor(base.day);
     gridRef.current?.focus();
   }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // 外クリックで閉じる。
   useEffect(() => {
     if (!isOpen) return () => {};
-    const handlePointerDown = (e: PointerEvent) => {
+    const handlePointerDown = (event: PointerEvent) => {
       if (
         wrapperRef.current &&
-        e.target instanceof Node &&
-        !wrapperRef.current.contains(e.target)
+        event.target instanceof Node &&
+        !wrapperRef.current.contains(event.target)
       ) {
         setIsOpen(false);
       }
@@ -102,8 +103,8 @@ export const Calendar = ({
     };
   }, [isOpen]);
 
-  const daysInMonth = new Date(view.y, view.m + 1, 0).getDate();
-  const firstWeekday = new Date(view.y, view.m, 1).getDay();
+  const daysInMonth = new Date(view.year, view.month + 1, 0).getDate();
+  const firstWeekday = new Date(view.year, view.month, 1).getDay();
   // 月初までの空セル + 日付セル。末尾も 7 の倍数になるよう null 埋めし週に分割。
   const cells: (number | null)[] = [
     ...Array.from({ length: firstWeekday }, () => null),
@@ -119,56 +120,56 @@ export const Calendar = ({
 
   const goMonth = (delta: number) => {
     setView((prev) => {
-      const next = new Date(prev.y, prev.m + delta, 1);
-      return { y: next.getFullYear(), m: next.getMonth() };
+      const next = new Date(prev.year, prev.month + delta, 1);
+      return { year: next.getFullYear(), month: next.getMonth() };
     });
   };
 
   const selectDay = (day: number) => {
-    onChange(toISO(view.y, view.m, day));
+    onChange(toISO(view.year, view.month, day));
     close();
   };
 
   // カーソルを delta 日動かす（月跨ぎは view も更新）。
   const moveCursor = (delta: number) => {
-    const next = new Date(view.y, view.m, cursor + delta);
-    setView({ y: next.getFullYear(), m: next.getMonth() });
+    const next = new Date(view.year, view.month, cursor + delta);
+    setView({ year: next.getFullYear(), month: next.getMonth() });
     setCursor(next.getDate());
   };
 
-  const handleGridKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
-    switch (e.key) {
+  const handleGridKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
+    switch (event.key) {
       case "ArrowLeft":
-        e.preventDefault();
+        event.preventDefault();
         moveCursor(-1);
         break;
       case "ArrowRight":
-        e.preventDefault();
+        event.preventDefault();
         moveCursor(1);
         break;
       case "ArrowUp":
-        e.preventDefault();
+        event.preventDefault();
         moveCursor(-7);
         break;
       case "ArrowDown":
-        e.preventDefault();
+        event.preventDefault();
         moveCursor(7);
         break;
       case "PageUp":
-        e.preventDefault();
+        event.preventDefault();
         goMonth(-1);
         break;
       case "PageDown":
-        e.preventDefault();
+        event.preventDefault();
         goMonth(1);
         break;
       case "Enter":
       case " ":
-        e.preventDefault();
+        event.preventDefault();
         selectDay(cursor);
         break;
       case "Escape":
-        e.preventDefault();
+        event.preventDefault();
         close();
         break;
       case "Tab":
@@ -180,8 +181,12 @@ export const Calendar = ({
   };
 
   const isSelected = (day: number) =>
-    selected !== null && selected.y === view.y && selected.m === view.m && selected.d === day;
-  const isToday = (day: number) => today.y === view.y && today.m === view.m && today.d === day;
+    selected !== null &&
+    selected.year === view.year &&
+    selected.month === view.month &&
+    selected.day === day;
+  const isToday = (day: number) =>
+    today.year === view.year && today.month === view.month && today.day === day;
 
   const dayClass = (day: number) => {
     const base = "min-h-btn flex w-full items-center justify-center rounded-lg text-base font-bold";
@@ -231,7 +236,7 @@ export const Calendar = ({
                 <ChevronDownIcon width={28} height={28} className="rotate-90" />
               </button>
               <span aria-live="polite" className="text-ink text-base font-bold">
-                {view.y}年{view.m + 1}月
+                {view.year}年{view.month + 1}月
               </span>
               <button
                 type="button"
@@ -246,7 +251,7 @@ export const Calendar = ({
             <table
               ref={gridRef}
               tabIndex={-1}
-              aria-label={`${view.y}年${view.m + 1}月`}
+              aria-label={`${view.year}年${view.month + 1}月`}
               className="w-full table-fixed border-separate border-spacing-1 outline-none"
             >
               <thead>
@@ -272,7 +277,7 @@ export const Calendar = ({
                         <td key={day} className="p-0">
                           <button
                             type="button"
-                            aria-label={`${view.y}年${view.m + 1}月${day}日`}
+                            aria-label={`${view.year}年${view.month + 1}月${day}日`}
                             aria-pressed={isSelected(day)}
                             aria-current={isToday(day) ? "date" : undefined}
                             onClick={() => selectDay(day)}

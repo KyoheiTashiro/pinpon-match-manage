@@ -15,7 +15,7 @@ export const useParticipants = (tournamentId: string) => {
 
   const list = tournament?.participantIds.map((id) => participants[id]).filter(Boolean) ?? [];
 
-  const currentNames = new Set(list.map((p) => p.name.trim()));
+  const currentNames = new Set(list.map((participant) => participant.name.trim()));
 
   const pastCandidates = pastParticipantNamesOf(participants, tournamentId).map((name) => ({
     name,

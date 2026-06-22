@@ -36,8 +36,10 @@ export const finishedGameArb: fc.Arbitrary<Game> = fc
       rightScore: fc.integer({ min: 0, max: GAME_POINT + extra - WIN_DIFF }),
     }),
   )
-  .chain((g) =>
-    fc.boolean().map((flip) => (flip ? g : { leftScore: g.rightScore, rightScore: g.leftScore })),
+  .chain((games) =>
+    fc
+      .boolean()
+      .map((flip) => (flip ? games : { leftScore: games.rightScore, rightScore: games.leftScore })),
   );
 
 // single の MatchSide

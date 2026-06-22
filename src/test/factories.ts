@@ -50,8 +50,8 @@ export const makeGame = (overrides: Partial<Game> = {}): Game => ({
 
 /** point ログから Game を組む(進行ロジックのテスト用)。 */
 export const gameFromLog = (log: Side[]): Game => ({
-  leftScore: log.filter((s) => s === "L").length,
-  rightScore: log.filter((s) => s === "R").length,
+  leftScore: log.filter((point) => point === "L").length,
+  rightScore: log.filter((point) => point === "R").length,
   pointLog: log,
 });
 

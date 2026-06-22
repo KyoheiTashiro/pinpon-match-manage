@@ -37,8 +37,8 @@ const ParticipantsView = ({ tournamentId }: { tournamentId: string }) => {
       <h2 className="text-xl font-extrabold">参加者{list.length > 0 && `（${list.length}人）`}</h2>
 
       <form
-        onSubmit={(e) => {
-          void addSubmit(e);
+        onSubmit={(event) => {
+          void addSubmit(event);
         }}
         className="flex flex-wrap gap-2"
       >
@@ -74,8 +74,8 @@ const ParticipantsView = ({ tournamentId }: { tournamentId: string }) => {
             <li key={participant.id} className="flex items-center gap-2 p-3">
               {editingId === participant.id ? (
                 <form
-                  onSubmit={(e) => {
-                    void submitEdit(e);
+                  onSubmit={(event) => {
+                    void submitEdit(event);
                   }}
                   className="flex min-w-0 flex-1 flex-wrap items-center gap-2"
                 >

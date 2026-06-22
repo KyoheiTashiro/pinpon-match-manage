@@ -32,7 +32,7 @@ const SettingsView = ({ tournamentId }: { tournamentId: string }) => {
   } = useSettings(tournamentId, () => {
     void navigate(ROUTES.HOME);
   });
-  const matches = useAppStore((s) => s.matches);
+  const matches = useAppStore((state) => state.matches);
 
   if (!tournament) return null;
 
@@ -49,8 +49,8 @@ const SettingsView = ({ tournamentId }: { tournamentId: string }) => {
 
       {editing ? (
         <form
-          onSubmit={(e) => {
-            void saveEdit(e);
+          onSubmit={(event) => {
+            void saveEdit(event);
           }}
           className="space-y-3"
         >

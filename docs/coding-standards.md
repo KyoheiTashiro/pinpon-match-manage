@@ -28,6 +28,19 @@ Lint/Format は **oxlint + oxfmt**（ESLint/Prettier ではない）。多くは
   根拠: 値と型を 1 箇所で同期。`SIDE`/`SIDE_KIND`/`FONT_SIZE`/`ROUTES` 等で一貫。
 - **zustand スライス**: 型 `XxxSlice` + ファクトリ `createXxxSlice` + 初期値 `xxxInitial`。
 - **selector 関数**: `xxxOf` 形（`matchesOf`, `pastParticipantNamesOf`）。`src/store/selectors.ts`。
+- **省略形を使わない**: 識別子（変数・引数・関数・プロパティ・型）は完全な英単語で綴る。短縮形・頭文字省略・単文字いずれも不可。
+  - 多文字省略形: `idx`→`index` / `pid`→`participantId` / `cfg`→`config` / `prev`→`previous` / `msg`→`message` / `btn`→`button` / `el`→`element` / `info`→説明的な完全名（`errorInfo` 等）。
+  - **単文字のコールバック/selector 引数も不可**。`.map((p) => ...)` ではなく `.map((participant) => ...)`、zustand は `(s) => s.matches` ではなく `(state) => state.matches`、イベントは `(e) => ...` ではなく `(event) => ...`、ループ index は `i` ではなく `index`。
+    ```ts
+    // 不可
+    const matches = useAppStore((s) => s.matches);
+    options.find((o) => o.value === value);
+    // 可
+    const matches = useAppStore((state) => state.matches);
+    options.find((option) => option.value === value);
+    ```
+  - 根拠: シニア層中心の小規模アプリで保守者が限られる→可読性最優先。`docs/` も含め「なぜ」を綴る文化と整合（タイプ数より明瞭さ）。
+  - **例外**: 確立した頭字語・標準語（`id` / `url` / `html` / `db` / `pwa` / `rhf`）はそのまま。`next` / `base` / `rows` / `row` / `view` 等の完全語は省略形ではないので対象外。React の `ref` / `props` / `rest` も慣習名として可。
 
 ## 2. ディレクトリ/ファイル構成
 

@@ -310,10 +310,10 @@ describe("DoublesList", () => {
     await selectOption(user, "左1", "選手A");
     // 左2 → 選手A（同じ選手は選択肢から除外されているので、別の選手で試みる）
     // refine は 4 つ全選択かつ重複あり で false になる。
-    // ここでは「3 つだけ選択」テストも兼ね: l2 を空のままにする
+    // ここでは「3 つだけ選択」テストも兼ね: left2 を空のままにする
     await selectOption(user, "右1", "選手B");
     await selectOption(user, "右2", "選手C");
-    // l2 未入力 → isValid=false → disabled
+    // left2 未入力 → isValid=false → disabled
     expect(addBtn).toBeDisabled();
   });
 

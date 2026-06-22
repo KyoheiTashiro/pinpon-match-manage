@@ -35,21 +35,21 @@ export const Select = <T extends string | number>({
   const triggerRef = useRef<HTMLButtonElement>(null);
   const listboxRef = useRef<HTMLDivElement>(null);
   const autoId = useId();
-  const uid = id ?? autoId;
-  const labelId = `${uid}-label`;
-  const triggerId = `${uid}-trigger`;
-  const listboxId = `${uid}-listbox`;
+  const baseId = id ?? autoId;
+  const labelId = `${baseId}-label`;
+  const triggerId = `${baseId}-trigger`;
+  const listboxId = `${baseId}-listbox`;
 
-  const selectedOption = options.find((o) => o.value === value) ?? null;
+  const selectedOption = options.find((option) => option.value === value) ?? null;
 
   useEffect(() => {
     // クリーンアップ不要だが consistent-return のため空クリーンアップ関数を返す
     if (!isOpen) return () => {};
-    const handlePointerDown = (e: PointerEvent) => {
+    const handlePointerDown = (event: PointerEvent) => {
       if (
         wrapperRef.current &&
-        e.target instanceof Node &&
-        !wrapperRef.current.contains(e.target)
+        event.target instanceof Node &&
+        !wrapperRef.current.contains(event.target)
       ) {
         setIsOpen(false);
       }
@@ -76,8 +76,8 @@ export const Select = <T extends string | number>({
   }, [isOpen, focusedIndex]);
 
   const open = () => {
-    const idx = options.findIndex((o) => o.value === value);
-    setFocusedIndex(Math.max(idx, 0));
+    const index = options.findIndex((option) => option.value === value);
+    setFocusedIndex(Math.max(index, 0));
     setIsOpen(true);
   };
 
@@ -96,27 +96,27 @@ export const Select = <T extends string | number>({
     close();
   };
 
-  const handleTriggerKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
-    if (e.key === "Enter" || e.key === " " || e.key === "ArrowDown") {
-      e.preventDefault();
+  const handleTriggerKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
+    if (event.key === "Enter" || event.key === " " || event.key === "ArrowDown") {
+      event.preventDefault();
       open();
     }
   };
 
-  const handleListKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === "ArrowDown") {
-      e.preventDefault();
+  const handleListKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
       setFocusedIndex((prev) => Math.min(prev + 1, options.length - 1));
-    } else if (e.key === "ArrowUp") {
-      e.preventDefault();
+    } else if (event.key === "ArrowUp") {
+      event.preventDefault();
       setFocusedIndex((prev) => Math.max(prev - 1, 0));
-    } else if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
+    } else if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
       selectByIndex(focusedIndex);
-    } else if (e.key === "Escape") {
-      e.preventDefault();
+    } else if (event.key === "Escape") {
+      event.preventDefault();
       close();
-    } else if (e.key === "Tab") {
+    } else if (event.key === "Tab") {
       // Tab はブラウザのデフォルト移動に任せる → focus は戻さず閉じるだけ
       close(false);
     }
@@ -158,7 +158,7 @@ export const Select = <T extends string | number>({
             aria-labelledby={label ? labelId : undefined}
             aria-label={label ? undefined : ariaLabel}
             aria-activedescendant={
-              focusedIndex >= 0 ? `${uid}-option-${focusedIndex.toString()}` : undefined
+              focusedIndex >= 0 ? `${baseId}-option-${focusedIndex.toString()}` : undefined
             }
             tabIndex={-1}
             onKeyDown={handleListKeyDown}
@@ -171,7 +171,7 @@ export const Select = <T extends string | number>({
                 <button
                   key={String(option.value)}
                   type="button"
-                  id={`${uid}-option-${index.toString()}`}
+                  id={`${baseId}-option-${index.toString()}`}
                   role="option"
                   aria-selected={isSelected}
                   tabIndex={-1}

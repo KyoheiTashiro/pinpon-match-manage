@@ -10,8 +10,8 @@ export const pastParticipantNamesOf = (
   currentTournamentId: string,
 ): string[] => {
   const names = Object.values(participants)
-    .filter((p) => p.tournamentId !== currentTournamentId)
-    .map((p) => p.name.trim())
+    .filter((participant) => participant.tournamentId !== currentTournamentId)
+    .map((participant) => participant.name.trim())
     .filter((name) => name.length > 0);
   return [...new Set(names)].toSorted((a, b) => a.localeCompare(b));
 };

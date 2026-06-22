@@ -37,8 +37,8 @@ export type PersonalMatchRow = {
   selfName: string;
   opponentName: string;
   selfWins: number;
-  oppWins: number;
-  games: { selfScore: number; oppScore: number }[];
+  opponentWins: number;
+  games: { selfScore: number; opponentScore: number }[];
   result: MatchResult | null;
 };
 
@@ -97,45 +97,52 @@ export const useResult = (tournamentId: string) => {
     if (!tournament) return [];
     return tournament.participantIds
       .map((id) => ({ value: id, label: participants[id]?.name ?? "?" }))
-      .filter((o) => o.label !== "?");
+      .filter((option) => option.label !== "?");
   }, [tournament, participants]);
 
   const [selectedParticipantId, setSelectedParticipantId] = useState<string | null>(null);
   const resolvedParticipantId =
     selectedParticipantId !== null &&
-    participantOptions.some((o) => o.value === selectedParticipantId)
+    participantOptions.some((option) => option.value === selectedParticipantId)
       ? selectedParticipantId
       : (participantOptions[0]?.value ?? null);
 
   // 選択参加者が関与する試合に selfSide を付与した中間配列（personalMatches/chartMatches の共通元）
   const myMatches = useMemo<{ row: MatchResultRow; selfSide: Side }[]>(() => {
     if (resolvedParticipantId === null) return [];
-    const pid = resolvedParticipantId;
+    const participantId = resolvedParticipantId;
     return matchResults
-      .filter((m) => m.leftMembers.includes(pid) || m.rightMembers.includes(pid))
-      .map((m) => ({
-        row: m,
-        selfSide: m.leftMembers.includes(pid) ? SIDE.LEFT : SIDE.RIGHT,
+      .filter(
+        (match) =>
+          match.leftMembers.includes(participantId) || match.rightMembers.includes(participantId),
+      )
+      .map((match) => ({
+        row: match,
+        selfSide: match.leftMembers.includes(participantId) ? SIDE.LEFT : SIDE.RIGHT,
       }));
   }, [matchResults, resolvedParticipantId]);
 
   // 選択者を「自分(左)」に正規化した対戦一覧
   const personalMatches = useMemo<PersonalMatchRow[]>(
     () =>
-      myMatches.map(({ row: m, selfSide }) => {
+      myMatches.map(({ row: match, selfSide }) => {
         const selfIsLeft = selfSide === SIDE.LEFT;
         return {
-          id: m.id,
-          selfName: selfIsLeft ? m.leftName : m.rightName,
-          opponentName: selfIsLeft ? m.rightName : m.leftName,
-          selfWins: selfIsLeft ? m.leftWins : m.rightWins,
-          oppWins: selfIsLeft ? m.rightWins : m.leftWins,
-          games: m.games.map((g) => ({
-            selfScore: selfIsLeft ? g.leftScore : g.rightScore,
-            oppScore: selfIsLeft ? g.rightScore : g.leftScore,
+          id: match.id,
+          selfName: selfIsLeft ? match.leftName : match.rightName,
+          opponentName: selfIsLeft ? match.rightName : match.leftName,
+          selfWins: selfIsLeft ? match.leftWins : match.rightWins,
+          opponentWins: selfIsLeft ? match.rightWins : match.leftWins,
+          games: match.games.map((game) => ({
+            selfScore: selfIsLeft ? game.leftScore : game.rightScore,
+            opponentScore: selfIsLeft ? game.rightScore : game.leftScore,
           })),
           result:
-            m.winner === null ? null : m.winner === selfSide ? MATCH_RESULT.WIN : MATCH_RESULT.LOSE,
+            match.winner === null
+              ? null
+              : match.winner === selfSide
+                ? MATCH_RESULT.WIN
+                : MATCH_RESULT.LOSE,
         };
       }),
     [myMatches],
@@ -145,8 +152,10 @@ export const useResult = (tournamentId: string) => {
   const chartMatches = useMemo(
     () =>
       myMatches
-        .filter(({ row: m }) => m.games.some((g) => g.pointLog && g.pointLog.length > 0))
-        .map(({ row: m, selfSide }) => ({ match: m, selfSide })),
+        .filter(({ row: match }) =>
+          match.games.some((game) => game.pointLog && game.pointLog.length > 0),
+        )
+        .map(({ row: match, selfSide }) => ({ match, selfSide })),
     [myMatches],
   );
 
