@@ -81,16 +81,19 @@ export const InstallAppButton = () => {
       <InfoModal open={showGuide} title="ホーム画面に追加" onClose={() => setShowGuide(false)}>
         <div className="space-y-4">
           <div className="aspect-video w-full overflow-hidden rounded-xl">
+            {/* 閉じると iframe をアンマウントして再生を停止する(InfoModal は children を常時 DOM 保持するため)。 */}
             {/* YouTube 埋め込みは sandbox 無し前提。sandbox を付けると script と same-origin の両立が必要になり再生不可。 */}
-            {/* oxlint-disable-next-line react/iframe-missing-sandbox */}
-            <iframe
-              src={isIOS() ? GUIDE_VIDEOS.ios : GUIDE_VIDEOS.android}
-              title="ホーム画面に追加 手順動画"
-              className="h-full w-full"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              referrerPolicy="strict-origin-when-cross-origin"
-              allowFullScreen
-            />
+            {showGuide && (
+              // oxlint-disable-next-line react/iframe-missing-sandbox
+              <iframe
+                src={isIOS() ? GUIDE_VIDEOS.ios : GUIDE_VIDEOS.android}
+                title="ホーム画面に追加 手順動画"
+                className="h-full w-full"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerPolicy="strict-origin-when-cross-origin"
+                allowFullScreen
+              />
+            )}
           </div>
         </div>
       </InfoModal>
