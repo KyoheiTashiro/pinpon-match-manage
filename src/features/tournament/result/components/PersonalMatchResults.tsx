@@ -1,4 +1,5 @@
-import { TrophyIcon } from "@/components/icons/TrophyIcon";
+import { EmptyState } from "@/features/tournament/result/components/EmptyState";
+import { WinnerBadge } from "@/features/tournament/result/components/WinnerBadge";
 import { MATCH_RESULT } from "@/features/tournament/result/hooks";
 import type { PersonalMatchRow } from "@/features/tournament/result/hooks";
 
@@ -13,9 +14,7 @@ export const PersonalMatchResults = ({ matches }: Props) => {
     return (
       <div className="space-y-2 pt-2">
         <div className="text-xl font-extrabold">{title}</div>
-        <div className="border-line text-sub rounded-2xl border-2 p-4 text-center text-base">
-          データがありません
-        </div>
+        <EmptyState />
       </div>
     );
   }
@@ -29,11 +28,7 @@ export const PersonalMatchResults = ({ matches }: Props) => {
               {/* 自分 */}
               <div className="flex min-w-0 flex-col items-center justify-center gap-1 px-4">
                 <div className="flex h-10 w-full items-center justify-center">
-                  {match.result === MATCH_RESULT.WIN && (
-                    <div className="rounded-full bg-yellow-400 p-1.5 text-lg text-white">
-                      <TrophyIcon />
-                    </div>
-                  )}
+                  {match.result === MATCH_RESULT.WIN && <WinnerBadge size="lg" />}
                 </div>
                 <span
                   className={`w-full text-center text-lg break-words ${match.result === MATCH_RESULT.WIN ? "" : "text-sub"}`}
@@ -72,11 +67,7 @@ export const PersonalMatchResults = ({ matches }: Props) => {
               {/* 相手 */}
               <div className="flex min-w-0 flex-col items-center justify-center gap-1 px-4">
                 <div className="flex h-10 w-full items-center justify-center">
-                  {match.result === MATCH_RESULT.LOSE && (
-                    <div className="rounded-full bg-yellow-400 p-1.5 text-lg text-white">
-                      <TrophyIcon />
-                    </div>
-                  )}
+                  {match.result === MATCH_RESULT.LOSE && <WinnerBadge size="lg" />}
                 </div>
                 <span
                   className={`w-full text-center text-lg break-words ${match.result === MATCH_RESULT.LOSE ? "" : "text-sub"}`}

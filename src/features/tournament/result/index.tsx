@@ -41,14 +41,12 @@ const ResultView = ({ tournamentId }: { tournamentId: string }) => {
         </>
       );
     }
-    if (mode === DISPLAY_MODE.INDIVIDUAL) {
-      if (participantOptions.length === 0) {
-        return <p className="text-sub">参加者がいません。</p>;
-      }
-      return <PersonalMatchResults matches={personalMatches} />;
-    }
+    // INDIVIDUAL・GRAPH 両モードとも参加者が必須
     if (participantOptions.length === 0) {
       return <p className="text-sub">参加者がいません。</p>;
+    }
+    if (mode === DISPLAY_MODE.INDIVIDUAL) {
+      return <PersonalMatchResults matches={personalMatches} />;
     }
     if (chartMatches.length === 0) {
       return <p className="text-sub">対戦結果がありません。</p>;

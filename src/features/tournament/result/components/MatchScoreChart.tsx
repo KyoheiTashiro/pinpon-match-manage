@@ -1,7 +1,7 @@
-import { TrophyIcon } from "@/components/icons/TrophyIcon";
 import type { Side } from "@/domain/match";
-import { SIDE, gameFirstServer, matchSummary, realGames } from "@/domain/match";
+import { SIDE, gameFirstServer } from "@/domain/match";
 import { gameProgress, type ProgressPoint } from "@/domain/scoreProgress";
+import { WinnerBadge } from "@/features/tournament/result/components/WinnerBadge";
 import type { MatchResultRow } from "@/features/tournament/result/hooks";
 
 // スコア推移チャートのレイアウト寸法(px)
@@ -78,29 +78,22 @@ export const MatchScoreChart = ({ match, selfSide }: Props) => {
   const selfName = selfSide === SIDE.LEFT ? match.leftName : match.rightName;
   const oppName = selfSide === SIDE.LEFT ? match.rightName : match.leftName;
 
-  const { leftWins, rightWins } = matchSummary(realGames(match.games));
-  const selfWins = selfSide === SIDE.LEFT ? leftWins : rightWins;
-  const oppWins = selfSide === SIDE.LEFT ? rightWins : leftWins;
+  // hooks 側で既に realGames() 適用済みの leftWins/rightWins を再利用
+  const selfWins = selfSide === SIDE.LEFT ? match.leftWins : match.rightWins;
+  const oppWins = selfSide === SIDE.LEFT ? match.rightWins : match.leftWins;
 
-  const chartGames = realGames(match.games)
+  // hooks 側で既に realGames() 適用済みの match.games から pointLog あるゲームだけ抽出
+  const chartGames = match.games
     .map((game, realIndex) => ({ game, realIndex }))
     .filter(({ game }) => game.pointLog?.length);
 
   return (
     <div className="border-line border-t-2 pt-4 font-bold first:border-t-0 first:pt-2">
       <div className="mb-1 flex items-center gap-1 text-base">
-        {match.winner === selfSide && (
-          <span className="inline-flex rounded-full bg-yellow-400 p-1 text-sm text-white">
-            <TrophyIcon />
-          </span>
-        )}
+        {match.winner === selfSide && <WinnerBadge size="sm" />}
         <span className={`text-xl ${match.winner === selfSide ? "" : "text-sub"}`}>{selfName}</span>
         <span className="text-sub"> vs </span>
-        {match.winner === oppSide && (
-          <span className="inline-flex rounded-full bg-yellow-400 p-1 text-sm text-white">
-            <TrophyIcon />
-          </span>
-        )}
+        {match.winner === oppSide && <WinnerBadge size="sm" />}
         <span className={`text-xl ${match.winner === oppSide ? "" : "text-sub"}`}>{oppName}</span>
         <span className="text-xl tabular-nums">
           {" "}
@@ -154,11 +147,7 @@ export const MatchScoreChart = ({ match, selfSide }: Props) => {
                           className="text-ink flex items-center justify-end gap-1 pr-2 text-sm font-bold whitespace-nowrap"
                           style={{ height: ROW_HEIGHT }}
                         >
-                          {won && (
-                            <span className="inline-flex rounded-full bg-yellow-400 p-1 text-xs text-white">
-                              <TrophyIcon />
-                            </span>
-                          )}
+                          {won && <WinnerBadge size="sm-xs" />}
                           {name}
                         </div>
                       );

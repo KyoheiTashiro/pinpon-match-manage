@@ -107,15 +107,23 @@ export const useResult = (tournamentId: string) => {
       ? selectedParticipantId
       : (participantOptions[0]?.value ?? null);
 
-  // 選択者を「自分(左)」に正規化した対戦一覧
-  const personalMatches = useMemo<PersonalMatchRow[]>(() => {
+  // 選択参加者が関与する試合に selfSide を付与した中間配列（personalMatches/chartMatches の共通元）
+  const myMatches = useMemo<{ row: MatchResultRow; selfSide: Side }[]>(() => {
     if (resolvedParticipantId === null) return [];
     const pid = resolvedParticipantId;
     return matchResults
       .filter((m) => m.leftMembers.includes(pid) || m.rightMembers.includes(pid))
-      .map((m) => {
-        const selfIsLeft = m.leftMembers.includes(pid);
-        const selfSide = selfIsLeft ? SIDE.LEFT : SIDE.RIGHT;
+      .map((m) => ({
+        row: m,
+        selfSide: m.leftMembers.includes(pid) ? SIDE.LEFT : SIDE.RIGHT,
+      }));
+  }, [matchResults, resolvedParticipantId]);
+
+  // 選択者を「自分(左)」に正規化した対戦一覧
+  const personalMatches = useMemo<PersonalMatchRow[]>(
+    () =>
+      myMatches.map(({ row: m, selfSide }) => {
+        const selfIsLeft = selfSide === SIDE.LEFT;
         return {
           id: m.id,
           selfName: selfIsLeft ? m.leftName : m.rightName,
@@ -129,21 +137,18 @@ export const useResult = (tournamentId: string) => {
           result:
             m.winner === null ? null : m.winner === selfSide ? MATCH_RESULT.WIN : MATCH_RESULT.LOSE,
         };
-      });
-  }, [matchResults, resolvedParticipantId]);
+      }),
+    [myMatches],
+  );
 
   // グラフ用: 選択参加者が関わる pointLog ありの対戦（選択者を上段=selfSideに正規化）
-  const chartMatches = useMemo(() => {
-    if (resolvedParticipantId === null) return [];
-    const pid = resolvedParticipantId;
-    return matchResults
-      .filter((m) => m.leftMembers.includes(pid) || m.rightMembers.includes(pid))
-      .filter((m) => m.games.some((g) => g.pointLog && g.pointLog.length > 0))
-      .map((m) => ({
-        match: m,
-        selfSide: m.leftMembers.includes(pid) ? SIDE.LEFT : SIDE.RIGHT,
-      }));
-  }, [matchResults, resolvedParticipantId]);
+  const chartMatches = useMemo(
+    () =>
+      myMatches
+        .filter(({ row: m }) => m.games.some((g) => g.pointLog && g.pointLog.length > 0))
+        .map(({ row: m, selfSide }) => ({ match: m, selfSide })),
+    [myMatches],
+  );
 
   const isSaving = main.saving;
 

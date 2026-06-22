@@ -1,3 +1,4 @@
+import { EmptyState } from "@/features/tournament/result/components/EmptyState";
 import { useResult } from "@/features/tournament/result/hooks";
 
 type Props = {
@@ -11,9 +12,7 @@ export const RankingTable = ({ rows }: Props) => {
     return (
       <>
         <div className="text-base font-extrabold">順位</div>
-        <div className="border-line text-sub rounded-2xl border-2 p-4 text-center text-base">
-          データがありません
-        </div>
+        <EmptyState />
       </>
     );
   }

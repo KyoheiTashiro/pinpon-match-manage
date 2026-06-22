@@ -1,5 +1,6 @@
-import { TrophyIcon } from "@/components/icons/TrophyIcon";
 import { SIDE } from "@/domain/match";
+import { EmptyState } from "@/features/tournament/result/components/EmptyState";
+import { WinnerBadge } from "@/features/tournament/result/components/WinnerBadge";
 import type { MatchResultRow } from "@/features/tournament/result/hooks";
 
 type Props = {
@@ -12,9 +13,7 @@ export const MatchResultsTable = ({ matchResults, bestOf }: Props) => {
     return (
       <div className="space-y-2 pt-2">
         <div className="text-base font-extrabold">対戦結果</div>
-        <div className="border-line text-sub rounded-2xl border-2 p-4 text-center text-base">
-          データがありません
-        </div>
+        <EmptyState />
       </div>
     );
   }
@@ -50,22 +49,14 @@ export const MatchResultsTable = ({ matchResults, bestOf }: Props) => {
                     <span
                       className={`inline-flex items-center gap-1 ${match.winner === SIDE.LEFT ? "" : "text-sub"}`}
                     >
-                      {match.winner === SIDE.LEFT && (
-                        <span className="inline-flex shrink-0 rounded-full bg-yellow-400 p-0.5 text-xs text-white">
-                          <TrophyIcon />
-                        </span>
-                      )}
+                      {match.winner === SIDE.LEFT && <WinnerBadge size="xs" />}
                       {match.leftName}
                     </span>
                     <span className="text-sub"> vs </span>
                     <span
                       className={`inline-flex items-center gap-1 ${match.winner === SIDE.RIGHT ? "" : "text-sub"}`}
                     >
-                      {match.winner === SIDE.RIGHT && (
-                        <span className="inline-flex shrink-0 rounded-full bg-yellow-400 p-0.5 text-xs text-white">
-                          <TrophyIcon />
-                        </span>
-                      )}
+                      {match.winner === SIDE.RIGHT && <WinnerBadge size="xs" />}
                       {match.rightName}
                     </span>
                   </td>
