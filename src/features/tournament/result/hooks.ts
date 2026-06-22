@@ -89,7 +89,7 @@ export const useResult = (tournamentId: string) => {
   }, [tournament, tournamentId, matches, participants]);
 
   // 表示中コンテナ（table全体 or 選択中1対戦）用
-  const main = useImageCapture();
+  const capture = useImageCapture();
   const [mode, setMode] = useState<DisplayMode>(DISPLAY_MODE.OVERALL);
 
   // 個人モード: 参加者セレクト
@@ -159,13 +159,13 @@ export const useResult = (tournamentId: string) => {
     [myMatches],
   );
 
-  const isSaving = main.saving;
+  const isSaving = capture.saving;
 
   return {
     tournament,
     rows,
     matchResults,
-    main,
+    capture,
     mode,
     setMode,
     chartMatches,
