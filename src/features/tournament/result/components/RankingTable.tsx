@@ -1,4 +1,4 @@
-import { EmptyState } from "@/features/tournament/result/components/EmptyState";
+import { EmptyState } from "@/components/ui";
 import { useResult } from "@/features/tournament/result/hooks";
 
 type Props = {

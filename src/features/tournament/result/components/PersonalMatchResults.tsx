@@ -1,5 +1,5 @@
-import { EmptyState } from "@/features/tournament/result/components/EmptyState";
-import { WinnerBadge } from "@/features/tournament/result/components/WinnerBadge";
+import { WinnerBadge } from "@/components/domain";
+import { EmptyState } from "@/components/ui";
 import { MATCH_RESULT } from "@/features/tournament/result/hooks";
 import type { PersonalMatchRow } from "@/features/tournament/result/hooks";
 

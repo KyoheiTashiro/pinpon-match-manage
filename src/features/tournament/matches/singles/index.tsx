@@ -1,5 +1,5 @@
+import { WinnerBadge } from "@/components/domain";
 import { ChevronDownIcon } from "@/components/icons/ChevronDownIcon";
-import { TrophyIcon } from "@/components/icons/TrophyIcon";
 import { Badge } from "@/components/ui";
 import { matchSummary, winsNeededForBestOf, SIDE } from "@/domain/match";
 import { MatchModal } from "@/features/tournament/matches/components/MatchModal";
@@ -91,11 +91,7 @@ export const SinglesList = ({ tournamentId }: { tournamentId: string }) => {
                   >
                     <span className="flex min-w-0 flex-1 flex-col text-lg font-bold">
                       <span className="flex min-w-0 items-center gap-1">
-                        {finished && (
-                          <span className="inline-flex shrink-0 rounded-full bg-yellow-400 p-0.5 text-xs text-white">
-                            <TrophyIcon />
-                          </span>
-                        )}
+                        {finished && <WinnerBadge size="xs" />}
                         <span className="truncate">{leftName}</span>
                       </span>
                       <span className="border-line my-1 border-t" />

@@ -10,11 +10,15 @@ src/
 │   ├── icons/index.ts              // SVGアイコン群（barrel export）
 │   ├── system/                     // アプリ基盤コンポーネント
 │   │   └── ErrorBoundary.tsx       // 例外捕捉境界
-│   └── ui/                         // 共通UIコンポーネント（各コンポーネントはサブディレクトリ + barrel）
+│   ├── domain/                     // ドメイン固有の複合UIコンポーネント（各コンポーネントはサブディレクトリ + barrel）
+│   │   ├── WinnerBadge/            // 勝者トロフィーバッジ（xs/sm/sm-xs/lg サイズ）
+│   │   └── index.ts                // barrel export
+│   └── ui/                         // 汎用UIコンポーネント（各コンポーネントはサブディレクトリ + barrel）
 │       ├── Badge/                  // バッジ（tone/size/appearance 切替）
 │       ├── Button/                 // 共通ボタン（variant/size 切替）
 │       ├── Calendar/               // 日付カレンダー選択
 │       ├── ConfirmModal/           // 確認モーダル
+│       ├── EmptyState/             // 空状態表示（card/plain/listItem バリアント）
 │       ├── InfoModal/              // 案内モーダル
 │       ├── RadioGroup/             // カード型ラジオ選択（形式・ゲーム数等）
 │       ├── Select/                 // ドロップダウン選択（listbox パターン）

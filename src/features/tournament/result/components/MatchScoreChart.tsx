@@ -1,7 +1,7 @@
+import { WinnerBadge } from "@/components/domain";
 import type { Side } from "@/domain/match";
 import { SIDE, gameFirstServer } from "@/domain/match";
 import { gameProgress, type ProgressPoint } from "@/domain/scoreProgress";
-import { WinnerBadge } from "@/features/tournament/result/components/WinnerBadge";
 import type { MatchResultRow } from "@/features/tournament/result/hooks";
 
 // スコア推移チャートのレイアウト寸法(px)

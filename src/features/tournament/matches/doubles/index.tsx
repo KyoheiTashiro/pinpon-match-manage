@@ -1,5 +1,5 @@
 import { DownloadIcon } from "@/components/icons";
-import { Button, Select } from "@/components/ui";
+import { Button, EmptyState, Select } from "@/components/ui";
 import { matchSummary, SIDE } from "@/domain/match";
 import { MatchModal } from "@/features/tournament/matches/components/MatchModal";
 import { useDoubles, MIN_PLAYERS_DOUBLES } from "@/features/tournament/matches/doubles/hooks";
@@ -98,7 +98,7 @@ export const DoublesList = ({ tournamentId }: { tournamentId: string }) => {
         </div>
         <ul className="divide-line border-line divide-y-2 overflow-hidden rounded-2xl border-2">
           {matchList.length === 0 ? (
-            <li className="text-sub p-4 text-base">まだ試合がありません。</li>
+            <EmptyState variant="listItem" message="まだ試合がありません。" />
           ) : (
             matchList.map((match) => {
               const summary = matchSummary(match.games, wins);

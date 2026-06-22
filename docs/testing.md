@@ -40,7 +40,8 @@
 ## UI / component
 
 - `@testing-library/react` でコンポーネント・feature 単位のテスト
-  - 共通 UI（`src/components/ui/<ComponentName>/<ComponentName>.test.tsx`）: Badge / Button / Calendar / Select / RadioGroup / Tabs / ConfirmModal / InfoModal
+  - 共通 UI（`src/components/ui/<ComponentName>/<ComponentName>.test.tsx`）: Badge / Button / Calendar / Select / RadioGroup / Tabs / ConfirmModal / InfoModal / EmptyState
+  - ドメイン固有 UI（`src/components/domain/<ComponentName>/<ComponentName>.test.tsx`）: WinnerBadge
   - feature（`src/features/**/*.test.tsx`）: home / matches（matches・doubles・MatchModal）/ participants / scoreboard / settings / result（result・RankingTable / MatchResultsTable / MatchScoreChart / PersonalMatchResults）
 - **Storybook** でコンポーネント単位の見た目・状態を確認
   - 起動: `npm run storybook`（dev・ポート6006） / ビルド: `npm run build-storybook`

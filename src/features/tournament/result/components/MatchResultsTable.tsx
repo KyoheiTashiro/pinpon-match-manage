@@ -1,6 +1,6 @@
+import { WinnerBadge } from "@/components/domain";
+import { EmptyState } from "@/components/ui";
 import { SIDE } from "@/domain/match";
-import { EmptyState } from "@/features/tournament/result/components/EmptyState";
-import { WinnerBadge } from "@/features/tournament/result/components/WinnerBadge";
 import type { MatchResultRow } from "@/features/tournament/result/hooks";
 
 type Props = {

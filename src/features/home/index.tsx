@@ -1,5 +1,5 @@
 import { ChevronDownIcon, GearIcon } from "@/components/icons";
-import { Button } from "@/components/ui";
+import { Button, EmptyState } from "@/components/ui";
 import { tournamentPath } from "@/constants/routes";
 import { CreateTournament } from "@/features/home/components/CreateTournament";
 import { InstallAppButton } from "@/features/home/components/InstallAppButton";
@@ -48,9 +48,10 @@ export const Home = () => {
 
         <section aria-label="大会一覧">
           {list.length === 0 ? (
-            <p className="text-sub py-8 text-center text-base">
-              まだ大会がありません。上のボタンから作成してください。
-            </p>
+            <EmptyState
+              variant="plain"
+              message="まだ大会がありません。上のボタンから作成してください。"
+            />
           ) : (
             <ul className="divide-line border-line divide-y-2 overflow-hidden rounded-2xl border-2">
               {list.map((tournament) => (
