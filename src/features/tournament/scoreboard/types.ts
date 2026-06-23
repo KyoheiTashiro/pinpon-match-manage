@@ -1,4 +1,4 @@
-import type { Game, Side } from "@/domain/match";
+import type { Side } from "@/domain/match";
 
 /** スコア列1つ分の表示・操作プロパティ（ScoreColumn にそのまま渡す）。 */
 export type SideView = {
@@ -28,10 +28,4 @@ export type ScoreInputProps = MatchSummary & {
   right: SideView;
   locked: boolean;
   onSwap: () => void;
-};
-
-export type MatchResultProps = MatchSummary & {
-  leftName: string;
-  rightName: string;
-  games: Game[];
 };

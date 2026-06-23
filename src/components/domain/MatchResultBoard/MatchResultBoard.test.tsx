@@ -67,4 +67,29 @@ describe("MatchResultBoard", () => {
     expect(getByText("山田")).toBeTruthy();
     expect(getByText("佐藤")).toBeTruthy();
   });
+
+  it("各ゲームのスコアを描画する", () => {
+    const { getByText } = render(
+      <MatchResultBoard
+        left={{ name: "山田", wins: 1, isWinner: false }}
+        right={{ name: "佐藤", wins: 2, isWinner: true }}
+        games={games}
+      />,
+    );
+    // 1ゲーム目 11-5、2ゲーム目 9-11
+    expect(getByText("5")).toBeTruthy();
+    expect(getByText("9")).toBeTruthy();
+  });
+
+  it("勝者ゲームのスコアにのみ勝者色クラスを付与する", () => {
+    const { getByText } = render(
+      <MatchResultBoard
+        left={{ name: "山田", wins: 1, isWinner: false }}
+        right={{ name: "佐藤", wins: 2, isWinner: true }}
+        games={[{ leftScore: 11, rightScore: 5, leftWon: true, rightWon: false }]}
+      />,
+    );
+    expect(getByText("11").className).toContain("text-success");
+    expect(getByText("5").className).not.toContain("text-success");
+  });
 });

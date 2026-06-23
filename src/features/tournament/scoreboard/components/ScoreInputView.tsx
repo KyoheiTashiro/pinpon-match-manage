@@ -32,7 +32,7 @@ export const ScoreInputView = ({
           aria-pressed={swapped}
           className="mt-3 rounded-lg border-2 border-white/60 px-2 py-2 text-base font-extrabold transition hover:bg-white/10 active:scale-95 sm:text-lg"
         >
-          ⇄ 入替
+          入替
         </button>
       </div>
 

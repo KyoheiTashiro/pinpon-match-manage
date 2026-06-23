@@ -109,13 +109,13 @@
 
 ## スコアボード (`ScoreboardScreen`)
 
-実装: `src/features/tournament/scoreboard/`（`index.tsx` が `components/ScoreboardScreen.tsx` を re-export。`ScoreboardHeader` / `ScoreInputView` / `ScoreColumn` / `MatchResultView` も `scoreboard/components/`）。
+実装: `src/features/tournament/scoreboard/`（`index.tsx` が `components/ScoreboardScreen.tsx` を re-export。`ScoreboardHeader` / `ScoreInputView` / `ScoreColumn` も `scoreboard/components/`）。結果画面は共有コンポーネント `MatchResultBoard`（`src/components/domain/`）を再利用する。
 
 試合進行中に選手・観客から視認しやすい大型スコア表示専用画面。`createPortal` で `document.body` 直下に描画するフルスクリーンモーダル（独立ルートなし、`z-[60]`）。
 
 - 起動: 試合詳細モーダル内の「スコアボードを開く」ボタン
 - 戻る: ヘッダー左の「戻る」ボタン（`←` アイコン付き）で試合詳細モーダルへ復帰
-- 配色: **青背景 `bg-blue-800`・白文字**
+- 配色: **入力画面は青背景 `bg-blue-800`・白文字。結果画面は白背景 `bg-white`・`text-ink`（個人結果カードと同スタイル）**
 - セーフエリア: `env(safe-area-inset-*)` で四辺をパディング
 
 ### ヘッダー (`ScoreboardHeader`)
@@ -191,14 +191,13 @@
   - bestOf=3 → 2先取、bestOf=5 → 3先取、bestOf=7 → 4先取
 - `lockedGameStartIndex`: 勝敗確定ゲームの次のインデックスを返す。確定していない場合は `gameCount`
 
-### 結果画面 (`MatchResultView`)
+### 結果画面（共有 `MatchResultBoard`）
 
-「結果を見る」ボタンで切替表示。`grid-cols-3` の3カラムレイアウト。
+「結果を見る」ボタンで切替表示。白背景 `bg-white text-ink` の領域に、個人結果と同じ `MatchResultBoard`（明背景カードスタイル）を `border-line rounded-2xl border-2` のカード枠（`max-w-2xl`）で中央表示する。ヘッダーバーは青背景のまま。
 
-- 左カラム: ゲーム取得数（`text-[clamp(4rem,12vw,12rem)]`）+ 選手名（`text-[clamp(2rem,5vw,5rem)]`）。試合勝者側 `text-green-500`
-- 中央カラム: プレイ済ゲームのスコア一覧（`text-[clamp(1.75rem,4vw,3.5rem)]`）。`isGameFinished` または点数 > 0 のゲームのみ表示
-- 右カラム: 同上（右側）
-- `swapped` 状態を反映して表示する
+- 左右カラム: 勝者バッジ + 選手名 + ゲーム取得数（`text-[3rem]`）。勝者側 `text-success`、敗者側 `text-sub`
+- 中央カラム: プレイ済ゲームのスコア一覧（`text-lg`）。`isGameFinished` または点数 > 0 のゲームのみ表示
+- `swapped` 状態を反映し、`ScoreboardScreen` 側の `toResultBoardProps` で `MatchResultBoard` の汎用 props に変換する
 
 > 点数進行グラフ（`MatchScoreChart`）の詳細仕様は [result-graph.md](result-graph.md) を参照。スコアボードの結果画面内にグラフを表示する場合は同ドキュメントの導線を確認すること。
 

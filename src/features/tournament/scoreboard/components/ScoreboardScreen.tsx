@@ -1,43 +1,8 @@
 import { MatchResultBoard } from "@/components/domain";
-import { SIDE, isGameFinished } from "@/domain/match";
-import type { Game } from "@/domain/match";
 import { ScoreboardHeader } from "@/features/tournament/scoreboard/components/ScoreboardHeader";
 import { ScoreInputView } from "@/features/tournament/scoreboard/components/ScoreInputView";
 import { useScoreboard, type UseScoreboardProps } from "@/features/tournament/scoreboard/hooks";
-import type { MatchResultProps } from "@/features/tournament/scoreboard/types";
 import { createPortal } from "react-dom";
-
-// 進行中/確定済みのゲームのみを抽出し swap を適用して結果ボード用 props に変換する。
-const toResultBoardProps = (
-  {
-    leftName,
-    rightName,
-    leftWins,
-    rightWins,
-    matchWinner,
-    swapped,
-  }: Omit<MatchResultProps, "games">,
-  games: Game[],
-) => {
-  const scoreGames = games
-    .filter((game) => isGameFinished(game) || game.leftScore > 0 || game.rightScore > 0)
-    .map((game) => {
-      const leftScore = swapped ? game.rightScore : game.leftScore;
-      const rightScore = swapped ? game.leftScore : game.rightScore;
-      const finished = isGameFinished(game);
-      return {
-        leftScore,
-        rightScore,
-        leftWon: finished && leftScore > rightScore,
-        rightWon: finished && rightScore > leftScore,
-      };
-    });
-  return {
-    left: { name: leftName, wins: leftWins, isWinner: matchWinner === SIDE.LEFT },
-    right: { name: rightName, wins: rightWins, isWinner: matchWinner === SIDE.RIGHT },
-    games: scoreGames,
-  };
-};
 
 export const ScoreboardScreen = (props: UseScoreboardProps) => {
   const {
@@ -50,7 +15,7 @@ export const ScoreboardScreen = (props: UseScoreboardProps) => {
     nextGameIndex,
     isPortrait,
     scoreInputProps,
-    matchResultProps,
+    resultBoardProps,
     onBack,
     onShowResult,
     onCloseAll,
@@ -63,14 +28,7 @@ export const ScoreboardScreen = (props: UseScoreboardProps) => {
       role="dialog"
       aria-modal="true"
       tabIndex={-1}
-      className="fixed inset-0 z-[60] flex flex-col overflow-x-hidden bg-blue-800 text-white select-none"
-      style={{
-        touchAction: "none",
-        paddingTop: "env(safe-area-inset-top)",
-        paddingBottom: "env(safe-area-inset-bottom)",
-        paddingLeft: "env(safe-area-inset-left)",
-        paddingRight: "env(safe-area-inset-right)",
-      }}
+      className="fixed inset-0 z-[60] flex touch-none flex-col overflow-x-hidden bg-black pt-[env(safe-area-inset-top)] pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] text-white select-none"
       onClick={(event) => event.stopPropagation()}
       onKeyDown={(event) => event.stopPropagation()}
     >
@@ -99,11 +57,10 @@ export const ScoreboardScreen = (props: UseScoreboardProps) => {
       )}
 
       {showResult ? (
-        <div className="flex min-h-0 flex-1 flex-col items-center justify-center overflow-auto px-4 py-6">
-          <MatchResultBoard
-            variant="scoreboard"
-            {...toResultBoardProps(matchResultProps, props.games)}
-          />
+        <div className="text-ink flex min-h-0 flex-1 flex-col items-center justify-center overflow-auto bg-white px-4 py-6">
+          <div className="border-line w-full max-w-2xl overflow-hidden rounded-2xl border-2 py-6">
+            <MatchResultBoard {...resultBoardProps} />
+          </div>
         </div>
       ) : (
         <ScoreInputView {...scoreInputProps} />

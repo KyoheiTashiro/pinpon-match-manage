@@ -1,3 +1,4 @@
+import type { GameScore, PlayerSide } from "@/components/domain/MatchResultBoard/MatchResultBoard";
 import { GAME_POINT, WIN_DIFF } from "@/domain/constants";
 import { SIDE, flip, opposite } from "@/domain/match";
 import type { Game, Side } from "@/domain/match";
@@ -11,12 +12,51 @@ import {
   matchSummary,
   undoLastPoint,
 } from "@/domain/match";
-import type {
-  MatchResultProps,
-  ScoreInputProps,
-  SideView,
-} from "@/features/tournament/scoreboard/types";
+import type { ScoreInputProps, SideView } from "@/features/tournament/scoreboard/types";
 import { useState, useSyncExternalStore } from "react";
+
+/** MatchResultBoard に渡す props の型。 */
+export type ResultBoardProps = {
+  left: PlayerSide;
+  right: PlayerSide;
+  games: GameScore[];
+};
+
+/**
+ * 進行中/確定済みのゲームのみを抽出し swap を適用して MatchResultBoard 用 props に変換する純関数。
+ * hook から切り出すことでテスト容易性を保つ。
+ */
+export const toResultBoardProps = (
+  source: {
+    leftName: string;
+    rightName: string;
+    leftWins: number;
+    rightWins: number;
+    matchWinner: Side | null;
+    swapped: boolean;
+  },
+  games: Game[],
+): ResultBoardProps => {
+  const { leftName, rightName, leftWins, rightWins, matchWinner, swapped } = source;
+  const scoreGames = games
+    .filter((game) => isGameFinished(game) || game.leftScore > 0 || game.rightScore > 0)
+    .map((game) => {
+      const leftScore = swapped ? game.rightScore : game.leftScore;
+      const rightScore = swapped ? game.leftScore : game.rightScore;
+      const finished = isGameFinished(game);
+      return {
+        leftScore,
+        rightScore,
+        leftWon: finished && leftScore > rightScore,
+        rightWon: finished && rightScore > leftScore,
+      };
+    });
+  return {
+    left: { name: leftName, wins: leftWins, isWinner: matchWinner === SIDE.LEFT },
+    right: { name: rightName, wins: rightWins, isWinner: matchWinner === SIDE.RIGHT },
+    games: scoreGames,
+  };
+};
 
 const PORTRAIT_QUERY = "(orientation: portrait) and (max-width: 900px)";
 
@@ -158,14 +198,17 @@ export const useScoreboard = ({
     onSwap: () => setSwapped((previous) => !previous),
   };
 
-  const matchResultProps: Omit<MatchResultProps, "games"> = {
-    leftName: displayLeftName,
-    rightName: displayRightName,
-    leftWins: displayLeftWins,
-    rightWins: displayRightWins,
-    matchWinner,
-    swapped,
-  };
+  const resultBoardProps = toResultBoardProps(
+    {
+      leftName: displayLeftName,
+      rightName: displayRightName,
+      leftWins: displayLeftWins,
+      rightWins: displayRightWins,
+      matchWinner,
+      swapped,
+    },
+    games,
+  );
 
   return {
     gameIndex,
@@ -177,7 +220,7 @@ export const useScoreboard = ({
     nextGameIndex,
     isPortrait,
     scoreInputProps,
-    matchResultProps,
+    resultBoardProps,
     onBack,
     onShowResult: () => setShowResult(true),
     onCloseAll,

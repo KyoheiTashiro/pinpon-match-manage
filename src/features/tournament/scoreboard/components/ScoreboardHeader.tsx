@@ -33,10 +33,14 @@ export const ScoreboardHeader = ({
   onCloseAll,
 }: Props) => {
   return (
-    <div className="flex shrink-0 items-center justify-between border-b border-white/20 px-3 py-2">
+    <div
+      className={`flex shrink-0 items-center justify-between border-b px-3 py-2 ${
+        showResult ? "border-line bg-white" : "border-white/20"
+      }`}
+    >
       <Button
         type="button"
-        variant="white"
+        variant={showResult ? "secondary" : "secondary"}
         size="sm"
         onClick={onBack}
         aria-label="戻る"

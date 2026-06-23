@@ -1,10 +1,30 @@
+import { MatchResultBoard } from "@/components/domain";
 import { EmptyState } from "@/components/ui";
-import { PersonalMatchResultRow } from "@/features/tournament/result/components/PersonalMatchResultRow";
+import { MATCH_RESULT } from "@/features/tournament/result/hooks";
 import type { PersonalMatchRow } from "@/features/tournament/result/hooks";
 
 type Props = {
   matches: PersonalMatchRow[];
 };
+
+const toBoardProps = (match: PersonalMatchRow) => ({
+  left: {
+    name: match.selfName,
+    wins: match.selfWins,
+    isWinner: match.result === MATCH_RESULT.WIN,
+  },
+  right: {
+    name: match.opponentName,
+    wins: match.opponentWins,
+    isWinner: match.result === MATCH_RESULT.LOSE,
+  },
+  games: match.games.map((game) => ({
+    leftScore: game.selfScore,
+    rightScore: game.opponentScore,
+    leftWon: game.selfScore > game.opponentScore,
+    rightWon: game.opponentScore > game.selfScore,
+  })),
+});
 
 export const PersonalMatchResults = ({ matches }: Props) => {
   const selfName = matches[0]?.selfName;
@@ -22,7 +42,9 @@ export const PersonalMatchResults = ({ matches }: Props) => {
       <div className="px-2 text-xl font-extrabold">{title}</div>
       <div className="space-y-3">
         {matches.map((match) => (
-          <PersonalMatchResultRow key={match.id} match={match} />
+          <div key={match.id} className="border-line overflow-hidden rounded-2xl border-2 py-4">
+            <MatchResultBoard {...toBoardProps(match)} />
+          </div>
         ))}
       </div>
     </div>

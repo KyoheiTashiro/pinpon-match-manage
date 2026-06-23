@@ -20,17 +20,6 @@ const cardDecorator: Story["decorators"] = [
   ),
 ];
 
-// 全画面スコアボード（青背景・特大フォント）用の枠デコレータ。
-const scoreboardDecorator: Story["decorators"] = [
-  (Story) => (
-    <div className="flex min-h-screen flex-col bg-blue-800 text-white">
-      <div className="flex min-h-0 flex-1 flex-col items-center justify-center overflow-auto px-4 py-6">
-        <Story />
-      </div>
-    </div>
-  ),
-];
-
 const games = [
   { leftScore: 11, rightScore: 5, leftWon: true, rightWon: false },
   { leftScore: 9, rightScore: 11, leftWon: false, rightWon: true },
@@ -68,34 +57,5 @@ export const NoGames: Story = {
     left: { name: "山田", wins: 0, isWinner: false },
     right: { name: "佐藤", wins: 0, isWinner: false },
     games: [],
-  },
-};
-
-// 全画面スコアボード: 左勝ち
-export const ScoreboardLeftWins: Story = {
-  decorators: scoreboardDecorator,
-  parameters: { layout: "fullscreen" },
-  args: {
-    variant: "scoreboard",
-    left: { name: "田中 太郎", wins: 2, isWinner: true },
-    right: { name: "鈴木 花子", wins: 1, isWinner: false },
-    games,
-  },
-};
-
-// 全画面スコアボード: 右勝ち
-export const ScoreboardRightWins: Story = {
-  decorators: scoreboardDecorator,
-  parameters: { layout: "fullscreen" },
-  args: {
-    variant: "scoreboard",
-    left: { name: "田中 太郎", wins: 1, isWinner: false },
-    right: { name: "鈴木 花子", wins: 3, isWinner: true },
-    games: [
-      { leftScore: 11, rightScore: 9, leftWon: true, rightWon: false },
-      { leftScore: 6, rightScore: 11, leftWon: false, rightWon: true },
-      { leftScore: 8, rightScore: 11, leftWon: false, rightWon: true },
-      { leftScore: 9, rightScore: 11, leftWon: false, rightWon: true },
-    ],
   },
 };
