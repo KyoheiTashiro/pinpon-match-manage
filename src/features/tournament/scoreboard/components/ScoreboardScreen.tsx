@@ -58,7 +58,7 @@ export const ScoreboardScreen = (props: UseScoreboardProps) => {
 
       {showResult ? (
         <div className="text-ink flex min-h-0 flex-1 flex-col items-center justify-center overflow-auto bg-white px-4 py-6">
-          <div className="border-line w-full max-w-2xl overflow-hidden rounded-2xl border-2 py-6">
+          <div className="border-line w-full max-w-2xl origin-center scale-[1.35] overflow-hidden rounded-2xl border-2 py-6">
             <MatchResultBoard {...resultBoardProps} />
           </div>
         </div>
