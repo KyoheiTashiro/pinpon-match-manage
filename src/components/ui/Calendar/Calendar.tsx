@@ -1,10 +1,6 @@
 import { CalendarIcon, ChevronDownIcon } from "@/components/icons";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 
-// 汎用日付ピッカー（ポップオーバー）。native <input type="date"> ではなく
-// スタイル統一・表示フォーマット統一のため独自実装。
-// value / onChange は "YYYY-MM-DD" 文字列で扱う（ローカルタイム基準）。
-
 const WEEKDAYS = ["日", "月", "火", "水", "木", "金", "土"];
 
 // 曜日ヘッダの文字色（日=赤 / 土=青 / 平日=line）。
@@ -33,8 +29,7 @@ const formatDisplay = (value: string) => {
   const parsed = parseISO(value);
   if (!parsed) return "";
   const { year, month, day } = parsed;
-  const w = WEEKDAYS[new Date(year, month, day).getDay()];
-  return `${year}/${pad(month + 1)}/${pad(day)}（${w}）`;
+  return `${year}/${pad(month + 1)}/${pad(day)}（${WEEKDAYS[new Date(year, month, day).getDay()]}）`;
 };
 
 type Props = {
@@ -108,10 +103,11 @@ export const Calendar = ({
   // 月初までの空セル + 日付セル。末尾も 7 の倍数になるよう null 埋めし週に分割。
   const cells: (number | null)[] = [
     ...Array.from({ length: firstWeekday }, () => null),
-    ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
+    ...Array.from({ length: daysInMonth }, (_, index) => index + 1),
   ];
   while (cells.length % 7 !== 0) cells.push(null);
-  const weeks = Array.from({ length: cells.length / 7 }, (_, i) => cells.slice(i * 7, i * 7 + 7));
+  const weeks: (number | null)[][] = [];
+  for (let index = 0; index < cells.length; index += 7) weeks.push(cells.slice(index, index + 7));
 
   const close = (returnFocus = true) => {
     setIsOpen(false);
@@ -256,23 +252,26 @@ export const Calendar = ({
             >
               <thead>
                 <tr>
-                  {WEEKDAYS.map((w, i) => (
+                  {WEEKDAYS.map((weekday, index) => (
                     <th
-                      key={w}
+                      key={weekday}
                       scope="col"
-                      className={`text-center text-xs font-bold ${weekdayColor(i)}`}
+                      className={`text-center text-xs font-bold ${weekdayColor(index)}`}
                     >
-                      {w}
+                      {weekday}
                     </th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {weeks.map((week, wi) => (
-                  <tr key={`week-${uid}-${wi.toString()}`}>
-                    {week.map((day, di) =>
+                {weeks.map((week, weekIndex) => (
+                  <tr key={`week-${uid}-${weekIndex.toString()}`}>
+                    {week.map((day, dayIndex) =>
                       day === null ? (
-                        <td key={`empty-${uid}-${wi.toString()}-${di.toString()}`} aria-hidden />
+                        <td
+                          key={`empty-${uid}-${weekIndex.toString()}-${dayIndex.toString()}`}
+                          aria-hidden
+                        />
                       ) : (
                         <td key={day} className="p-0">
                           <button

@@ -130,8 +130,8 @@ describe("MatchResultsTable", () => {
 
   it("bestOf=7 → G1〜G7 が全て表示される", () => {
     render(<MatchResultsTable matchResults={[makeMatchResult()]} bestOf={7} />);
-    for (let i = 1; i <= 7; i++) {
-      expect(screen.getByText(`G${i}`)).toBeInTheDocument();
+    for (let index = 1; index <= 7; index++) {
+      expect(screen.getByText(`G${index}`)).toBeInTheDocument();
     }
   });
 

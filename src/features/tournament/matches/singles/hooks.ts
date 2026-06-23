@@ -26,12 +26,12 @@ export const useSingles = (tournamentId: string) => {
     return map;
   }, [matchList]);
 
-  // 参加者の登録順から i < j の全ペアを列挙（行の並びは安定）。
+  // 参加者の登録順から index < innerIndex の全ペアを列挙（行の並びは安定）。
   const allPairs = useMemo(() => {
     const pairs: { a: (typeof players)[number]; b: (typeof players)[number] }[] = [];
-    for (let i = 0; i < players.length; i++) {
-      for (let j = i + 1; j < players.length; j++) {
-        pairs.push({ a: players[i], b: players[j] });
+    for (let index = 0; index < players.length; index++) {
+      for (let innerIndex = index + 1; innerIndex < players.length; innerIndex++) {
+        pairs.push({ a: players[index], b: players[innerIndex] });
       }
     }
     return pairs;

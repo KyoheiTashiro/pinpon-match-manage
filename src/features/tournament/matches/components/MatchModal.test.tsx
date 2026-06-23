@@ -213,7 +213,7 @@ describe("MatchModal", () => {
     const inProgressGame = {
       leftScore: 5,
       rightScore: 3,
-      pointLog: Array.from({ length: 8 }, (_, i): "L" | "R" => (i < 5 ? "L" : "R")),
+      pointLog: Array.from({ length: 8 }, (_, index): "L" | "R" => (index < 5 ? "L" : "R")),
     };
     useAppStore.getState().resetAll();
     seedStore({

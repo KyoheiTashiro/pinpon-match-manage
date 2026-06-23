@@ -83,8 +83,8 @@ describe("computeRanking プロパティテスト", () => {
         const names = buildParticipantNames(matches);
         const rows = computeRanking(matches, names);
         expect(rows.at(0)!.rank).toBe(1);
-        for (let i = 1; i < rows.length; i++) {
-          expect(rows.at(i)!.rank).toBeGreaterThanOrEqual(rows.at(i - 1)!.rank);
+        for (let index = 1; index < rows.length; index++) {
+          expect(rows.at(index)!.rank).toBeGreaterThanOrEqual(rows.at(index - 1)!.rank);
         }
         expect(rows.at(-1)!.rank).toBeLessThanOrEqual(rows.length);
       }),
@@ -320,7 +320,7 @@ describe("computeRanking — 同順位飛び(1,1,3形式)プロパティテス�
     fc.assert(
       fc.property(fc.integer({ min: 2, max: 5 }), (n) => {
         const names: Record<string, string> = {};
-        for (let i = 0; i < n; i++) names[`p${i}`] = `p${i}`;
+        for (let index = 0; index < n; index++) names[`p${index}`] = `p${index}`;
         const rows = computeRanking([], names);
         // 全員同指標(wins=0,diff=0)なので全員 rank=1
         expect(rows.every((r) => r.rank === 1)).toBe(true);
@@ -345,8 +345,10 @@ describe("computeRanking — 同順位飛び(1,1,3形式)プロパティテス�
           for (const name of names) nameMap[name] = name;
           const rows = computeRanking([], nameMap);
           // 全員 rank=1 かつ名前が localeCompare("ja") 昇順
-          for (let i = 1; i < rows.length; i++) {
-            expect(rows[i - 1].name.localeCompare(rows[i].name, "ja")).toBeLessThanOrEqual(0);
+          for (let index = 1; index < rows.length; index++) {
+            expect(rows[index - 1].name.localeCompare(rows[index].name, "ja")).toBeLessThanOrEqual(
+              0,
+            );
           }
         },
       ),

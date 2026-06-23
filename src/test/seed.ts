@@ -147,14 +147,14 @@ const sideOf = (format: Format, ids: string[]): MatchSide =>
 
 const buildTournament = (spec: TournamentSpec): BuiltTournament => {
   const winsNeeded = winsNeededForBestOf(spec.bestOf);
-  const pIds = spec.players.map((_, i) => `p-${spec.prefix}${i + 1}`);
+  const pIds = spec.players.map((_, index) => `p-${spec.prefix}${index + 1}`);
 
-  const participants = spec.players.map((pl, i) =>
+  const participants = spec.players.map((player, index) =>
     makeParticipant({
-      id: pIds[i],
+      id: pIds[index],
       tournamentId: spec.id,
-      name: pl.name,
-      ...(pl.affiliation ? { affiliation: pl.affiliation } : {}),
+      name: player.name,
+      ...(player.affiliation ? { affiliation: player.affiliation } : {}),
     }),
   );
 
@@ -171,8 +171,8 @@ const buildTournament = (spec: TournamentSpec): BuiltTournament => {
   // チーム = シングルス1名 / ダブルス2名 ずつのID組。各大会4チーム。
   const teamSize = spec.format === FORMAT.SINGLES ? 1 : 2;
   const teams: string[][] = [];
-  for (let i = 0; i + teamSize <= pIds.length; i += teamSize) {
-    teams.push(pIds.slice(i, i + teamSize));
+  for (let index = 0; index + teamSize <= pIds.length; index += teamSize) {
+    teams.push(pIds.slice(index, index + teamSize));
   }
 
   const buildMatch = (matchNumber: number, left: string[], right: string[], games: Game[]): Match =>

@@ -1,8 +1,43 @@
-import { MatchResultView } from "@/features/tournament/scoreboard/components/MatchResultView";
+import { MatchResultBoard } from "@/components/domain";
+import { SIDE, isGameFinished } from "@/domain/match";
+import type { Game } from "@/domain/match";
 import { ScoreboardHeader } from "@/features/tournament/scoreboard/components/ScoreboardHeader";
 import { ScoreInputView } from "@/features/tournament/scoreboard/components/ScoreInputView";
 import { useScoreboard, type UseScoreboardProps } from "@/features/tournament/scoreboard/hooks";
+import type { MatchResultProps } from "@/features/tournament/scoreboard/types";
 import { createPortal } from "react-dom";
+
+// 進行中/確定済みのゲームのみを抽出し swap を適用して結果ボード用 props に変換する。
+const toResultBoardProps = (
+  {
+    leftName,
+    rightName,
+    leftWins,
+    rightWins,
+    matchWinner,
+    swapped,
+  }: Omit<MatchResultProps, "games">,
+  games: Game[],
+) => {
+  const scoreGames = games
+    .filter((game) => isGameFinished(game) || game.leftScore > 0 || game.rightScore > 0)
+    .map((game) => {
+      const leftScore = swapped ? game.rightScore : game.leftScore;
+      const rightScore = swapped ? game.leftScore : game.rightScore;
+      const finished = isGameFinished(game);
+      return {
+        leftScore,
+        rightScore,
+        leftWon: finished && leftScore > rightScore,
+        rightWon: finished && rightScore > leftScore,
+      };
+    });
+  return {
+    left: { name: leftName, wins: leftWins, isWinner: matchWinner === SIDE.LEFT },
+    right: { name: rightName, wins: rightWins, isWinner: matchWinner === SIDE.RIGHT },
+    games: scoreGames,
+  };
+};
 
 export const ScoreboardScreen = (props: UseScoreboardProps) => {
   const {
@@ -64,7 +99,12 @@ export const ScoreboardScreen = (props: UseScoreboardProps) => {
       )}
 
       {showResult ? (
-        <MatchResultView {...matchResultProps} games={props.games} />
+        <div className="flex min-h-0 flex-1 flex-col items-center justify-center overflow-auto px-4 py-6">
+          <MatchResultBoard
+            variant="scoreboard"
+            {...toResultBoardProps(matchResultProps, props.games)}
+          />
+        </div>
       ) : (
         <ScoreInputView {...scoreInputProps} />
       )}

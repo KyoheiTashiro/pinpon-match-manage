@@ -156,10 +156,10 @@ describe("trimTrailingEmptyGames プロパティテスト", () => {
         (games, lockedStartIndex) => {
           const result = trimTrailingEmptyGames(games, lockedStartIndex);
           // 結果の中に lockedStartIndex 以降の空ゲームが存在しない
-          for (let i = 0; i < result.length; i++) {
-            const originalIndex = games.indexOf(result[i]);
+          for (let index = 0; index < result.length; index++) {
+            const originalIndex = games.indexOf(result[index]);
             if (originalIndex >= lockedStartIndex) {
-              expect(result[i].leftScore !== 0 || result[i].rightScore !== 0).toBe(true);
+              expect(result[index].leftScore !== 0 || result[index].rightScore !== 0).toBe(true);
             }
           }
         },
@@ -174,7 +174,7 @@ describe("trimTrailingEmptyGames プロパティテスト", () => {
         fc.integer({ min: 0, max: 8 }),
         (games, lockedStartIndex) => {
           const result = trimTrailingEmptyGames(games, lockedStartIndex);
-          const afterLock = result.filter((_, i) => i >= lockedStartIndex);
+          const afterLock = result.filter((_, index) => index >= lockedStartIndex);
           for (const g of afterLock) {
             expect(g.leftScore !== 0 || g.rightScore !== 0).toBe(true);
           }
@@ -201,8 +201,8 @@ describe("padGames 境界値プロパティテスト", () => {
         (games, totalCount) => {
           const result = padGames(games, totalCount);
           // gamesの長さを超えた部分は空ゲームで埋まっている
-          for (let i = games.length; i < totalCount; i++) {
-            expect(result[i]).toEqual({ leftScore: 0, rightScore: 0 });
+          for (let index = games.length; index < totalCount; index++) {
+            expect(result[index]).toEqual({ leftScore: 0, rightScore: 0 });
           }
         },
       ),
