@@ -105,17 +105,17 @@ describe("Calendar", () => {
     expect(trigger).toHaveFocus();
   });
 
-  it("外部 pointerdown で閉じる", async () => {
+  it("オーバーレイの pointerdown で閉じる", async () => {
     const user = userEvent.setup();
-    render(
-      <div>
-        <Calendar value="2026-06-21" onChange={vi.fn<() => void>()} ariaLabel="開催日" />
-        <button>外部ボタン</button>
-      </div>,
+    const { container } = render(
+      <Calendar value="2026-06-21" onChange={vi.fn<() => void>()} ariaLabel="開催日" />,
     );
     await user.click(screen.getByRole("button", { name: "開催日" }));
     expect(screen.getByRole("dialog")).toBeInTheDocument();
-    fireEvent.pointerDown(screen.getByRole("button", { name: "外部ボタン" }));
+    // 全画面オーバーレイ（z-40）への pointerdown で閉じる。
+    const overlay = container.querySelector(".z-40");
+    if (!overlay) throw new Error("オーバーレイが見つかりません");
+    fireEvent.pointerDown(overlay);
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 

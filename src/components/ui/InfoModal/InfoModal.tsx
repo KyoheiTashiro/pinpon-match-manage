@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/Button";
-import { useEffect, useId, useRef, type ReactNode } from "react";
+import { useDialog } from "@/components/ui/hooks/useDialog";
+import { useId, useRef, type ReactNode } from "react";
 
 type Props = {
   open: boolean;
@@ -10,20 +11,9 @@ type Props = {
 };
 
 export const InfoModal = ({ open, title, onClose, closeLabel = "閉じる", children }: Props) => {
-  const dialogRef = useRef<HTMLDialogElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const titleId = useId();
-
-  useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
-    if (open) {
-      dialog.showModal();
-      closeRef.current?.focus();
-    } else if (dialog.open) {
-      dialog.close();
-    }
-  }, [open]);
+  const dialogRef = useDialog({ open, initialFocusRef: closeRef });
 
   return (
     // backdrop クリックで閉じる。Esc は onCancel で担保済み。

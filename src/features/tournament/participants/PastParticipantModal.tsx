@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { useEffect, useId, useRef } from "react";
+import { useDialog } from "@/components/ui/hooks/useDialog";
+import { useId, useRef } from "react";
 
 type Candidate = {
   name: string;
@@ -24,20 +25,9 @@ export const PastParticipantModal = ({
   onConfirm,
   onCancel,
 }: Props) => {
-  const dialogRef = useRef<HTMLDialogElement>(null);
   const cancelRef = useRef<HTMLButtonElement>(null);
   const titleId = useId();
-
-  useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
-    if (open) {
-      dialog.showModal();
-      cancelRef.current?.focus();
-    } else if (dialog.open) {
-      dialog.close();
-    }
-  }, [open]);
+  const dialogRef = useDialog({ open, initialFocusRef: cancelRef });
 
   return (
     // backdrop クリックで閉じる。Esc は onCancel で担保済み。

@@ -4,7 +4,6 @@ import { ROUTES, TAB_PATH } from "@/constants/routes";
 import { FORMAT } from "@/store/types";
 import { useAppStore } from "@/store/useAppStore";
 import type { ComponentType, SVGProps } from "react";
-import { useEffect } from "react";
 import { NavLink, Outlet, useNavigate, useParams } from "react-router-dom";
 
 type Tab = {
@@ -26,11 +25,6 @@ export const TournamentLayout = () => {
   const tournament = useAppStore((state) =>
     tournamentId ? state.tournaments[tournamentId] : undefined,
   );
-  const setCurrent = useAppStore((state) => state.setCurrentTournament);
-
-  useEffect(() => {
-    if (tournamentId) setCurrent(tournamentId);
-  }, [tournamentId, setCurrent]);
 
   if (!tournament) {
     return (

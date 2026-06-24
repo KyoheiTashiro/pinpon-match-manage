@@ -13,7 +13,7 @@ import { sideName } from "@/features/tournament/matches/hooks";
 import { ScoreboardScreen } from "@/features/tournament/scoreboard";
 import type { Participant } from "@/store/types";
 import { useAppStore } from "@/store/useAppStore";
-import { useEffect, useId, useState } from "react";
+import { useId, useState } from "react";
 import { createPortal } from "react-dom";
 
 type Props = {
@@ -34,10 +34,6 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [scoreboardOpen, setScoreboardOpen] = useState(false);
   const titleId = useId();
-
-  useEffect(() => {
-    if (!match) onClose();
-  }, [match, onClose]);
 
   if (!match) return null;
 
@@ -178,9 +174,11 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
         cancelLabel="やめる"
         destructive
         onConfirm={() => {
+          // onClose を先に呼ぶ。deleteMatch で match が消えると本コンポーネントが
+          // return null でアンマウントされ、以降の onClose 到達が保証されないため。
+          onClose();
           deleteMatch(match.id);
           setConfirmDelete(false);
-          onClose();
         }}
         onCancel={() => setConfirmDelete(false)}
       />

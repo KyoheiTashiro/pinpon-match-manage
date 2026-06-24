@@ -1,5 +1,5 @@
 import { CalendarIcon, ChevronDownIcon } from "@/components/icons";
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useCallback, useId, useMemo, useRef, useState } from "react";
 
 const WEEKDAYS = ["日", "月", "火", "水", "木", "金", "土"];
 
@@ -71,32 +71,12 @@ export const Calendar = ({
   // キーボード移動用カーソル日（1始まり）。
   const [cursor, setCursor] = useState(selected?.day ?? today.day);
 
-  // 開いたとき選択日（無ければ今日）の月へ合わせ、グリッドへフォーカス。
-  useEffect(() => {
-    if (!isOpen) return;
-    const base = selected ?? today;
-    setView({ year: base.year, month: base.month });
-    setCursor(base.day);
-    gridRef.current?.focus();
-  }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // 外クリックで閉じる。
-  useEffect(() => {
-    if (!isOpen) return () => {};
-    const handlePointerDown = (event: PointerEvent) => {
-      if (
-        wrapperRef.current &&
-        event.target instanceof Node &&
-        !wrapperRef.current.contains(event.target)
-      ) {
-        setIsOpen(false);
-      }
-    };
-    document.addEventListener("pointerdown", handlePointerDown);
-    return () => {
-      document.removeEventListener("pointerdown", handlePointerDown);
-    };
-  }, [isOpen]);
+  // open 時にグリッドへフォーカス（条件レンダーのマウント時のみ発火する callback ref）。
+  // 外クリックは全画面オーバーレイの onPointerDown が担うため、document 購読は不要。
+  const setGridRef = useCallback((node: HTMLTableElement | null) => {
+    gridRef.current = node;
+    node?.focus();
+  }, []);
 
   const daysInMonth = new Date(view.year, view.month + 1, 0).getDate();
   const firstWeekday = new Date(view.year, view.month, 1).getDay();
@@ -108,6 +88,14 @@ export const Calendar = ({
   while (cells.length % 7 !== 0) cells.push(null);
   const weeks: (number | null)[][] = [];
   for (let index = 0; index < cells.length; index += 7) weeks.push(cells.slice(index, index + 7));
+
+  // 開くとき選択日（無ければ今日）の月へ表示を合わせ、カーソルも合わせる。
+  const openCalendar = () => {
+    const base = selected ?? today;
+    setView({ year: base.year, month: base.month });
+    setCursor(base.day);
+    setIsOpen(true);
+  };
 
   const close = (returnFocus = true) => {
     setIsOpen(false);
@@ -200,7 +188,7 @@ export const Calendar = ({
         aria-haspopup="dialog"
         aria-expanded={isOpen}
         aria-label={ariaLabel}
-        onClick={() => (isOpen ? close() : setIsOpen(true))}
+        onClick={() => (isOpen ? close() : openCalendar())}
         className="min-h-input border-line text-ink flex w-full items-center justify-between gap-2 rounded-xl border-2 bg-white px-3 text-left text-lg disabled:opacity-50"
       >
         <span className={selected ? "" : "text-line"}>
@@ -245,7 +233,7 @@ export const Calendar = ({
             </div>
 
             <table
-              ref={gridRef}
+              ref={setGridRef}
               tabIndex={-1}
               aria-label={`${view.year}年${view.month + 1}月`}
               className="w-full table-fixed border-separate border-spacing-1 outline-none"

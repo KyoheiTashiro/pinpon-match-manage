@@ -1,5 +1,6 @@
 import { ChevronDownIcon } from "@/components/icons";
-import { useEffect, useId, useRef, useState } from "react";
+import { useOutsideClick } from "@/components/ui/hooks/useOutsideClick";
+import { useCallback, useId, useRef, useState } from "react";
 
 // 汎用カスタムセレクト（listbox パターン）。native <select> ではなく
 // スタイル統一・キーボード操作のため独自実装。
@@ -33,7 +34,6 @@ export const Select = <T extends string | number>({
   const [focusedIndex, setFocusedIndex] = useState<number>(-1);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
-  const listboxRef = useRef<HTMLDivElement>(null);
   const autoId = useId();
   const baseId = id ?? autoId;
   const labelId = `${baseId}-label`;
@@ -42,38 +42,13 @@ export const Select = <T extends string | number>({
 
   const selectedOption = options.find((option) => option.value === value) ?? null;
 
-  useEffect(() => {
-    // クリーンアップ不要だが consistent-return のため空クリーンアップ関数を返す
-    if (!isOpen) return () => {};
-    const handlePointerDown = (event: PointerEvent) => {
-      if (
-        wrapperRef.current &&
-        event.target instanceof Node &&
-        !wrapperRef.current.contains(event.target)
-      ) {
-        setIsOpen(false);
-      }
-    };
-    document.addEventListener("pointerdown", handlePointerDown);
-    return () => {
-      document.removeEventListener("pointerdown", handlePointerDown);
-    };
-  }, [isOpen]);
+  // 外クリックで閉じる（document 購読は hook 内 effect に集約）。
+  useOutsideClick(wrapperRef, () => setIsOpen(false), isOpen);
 
-  useEffect(() => {
-    if (isOpen) {
-      listboxRef.current?.focus();
-    }
-  }, [isOpen]);
-
-  // フォーカス中項目をビューポート内に追従（長いリスト対応）。
-  // useId はコロンを含み CSS セレクタに使えないため id ではなく
-  // role="option" の index でDOMを引く。
-  useEffect(() => {
-    if (!isOpen || focusedIndex < 0) return;
-    const optionEls = listboxRef.current?.querySelectorAll('[role="option"]');
-    optionEls?.[focusedIndex]?.scrollIntoView({ block: "nearest" });
-  }, [isOpen, focusedIndex]);
+  // listbox マウント時にフォーカス（条件レンダーのマウント時のみ発火する callback ref）。
+  const setListboxRef = useCallback((node: HTMLDivElement | null) => {
+    node?.focus();
+  }, []);
 
   const open = () => {
     const index = options.findIndex((option) => option.value === value);
@@ -152,7 +127,7 @@ export const Select = <T extends string | number>({
         </button>
         {isOpen && (
           <div
-            ref={listboxRef}
+            ref={setListboxRef}
             role="listbox"
             id={listboxId}
             aria-labelledby={label ? labelId : undefined}
@@ -171,6 +146,8 @@ export const Select = <T extends string | number>({
                 <button
                   key={String(option.value)}
                   type="button"
+                  // フォーカス中項目のみ条件付き ref でビューポート内に追従（長いリスト対応）。
+                  ref={isFocused ? (node) => node?.scrollIntoView({ block: "nearest" }) : undefined}
                   id={`${baseId}-option-${index.toString()}`}
                   role="option"
                   aria-selected={isSelected}

@@ -271,19 +271,4 @@ describe("MatchModal", () => {
     // match が store に残っている（削除されていない）
     expect(useAppStore.getState().matches["m1"]).toBeDefined();
   });
-
-  it("match が store から消えると useEffect が onClose を呼ぶ", async () => {
-    const { act } = await import("react");
-    const onClose = vi.fn<() => void>();
-    render(<MatchModal matchId="m1" participants={participants} onClose={onClose} />);
-
-    // store から match を削除
-    act(() => {
-      useAppStore.getState().deleteMatch("m1");
-    });
-
-    await waitFor(() => {
-      expect(onClose).toHaveBeenCalled();
-    });
-  });
 });

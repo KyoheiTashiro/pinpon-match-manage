@@ -23,6 +23,9 @@ src/
 │       ├── RadioGroup/             // カード型ラジオ選択（形式・ゲーム数等）
 │       ├── Select/                 // ドロップダウン選択（listbox パターン）
 │       ├── Tabs/                   // セグメント型タブ（点数表/グラフ 切替等）
+│       ├── hooks/                  // 汎用UI共有フック（effect を集約し利用側から排除）
+│       │   ├── useDialog.ts        // <dialog> showModal/close を open prop に同期
+│       │   └── useOutsideClick.ts  // 外側クリック購読（callback ref で onOutside 安定化）
 │       └── index.ts                // barrel export
 ├── constants/
 │   ├── routes.ts                   // ルートパス定数（ROUTES / TAB_PATH）
@@ -43,6 +46,7 @@ src/
 │   │       ├── CreateTournament.tsx    // 大会作成フォームUI
 │   │       ├── FontSizeRadio.tsx       // 文字サイズ切替（標準/大/特大）
 │   │       ├── InstallAppButton.tsx    // PWA「ホーム画面に追加」ボタン
+│   │       ├── useInstallPrompt.ts     // beforeinstallprompt 捕捉・promptで導出（effect集約）
 │   │       └── SettingsModal.tsx       // 設定モーダル（文字サイズ・データ管理）
 │   └── tournament/
 │       ├── layout.tsx              // タブ共通レイアウト
@@ -110,5 +114,6 @@ src/
 - `domain/scoreProgress.ts` は点数進行グラフ用の純粋関数を提供（[features/result-graph.md](../features/result-graph.md) 参照）。
 - `result/components/MatchScoreChart.tsx` は SVG ベースのグラフ本体コンポーネント（結果タブのグラフモードで使用）。レイアウト寸法定数（`COL_WIDTH` / `ROW_HEIGHT` / `CIRCLE_SIZE`）は同ファイル内に定義。
 - 各 feature の `schema.ts` は React Hook Form + Zod 用のフォームスキーマ。
+- `components/ui/hooks/` は外部イベント購読・命令的 DOM API（`<dialog>` 制御等）の effect を集約する共有フック群。利用側コンポーネント本体からは `useEffect` を排除する方針。
 - Storybook の story はコンポーネント隣に `*.stories.tsx` で配置（colocation・上記ツリーでは省略）。設定は `.storybook/`（`main.ts` / `preview.ts`）。詳細 → [../testing.md](../testing.md)。
 - `src/test/` はテスト支援ユーティリティ（`arbitraries.ts` / `factories.ts` / `renderWithStore.tsx` / `seed.ts` / `seedInject.ts`）。上記ツリーでは省略。
