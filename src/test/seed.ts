@@ -22,37 +22,25 @@ import {
 import { makeMatch, makeParticipant, makeTournament } from "@/test/factories";
 
 // seedデータ生成 — dev:seed 用。VITE_SEED 時のみ seedInject.ts から呼ばれる。
-// シングルス・ダブルス各 bestOf 3/5/7 を網羅(計6大会)。各大会: 完了2件・進行中1件・未着手1件。
+// シングルス・ダブルス各 bestOf 3/5/7 を網羅(計6大会)。各大会4チーム総当たり6試合: 完了3件・進行中1件・未着手2件。
 
 // pointLog の配列から addPointToGame を逐次適用して Game を組む
 const buildGameFromLog = (log: Side[]): Game =>
   log.reduce<Game>((built, side) => addPointToGame(built, side), { leftScore: 0, rightScore: 0 });
 
-// 11点先取(loserScore は 0〜9)。winner/loser を交互に加点した自然なログ。
+// 11点先取(loserScore は 0〜9)。loserScore 回交互に加点 → 残りを winner が連取。
 const finishedLog = (winner: Side, loserScore: number): Side[] => {
   const loser = opposite(winner);
-  const log: Side[] = [];
-  let w = 0;
-  let l = 0;
-  while (w < 11 || l < loserScore) {
-    if (l < loserScore && l <= w) {
-      log.push(loser);
-      l++;
-    } else if (w < 11) {
-      log.push(winner);
-      w++;
-    } else {
-      log.push(loser);
-      l++;
-    }
-  }
-  return log;
+  return [
+    ...Array.from({ length: loserScore }, () => [winner, loser]).flat(),
+    ...Array.from({ length: 11 - loserScore }, () => winner),
+  ];
 };
 
 // デュースゲーム(12-10): 10-10 まで交互 → winner 2点連取
 const deuceLog = (winner: Side): Side[] => {
   const loser = opposite(winner);
-  return [...Array.from<Side>({ length: 10 }).flatMap(() => [winner, loser]), winner, winner];
+  return [...Array.from({ length: 10 }, () => [winner, loser]).flat(), winner, winner];
 };
 // 完了ゲームのスコア(pointLog なし)。winner が 11、loser が loserScore。
 const scoreGame = (winner: Side, loserScore: number): Game =>
@@ -61,22 +49,17 @@ const scoreGame = (winner: Side, loserScore: number): Game =>
     : { leftScore: loserScore, rightScore: 11 };
 
 // 完了試合のゲーム勝者パターン。winner が winsNeeded 勝ち / loser が loserWins 勝ち。
-// 最終ゲームは必ず winner(そこで試合決着)。loser の勝ちは前半に分散。
+// 最終ゲームは必ず winner(そこで試合決着)。loser の勝ちは前半(奇数番目優先)に分散。
 const winPattern = (winsNeeded: number, loserWins: number): Array<"W" | "L"> => {
   const total = winsNeeded + loserWins;
-  const results: Array<"W" | "L"> = Array.from({ length: total }, () => "W");
-  let placed = 0;
-  for (let index = 1; index < total - 1 && placed < loserWins; index += 2) {
-    results[index] = "L";
-    placed++;
-  }
-  for (let index = 0; index < total - 1 && placed < loserWins; index++) {
-    if (results[index] === "W") {
-      results[index] = "L";
-      placed++;
-    }
-  }
-  return results;
+  // 最終ゲーム(total-1)を除く枠を「奇数インデックス優先 → 昇順」でソートし
+  // loserWins 個を loser 枠として確保(前半に loser の勝ちが散らばる)
+  const loserSlots = new Set(
+    Array.from({ length: total - 1 }, (_, index) => index)
+      .toSorted((a, b) => (b % 2) - (a % 2) || a - b)
+      .slice(0, loserWins),
+  );
+  return Array.from({ length: total }, (_, index) => (loserSlots.has(index) ? "L" : "W"));
 };
 
 const LOSER_SCORES = [7, 9, 5, 8, 6];
@@ -185,21 +168,19 @@ const buildTournament = (spec: TournamentSpec): BuiltTournament => {
       games,
     });
 
-  const matches: Match[] = [
-    // 【完了①】pointLog付き。左 winsNeeded-0(ストレート)。最終ゲームはデュース。
-    buildMatch(1, teams[0], teams[1], completedGames(SIDE.LEFT, winsNeeded, 0, true, true)),
-    // 【完了②】スコア直書き。右 winsNeeded-(winsNeeded-1) のフルゲーム接戦。
-    buildMatch(
-      2,
-      teams[2],
-      teams[3],
-      completedGames(SIDE.RIGHT, winsNeeded, winsNeeded - 1, false),
-    ),
-    // 【進行中】1ゲーム完了 + 1ゲーム途中。
-    buildMatch(3, teams[0], teams[2], inProgressGames()),
-    // 【未着手】
-    buildMatch(4, teams[1], teams[3], []),
+  // 4チーム総当たり C(4,2)=6試合。完了3(①pointLog+デュース ②直書き接戦 ③pointLog 1落とし)・進行中1・未着手2。
+  const matchPlans: Array<{ left: number; right: number; games: Game[] }> = [
+    { left: 0, right: 1, games: completedGames(SIDE.LEFT, winsNeeded, 0, true, true) },
+    { left: 2, right: 3, games: completedGames(SIDE.RIGHT, winsNeeded, winsNeeded - 1, false) },
+    { left: 0, right: 2, games: completedGames(SIDE.LEFT, winsNeeded, 1, true) },
+    { left: 1, right: 3, games: inProgressGames() },
+    { left: 0, right: 3, games: [] },
+    { left: 1, right: 2, games: [] },
   ];
+
+  const matches: Match[] = matchPlans.map((plan, index) =>
+    buildMatch(index + 1, teams[plan.left], teams[plan.right], plan.games),
+  );
 
   return { tournament, participants, matches };
 };
@@ -272,25 +253,22 @@ const SPECS: TournamentSpec[] = [
 // AppState 組み立て
 // ---------------------------------------------------------------------------
 
+const byId = <T extends { id: string }>(items: T[]): Record<string, T> =>
+  Object.fromEntries(items.map((item) => [item.id, item]));
+
 /**
  * テスト・開発用のseedデータを生成する。
  * シングルス・ダブルスそれぞれ bestOf 3/5/7 を網羅した計6大会。
- * 各大会: 選手(シングルス4名 / ダブルス8名)・試合4件(完了2・進行中1・未着手1)。
+ * 各大会: 選手(シングルス4名 / ダブルス8名)・4チーム総当たり6試合(完了3・進行中1・未着手2)。
  * sanitizeAppState を通して参照整合性を保証してから返す。
  */
 export const buildSeedState = (): AppState => {
   const built = SPECS.map((spec) => buildTournament(spec));
 
-  const tournaments = built.map((tournament) => tournament.tournament);
-  const participants = built.flatMap((tournament) => tournament.participants);
-  const matches = built.flatMap((tournament) => tournament.matches);
-
   const state: AppState = {
-    tournaments: Object.fromEntries(tournaments.map((tournament) => [tournament.id, tournament])),
-    participants: Object.fromEntries(
-      participants.map((participant) => [participant.id, participant]),
-    ),
-    matches: Object.fromEntries(matches.map((match) => [match.id, match])),
+    tournaments: byId(built.map((t) => t.tournament)),
+    participants: byId(built.flatMap((t) => t.participants)),
+    matches: byId(built.flatMap((t) => t.matches)),
     currentTournamentId: "t-s5",
     fontSize: FONT_SIZE.NORMAL,
   };
