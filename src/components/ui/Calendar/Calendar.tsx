@@ -1,5 +1,5 @@
 import { CalendarIcon, ChevronDownIcon } from "@/components/icons";
-import { useCallback, useId, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 
 const WEEKDAYS = ["日", "月", "火", "水", "木", "金", "土"];
 
@@ -38,7 +38,6 @@ type Props = {
   ariaLabel?: string;
   placeholder?: string;
   disabled?: boolean;
-  id?: string; // 省略時 useId() で自動採番
 };
 
 export const Calendar = ({
@@ -47,14 +46,11 @@ export const Calendar = ({
   ariaLabel = "日付を選択",
   placeholder = "日付を選択",
   disabled = false,
-  id,
 }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const gridRef = useRef<HTMLTableElement>(null);
-  const autoId = useId();
-  const uid = id ?? autoId;
 
   const today = useMemo(() => {
     const now = new Date();
@@ -253,11 +249,11 @@ export const Calendar = ({
               </thead>
               <tbody>
                 {weeks.map((week, weekIndex) => (
-                  <tr key={`week-${uid}-${weekIndex.toString()}`}>
+                  <tr key={`week-${weekIndex.toString()}`}>
                     {week.map((day, dayIndex) =>
                       day === null ? (
                         <td
-                          key={`empty-${uid}-${weekIndex.toString()}-${dayIndex.toString()}`}
+                          key={`empty-${weekIndex.toString()}-${dayIndex.toString()}`}
                           aria-hidden
                         />
                       ) : (
