@@ -1,25 +1,25 @@
-親: [README.md](../README.md) / 関連: [result-graph.md](./result-graph.md)
+親: [README.md](../README.md) / 関連: [ranking-personal.md](./ranking-personal.md) / [result-graph.md](./result-graph.md)
 
-ルート: 結果タブ (`/#/tournaments/:id/result`・HashRouter) — 大会参加者の勝敗集計・順位・対戦結果を表示する画面。
+ルート: 結果タブ (`/#/tournaments/:id/result`・HashRouter) — 大会参加者の勝敗集計・順位・対戦結果を表示する画面。本ドキュメントは**結果タブ共通**と**全体モード**を扱う。個人モードは [ranking-personal.md](./ranking-personal.md) を参照。
 
 実装: `src/features/tournament/result/`（`index.tsx`, `hooks.ts`, `components/{RankingTable, MatchResultsTable, MatchScoreChart, PersonalMatchResults}.tsx`）
 
-## 画面構成（表示モード切替）
+## 画面構成（表示モード切替・共通）
 
 「結果」見出しの直下・画面上部に **サブタブ3つ** を置き、表示モードを切り替える。
 
-| サブタブ                       | 内容                                                              |
-| ------------------------------ | ----------------------------------------------------------------- |
-| **全体**（デフォルト）         | 順位表（`RankingTable`）+ 対戦結果テーブル（`MatchResultsTable`） |
-| **個人**（ダブルスは**ペア**） | 選択した参加者の対戦結果一覧（`PersonalMatchResults`）            |
-| **グラフ**                     | 点数進行グラフ（[result-graph.md](./result-graph.md)）            |
+| サブタブ                       | 内容                                                              | ドキュメント                                 |
+| ------------------------------ | ----------------------------------------------------------------- | -------------------------------------------- |
+| **全体**（デフォルト）         | 順位表（`RankingTable`）+ 対戦結果テーブル（`MatchResultsTable`） | 本ファイル                                   |
+| **個人**（ダブルスは**ペア**） | 選択した参加者の対戦結果一覧（`PersonalMatchResults`）            | [ranking-personal.md](./ranking-personal.md) |
+| **グラフ**                     | 点数進行グラフ                                                    | [result-graph.md](./result-graph.md)         |
 
 - サブタブUIは共通 `Tabs` コンポーネント（`ariaLabel="表示モード"`）。切替はタブ内ローカル状態（`mode` ステート・URL・LocalStorage には保持しない）。
 - **個人モード・グラフモード**では、画面上部に参加者選択ドロップダウン（`Select` `label="参加者を選択"`）を表示し、選択した参加者のデータを表示する。
 - **グラフモード**では、選択した参加者に関わる対戦のうち `pointLog` を持つゲームが1本以上あるものを表示する。`pointLog` を持つ対戦が1件もない場合は「対戦結果がありません。」と表示する。
 - サブタブUI・参加者選択ドロップダウンは画像保存の対象外。大会名・日付ヘッダは全モードとも画像に含まれる。
 
-## 画像保存
+## 画像保存（共通）
 
 `useImageCapture` を使用。全モード共通でメインコンテンツ（`ref`が付いたdiv）を画像化する。
 
@@ -51,18 +51,6 @@
 - 列: 「対戦」（`左選手名 vs 右選手名`）、`G1`〜`G{bestOf}` の各ゲームスコア、「セット」（ゲームセット数 `N-N`）。
 - 対戦列: 勝者名は通常色（`text-ink`）、敗者名は薄字（`text-sub`）。勝者名の左にトロフィーアイコンを表示。未確定の場合は両者とも薄字。
 - 各ゲームのセルに `leftScore-rightScore`（左スコア-右スコア）を表示。該当ゲームが未実施（`match.games[gameIndex]` が存在しない）なら `-`。
-
-## 個人モード（ダブルスはペアモード）
-
-`PersonalMatchResults` が選択した参加者の対戦結果を縦に並べる。
-
-- 参加者選択ドロップダウンで選択した参加者（`resolvedParticipantId`）を「自分」として、その参加者が出場した全対戦を表示する。
-- 各対戦カードは3カラム構成（自分 / ゲームスコア / 相手）:
-  - 自分カラム: 勝者にトロフィーアイコン。ゲーム取得数を大型表示（`text-[3rem]`）。勝ちは `text-success`、それ以外は `text-sub`。
-  - 中央カラム: ゲームごとの点数を縦に並べる（自分側スコア / 相手側スコア）。勝った側のスコアは `text-success`。
-  - 相手カラム: 同上（相手視点）。
-- 対戦がない場合は「データがありません」を表示する。
-- 見出しは「{参加者名}さんの対戦結果」。
 
 ---
 
@@ -105,9 +93,9 @@ pointDiff     pointsFor - pointsAgainst
 
 勝数・ゲーム得失差・点得失差がすべて同値の参加者には同じ順位を付ける。次の異なる行では順位が飛ぶ（例: 1,2,2,4）。
 
-## データフロー
+## データフロー（共通）
 
-`src/features/tournament/result/hooks.ts` の `useResult` が Zustand ストアからデータを取得し、`computeRanking` と `buildMatchResult` でビューモデルを構築する。
+`src/features/tournament/result/hooks.ts` の `useResult` が Zustand ストアからデータを取得し、`computeRanking` と `buildMatchResult` でビューモデルを構築する。全モード共通。
 
 - **`rows`**: `RankingRow[]`。順位表の各行。
 - **`matchResults`**: `MatchResultRow[]`。`realGames(match.games).length > 0`（実プレイ分のゲームがある）試合のみ含む。

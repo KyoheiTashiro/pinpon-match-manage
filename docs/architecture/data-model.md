@@ -100,4 +100,4 @@ winner    = leftWins >= winsNeeded ? 'L' : rightWins >= winsNeeded ? 'R' : null
 
 ### 順位算出
 
-詳細は [features/ranking.md](../features/ranking.md) 参照。
+詳細は [features/ranking-overall.md](../features/ranking-overall.md) 参照。

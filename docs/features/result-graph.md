@@ -1,4 +1,4 @@
-親: [README.md](../README.md) / 関連: [ranking.md](./ranking.md)
+親: [README.md](../README.md) / 関連: [ranking-overall.md](./ranking-overall.md) / [ranking-personal.md](./ranking-personal.md)
 
 # 点数進行グラフ（結果画面）
 

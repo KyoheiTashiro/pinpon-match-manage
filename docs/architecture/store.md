@@ -100,7 +100,7 @@ useAppStore = create<StoreState>()(
 - 大会所属 match: `matchesOf(matches, tournamentId)`（`src/store/selectors.ts`）。`Tournament` は match の配列を持たず `Match.tournamentId`（FK）から導出。挿入順 = `matches` レコードのキー順。
 - 過去参加者名一覧: `pastParticipantNamesOf(participants, currentTournamentId)`（`src/store/selectors.ts`）。現在の大会以外の参加者名を trim・重複除去・名前順ソートして返す（過去参加者一括追加機能用）。
 - 試合進行状態・勝敗: `matchSummary(games, winsNeeded)`（`src/domain/match.ts`）。
-- 順位: [features/ranking.md](../features/ranking.md) 参照。
+- 順位: [features/ranking-overall.md](../features/ranking-overall.md) 参照。
 
 ## テスト
 
