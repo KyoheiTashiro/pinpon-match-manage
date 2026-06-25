@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
 
-import { SegmentedContro } from "./SegmentedControl";
+import { SegmentedControl } from "./SegmentedControl";
 
 const options = [
   { value: "xsmall", label: "極小" },
