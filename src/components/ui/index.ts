@@ -5,5 +5,6 @@ export { ConfirmModal } from "@/components/ui/ConfirmModal";
 export { EmptyState } from "@/components/ui/EmptyState";
 export { InfoModal } from "@/components/ui/InfoModal";
 export { RadioGroup } from "@/components/ui/RadioGroup";
+export { SegmentedControl } from "@/components/ui/SegmentedControl";
 export { Select, type SelectOption } from "@/components/ui/Select";
 export { Tabs } from "@/components/ui/Tabs";

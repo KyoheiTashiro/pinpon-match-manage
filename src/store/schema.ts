@@ -54,7 +54,13 @@ export const appStateSchema = z.object({
   participants: z.record(z.string(), participantSchema),
   matches: z.record(z.string(), matchSchema),
   currentTournamentId: z.string().nullable(),
-  fontSize: z.enum([FONT_SIZE.NORMAL, FONT_SIZE.LARGE, FONT_SIZE.XLARGE]),
+  fontSize: z.enum([
+    FONT_SIZE.XSMALL,
+    FONT_SIZE.SMALL,
+    FONT_SIZE.NORMAL,
+    FONT_SIZE.LARGE,
+    FONT_SIZE.XLARGE,
+  ]),
 });
 
 // 型整合チェック: appStateSchema の infer が types.ts の AppState と構造一致することを

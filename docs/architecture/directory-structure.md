@@ -44,7 +44,7 @@ src/
 │   │   ├── schema.ts               // 大会作成フォームの zod スキーマ
 │   │   └── components/
 │   │       ├── CreateTournament.tsx    // 大会作成フォームUI
-│   │       ├── FontSizeRadio.tsx       // 文字サイズ切替（標準/大/特大）
+│   │       ├── FontSizeControl.tsx     // 文字サイズ切替（標準/大/特大）
 │   │       ├── InstallAppButton.tsx    // PWA「ホーム画面に追加」ボタン
 │   │       ├── useInstallPrompt.ts     // beforeinstallprompt 捕捉・promptで導出（effect集約）
 │   │       └── SettingsModal.tsx       // 設定モーダル（文字サイズ・データ管理）

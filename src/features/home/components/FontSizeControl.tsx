@@ -1,15 +1,17 @@
-import { RadioGroup } from "@/components/ui";
+import { SegmentedControl } from "@/components/ui";
 import { FONT_SIZE, type FontSize } from "@/store/types";
 import { useAppStore } from "@/store/useAppStore";
 import { useEffect } from "react";
 
 const FONT_SIZE_OPTIONS = [
+  { value: FONT_SIZE.XSMALL, label: "極小" },
+  { value: FONT_SIZE.SMALL, label: "小" },
   { value: FONT_SIZE.NORMAL, label: "標準" },
   { value: FONT_SIZE.LARGE, label: "大" },
   { value: FONT_SIZE.XLARGE, label: "特大" },
 ] as const satisfies { value: FontSize; label: string }[];
 
-export const FontSizeRadio = () => {
+export const FontSizeControl = () => {
   const fontSize = useAppStore((state) => state.fontSize);
   const setFontSize = useAppStore((state) => state.setFontSize);
 
@@ -19,12 +21,14 @@ export const FontSizeRadio = () => {
   }, [fontSize]);
 
   return (
-    <RadioGroup
-      legend="文字サイズ"
-      name="font-size"
-      value={fontSize}
-      options={FONT_SIZE_OPTIONS}
-      onChange={setFontSize}
-    />
+    <>
+      <span className="text-base font-bold">文字サイズ</span>
+      <SegmentedControl
+        ariaLabel="文字サイズ"
+        value={fontSize}
+        options={FONT_SIZE_OPTIONS}
+        onChange={setFontSize}
+      />
+    </>
   );
 };

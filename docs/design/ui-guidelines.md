@@ -29,7 +29,7 @@
 書体: `"Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Noto Sans JP", system-ui, sans-serif`。  
 明朝・細字 不使用。数字は等幅（`font-variant-numeric: tabular-nums`）でスコア桁ズレ防止。
 
-ユーザー設定で **文字サイズ 標準/大/特大** 切替（ルート `font-size` を `18px → 20px → 22px` に変更）。FontSize 型: `"normal" | "large" | "xlarge"`。
+ユーザー設定で **文字サイズ 極小/小/標準/大/特大** 切替（ルート `font-size` を `14px → 16px → 18px → 20px → 22px` に変更）。FontSize 型: `"xsmall" | "small" | "normal" | "large" | "xlarge"`。標準(18px)未満（極小/小）は本文≥18px 指針を下回るため、視認性より一覧性を優先するユーザー向けの任意設定。
 
 ## 6.3 カラーパレット
 
@@ -130,6 +130,12 @@ theme: {
 ```css
 html {
   font-size: 18px;
+}
+html[data-fs="xsmall"] {
+  font-size: 14px;
+}
+html[data-fs="small"] {
+  font-size: 16px;
 }
 html[data-fs="large"] {
   font-size: 20px;

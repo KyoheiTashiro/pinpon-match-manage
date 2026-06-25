@@ -41,7 +41,13 @@ export type Match = {
   firstServer: Side;
 };
 
-export const FONT_SIZE = { NORMAL: "normal", LARGE: "large", XLARGE: "xlarge" } as const;
+export const FONT_SIZE = {
+  XSMALL: "xsmall",
+  SMALL: "small",
+  NORMAL: "normal",
+  LARGE: "large",
+  XLARGE: "xlarge",
+} as const;
 export type FontSize = (typeof FONT_SIZE)[keyof typeof FONT_SIZE];
 
 export type AppState = {
