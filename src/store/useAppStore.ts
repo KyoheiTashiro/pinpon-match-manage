@@ -156,7 +156,7 @@ export const useAppStore = create<StoreState>()(
         }
 
         // 部分的に壊れている場合: エンティティ単位でサルベージ
-        const salvaged = salvageAppState(persisted, current as AppState);
+        const salvaged = salvageAppState(persisted, current);
         console.warn("[store] persisted state partially invalid, salvaged valid entries", salvaged);
         return { ...current, ...salvaged };
       },

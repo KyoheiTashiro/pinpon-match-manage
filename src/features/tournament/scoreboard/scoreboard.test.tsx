@@ -1,6 +1,7 @@
 import type { Game, Side } from "@/domain/match";
 import { ScoreboardScreen } from "@/features/tournament/scoreboard";
 import { makeGame, gameFromLog } from "@/test/factories";
+import { installMatchMediaMock } from "@/test/matchMediaMock";
 import { setupStoreIsolation } from "@/test/renderWithStore";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -8,19 +9,7 @@ import { useState } from "react";
 import { describe, it, expect, beforeEach, vi } from "vitest";
 
 // ScoreboardScreen の useScoreboard が useSyncExternalStore + window.matchMedia を使うため polyfill
-Object.defineProperty(window, "matchMedia", {
-  writable: true,
-  value: vi.fn<(query: string) => MediaQueryList>().mockImplementation((query: string) => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: vi.fn<() => void>(),
-    removeListener: vi.fn<() => void>(),
-    addEventListener: vi.fn<() => void>(),
-    removeEventListener: vi.fn<() => void>(),
-    dispatchEvent: vi.fn<() => boolean>(),
-  })),
-});
+installMatchMediaMock();
 
 type ScoreboardProps = {
   leftName: string;
@@ -350,19 +339,7 @@ describe("ScoreboardScreen", () => {
 
   it("isPortrait=true → 「端末を横向きにしてください」バナーが表示される", () => {
     // matchMedia を portrait=true に上書き
-    const portraitMock = vi
-      .fn<(query: string) => MediaQueryList>()
-      .mockImplementation((query: string) => ({
-        matches: query.includes("portrait"),
-        media: query,
-        onchange: null,
-        addListener: vi.fn<() => void>(),
-        removeListener: vi.fn<() => void>(),
-        addEventListener: vi.fn<() => void>(),
-        removeEventListener: vi.fn<() => void>(),
-        dispatchEvent: vi.fn<() => boolean>(),
-      }));
-    Object.defineProperty(window, "matchMedia", { writable: true, value: portraitMock });
+    installMatchMediaMock((query) => query.includes("portrait"));
 
     render(
       <ScoreboardWrapper
@@ -375,19 +352,7 @@ describe("ScoreboardScreen", () => {
     expect(screen.getByText("端末を横向きにしてください")).toBeInTheDocument();
 
     // 元に戻す
-    Object.defineProperty(window, "matchMedia", {
-      writable: true,
-      value: vi.fn<(query: string) => MediaQueryList>().mockImplementation((query: string) => ({
-        matches: false,
-        media: query,
-        onchange: null,
-        addListener: vi.fn<() => void>(),
-        removeListener: vi.fn<() => void>(),
-        addEventListener: vi.fn<() => void>(),
-        removeEventListener: vi.fn<() => void>(),
-        dispatchEvent: vi.fn<() => boolean>(),
-      })),
-    });
+    installMatchMediaMock();
   });
 
   it("swapped=true で表示左加点が実際の右スコアに入る", async () => {

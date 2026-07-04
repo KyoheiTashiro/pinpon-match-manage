@@ -19,7 +19,7 @@ export const saveAsImage = async (node: HTMLElement, filename: string) => {
   };
   if (navigatorWithShare.canShare?.({ files: [file] })) {
     try {
-      await navigatorWithShare.share({ files: [file] } as ShareData);
+      await navigatorWithShare.share({ files: [file] });
       return;
     } catch (error) {
       if (error instanceof Error && error.name === "AbortError") return;

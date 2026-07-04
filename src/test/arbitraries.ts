@@ -64,8 +64,8 @@ export const matchArb: fc.Arbitrary<Match> = fc
     fc.record({
       id: fc.string({ minLength: 1, maxLength: 8 }),
       tournamentId: fc.constant("t1"),
-      leftSide: fc.constant({ kind: SIDE_KIND.SINGLE, participantId: leftId } as MatchSide),
-      rightSide: fc.constant({ kind: SIDE_KIND.SINGLE, participantId: rightId } as MatchSide),
+      leftSide: fc.constant({ kind: SIDE_KIND.SINGLE, participantId: leftId }),
+      rightSide: fc.constant({ kind: SIDE_KIND.SINGLE, participantId: rightId }),
       games: fc.array(gameArb, { minLength: 0, maxLength: 7 }),
       firstServer: sideArb,
     }),
@@ -83,11 +83,11 @@ export const matchWithPairArb: fc.Arbitrary<Match> = fc
       leftSide: fc.constant({
         kind: SIDE_KIND.PAIR,
         memberIds: [a, b] as [string, string],
-      } as MatchSide),
+      }),
       rightSide: fc.constant({
         kind: SIDE_KIND.PAIR,
         memberIds: [c, d] as [string, string],
-      } as MatchSide),
+      }),
       games: fc.array(gameArb, { minLength: 0, maxLength: 7 }),
       firstServer: sideArb,
     }),
