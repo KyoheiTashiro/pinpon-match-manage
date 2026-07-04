@@ -12,9 +12,7 @@ const config: StorybookConfig = {
     plugins: (cfg.plugins ?? []).flat(Infinity).filter((p) => {
       const plugin: unknown = p;
       const name =
-        plugin && typeof plugin === "object" && "name" in plugin
-          ? String((plugin as { name: unknown }).name)
-          : "";
+        plugin && typeof plugin === "object" && "name" in plugin ? String(plugin.name) : "";
       return !name.includes("pwa");
     }),
   }),

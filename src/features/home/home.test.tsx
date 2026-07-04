@@ -1,24 +1,13 @@
 import { Home } from "@/features/home";
 import { makeTournament } from "@/test/factories";
+import { installMatchMediaMock } from "@/test/matchMediaMock";
 import { renderWithStore, seedStore, setupStoreIsolation } from "@/test/renderWithStore";
 import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 
 // InstallAppButton が window.matchMedia を呼ぶが jsdom は未実装のため polyfill
-Object.defineProperty(window, "matchMedia", {
-  writable: true,
-  value: vi.fn<(query: string) => MediaQueryList>().mockImplementation((query: string) => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: vi.fn<() => void>(),
-    removeListener: vi.fn<() => void>(),
-    addEventListener: vi.fn<() => void>(),
-    removeEventListener: vi.fn<() => void>(),
-    dispatchEvent: vi.fn<() => boolean>(),
-  })),
-});
+installMatchMediaMock();
 
 describe("Home", () => {
   beforeEach(setupStoreIsolation);

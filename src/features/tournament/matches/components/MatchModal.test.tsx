@@ -2,25 +2,14 @@ import { MatchModal } from "@/features/tournament/matches/components/MatchModal"
 import type { Participant } from "@/store/types";
 import { useAppStore } from "@/store/useAppStore";
 import { makeTournament, makeParticipant, makeMatch } from "@/test/factories";
+import { installMatchMediaMock } from "@/test/matchMediaMock";
 import { setupStoreIsolation, seedStore } from "@/test/renderWithStore";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, beforeEach, vi } from "vitest";
 
 // ScoreboardScreen が useSyncExternalStore + window.matchMedia を使うため polyfill
-Object.defineProperty(window, "matchMedia", {
-  writable: true,
-  value: vi.fn<(query: string) => MediaQueryList>().mockImplementation((query: string) => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: vi.fn<() => void>(),
-    removeListener: vi.fn<() => void>(),
-    addEventListener: vi.fn<() => void>(),
-    removeEventListener: vi.fn<() => void>(),
-    dispatchEvent: vi.fn<() => boolean>(),
-  })),
-});
+installMatchMediaMock();
 
 const participants: Record<string, Participant> = {
   p1: makeParticipant({ id: "p1", name: "選手A", tournamentId: "t1" }),

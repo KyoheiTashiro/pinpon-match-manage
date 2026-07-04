@@ -1,24 +1,13 @@
 import { MatchesTab } from "@/features/tournament/matches";
 import { makeTournament, makeParticipant, makeMatch } from "@/test/factories";
+import { installMatchMediaMock } from "@/test/matchMediaMock";
 import { renderWithStore, seedStore, setupStoreIsolation } from "@/test/renderWithStore";
 import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 
 // SinglesList → MatchModal → ScoreboardScreen で matchMedia が必要
-Object.defineProperty(window, "matchMedia", {
-  writable: true,
-  value: vi.fn<(query: string) => MediaQueryList>().mockImplementation((query: string) => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: vi.fn<() => void>(),
-    removeListener: vi.fn<() => void>(),
-    addEventListener: vi.fn<() => void>(),
-    removeEventListener: vi.fn<() => void>(),
-    dispatchEvent: vi.fn<() => boolean>(),
-  })),
-});
+installMatchMediaMock();
 
 const ROUTE_OPTIONS = {
   initialEntries: ["/tournaments/t1/matches"],
