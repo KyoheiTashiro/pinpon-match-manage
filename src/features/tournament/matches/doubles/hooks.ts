@@ -11,7 +11,6 @@ import { useImageCapture } from "@/utils/imageCapture/useImageCapture";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
-/** 対戦表を成立させる最小参加人数（ダブルス）。 */
 export const MIN_PLAYERS_DOUBLES = 4;
 
 export const useDoubles = (tournamentId: string) => {

@@ -88,11 +88,9 @@ export const useResult = (tournamentId: string) => {
       );
   }, [tournament, tournamentId, matches, participants]);
 
-  // 表示中コンテナ（table全体 or 選択中1対戦）用
   const capture = useImageCapture();
   const [mode, setMode] = useState<DisplayMode>(DISPLAY_MODE.OVERALL);
 
-  // 個人モード: 参加者セレクト
   const participantOptions = useMemo(() => {
     if (!tournament) return [];
     return tournament.participantIds
@@ -107,7 +105,6 @@ export const useResult = (tournamentId: string) => {
       ? selectedParticipantId
       : (participantOptions[0]?.value ?? null);
 
-  // 選択参加者が関与する試合に selfSide を付与した中間配列（personalMatches/chartMatches の共通元）
   const myMatches = useMemo<{ row: MatchResultRow; selfSide: Side }[]>(() => {
     if (resolvedParticipantId === null) return [];
     const participantId = resolvedParticipantId;
@@ -122,7 +119,6 @@ export const useResult = (tournamentId: string) => {
       }));
   }, [matchResults, resolvedParticipantId]);
 
-  // 選択者を「自分(左)」に正規化した対戦一覧
   const personalMatches = useMemo<PersonalMatchRow[]>(
     () =>
       myMatches.map(({ row: match, selfSide }) => {
@@ -148,7 +144,6 @@ export const useResult = (tournamentId: string) => {
     [myMatches],
   );
 
-  // グラフ用: 選択参加者が関わる pointLog ありの対戦（選択者を上段=selfSideに正規化）
   const chartMatches = useMemo(
     () =>
       myMatches

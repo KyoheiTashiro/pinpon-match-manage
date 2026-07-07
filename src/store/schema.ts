@@ -70,12 +70,6 @@ type AssertEqual<A, B> = [A] extends [B] ? ([B] extends [A] ? true : never) : ne
 const schemaMatchesAppState: AssertEqual<SchemaAppState, AppState> = true;
 void schemaMatchesAppState;
 
-/**
- * 参照整合性をサニタイズする純粋関数。
- * - participantIds の dangling 参照を除去
- * - 所属 tournament が存在しない match / participant を除去
- * - currentTournamentId が無効なら null
- */
 export const sanitizeAppState = (state: AppState): AppState => {
   const tournamentIds = new Set(Object.keys(state.tournaments));
 

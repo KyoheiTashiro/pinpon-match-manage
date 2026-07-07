@@ -3,7 +3,6 @@ import { isGameFinished } from "@/domain/match";
 
 const isEmptyScore = (game: Game): boolean => game.leftScore === 0 && game.rightScore === 0;
 
-/** ゲーム配列を totalCount 個に揃える。不足分は空ゲームで埋め、超過分は切り詰める。 */
 export const padGames = (games: Game[], totalCount: number): Game[] => {
   const padded = [...games];
   while (padded.length < totalCount) padded.push({ leftScore: 0, rightScore: 0 });

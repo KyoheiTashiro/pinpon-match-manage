@@ -13,7 +13,6 @@ const isStandalone = () =>
 
 export type InstallPromptResult = "accepted" | "dismissed" | "unavailable";
 
-// beforeinstallprompt / appinstalled の購読と install 状態を集約する。
 // 外部イベント購読は effect が必要なため、ここに閉じ込めて利用側からは排除する。
 export const useInstallPrompt = (): {
   installed: boolean;
@@ -42,7 +41,6 @@ export const useInstallPrompt = (): {
     };
   }, []);
 
-  // ネイティブ install prompt を表示。未対応時は "unavailable"。
   const promptInstall = async (): Promise<InstallPromptResult> => {
     if (!deferred) return "unavailable";
     await deferred.prompt();

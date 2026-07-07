@@ -2,7 +2,6 @@ import { useMatches, useMatchModal } from "@/features/tournament/matches/hooks";
 import { SIDE_KIND, type Match } from "@/store/types";
 import { useMemo } from "react";
 
-/** 対戦表を成立させる最小参加人数（シングルス）。 */
 export const MIN_PLAYERS_SINGLES = 2;
 
 export const involvesSingle = (match: Match, id: string) =>
@@ -26,7 +25,6 @@ export const useSingles = (tournamentId: string) => {
     return map;
   }, [matchList]);
 
-  // 参加者の登録順から index < innerIndex の全ペアを列挙（行の並びは安定）。
   const allPairs = useMemo(() => {
     const pairs: { a: (typeof players)[number]; b: (typeof players)[number] }[] = [];
     for (let index = 0; index < players.length; index++) {

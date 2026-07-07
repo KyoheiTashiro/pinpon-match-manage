@@ -43,7 +43,6 @@ export const currentServer = (game: Game, firstServerOfGame: Side): Side => {
   return switches % 2 === 0 ? firstServerOfGame : opposite(firstServerOfGame);
 };
 
-/** ゲーム数(3/5/7)から先取ゲーム数を求める。 */
 export const winsNeededForBestOf = (bestOf: number): number => Math.floor(bestOf / 2) + 1;
 
 export const matchSummary = (games: Game[], winsNeeded = 3) => {

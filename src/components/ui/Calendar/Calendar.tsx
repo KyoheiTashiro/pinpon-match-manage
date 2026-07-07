@@ -3,7 +3,6 @@ import { useCallback, useMemo, useRef, useState } from "react";
 
 const WEEKDAYS = ["日", "月", "火", "水", "木", "金", "土"];
 
-// 曜日ヘッダの文字色（日=赤 / 土=青 / 平日=line）。
 const weekdayColor = (weekday: number) =>
   weekday === 0 ? "text-danger" : weekday === 6 ? "text-primary" : "text-line";
 
@@ -11,7 +10,6 @@ const pad = (value: number) => String(value).padStart(2, "0");
 
 const toISO = (year: number, month: number, day: number) => `${year}-${pad(month + 1)}-${pad(day)}`;
 
-// "YYYY-MM-DD" → {year, month(0-based), day}。不正値は null。
 const parseISO = (value: string) => {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/u.exec(value);
   if (!match) return null;
@@ -59,12 +57,10 @@ export const Calendar = ({
 
   const selected = parseISO(value);
 
-  // 表示中の年月。selected を基準、無ければ今日。
   const [view, setView] = useState(() => ({
     year: selected?.year ?? today.year,
     month: selected?.month ?? today.month,
   }));
-  // キーボード移動用カーソル日（1始まり）。
   const [cursor, setCursor] = useState(selected?.day ?? today.day);
 
   // open 時にグリッドへフォーカス（条件レンダーのマウント時のみ発火する callback ref）。
@@ -76,7 +72,6 @@ export const Calendar = ({
 
   const daysInMonth = new Date(view.year, view.month + 1, 0).getDate();
   const firstWeekday = new Date(view.year, view.month, 1).getDay();
-  // 月初までの空セル + 日付セル。末尾も 7 の倍数になるよう null 埋めし週に分割。
   const cells: (number | null)[] = [
     ...Array.from({ length: firstWeekday }, () => null),
     ...Array.from({ length: daysInMonth }, (_, index) => index + 1),
@@ -85,7 +80,6 @@ export const Calendar = ({
   const weeks: (number | null)[][] = [];
   for (let index = 0; index < cells.length; index += 7) weeks.push(cells.slice(index, index + 7));
 
-  // 開くとき選択日（無ければ今日）の月へ表示を合わせ、カーソルも合わせる。
   const openCalendar = () => {
     const base = selected ?? today;
     setView({ year: base.year, month: base.month });
@@ -110,7 +104,6 @@ export const Calendar = ({
     close();
   };
 
-  // カーソルを delta 日動かす（月跨ぎは view も更新）。
   const moveCursor = (delta: number) => {
     const next = new Date(view.year, view.month, cursor + delta);
     setView({ year: next.getFullYear(), month: next.getMonth() });

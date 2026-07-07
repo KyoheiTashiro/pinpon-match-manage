@@ -92,7 +92,6 @@ export const computeRanking = (
     return rowA.name.localeCompare(rowB.name, "ja");
   });
 
-  // rows elements are locally owned objects; assign rank directly instead of spreading.
   // 同順位（wins/gameDiff/pointDiff が同値）は同じ rank、次の異なる行で順位が飛ぶ（1,2,2,4 形式）。
   let rank = 0;
   let previousKey = "";

@@ -20,7 +20,6 @@ type Props = {
   games: GameScore[];
 };
 
-// 左右パネルは対称なので内部ヘルパで共通化する。
 const PlayerCell = ({ side }: { side: PlayerSide }) => (
   <div className="flex min-w-0 flex-col items-center justify-center gap-1 px-4">
     <div className="flex h-10 w-full items-center justify-center">
@@ -39,11 +38,7 @@ const PlayerCell = ({ side }: { side: PlayerSide }) => (
   </div>
 );
 
-/**
- * 1対戦の結果ボード（左パネル / ゲームスコア / 右パネル の3カラム）。
- * feature の型に依存しない汎用 props を受け取る共有コンポーネント。
- * 明背景・カード内での表示を前提とする（全画面センタリング等のレイアウトは呼び出し側の責務）。
- */
+/** 明背景・カード内での表示を前提とする（全画面センタリング等のレイアウトは呼び出し側の責務）。 */
 export const MatchResultBoard = ({ left, right, games }: Props) => (
   <div className="divide-line grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] items-stretch divide-x">
     <PlayerCell side={left} />

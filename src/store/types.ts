@@ -3,7 +3,6 @@ import type { Game, Side } from "@/domain/match";
 export const FORMAT = { SINGLES: "singles", DOUBLES: "doubles" } as const;
 export type Format = (typeof FORMAT)[keyof typeof FORMAT];
 
-/** 選択可能なゲーム数(bestOf)。先取は (bestOf + 1) / 2。 */
 export const BEST_OF_OPTIONS = [3, 5, 7] as const;
 export type BestOf = (typeof BEST_OF_OPTIONS)[number];
 

@@ -4,11 +4,10 @@ import { SIDE, gameFirstServer } from "@/domain/match";
 import { gameProgress, type ProgressPoint } from "@/domain/scoreProgress";
 import type { MatchResultRow } from "@/features/tournament/result/hooks";
 
-// スコア推移チャートのレイアウト寸法(px)
 const COL_WIDTH = 44;
 const ROW_HEIGHT = 56;
 const CIRCLE_SIZE = 36;
-const SVG_HEIGHT = ROW_HEIGHT * 2; // 上下2行ぶん
+const SVG_HEIGHT = ROW_HEIGHT * 2;
 
 const ROW = { TOP: "top", BOT: "bot" } as const;
 type Row = (typeof ROW)[keyof typeof ROW];
@@ -17,7 +16,6 @@ const rowCenterY = (row: Row) => (row === ROW.TOP ? ROW_HEIGHT / 2 : ROW_HEIGHT 
 
 type Cell = { value: number; className: string; serving: boolean };
 
-// 表示マッピング: 選択参加者(selfSide)を上段、相手を下段に正規化する。
 const sideRow = (side: Side, selfSide: Side): Row => (side === selfSide ? ROW.TOP : ROW.BOT);
 
 const sideScore = (point: ProgressPoint, side: Side): number =>
@@ -67,7 +65,6 @@ const Column = ({ left, top, bottom }: { left: number; top: Cell; bottom: Cell }
   </div>
 );
 
-// ----- 1対戦グラフブロック（表示用・off-screen用の共通コンポーネント） -----
 type Props = {
   match: MatchResultRow;
   selfSide: Side;
@@ -110,12 +107,11 @@ export const MatchScoreChart = ({ match, selfSide }: Props) => {
               game.pointLog!,
               gameFirstServer(match.firstServer, realIndex),
             );
-            const svgWidth = points.length * COL_WIDTH; // ラリー列
+            const svgWidth = points.length * COL_WIDTH;
             const final = points.at(-1);
             const finalTop = selfSide === SIDE.LEFT ? (final?.left ?? 0) : (final?.right ?? 0);
             const finalBot = selfSide === SIDE.LEFT ? (final?.right ?? 0) : (final?.left ?? 0);
 
-            // 連続するラリーの得点者ドットを結ぶ線分
             const lines = points.slice(1).map((point, index) => ({
               x1: index * COL_WIDTH + COL_WIDTH / 2,
               y1: rowCenterY(sideRow(points[index].scorer, selfSide)),
@@ -126,7 +122,6 @@ export const MatchScoreChart = ({ match, selfSide }: Props) => {
             return (
               <div key={realIndex} className="border-line rounded-lg border-2 p-3">
                 <div className="flex items-stretch">
-                  {/* ゲーム番号 */}
                   <div
                     className="text-ink flex shrink-0 items-center pr-2 text-base font-bold"
                     style={{ height: SVG_HEIGHT }}
@@ -134,7 +129,6 @@ export const MatchScoreChart = ({ match, selfSide }: Props) => {
                     G{realIndex + 1}
                   </div>
 
-                  {/* プレイヤー名の列 */}
                   <div
                     className="flex shrink-0 flex-col"
                     style={{ minWidth: 64, height: SVG_HEIGHT }}

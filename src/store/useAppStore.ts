@@ -17,7 +17,6 @@ import { immer } from "zustand/middleware/immer";
 
 export type StoreState = UiSlice & TournamentSlice & ParticipantSlice & MatchSlice;
 
-/** unknown を「プレーンなレコード」へ安全に絞り込む型述語（配列・null は除外）。 */
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   value !== null && typeof value === "object" && !Array.isArray(value);
 
@@ -65,20 +64,14 @@ export const migratePersistedState = (persisted: unknown, fromVersion: number): 
   return state;
 };
 
-/**
- * persisted が不完全・部分的に壊れていた場合のサルベージ。
- * エンティティを1件ずつ検証し、パースできたものだけ残す。
- * currentTournamentId / fontSize も個別に検証してフォールバック。
- */
+/** 部分的に壊れた persisted から、パースできたエンティティだけを残して復元する。 */
 export const salvageAppState = (persisted: unknown, current: AppState): AppState => {
-  // null / 配列 / プリミティブなど「オブジェクトでない」場合は諦めて current を返す
   if (!isRecord(persisted)) {
     return current;
   }
 
   const raw = persisted;
 
-  // tournaments
   const tournaments: AppState["tournaments"] = {};
   if (raw.tournaments !== null && typeof raw.tournaments === "object") {
     for (const [id, value] of Object.entries(raw.tournaments)) {
@@ -87,7 +80,6 @@ export const salvageAppState = (persisted: unknown, current: AppState): AppState
     }
   }
 
-  // participants
   const participants: AppState["participants"] = {};
   if (raw.participants !== null && typeof raw.participants === "object") {
     for (const [id, value] of Object.entries(raw.participants)) {
@@ -96,7 +88,6 @@ export const salvageAppState = (persisted: unknown, current: AppState): AppState
     }
   }
 
-  // matches
   const matches: AppState["matches"] = {};
   if (raw.matches !== null && typeof raw.matches === "object") {
     for (const [id, value] of Object.entries(raw.matches)) {
@@ -105,13 +96,11 @@ export const salvageAppState = (persisted: unknown, current: AppState): AppState
     }
   }
 
-  // currentTournamentId: string | null のみ受け入れる
   const currentTournamentId =
     raw.currentTournamentId === null || typeof raw.currentTournamentId === "string"
       ? raw.currentTournamentId
       : null;
 
-  // fontSize: 有効な FontSize 列挙値のみ受け入れ、それ以外は current の値にフォールバック
   const validFontSizes: readonly string[] = Object.values(FONT_SIZE);
   const isValidFontSize = (value: unknown): value is AppState["fontSize"] =>
     typeof value === "string" && validFontSizes.includes(value);
@@ -145,17 +134,14 @@ export const useAppStore = create<StoreState>()(
       merge: (persisted, current) => {
         const parsed = appStateSchema.safeParse(persisted);
         if (parsed.success) {
-          // ハッピーパス: スキーマ検証 OK → サニタイズして結合
           return { ...current, ...sanitizeAppState(parsed.data) };
         }
 
-        // persisted がオブジェクトでもない場合はフォールバック
         if (persisted === null || typeof persisted !== "object" || Array.isArray(persisted)) {
           console.warn("[store] persisted state is not an object, starting fresh", persisted);
           return current;
         }
 
-        // 部分的に壊れている場合: エンティティ単位でサルベージ
         const salvaged = salvageAppState(persisted, current);
         console.warn("[store] persisted state partially invalid, salvaged valid entries", salvaged);
         return { ...current, ...salvaged };

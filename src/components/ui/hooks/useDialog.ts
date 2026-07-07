@@ -2,7 +2,6 @@ import { useEffect, useRef, type RefObject } from "react";
 
 type Options = {
   open: boolean;
-  // 開いた直後にフォーカスを当てる要素（省略可）。
   initialFocusRef?: RefObject<HTMLElement | null>;
 };
 

@@ -1,6 +1,5 @@
 import type { Side } from "@/domain/match";
 
-/** スコア列1つ分の表示・操作プロパティ（ScoreColumn にそのまま渡す）。 */
 export type SideView = {
   name: string;
   score: number;
@@ -15,7 +14,6 @@ export type SideView = {
   onSub: () => void;
 };
 
-/** 両ビュー共通の試合サマリー表示。 */
 export type MatchSummary = {
   leftWins: number;
   rightWins: number;

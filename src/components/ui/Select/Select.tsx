@@ -13,11 +13,11 @@ type Props<T extends string | number> = {
   options: SelectOption<T>[];
   value: T | null;
   onChange: (value: T) => void;
-  label?: string; // 可視ラベル（横並び）。省略時は ariaLabel を使用
-  ariaLabel?: string; // label 省略時の a11y 名
+  label?: string;
+  ariaLabel?: string;
   placeholder?: string;
   disabled?: boolean;
-  id?: string; // 省略時 useId() で自動採番（複数マウント時の id 衝突回避）
+  id?: string;
 };
 
 export const Select = <T extends string | number>({
@@ -42,7 +42,6 @@ export const Select = <T extends string | number>({
 
   const selectedOption = options.find((option) => option.value === value) ?? null;
 
-  // 外クリックで閉じる（document 購読は hook 内 effect に集約）。
   useOutsideClick(wrapperRef, () => setIsOpen(false), isOpen);
 
   // listbox マウント時にフォーカス（条件レンダーのマウント時のみ発火する callback ref）。
@@ -146,7 +145,6 @@ export const Select = <T extends string | number>({
                 <button
                   key={String(option.value)}
                   type="button"
-                  // フォーカス中項目のみ条件付き ref でビューポート内に追従（長いリスト対応）。
                   ref={isFocused ? (node) => node?.scrollIntoView({ block: "nearest" }) : undefined}
                   id={`${baseId}-option-${index.toString()}`}
                   role="option"

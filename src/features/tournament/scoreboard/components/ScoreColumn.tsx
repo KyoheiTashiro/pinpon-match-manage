@@ -1,9 +1,7 @@
 import type { SideView } from "@/features/tournament/scoreboard/types";
 
-/** スコア入力の上限値。 */
 const MAX_SCORE = 50;
 
-/** この点以降スコアを常時黄色表示する閾値。 */
 const ALWAYS_HIGHLIGHT_SCORE = 10;
 
 export const ScoreColumn = ({

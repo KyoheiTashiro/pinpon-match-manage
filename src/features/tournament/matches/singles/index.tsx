@@ -45,7 +45,6 @@ export const SinglesList = ({ tournamentId }: { tournamentId: string }) => {
               const finished = summary?.finished === true;
               const inProgress = hasScore && !finished;
 
-              // leftSide は SINGLE 確定。a がどちらのサイドか判定。
               const aIsLeft =
                 !!match &&
                 match.leftSide.kind === SIDE_KIND.SINGLE &&
@@ -56,7 +55,6 @@ export const SinglesList = ({ tournamentId }: { tournamentId: string }) => {
                 finished &&
                 (aIsLeft ? summary.winner === SIDE.LEFT : summary.winner === SIDE.RIGHT);
 
-              // 終了時は勝者を左・敗者を右に並べ替え。それ以外は a・b の並び。
               const swap = finished && !aWon;
               const leftName = swap ? b.name : a.name;
               const rightName = swap ? a.name : b.name;

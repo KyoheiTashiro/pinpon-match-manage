@@ -1,7 +1,6 @@
 import { useEffect, useRef, type RefObject } from "react";
 
-// enabled の間だけ document の pointerdown を購読し、ref 要素の外側クリックで
-// onOutside を呼ぶ。外部イベント購読は本質的に effect が必要なため、ここに集約して
+// 外部イベント購読は本質的に effect が必要なため、ここに集約して
 // 利用側コンポーネント本体からは effect を排除する。
 export const useOutsideClick = (
   ref: RefObject<HTMLElement | null>,

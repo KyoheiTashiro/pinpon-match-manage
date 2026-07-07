@@ -15,17 +15,13 @@ import {
 import type { ScoreInputProps, SideView } from "@/features/tournament/scoreboard/types";
 import { useState, useSyncExternalStore } from "react";
 
-/** MatchResultBoard に渡す props の型。 */
 export type ResultBoardProps = {
   left: PlayerSide;
   right: PlayerSide;
   games: GameScore[];
 };
 
-/**
- * 進行中/確定済みのゲームのみを抽出し swap を適用して MatchResultBoard 用 props に変換する純関数。
- * hook から切り出すことでテスト容易性を保つ。
- */
+/** hook から切り出すことでテスト容易性を保つ純関数。 */
 export const toResultBoardProps = (
   source: {
     leftName: string;
