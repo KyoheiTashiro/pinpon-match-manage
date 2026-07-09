@@ -3,7 +3,7 @@
  * uiSlice の未カバーアクションを網羅するユニットテスト。
  */
 
-import { FONT_SIZE } from "@/store/types";
+import { FONT_SIZE, MATCHES_VIEW } from "@/store/types";
 import { useAppStore } from "@/store/useAppStore";
 import { beforeEach, describe, expect, it } from "vitest";
 
@@ -57,6 +57,39 @@ describe("setFontSize", () => {
 });
 
 // ---------------------------------------------------------------------------
+// matchesView の初期値
+// ---------------------------------------------------------------------------
+
+describe("matchesView: 初期値", () => {
+  it("初期 matchesView は MATRIX である", () => {
+    expect(useAppStore.getState().matchesView).toBe(MATCHES_VIEW.MATRIX);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// setMatchesView
+// ---------------------------------------------------------------------------
+
+describe("setMatchesView", () => {
+  it("LIST に変更できる", () => {
+    useAppStore.getState().setMatchesView(MATCHES_VIEW.LIST);
+    expect(useAppStore.getState().matchesView).toBe(MATCHES_VIEW.LIST);
+  });
+
+  it("MATRIX に戻せる", () => {
+    useAppStore.getState().setMatchesView(MATCHES_VIEW.LIST);
+    useAppStore.getState().setMatchesView(MATCHES_VIEW.MATRIX);
+    expect(useAppStore.getState().matchesView).toBe(MATCHES_VIEW.MATRIX);
+  });
+
+  it("同じ値で呼んでも崩れない", () => {
+    useAppStore.getState().setMatchesView(MATCHES_VIEW.LIST);
+    useAppStore.getState().setMatchesView(MATCHES_VIEW.LIST);
+    expect(useAppStore.getState().matchesView).toBe(MATCHES_VIEW.LIST);
+  });
+});
+
+// ---------------------------------------------------------------------------
 // resetAll との関係
 // ---------------------------------------------------------------------------
 
@@ -66,5 +99,12 @@ describe("resetAll との関係", () => {
     useAppStore.getState().resetAll();
     // resetAll はトーナメント/参加者/試合のみリセット。fontSize は永続化ユーザー設定なので保持。
     expect(useAppStore.getState().fontSize).toBe(FONT_SIZE.XLARGE);
+  });
+
+  it("resetAll を呼んでも matchesView はリセットされない (UI 設定は保持される)", () => {
+    useAppStore.getState().setMatchesView(MATCHES_VIEW.LIST);
+    useAppStore.getState().resetAll();
+    // resetAll はトーナメント/参加者/試合のみリセット。matchesView は永続化ユーザー設定なので保持。
+    expect(useAppStore.getState().matchesView).toBe(MATCHES_VIEW.LIST);
   });
 });

@@ -1,5 +1,8 @@
+import { matchSummary, winsNeededForBestOf } from "@/domain/match";
+import type { MatrixResult } from "@/features/tournament/matches/components/MatchMatrix";
 import { useMatches, useMatchModal } from "@/features/tournament/matches/hooks";
 import { SIDE_KIND, type Match } from "@/store/types";
+import { useAppStore } from "@/store/useAppStore";
 import { useMemo } from "react";
 
 export const MIN_PLAYERS_SINGLES = 2;
@@ -45,4 +48,55 @@ export const useSingles = (tournamentId: string) => {
     openMatch,
     closeMatch,
   };
+};
+
+export const useSinglesMatrix = (tournamentId: string) => {
+  const {
+    tournament,
+    participants,
+    players,
+    singlesCellMatch,
+    openMatchId,
+    openMatch,
+    closeMatch,
+  } = useSingles(tournamentId);
+  const addManualMatch = useAppStore((state) => state.addManualMatch);
+  const wins = tournament ? winsNeededForBestOf(tournament.bestOf) : 0;
+
+  const results = useMemo(() => {
+    const list: MatrixResult[] = [];
+    for (const match of singlesCellMatch.values()) {
+      // 型ガード（singlesCellMatch は SINGLE 同士のみ格納だが Match 型では絞れない）
+      if (match.leftSide.kind !== SIDE_KIND.SINGLE || match.rightSide.kind !== SIDE_KIND.SINGLE)
+        continue;
+      // ゲーム未入力の試合はリスト表示同様「対戦」扱い（セル押下で既存試合を開く）
+      if (match.games.length === 0) continue;
+      const summary = matchSummary(match.games, wins);
+      list.push({
+        playerAId: match.leftSide.participantId,
+        playerBId: match.rightSide.participantId,
+        winsA: summary.leftWins,
+        winsB: summary.rightWins,
+        finished: summary.finished,
+      });
+    }
+    return list;
+  }, [singlesCellMatch, wins]);
+
+  const selectCell = (rowPlayerId: string, columnPlayerId: string) => {
+    const pairKey = [rowPlayerId, columnPlayerId].toSorted().join("|");
+    const match = singlesCellMatch.get(pairKey);
+    if (match) {
+      openMatch(match.id);
+      return;
+    }
+    const id = addManualMatch(
+      tournamentId,
+      { kind: SIDE_KIND.SINGLE, participantId: rowPlayerId },
+      { kind: SIDE_KIND.SINGLE, participantId: columnPlayerId },
+    );
+    openMatch(id);
+  };
+
+  return { tournament, participants, players, results, selectCell, openMatchId, closeMatch };
 };

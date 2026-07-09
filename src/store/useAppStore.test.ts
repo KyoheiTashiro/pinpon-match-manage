@@ -4,7 +4,7 @@
  * salvageAppState は merge.test.ts でカバー済のため重複させない。
  */
 
-import { FONT_SIZE, FORMAT, type AppState } from "@/store/types";
+import { FONT_SIZE, FORMAT, MATCHES_VIEW, type AppState } from "@/store/types";
 import { describe, expect, it } from "vitest";
 
 import { migratePersistedState } from "./useAppStore";
@@ -46,6 +46,7 @@ describe("migratePersistedState: v1 → v2 (bestOf 補完)", () => {
       matches: {},
       currentTournamentId: null,
       fontSize: FONT_SIZE.NORMAL,
+      matchesView: MATCHES_VIEW.MATRIX,
     };
 
     const result = asAppState(migratePersistedState(persisted, 1));
@@ -61,6 +62,7 @@ describe("migratePersistedState: v1 → v2 (bestOf 補完)", () => {
       matches: {},
       currentTournamentId: null,
       fontSize: FONT_SIZE.NORMAL,
+      matchesView: MATCHES_VIEW.MATRIX,
     };
 
     const result = asAppState(migratePersistedState(persisted, 1));
@@ -79,6 +81,7 @@ describe("migratePersistedState: v1 → v2 (bestOf 補完)", () => {
       matches: {},
       currentTournamentId: null,
       fontSize: FONT_SIZE.NORMAL,
+      matchesView: MATCHES_VIEW.MATRIX,
     };
 
     const result = asAppState(migratePersistedState(persisted, 1));
@@ -97,6 +100,7 @@ describe("migratePersistedState: v1 → v2 (bestOf 補完)", () => {
       matches: {},
       currentTournamentId: "t1",
       fontSize: FONT_SIZE.LARGE,
+      matchesView: MATCHES_VIEW.MATRIX,
     };
 
     const result = asAppState(migratePersistedState(persisted, 1));
@@ -129,6 +133,7 @@ describe("migratePersistedState: fromVersion=2 (変換不要)", () => {
       matches: {},
       currentTournamentId: null,
       fontSize: FONT_SIZE.NORMAL,
+      matchesView: MATCHES_VIEW.MATRIX,
     };
 
     const result = asAppState(migratePersistedState(persisted, 2));
@@ -143,11 +148,74 @@ describe("migratePersistedState: fromVersion=2 (変換不要)", () => {
       matches: {},
       currentTournamentId: null,
       fontSize: FONT_SIZE.NORMAL,
+      matchesView: MATCHES_VIEW.MATRIX,
     };
 
     const result = migratePersistedState(persisted, 2);
 
     expect(result).toEqual(persisted);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// v2 → v3 マイグレーション: matchesView フィールドの補完
+// ---------------------------------------------------------------------------
+
+describe("migratePersistedState: v2 → v3 (matchesView 補完)", () => {
+  it("fromVersion=2: matchesView が未定義なら MATRIX に補完される", () => {
+    const persisted = {
+      tournaments: {},
+      participants: {},
+      matches: {},
+      currentTournamentId: null,
+      fontSize: FONT_SIZE.NORMAL,
+      // matchesView が存在しない (v2 のデータ)
+    };
+
+    const result = asAppState(migratePersistedState(persisted, 2));
+
+    expect(result.matchesView).toBe(MATCHES_VIEW.MATRIX);
+  });
+
+  it('fromVersion=2: matchesView が既に "list" ならそのまま保持される', () => {
+    const persisted = {
+      tournaments: {},
+      participants: {},
+      matches: {},
+      currentTournamentId: null,
+      fontSize: FONT_SIZE.NORMAL,
+      matchesView: MATCHES_VIEW.LIST,
+    };
+
+    const result = asAppState(migratePersistedState(persisted, 2));
+
+    expect(result.matchesView).toBe(MATCHES_VIEW.LIST);
+  });
+
+  it("fromVersion=1: v1→v2→v3 の連鎖適用でも matchesView が付与される", () => {
+    const persisted = {
+      tournaments: {
+        t1: {
+          id: "t1",
+          name: "春季大会",
+          format: FORMAT.SINGLES,
+          date: "2026-01-01",
+          createdAt: "2026-01-01T00:00:00.000Z",
+          participantIds: [],
+          // bestOf が存在しない (v1 のデータ)
+        },
+      },
+      participants: {},
+      matches: {},
+      currentTournamentId: null,
+      fontSize: FONT_SIZE.NORMAL,
+      // matchesView が存在しない (v1 のデータ)
+    };
+
+    const result = asAppState(migratePersistedState(persisted, 1));
+
+    expect(result.tournaments.t1.bestOf).toBe(5);
+    expect(result.matchesView).toBe(MATCHES_VIEW.MATRIX);
   });
 });
 
@@ -180,6 +248,7 @@ describe("migratePersistedState: 不正入力・境界ケース", () => {
       matches: {},
       currentTournamentId: null,
       fontSize: FONT_SIZE.NORMAL,
+      matchesView: MATCHES_VIEW.MATRIX,
       // tournaments なし
     };
 
@@ -195,6 +264,7 @@ describe("migratePersistedState: 不正入力・境界ケース", () => {
       matches: {},
       currentTournamentId: null,
       fontSize: FONT_SIZE.NORMAL,
+      matchesView: MATCHES_VIEW.MATRIX,
     };
 
     const result = asAppState(migratePersistedState(persisted, 1));
@@ -218,6 +288,7 @@ describe("migratePersistedState: 不正入力・境界ケース", () => {
       matches: {},
       currentTournamentId: null,
       fontSize: FONT_SIZE.NORMAL,
+      matchesView: MATCHES_VIEW.MATRIX,
     };
 
     const result = asAppState(migratePersistedState(persisted, 0));

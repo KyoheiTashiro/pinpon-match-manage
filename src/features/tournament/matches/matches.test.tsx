@@ -1,4 +1,6 @@
 import { MatchesTab } from "@/features/tournament/matches";
+import { MATCHES_VIEW } from "@/store/types";
+import { useAppStore } from "@/store/useAppStore";
 import { makeTournament, makeParticipant, makeMatch } from "@/test/factories";
 import { installMatchMediaMock } from "@/test/matchMediaMock";
 import { renderWithStore, seedStore, setupStoreIsolation } from "@/test/renderWithStore";
@@ -15,7 +17,11 @@ const ROUTE_OPTIONS = {
 };
 
 describe("MatchesTab", () => {
-  beforeEach(setupStoreIsolation);
+  beforeEach(() => {
+    setupStoreIsolation();
+    // matchesView は resetAll でリセットされない永続 UI 設定のため、テスト間の状態汚染を防ぐため明示的にリセットする
+    useAppStore.getState().setMatchesView(MATCHES_VIEW.MATRIX);
+  });
 
   it("参加者 1 人以下 → 案内文表示", () => {
     seedStore({
@@ -122,8 +128,11 @@ describe("MatchesTab", () => {
     renderWithStore(<MatchesTab />, ROUTE_OPTIONS);
 
     // 勝者(選手A)を左・スコア 2-0、「終了」バッジ表示
-    expect(screen.getByRole("button", { name: "選手A 対 選手B 2-0 編集" })).toBeInTheDocument();
-    expect(screen.getByText("終了")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "選手A 対 選手B 2-0 終了 編集" }),
+    ).toBeInTheDocument();
+    // マトリクスは対称セル（A行B列 / B行A列）双方に「終了」バッジを表示する
+    expect(screen.getAllByText("終了").length).toBeGreaterThanOrEqual(1);
   });
 
   it("format=doubles の tournament では DoublesList (対戦表（ダブルス）) が表示される", () => {
@@ -242,13 +251,39 @@ describe("MatchesTab", () => {
     renderWithStore(<MatchesTab />, ROUTE_OPTIONS);
 
     // 既存 match セル（編集ボタン）をクリック
-    const editBtn = screen.getByRole("button", { name: "選手A 対 選手B 2-0 編集" });
+    const editBtn = screen.getByRole("button", { name: "選手A 対 選手B 2-0 終了 編集" });
     await user.click(editBtn);
 
     await waitFor(() => {
       expect(screen.getByRole("dialog")).toBeInTheDocument();
     });
     expect(screen.getByRole("heading", { name: "試合の入力" })).toBeInTheDocument();
+  });
+
+  it("マトリクス切替で MatchMatrix が表示される", async () => {
+    const user = userEvent.setup();
+    seedStore({
+      tournaments: {
+        t1: makeTournament({
+          id: "t1",
+          format: "singles",
+          bestOf: 5,
+          participantIds: ["p1", "p2"],
+        }),
+      },
+      participants: {
+        p1: makeParticipant({ id: "p1", name: "選手A", tournamentId: "t1" }),
+        p2: makeParticipant({ id: "p2", name: "選手B", tournamentId: "t1" }),
+      },
+      matches: {},
+    });
+
+    renderWithStore(<MatchesTab />, ROUTE_OPTIONS);
+
+    await user.click(screen.getByRole("radio", { name: "マトリクス" }));
+
+    expect(screen.getByRole("table")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "選手A 対 選手B 対戦追加" })).toBeInTheDocument();
   });
 
   it("MatchModal の × ボタンでモーダルが閉じる", async () => {

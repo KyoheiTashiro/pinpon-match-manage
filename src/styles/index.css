@@ -25,6 +25,23 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
+/* 対戦表の対角セル（自分対自分）用の斜線パターン */
+@utility bg-diagonal-stripes {
+  background-image: repeating-linear-gradient(
+    135deg,
+    transparent,
+    transparent 6px,
+    theme(colors.line / 20%) 6px,
+    theme(colors.line / 20%) 12px
+  );
+}
+
+/* Tailwind v4 の preflight は button を cursor:default にするため、押せる要素は pointer に戻す */
+button:not(:disabled),
+[role="button"]:not([aria-disabled="true"]) {
+  cursor: pointer;
+}
+
 :focus-visible {
   outline: 4px solid #2563eb;
   outline-offset: 2px;

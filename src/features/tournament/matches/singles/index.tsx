@@ -2,8 +2,13 @@ import { WinnerBadge } from "@/components/domain";
 import { ChevronDownIcon } from "@/components/icons/ChevronDownIcon";
 import { Badge } from "@/components/ui";
 import { matchSummary, winsNeededForBestOf, SIDE } from "@/domain/match";
+import { MatchMatrix } from "@/features/tournament/matches/components/MatchMatrix";
 import { MatchModal } from "@/features/tournament/matches/components/MatchModal";
-import { useSingles, MIN_PLAYERS_SINGLES } from "@/features/tournament/matches/singles/hooks";
+import {
+  useSingles,
+  useSinglesMatrix,
+  MIN_PLAYERS_SINGLES,
+} from "@/features/tournament/matches/singles/hooks";
 import { SIDE_KIND } from "@/store/types";
 import { useAppStore } from "@/store/useAppStore";
 
@@ -26,8 +31,6 @@ export const SinglesList = ({ tournamentId }: { tournamentId: string }) => {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-extrabold">対戦表</h2>
-
       {players.length < MIN_PLAYERS_SINGLES ? (
         <p className="text-sub">参加者を2人以上 登録してください。</p>
       ) : (
@@ -102,7 +105,7 @@ export const SinglesList = ({ tournamentId }: { tournamentId: string }) => {
                         </span>
                       )}
                       {finished ? (
-                        <Badge tone="success" appearance="solid">
+                        <Badge tone="neutral" appearance="solid">
                           終了
                         </Badge>
                       ) : inProgress ? (
@@ -124,6 +127,26 @@ export const SinglesList = ({ tournamentId }: { tournamentId: string }) => {
         </div>
       )}
 
+      {openMatchId && (
+        <MatchModal matchId={openMatchId} participants={participants} onClose={closeMatch} />
+      )}
+    </div>
+  );
+};
+
+export const SinglesMatrix = ({ tournamentId }: { tournamentId: string }) => {
+  const { tournament, participants, players, results, selectCell, openMatchId, closeMatch } =
+    useSinglesMatrix(tournamentId);
+  if (!tournament) return null;
+  return (
+    <div className="space-y-4">
+      <div className="space-y-2 bg-white p-3">
+        <div className="border-line border-b-2 pb-2">
+          <div className="text-xl font-extrabold">{tournament.name}</div>
+          <div className="text-sub text-sm">{tournament.date}</div>
+        </div>
+        <MatchMatrix players={players} results={results} onSelectCell={selectCell} />
+      </div>
       {openMatchId && (
         <MatchModal matchId={openMatchId} participants={participants} onClose={closeMatch} />
       )}

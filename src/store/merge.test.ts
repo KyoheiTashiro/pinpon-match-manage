@@ -1,4 +1,4 @@
-import { FONT_SIZE, FORMAT, SIDE_KIND, type AppState } from "@/store/types";
+import { FONT_SIZE, FORMAT, MATCHES_VIEW, SIDE_KIND, type AppState } from "@/store/types";
 import { describe, expect, it } from "vitest";
 
 import { salvageAppState } from "./useAppStore";
@@ -13,6 +13,7 @@ const emptyState: AppState = {
   matches: {},
   currentTournamentId: null,
   fontSize: FONT_SIZE.NORMAL,
+  matchesView: MATCHES_VIEW.MATRIX,
 };
 
 const validTournament = {
@@ -52,6 +53,7 @@ describe("salvageAppState: 有効な永続化データ", () => {
       matches: { m1: validMatch },
       currentTournamentId: "t1",
       fontSize: FONT_SIZE.LARGE,
+      matchesView: MATCHES_VIEW.LIST,
     };
 
     const result = salvageAppState(persisted, emptyState);
@@ -62,6 +64,7 @@ describe("salvageAppState: 有効な永続化データ", () => {
     // currentTournamentId: t1 は tournaments に存在するので保持
     expect(result.currentTournamentId).toBe("t1");
     expect(result.fontSize).toBe(FONT_SIZE.LARGE);
+    expect(result.matchesView).toBe(MATCHES_VIEW.LIST);
   });
 });
 
@@ -89,6 +92,7 @@ describe("salvageAppState: 部分的に壊れた状態", () => {
       },
       currentTournamentId: "t1",
       fontSize: FONT_SIZE.NORMAL,
+      matchesView: MATCHES_VIEW.MATRIX,
     };
 
     const result = salvageAppState(persisted, emptyState);
@@ -119,6 +123,7 @@ describe("salvageAppState: 部分的に壊れた状態", () => {
       matches: { m1: validMatch },
       currentTournamentId: "t1",
       fontSize: FONT_SIZE.NORMAL,
+      matchesView: MATCHES_VIEW.MATRIX,
     };
 
     const result = salvageAppState(persisted, emptyState);
@@ -134,12 +139,29 @@ describe("salvageAppState: 部分的に壊れた状態", () => {
       matches: {},
       currentTournamentId: null,
       fontSize: "invalid-size",
+      matchesView: MATCHES_VIEW.MATRIX,
     };
 
     const currentWithLarge: AppState = { ...emptyState, fontSize: FONT_SIZE.LARGE };
     const result = salvageAppState(persisted, currentWithLarge);
 
     expect(result.fontSize).toBe(FONT_SIZE.LARGE);
+  });
+
+  it("matchesView が無効な値なら current の matchesView にフォールバックする", () => {
+    const persisted = {
+      tournaments: { t1: validTournament },
+      participants: {},
+      matches: {},
+      currentTournamentId: null,
+      fontSize: FONT_SIZE.NORMAL,
+      matchesView: "invalid-view",
+    };
+
+    const currentWithList: AppState = { ...emptyState, matchesView: MATCHES_VIEW.LIST };
+    const result = salvageAppState(persisted, currentWithList);
+
+    expect(result.matchesView).toBe(MATCHES_VIEW.LIST);
   });
 
   it("currentTournamentId が存在しない tournament を指していたら null になる", () => {
@@ -149,6 +171,7 @@ describe("salvageAppState: 部分的に壊れた状態", () => {
       matches: {},
       currentTournamentId: "non-existent",
       fontSize: FONT_SIZE.NORMAL,
+      matchesView: MATCHES_VIEW.MATRIX,
     };
 
     const result = salvageAppState(persisted, emptyState);

@@ -1,5 +1,12 @@
 import { SIDE } from "@/domain/match";
-import { BEST_OF_OPTIONS, FONT_SIZE, FORMAT, SIDE_KIND, type AppState } from "@/store/types";
+import {
+  BEST_OF_OPTIONS,
+  FONT_SIZE,
+  FORMAT,
+  MATCHES_VIEW,
+  SIDE_KIND,
+  type AppState,
+} from "@/store/types";
 import { z } from "zod";
 
 const sideSchema = z.enum([SIDE.LEFT, SIDE.RIGHT]);
@@ -61,6 +68,7 @@ export const appStateSchema = z.object({
     FONT_SIZE.LARGE,
     FONT_SIZE.XLARGE,
   ]),
+  matchesView: z.enum([MATCHES_VIEW.LIST, MATCHES_VIEW.MATRIX]),
 });
 
 // 型整合チェック: appStateSchema の infer が types.ts の AppState と構造一致することを
@@ -100,5 +108,12 @@ export const sanitizeAppState = (state: AppState): AppState => {
       ? state.currentTournamentId
       : null;
 
-  return { tournaments, participants, matches, currentTournamentId, fontSize: state.fontSize };
+  return {
+    tournaments,
+    participants,
+    matches,
+    currentTournamentId,
+    fontSize: state.fontSize,
+    matchesView: state.matchesView,
+  };
 };

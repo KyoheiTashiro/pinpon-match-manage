@@ -34,3 +34,11 @@ export const useMatchModal = () => {
     closeMatch: () => setOpenMatchId(null),
   };
 };
+
+export { MATCHES_VIEW, type MatchesView } from "@/store/types";
+
+export const useMatchesView = () => {
+  const view = useAppStore((state) => state.matchesView);
+  const setView = useAppStore((state) => state.setMatchesView);
+  return { view, setView };
+};

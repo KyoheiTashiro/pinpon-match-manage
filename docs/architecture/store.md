@@ -27,7 +27,7 @@ useAppStore = create<StoreState>()(
 
 | スライス           | 状態                                 | アクション                                                                                                             | 実装                         |
 | ------------------ | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- | ---------------------------- |
-| `uiSlice`          | `fontSize`                           | `setFontSize`                                                                                                          | `slices/uiSlice.ts`          |
+| `uiSlice`          | `fontSize`, `matchesView`            | `setFontSize`, `setMatchesView`                                                                                        | `slices/uiSlice.ts`          |
 | `tournamentSlice`  | `tournaments`, `currentTournamentId` | `createTournament` / `updateTournament` / `deleteTournament` / `setCurrentTournament` / `resetTournament` / `resetAll` | `slices/tournamentSlice.ts`  |
 | `participantSlice` | `participants`                       | `addParticipant` / `addParticipants` / `updateParticipant` / `removeParticipant`                                       | `slices/participantSlice.ts` |
 | `matchSlice`       | `matches`                            | `addManualMatch` / `updateMatch` / `deleteMatch`                                                                       | `slices/matchSlice.ts`       |
@@ -58,8 +58,8 @@ useAppStore = create<StoreState>()(
 ## 永続化（zustand persist）
 
 - ストアキー（`name`）: `pinpon-match-manage:v1`（`STORAGE_KEY`）
-- スキーマ `version`: `2`（`STORAGE_VERSION`）。両定数 `src/constants/storage.ts`。
-- `partialize`: 永続化対象は `tournaments` / `participants` / `matches` / `currentTournamentId` / `fontSize` のみ。アクション関数や派生値は保存しない。
+- スキーマ `version`: `3`（`STORAGE_VERSION`）。両定数 `src/constants/storage.ts`。
+- `partialize`: 永続化対象は `tournaments` / `participants` / `matches` / `currentTournamentId` / `fontSize` / `matchesView` のみ。アクション関数や派生値は保存しない。
 - 読込パイプライン: LocalStorage → `migrate`（バージョン変換）→ `merge`（検証・サニタイズ・結合）→ ストア。
 
 ### migrate
@@ -70,6 +70,7 @@ useAppStore = create<StoreState>()(
 - `fromVersion` から `STORAGE_VERSION` まで該当ステップを順に適用。未登録バージョンはスキップ（恒等）。
 - 完全な型を返す必要なし → 後段の `merge`（`safeParse` + サニタイズ）が型保証する。
 - v1→v2 (`migrateV1ToV2`): 各 `Tournament` に `bestOf` 補完（v1 は5ゲーム制固定 → `bestOf ?? 5`）。
+- v2→v3 (`migrateV2ToV3`): `matchesView` を補完（v2 以前はマトリクス表示固定 → `matchesView ?? MATRIX`）。
 
 将来スキーマ変更時: `migrateVNToVN+1` を追加 → `migrations` に登録 → `STORAGE_VERSION` をインクリメント。
 
@@ -78,7 +79,7 @@ useAppStore = create<StoreState>()(
 `merge(persisted, current)` は壊れたデータを全捨てせず可能な限り救う3段構え:
 
 1. **ハッピーパス**: `appStateSchema.safeParse(persisted)` 成功 → `sanitizeAppState` で参照整合修復 → `current` に結合。
-2. **部分破損**: パース失敗かつ persisted がオブジェクト → `salvageAppState`。`tournaments`/`participants`/`matches` を**1エントリずつ**各エンティティスキーマで `safeParse`、成功分のみ保持。`currentTournamentId`（`string | null`）・`fontSize`（有効列挙値か）も個別検証しフォールバック。最後に `sanitizeAppState`。
+2. **部分破損**: パース失敗かつ persisted がオブジェクト → `salvageAppState`。`tournaments`/`participants`/`matches` を**1エントリずつ**各エンティティスキーマで `safeParse`、成功分のみ保持。`currentTournamentId`（`string | null`）・`fontSize` / `matchesView`（有効列挙値か）も個別検証しフォールバック。最後に `sanitizeAppState`。
 3. **最終手段**: persisted がオブジェクトですらない（null / 配列 / プリミティブ）→ `current`（空初期状態）を返す。
 
 `isRecord(value)`: 配列・null を除外した「プレーンなレコード」型述語。migrate / salvage の入口ガード。

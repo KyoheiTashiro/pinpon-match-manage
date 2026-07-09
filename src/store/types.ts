@@ -49,10 +49,14 @@ export const FONT_SIZE = {
 } as const;
 export type FontSize = (typeof FONT_SIZE)[keyof typeof FONT_SIZE];
 
+export const MATCHES_VIEW = { LIST: "list", MATRIX: "matrix" } as const;
+export type MatchesView = (typeof MATCHES_VIEW)[keyof typeof MATCHES_VIEW];
+
 export type AppState = {
   tournaments: Record<string, Tournament>;
   participants: Record<string, Participant>;
   matches: Record<string, Match>;
   currentTournamentId: string | null;
   fontSize: FontSize;
+  matchesView: MatchesView;
 };

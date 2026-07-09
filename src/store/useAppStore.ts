@@ -10,7 +10,7 @@ import { createMatchSlice, type MatchSlice } from "@/store/slices/matchSlice";
 import { createParticipantSlice, type ParticipantSlice } from "@/store/slices/participantSlice";
 import { createTournamentSlice, type TournamentSlice } from "@/store/slices/tournamentSlice";
 import { createUiSlice, type UiSlice } from "@/store/slices/uiSlice";
-import { FONT_SIZE, type AppState } from "@/store/types";
+import { FONT_SIZE, MATCHES_VIEW, type AppState } from "@/store/types";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
@@ -37,6 +37,12 @@ const migrateV1ToV2: Migration = (persisted) => {
   return { ...persisted, tournaments };
 };
 
+/** v2 → v3: matchesView を補完（v2 以前はマトリクス表示固定）。 */
+const migrateV2ToV3: Migration = (persisted) =>
+  persisted.matchesView === undefined
+    ? { ...persisted, matchesView: MATCHES_VIEW.MATRIX }
+    : persisted;
+
 /**
  * fromVersion → fromVersion+1 の変換テーブル。キー = 変換元バージョン。
  * 将来スキーマ変更時は migrateVNToVN+1 を追加・登録し STORAGE_VERSION を上げる。
@@ -45,6 +51,7 @@ const migrateV1ToV2: Migration = (persisted) => {
  */
 const migrations: Readonly<Record<number, Migration>> = {
   1: migrateV1ToV2,
+  2: migrateV2ToV3,
 };
 
 /**
@@ -108,7 +115,21 @@ export const salvageAppState = (persisted: unknown, current: AppState): AppState
     ? raw.fontSize
     : current.fontSize;
 
-  const partial: AppState = { tournaments, participants, matches, currentTournamentId, fontSize };
+  const validMatchesViews: readonly string[] = Object.values(MATCHES_VIEW);
+  const isValidMatchesView = (value: unknown): value is AppState["matchesView"] =>
+    typeof value === "string" && validMatchesViews.includes(value);
+  const matchesView: AppState["matchesView"] = isValidMatchesView(raw.matchesView)
+    ? raw.matchesView
+    : current.matchesView;
+
+  const partial: AppState = {
+    tournaments,
+    participants,
+    matches,
+    currentTournamentId,
+    fontSize,
+    matchesView,
+  };
   return { ...current, ...sanitizeAppState(partial) };
 };
 
@@ -129,6 +150,7 @@ export const useAppStore = create<StoreState>()(
         matches: state.matches,
         currentTournamentId: state.currentTournamentId,
         fontSize: state.fontSize,
+        matchesView: state.matchesView,
       }),
       migrate: migratePersistedState,
       merge: (persisted, current) => {
