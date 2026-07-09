@@ -10,6 +10,7 @@ import { sanitizeAppState } from "@/store/schema";
 import {
   FONT_SIZE,
   FORMAT,
+  MATCHES_VIEW,
   SIDE_KIND,
   type AppState,
   type BestOf,
@@ -271,6 +272,7 @@ export const buildSeedState = (): AppState => {
     matches: byId(built.flatMap((t) => t.matches)),
     currentTournamentId: "t-s5",
     fontSize: FONT_SIZE.NORMAL,
+    matchesView: MATCHES_VIEW.MATRIX,
   };
 
   // 参照整合性を最終チェック

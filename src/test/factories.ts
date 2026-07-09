@@ -2,6 +2,7 @@ import type { Game, Side } from "@/domain/match";
 import {
   FONT_SIZE,
   FORMAT,
+  MATCHES_VIEW,
   SIDE_KIND,
   type AppState,
   type Match,
@@ -61,5 +62,6 @@ export const makeAppState = (overrides: Partial<AppState> = {}): AppState => ({
   matches: {},
   currentTournamentId: null,
   fontSize: FONT_SIZE.NORMAL,
+  matchesView: MATCHES_VIEW.MATRIX,
   ...overrides,
 });
