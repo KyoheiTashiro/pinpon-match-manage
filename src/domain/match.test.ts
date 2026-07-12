@@ -12,8 +12,7 @@ import {
   matchSummary,
   scoresFromLog,
   addPointToGame,
-  undoLastPoint,
-  lastScorer,
+  removePointFromGame,
 } from "@/domain/match";
 import { describe, it, expect } from "vitest";
 
@@ -111,34 +110,42 @@ describe("addPointToGame", () => {
   });
 });
 
-describe("undoLastPoint", () => {
-  it("末尾を削除し再計算", () => {
+describe("removePointFromGame", () => {
+  it("得点済み側を減点するとスコアが1減り、pointLog から該当 side の最後の出現が消える", () => {
     const game = { leftScore: 2, rightScore: 1, pointLog: ["L", "R", "L"] as Side[] };
-    const result = undoLastPoint(game);
-    expect(result.pointLog).toEqual(["L", "R"]);
+    const result = removePointFromGame(game, "L");
     expect(result.leftScore).toBe(1);
     expect(result.rightScore).toBe(1);
+    expect(result.pointLog).toEqual(["L", "R"]);
   });
-  it("pointLog が空なら変化なし", () => {
-    const game = { leftScore: 0, rightScore: 0, pointLog: [] as Side[] };
-    expect(undoLastPoint(game)).toBe(game);
-  });
-  it("pointLog が未定義なら変化なし", () => {
-    const game = { leftScore: 0, rightScore: 0 };
-    expect(undoLastPoint(game)).toBe(game);
-  });
-});
 
-describe("lastScorer", () => {
-  it("pointLog の末尾要素を返す", () => {
-    const game = { leftScore: 2, rightScore: 1, pointLog: ["L", "R", "L"] as Side[] };
-    expect(lastScorer(game)).toBe("L");
+  it("相手が最後に得点した後でも、自側の減点ができる", () => {
+    const game = { leftScore: 1, rightScore: 1, pointLog: ["L", "R"] as Side[] };
+    const result = removePointFromGame(game, "L");
+    expect(result.leftScore).toBe(0);
+    expect(result.rightScore).toBe(1);
+    expect(result.pointLog).toEqual(["R"]);
   });
-  it("pointLog が空なら null", () => {
-    expect(lastScorer({ leftScore: 0, rightScore: 0, pointLog: [] })).toBeNull();
+
+  it("スコア 0 の側を減点しても同一オブジェクトが返る", () => {
+    const game = { leftScore: 0, rightScore: 2, pointLog: ["R", "R"] as Side[] };
+    expect(removePointFromGame(game, "L")).toBe(game);
   });
-  it("pointLog が未定義なら null", () => {
-    expect(lastScorer({ leftScore: 0, rightScore: 0 })).toBeNull();
+
+  it("pointLog が未定義でもスコアが正なら減点できる", () => {
+    const game = { leftScore: 3, rightScore: 2 };
+    const result = removePointFromGame(game, "R");
+    expect(result.leftScore).toBe(3);
+    expect(result.rightScore).toBe(1);
+    expect(result.pointLog).toBeUndefined();
+  });
+
+  it("pointLog に該当 side が無い場合はスコアのみ減り pointLog は変わらない", () => {
+    const game = { leftScore: 1, rightScore: 2, pointLog: ["R", "R"] as Side[] };
+    const result = removePointFromGame(game, "L");
+    expect(result.leftScore).toBe(0);
+    expect(result.rightScore).toBe(2);
+    expect(result.pointLog).toEqual(["R", "R"]);
   });
 });
 

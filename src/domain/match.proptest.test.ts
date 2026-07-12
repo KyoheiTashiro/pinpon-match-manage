@@ -8,12 +8,11 @@ import {
   gameWinner,
   isGameEmpty,
   isGameFinished,
-  lastScorer,
   matchSummary,
   opposite,
   realGames,
+  removePointFromGame,
   scoresFromLog,
-  undoLastPoint,
   winsNeededForBestOf,
 } from "@/domain/match";
 import { finishedGameArb, gameArb, gameFromLogArb, sideArb } from "@/test/arbitraries";
@@ -117,31 +116,76 @@ describe("gameWinner プロパティテスト", () => {
   });
 });
 
-describe("addPointToGame / undoLastPoint プロパティテスト", () => {
-  it("addPoint → undo でスコアが元に戻る（ラウンドトリップ）", () => {
-    // 得点追加後に取り消すとスコアが完全に復元される
+describe("addPointToGame / removePointFromGame プロパティテスト", () => {
+  it("addPoint → removePoint(同じ side) でスコア・pointLog が元に戻る（ラウンドトリップ）", () => {
+    // 得点追加後に同じ side を減点すると完全に元の状態へ復元される
     // gameFromLogArb は必ず pointLog を持つため非 null アクセスが安全
     fc.assert(
       fc.property(gameFromLogArb, sideArb, (game, side) => {
         const after = addPointToGame(game, side);
-        const undone = undoLastPoint(after);
-        expect(undone.leftScore).toBe(game.leftScore);
-        expect(undone.rightScore).toBe(game.rightScore);
-        expect(undone.pointLog!.length).toBe(game.pointLog!.length);
+        const removed = removePointFromGame(after, side);
+        expect(removed.leftScore).toBe(game.leftScore);
+        expect(removed.rightScore).toBe(game.rightScore);
+        expect(removed.pointLog).toEqual(game.pointLog);
       }),
     );
   });
 
-  it("addPoint で pointLog が 1 増え、undo で 1 減る", () => {
+  it("addPoint で pointLog が 1 増え、removePoint で 1 減る", () => {
     // ログの長さが正確に+1/-1される
     // gameFromLogArb は必ず pointLog を持つため非 null アクセスが安全
     fc.assert(
       fc.property(gameFromLogArb, sideArb, (game, side) => {
         const before = game.pointLog!.length;
         const after = addPointToGame(game, side);
-        const undone = undoLastPoint(after);
+        const removed = removePointFromGame(after, side);
         expect(after.pointLog!.length).toBe(before + 1);
-        expect(undone.pointLog!.length).toBe(before);
+        expect(removed.pointLog!.length).toBe(before);
+      }),
+    );
+  });
+});
+
+describe("removePointFromGame プロパティテスト", () => {
+  it("該当 side のスコアは max(0, 元-1) になり、相手スコアは不変", () => {
+    // 減点対象側のスコアだけが変化し、相手側のスコアは常に維持される
+    fc.assert(
+      fc.property(gameArb, sideArb, (game, side) => {
+        const before = side === SIDE.LEFT ? game.leftScore : game.rightScore;
+        const opponentBefore = side === SIDE.LEFT ? game.rightScore : game.leftScore;
+        const result = removePointFromGame(game, side);
+        const after = side === SIDE.LEFT ? result.leftScore : result.rightScore;
+        const opponentAfter = side === SIDE.LEFT ? result.rightScore : result.leftScore;
+        expect(after).toBe(Math.max(0, before - 1));
+        expect(opponentAfter).toBe(opponentBefore);
+      }),
+    );
+  });
+
+  it("該当 side のスコアが 0 なら同一参照が返る", () => {
+    // スコアが既に 0 の側は減点不可であり参照同一性が保たれる
+    fc.assert(
+      fc.property(fc.integer({ min: 0, max: 21 }), sideArb, (opponentScore, side) => {
+        const game =
+          side === SIDE.LEFT
+            ? { leftScore: 0, rightScore: opponentScore }
+            : { leftScore: opponentScore, rightScore: 0 };
+        expect(removePointFromGame(game, side)).toBe(game);
+      }),
+    );
+  });
+
+  it("pointLog を持つゲームで該当 side のスコアが正なら pointLog の長さも 1 減る", () => {
+    // pointLog がある場合はスコアと pointLog の整合性が保たれる
+    fc.assert(
+      fc.property(gameFromLogArb, sideArb, (game, side) => {
+        const score = side === SIDE.LEFT ? game.leftScore : game.rightScore;
+        const result = removePointFromGame(game, side);
+        if (score > 0) {
+          expect(result.pointLog!.length).toBe(game.pointLog!.length - 1);
+        } else {
+          expect(result.pointLog).toEqual(game.pointLog);
+        }
       }),
     );
   });
@@ -331,56 +375,6 @@ describe("winsNeededForBestOf プロパティテスト", () => {
         fc.integer({ min: 1, max: 21 }).filter((n) => n % 2 === 1),
         (n) => {
           expect(winsNeededForBestOf(n)).toBe(Math.floor(n / 2) + 1);
-        },
-      ),
-    );
-  });
-});
-
-describe("lastScorer プロパティテスト", () => {
-  it("pointLog が undefined なら null", () => {
-    expect(lastScorer({ leftScore: 0, rightScore: 0 })).toBeNull();
-  });
-
-  it("pointLog が空配列なら null", () => {
-    expect(lastScorer({ leftScore: 0, rightScore: 0, pointLog: [] })).toBeNull();
-  });
-
-  it("pointLog が非空なら末尾要素を返す", () => {
-    fc.assert(
-      fc.property(fc.array(sideArb, { minLength: 1, maxLength: 20 }), (log) => {
-        const game = { leftScore: 0, rightScore: 0, pointLog: log };
-        expect(lastScorer(game)).toBe(log.at(-1));
-      }),
-    );
-  });
-});
-
-describe("undoLastPoint early-return プロパティテスト", () => {
-  it("pointLog が undefined のとき元の game オブジェクトをそのまま返す(参照同一)", () => {
-    fc.assert(
-      fc.property(
-        fc.record({
-          leftScore: fc.integer({ min: 0, max: 20 }),
-          rightScore: fc.integer({ min: 0, max: 20 }),
-        }),
-        (game) => {
-          expect(undoLastPoint(game)).toBe(game);
-        },
-      ),
-    );
-  });
-
-  it("pointLog が空配列のとき元の game オブジェクトをそのまま返す(参照同一)", () => {
-    fc.assert(
-      fc.property(
-        fc.record({
-          leftScore: fc.integer({ min: 0, max: 20 }),
-          rightScore: fc.integer({ min: 0, max: 20 }),
-        }),
-        (base) => {
-          const game = { ...base, pointLog: [] as Side[] };
-          expect(undoLastPoint(game)).toBe(game);
         },
       ),
     );

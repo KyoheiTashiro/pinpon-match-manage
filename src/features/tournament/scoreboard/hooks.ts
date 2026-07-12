@@ -8,9 +8,8 @@ import {
   gameFirstServer,
   gameWinner,
   isGameFinished,
-  lastScorer,
   matchSummary,
-  undoLastPoint,
+  removePointFromGame,
 } from "@/domain/match";
 import type { ScoreInputProps, SideView } from "@/features/tournament/scoreboard/types";
 import { useState, useSyncExternalStore } from "react";
@@ -137,13 +136,9 @@ export const useScoreboard = ({
   };
 
   const undoPoint = (displaySide: Side) => {
-    if (locked || !current || lastScorer(current) !== toActual(displaySide)) return;
-    updateCurrent(undoLastPoint);
+    if (locked) return;
+    updateCurrent((game) => removePointFromGame(game, toActual(displaySide)));
   };
-
-  const rawLastScorer = lastScorer(current ?? { leftScore: 0, rightScore: 0 });
-  const canSubLeft = rawLastScorer === toActual(SIDE.LEFT);
-  const canSubRight = rawLastScorer === toActual(SIDE.RIGHT);
 
   const matchWinner = pick(rawMatchWinner, flip(rawMatchWinner));
   const winner = pick(rawWinner, flip(rawWinner));
@@ -157,13 +152,7 @@ export const useScoreboard = ({
   const displayLeftMatchPoint = pick(leftMatchPoint, rightMatchPoint);
   const displayRightMatchPoint = pick(rightMatchPoint, leftMatchPoint);
 
-  const sideView = (
-    side: Side,
-    name: string,
-    score: number,
-    isMatchPoint: boolean,
-    canSub: boolean,
-  ): SideView => ({
+  const sideView = (side: Side, name: string, score: number, isMatchPoint: boolean): SideView => ({
     name,
     score,
     isGameWinner: winner === side,
@@ -172,20 +161,13 @@ export const useScoreboard = ({
     isServing: server === side,
     disabled: locked,
     disableAdd: winner === side,
-    canSub,
     onAdd: () => addPoint(side),
     onSub: () => undoPoint(side),
   });
 
   const scoreInputProps: ScoreInputProps = {
-    left: sideView(SIDE.LEFT, displayLeftName, displayLeftScore, displayLeftMatchPoint, canSubLeft),
-    right: sideView(
-      SIDE.RIGHT,
-      displayRightName,
-      displayRightScore,
-      displayRightMatchPoint,
-      canSubRight,
-    ),
+    left: sideView(SIDE.LEFT, displayLeftName, displayLeftScore, displayLeftMatchPoint),
+    right: sideView(SIDE.RIGHT, displayRightName, displayRightScore, displayRightMatchPoint),
     leftWins: displayLeftWins,
     rightWins: displayRightWins,
     matchWinner,

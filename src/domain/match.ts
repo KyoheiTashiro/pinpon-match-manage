@@ -73,15 +73,14 @@ export const addPointToGame = (game: Game, side: Side): Game => {
   return { ...game, ...scoresFromLog(log), pointLog: log };
 };
 
-export const undoLastPoint = (game: Game): Game => {
+export const removePointFromGame = (game: Game, side: Side): Game => {
+  const key = side === SIDE.LEFT ? "leftScore" : "rightScore";
+  if (game[key] <= 0) return game;
+  const next: Game = { ...game, [key]: game[key] - 1 };
   const log = game.pointLog;
-  if (!log || log.length === 0) return game;
-  const newLog = log.slice(0, -1);
-  return { ...game, ...scoresFromLog(newLog), pointLog: newLog };
-};
-
-export const lastScorer = (game: Game): Side | null => {
-  const log = game.pointLog;
-  if (!log || log.length === 0) return null;
-  return log.at(-1) ?? null;
+  if (log) {
+    const lastIndex = log.lastIndexOf(side);
+    if (lastIndex !== -1) next.pointLog = [...log.slice(0, lastIndex), ...log.slice(lastIndex + 1)];
+  }
+  return next;
 };

@@ -14,7 +14,6 @@ const baseLeft: SideView = {
   isServing: true,
   disabled: false,
   disableAdd: false,
-  canSub: true,
   onAdd: fn<() => void>(),
   onSub: fn<() => void>(),
 };
@@ -80,9 +79,8 @@ export const Locked: Story = {
       isServing: false,
       disabled: true,
       disableAdd: true,
-      canSub: false,
     },
-    right: { ...baseRight, score: 8, isServing: false, disabled: true, canSub: false },
+    right: { ...baseRight, score: 8, isServing: false, disabled: true },
     leftWins: 3,
     rightWins: 1,
     matchWinner: SIDE.LEFT,

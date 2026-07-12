@@ -265,7 +265,7 @@ describe("ScoreboardScreen", () => {
     expect(screen.getByRole("button", { name: "選手B を1減らす" })).toBeDisabled();
   });
 
-  it("直前得点が右なら左減点が disabled で右減点は enabled", async () => {
+  it("相手が直前に得点していても自側の減点ができる", async () => {
     const user = userEvent.setup();
     render(
       <ScoreboardWrapper
@@ -281,9 +281,22 @@ describe("ScoreboardScreen", () => {
       expect(screen.getByText("1")).toBeInTheDocument();
     });
 
-    // 直前得点が右(B) → canSubLeft=false → 左減点 disabled
+    // 直前得点が右(B)でも、左(A)はスコア0のため減点は disabled（スコア0が理由）
     expect(screen.getByRole("button", { name: "選手A を1減らす" })).toBeDisabled();
     expect(screen.getByRole("button", { name: "選手B を1減らす" })).not.toBeDisabled();
+
+    // 左(A)にも加点し両者スコア>0にすると、相手が直前得点者でも両方の減点ボタンが enabled になる
+    await user.click(screen.getByRole("button", { name: "選手A を1増やす" }));
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "選手A を1減らす" })).not.toBeDisabled();
+    });
+    expect(screen.getByRole("button", { name: "選手B を1減らす" })).not.toBeDisabled();
+
+    // 右(B)を減点するとスコアが 1→0 に戻り、減点ボタンが再び disabled になる
+    await user.click(screen.getByRole("button", { name: "選手B を1減らす" }));
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "選手B を1減らす" })).toBeDisabled();
+    });
   });
 
   it("ゲーム winner 確定後に勝者側の加点ボタンが disabled になる", async () => {

@@ -154,7 +154,7 @@
   - 試合勝者カラムは背景が `bg-success/20 border-success`、それ以外は `bg-neutral-900 border-white/30`
   - スコアカード中央に横線（黒・3px）を挟んで上下半分を視覚的に分割
   - +1 ボタン: `score >= 50`（`MAX_SCORE`）のときも disabled。ゲーム勝者側はすでにゲーム終了しているため disabled（`disableAdd={winner === side}`）
-  - −1 ボタン: `score <= 0` または「直前の得点者が自分でない（`canSub === false`）」場合 disabled。最後に得点した側しかundo不可
+  - −1 ボタン: `score <= 0` の場合のみ disabled。スコアが0より大きければ直前の得点者に関わらず常に減点可能
   - ロック済の場合は全ボタン disabled、「入力不可」テキストを下部に表示（`text-white/50`）
 - 下部: サーブ権インジケーター（`h-2 sm:h-3 rounded-full`）。サーブ権あり → `bg-orange-500`、なし → 透明
 
@@ -167,7 +167,7 @@
 ### スコアボード操作ロジック
 
 - **+1 操作**: `addPointToGame(game, side)` → `pointLog` に `side` を追記 → `leftScore`/`rightScore` を `pointLog` から再計算
-- **−1 操作（undo）**: 直前の得点者（`lastScorer(game)`）と操作側が一致する場合のみ `undoLastPoint(game)` を実行。`pointLog` の末尾を削除して再計算
+- **−1 操作**: `removePointFromGame(game, side)` を実行。スコアが0より大きければ常に減点可能（直前の得点者との一致は問わない）。`pointLog` から該当 `side` の最後の出現を1つ削除して再計算（`pointLog` に無い場合はスコアのみ減算）
 - **swapped 状態**: 表示上の左右を反転する。実際の `leftSide`/`rightSide` への書き込みは常に論理側で行う
 - **ゲームのロック**: `lockedGameStartIndex` 以降のゲームはすべて入力不可。`lockedGameStartIndex` は試合勝者が確定した次のゲームインデックス
 

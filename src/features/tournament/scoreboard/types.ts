@@ -9,7 +9,6 @@ export type SideView = {
   isServing: boolean;
   disabled: boolean;
   disableAdd: boolean;
-  canSub: boolean;
   onAdd: () => void;
   onSub: () => void;
 };
