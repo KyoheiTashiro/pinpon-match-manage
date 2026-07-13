@@ -17,6 +17,6 @@ export type FormType = z.infer<typeof Schema>;
 export const defaultValues: FormType = {
   name: "",
   format: FORMAT.SINGLES,
-  bestOf: 3,
+  bestOf: 5,
   date: new Date().toISOString().slice(0, 10),
 };
