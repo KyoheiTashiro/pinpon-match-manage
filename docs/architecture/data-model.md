@@ -35,8 +35,7 @@ type Game = {
 };
 
 type MatchSide =
-  | { kind: "single"; participantId: string }
-  | { kind: "pair"; memberIds: [string, string] };
+  { kind: "single"; participantId: string } | { kind: "pair"; memberIds: [string, string] };
 
 type Match = {
   id: string;
