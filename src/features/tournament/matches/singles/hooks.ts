@@ -1,4 +1,5 @@
-import { matchSummary, winsNeededForBestOf, SIDE } from "@/domain/match";
+import { matchSummary, SIDE } from "@/domain/match";
+import { pairKey } from "@/domain/side";
 import type { MatrixResult } from "@/features/tournament/matches/components/MatchMatrix";
 import { useMatches, useMatchModal } from "@/features/tournament/matches/hooks";
 import { SIDE_KIND, type Match, type Participant } from "@/store/types";
@@ -7,12 +8,8 @@ import { useMemo } from "react";
 
 export const MIN_PLAYERS_SINGLES = 2;
 
-export const involvesSingle = (match: Match, id: string) =>
-  (match.leftSide.kind === SIDE_KIND.SINGLE && match.leftSide.participantId === id) ||
-  (match.rightSide.kind === SIDE_KIND.SINGLE && match.rightSide.participantId === id);
-
 export const useSingles = (tournamentId: string) => {
-  const { tournament, participants, matchList, players } = useMatches(tournamentId);
+  const { tournament, participants, matchList, players, wins } = useMatches(tournamentId);
   const { openMatchId, openMatch, closeMatch } = useMatchModal();
 
   const singlesCellMatch = useMemo(() => {
@@ -20,10 +17,7 @@ export const useSingles = (tournamentId: string) => {
     for (const match of matchList) {
       if (match.leftSide.kind !== SIDE_KIND.SINGLE || match.rightSide.kind !== SIDE_KIND.SINGLE)
         continue;
-      const leftId = match.leftSide.participantId;
-      const rightId = match.rightSide.participantId;
-      const key = [leftId, rightId].toSorted().join("|");
-      map.set(key, match);
+      map.set(pairKey(match.leftSide.participantId, match.rightSide.participantId), match);
     }
     return map;
   }, [matchList]);
@@ -42,6 +36,7 @@ export const useSingles = (tournamentId: string) => {
     tournament,
     participants,
     players,
+    wins,
     allPairs,
     singlesCellMatch,
     openMatchId,
@@ -72,7 +67,7 @@ export const buildSinglesRows = (
   wins: number,
 ): SinglesRow[] =>
   allPairs.map(({ a, b }) => {
-    const key = [a.id, b.id].toSorted().join("|");
+    const key = pairKey(a.id, b.id);
     const match = singlesCellMatch.get(key);
     const summary = match ? matchSummary(match.games, wins) : null;
     const hasScore = !!match && (summary?.finished === true || match.games.length > 0);
@@ -111,10 +106,9 @@ export const buildSinglesRows = (
   });
 
 export const useSinglesList = (tournamentId: string) => {
-  const { tournament, participants, players, allPairs, singlesCellMatch, ...modal } =
+  const { tournament, participants, players, wins, allPairs, singlesCellMatch, ...modal } =
     useSingles(tournamentId);
   const addManualMatch = useAppStore((state) => state.addManualMatch);
-  const wins = tournament ? winsNeededForBestOf(tournament.bestOf) : 0;
 
   const rows = useMemo(
     () => buildSinglesRows(allPairs, singlesCellMatch, wins),
@@ -150,13 +144,13 @@ export const useSinglesMatrix = (tournamentId: string) => {
     tournament,
     participants,
     players,
+    wins,
     singlesCellMatch,
     openMatchId,
     openMatch,
     closeMatch,
   } = useSingles(tournamentId);
   const addManualMatch = useAppStore((state) => state.addManualMatch);
-  const wins = tournament ? winsNeededForBestOf(tournament.bestOf) : 0;
 
   const results = useMemo(() => {
     const list: MatrixResult[] = [];
@@ -179,8 +173,7 @@ export const useSinglesMatrix = (tournamentId: string) => {
   }, [singlesCellMatch, wins]);
 
   const selectCell = (rowPlayerId: string, columnPlayerId: string) => {
-    const pairKey = [rowPlayerId, columnPlayerId].toSorted().join("|");
-    const match = singlesCellMatch.get(pairKey);
+    const match = singlesCellMatch.get(pairKey(rowPlayerId, columnPlayerId));
     if (match) {
       openMatch(match.id);
       return;

@@ -1,12 +1,8 @@
 import { SegmentedControl } from "@/components/ui";
 import { DoublesList } from "@/features/tournament/matches/doubles";
-import {
-  MATCHES_VIEW,
-  useMatchesView,
-  useTournamentFormat,
-} from "@/features/tournament/matches/hooks";
+import { useMatchesView, useTournamentFormat } from "@/features/tournament/matches/hooks";
 import { SinglesList, SinglesMatrix } from "@/features/tournament/matches/singles";
-import { FORMAT } from "@/store/types";
+import { FORMAT, MATCHES_VIEW } from "@/store/types";
 import { useParams } from "react-router-dom";
 
 export const MatchesTab = () => {

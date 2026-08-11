@@ -1,5 +1,6 @@
 import { WinnerBadge } from "@/components/domain";
 import { Badge } from "@/components/ui";
+import { pairKey } from "@/domain/side";
 
 export type MatrixPlayer = {
   id: string;
@@ -91,8 +92,7 @@ export const MatchMatrix = ({ players, results, onSelectCell }: Props) => {
 
   const resultByPairKey = new Map<string, MatrixResult>();
   for (const result of results) {
-    const pairKey = [result.playerAId, result.playerBId].toSorted().join("|");
-    resultByPairKey.set(pairKey, result);
+    resultByPairKey.set(pairKey(result.playerAId, result.playerBId), result);
   }
 
   return (
@@ -136,11 +136,10 @@ export const MatchMatrix = ({ players, results, onSelectCell }: Props) => {
                   );
                 }
 
-                const pairKey = [rowPlayer.id, columnPlayer.id].toSorted().join("|");
                 const cellView = buildCellView(
                   rowPlayer,
                   columnPlayer,
-                  resultByPairKey.get(pairKey),
+                  resultByPairKey.get(pairKey(rowPlayer.id, columnPlayer.id)),
                 );
                 const cellContent = (
                   <span className="flex flex-col items-center justify-center gap-0.5">

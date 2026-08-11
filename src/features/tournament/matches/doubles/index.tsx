@@ -1,11 +1,11 @@
 import { DownloadIcon } from "@/components/icons";
 import { Button, EmptyState, Select } from "@/components/ui";
 import { matchSummary, SIDE } from "@/domain/match";
+import { sideName } from "@/domain/side";
 import { MatchesHeader } from "@/features/tournament/matches/components/MatchesHeader";
 import { MatchModal } from "@/features/tournament/matches/components/MatchModal";
 import { useDoubles, MIN_PLAYERS_DOUBLES } from "@/features/tournament/matches/doubles/hooks";
 import type { DoublesPairForm } from "@/features/tournament/matches/doubles/schema";
-import { sideName } from "@/features/tournament/matches/hooks";
 import { Controller } from "react-hook-form";
 
 type FieldName = keyof DoublesPairForm;

@@ -1,4 +1,3 @@
-import { winsNeededForBestOf } from "@/domain/match";
 import {
   doublesPairSchema,
   type DoublesPairForm,
@@ -14,7 +13,7 @@ import { useForm } from "react-hook-form";
 export const MIN_PLAYERS_DOUBLES = 4;
 
 export const useDoubles = (tournamentId: string) => {
-  const { tournament, participants, matchList, players } = useMatches(tournamentId);
+  const { tournament, participants, matchList, players, wins } = useMatches(tournamentId);
   const { openMatchId, openMatch, closeMatch } = useMatchModal();
   const { ref, saving, save } = useImageCapture();
   const addManualMatch = useAppStore((state) => state.addManualMatch);
@@ -34,8 +33,6 @@ export const useDoubles = (tournamentId: string) => {
     pairForm.reset();
     openMatch(id);
   });
-
-  const wins = tournament ? winsNeededForBestOf(tournament.bestOf) : 0;
 
   return {
     tournament,

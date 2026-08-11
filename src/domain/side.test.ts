@@ -1,4 +1,4 @@
-import { sideMembers, sideName } from "@/domain/side";
+import { pairKey, sideMembers, sideName } from "@/domain/side";
 import { SIDE_KIND, type MatchSide, type Participant } from "@/store/types";
 import { describe, it, expect } from "vitest";
 
@@ -41,6 +41,20 @@ describe("sideMembers", () => {
     const side: MatchSide = { kind: SIDE_KIND.PAIR, memberIds: ["p1", "p2"] };
     const result = sideMembers(side);
     expect(result).not.toBe((side as { memberIds: string[] }).memberIds);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// pairKey
+// ---------------------------------------------------------------------------
+
+describe("pairKey", () => {
+  it("引数順を入れ替えても同一キー", () => {
+    expect(pairKey("p1", "p2")).toBe(pairKey("p2", "p1"));
+  });
+
+  it("異なる組み合わせは別キー", () => {
+    expect(pairKey("p1", "p2")).not.toBe(pairKey("p1", "p3"));
   });
 });
 

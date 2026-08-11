@@ -1,8 +1,7 @@
+import { winsNeededForBestOf } from "@/domain/match";
 import { matchesOf } from "@/store/selectors";
 import { useAppStore } from "@/store/useAppStore";
 import { useMemo, useState } from "react";
-
-export { sideMembers, sideName } from "@/domain/side";
 
 export const useMatches = (tournamentId: string) => {
   const tournament = useAppStore((state) => state.tournaments[tournamentId]);
@@ -20,6 +19,7 @@ export const useMatches = (tournamentId: string) => {
     participants,
     matchList,
     players,
+    wins: tournament ? winsNeededForBestOf(tournament.bestOf) : 0,
   };
 };
 
@@ -34,8 +34,6 @@ export const useMatchModal = () => {
     closeMatch: () => setOpenMatchId(null),
   };
 };
-
-export { MATCHES_VIEW, type MatchesView } from "@/store/types";
 
 export const useMatchesView = () => {
   const view = useAppStore((state) => state.matchesView);
