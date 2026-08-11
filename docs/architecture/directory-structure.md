@@ -62,7 +62,7 @@ src/
 │       │   ├── matchState.ts       // MATCH_STATE / STATE_BADGE（リスト・マトリクス共通の状態→バッジ・背景）
 │       │   ├── components/
 │       │   │   ├── FirstServerSelect.tsx  // 最初のサーブ選択
-│       │   │   ├── MatchesHeader.tsx      // 対戦表カード上部の大会名・日付（シングルス/マトリクス/ダブルス共有）
+│       │   │   ├── MatchesCard.tsx        // 対戦表カード枠＋大会名・日付ヘッダ（シングルス/マトリクス/ダブルス共有）
 │       │   │   └── MatchModal.tsx         // 試合詳細モーダル（点数加減UIはScoreboardへ）
 │       │   ├── singles/
 │       │   │   ├── index.ts        // barrel export
@@ -70,7 +70,9 @@ src/
 │       │   │   ├── SinglesMatrix.tsx  // シングルス対戦表（マトリクス表示）
 │       │   │   └── hooks.ts        // useSinglesList / useSinglesMatrix（行データ導出 buildSinglesRows）
 │       │   └── doubles/
-│       │       ├── index.tsx       // DoublesList（ダブルス対戦表＋試合追加フォーム）
+│       │       ├── index.ts        // barrel export
+│       │       ├── DoublesList.tsx    // ダブルス対戦表（試合一覧）
+│       │       ├── PairSelectForm.tsx // 試合追加フォーム（左右ペアの選手選択）
 │       │       ├── hooks.ts
 │       │       └── schema.ts       // ダブルス試合追加フォームの zod スキーマ
 │       ├── scoreboard/             // スコアボード（試合進行中・横向き前提）

@@ -1,4 +1,4 @@
-import { MatchesHeader } from "@/features/tournament/matches/components/MatchesHeader";
+import { MatchesCard } from "@/features/tournament/matches/components/MatchesCard";
 import { MatchMatrix } from "@/features/tournament/matches/components/MatchMatrix";
 import { MatchModal } from "@/features/tournament/matches/components/MatchModal";
 import { useSinglesMatrix } from "@/features/tournament/matches/singles/hooks";
@@ -9,10 +9,9 @@ export const SinglesMatrix = ({ tournamentId }: { tournamentId: string }) => {
   if (!tournament) return null;
   return (
     <div className="space-y-4">
-      <div className="space-y-2 bg-white p-3">
-        <MatchesHeader tournament={tournament} />
+      <MatchesCard tournament={tournament}>
         <MatchMatrix players={players} results={results} onSelectCell={openOrCreate} />
-      </div>
+      </MatchesCard>
       {openMatchId && (
         <MatchModal matchId={openMatchId} participants={participants} onClose={closeMatch} />
       )}

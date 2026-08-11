@@ -1,7 +1,7 @@
 import { WinnerBadge } from "@/components/domain";
 import { ChevronDownIcon } from "@/components/icons/ChevronDownIcon";
 import { Badge } from "@/components/ui";
-import { MatchesHeader } from "@/features/tournament/matches/components/MatchesHeader";
+import { MatchesCard } from "@/features/tournament/matches/components/MatchesCard";
 import { MatchModal } from "@/features/tournament/matches/components/MatchModal";
 import { MATCH_STATE, STATE_BADGE } from "@/features/tournament/matches/matchState";
 import { useSinglesList } from "@/features/tournament/matches/singles/hooks";
@@ -14,8 +14,7 @@ export const SinglesList = ({ tournamentId }: { tournamentId: string }) => {
 
   return (
     <div className="space-y-4">
-      <div className="space-y-2 bg-white p-3">
-        <MatchesHeader tournament={tournament} />
+      <MatchesCard tournament={tournament}>
         <ul className="divide-line border-line divide-y-2 overflow-hidden rounded-2xl border-2">
           {rows.map((row) => (
             <li key={row.key} className={STATE_BADGE[row.state].backgroundClassName}>
@@ -47,7 +46,7 @@ export const SinglesList = ({ tournamentId }: { tournamentId: string }) => {
             </li>
           ))}
         </ul>
-      </div>
+      </MatchesCard>
 
       {openMatchId && (
         <MatchModal matchId={openMatchId} participants={participants} onClose={closeMatch} />

@@ -2,7 +2,7 @@
 
 ルート: 対戦表タブ (`/#/tournaments/:id/matches`・HashRouter) + 試合詳細モーダル + スコアボード（ポータル） — 総当たり組合せの表示・試合詳細入力・スコアボードを統合する画面群。
 
-実装: 対戦表本体は `src/features/tournament/matches/`（`index.tsx` が形式に応じ `singles/SinglesList.tsx` の `SinglesList` / `doubles/index.tsx` の `DoublesList` を出し分け）。試合詳細モーダル・サーブ選択は `matches/components/`（`MatchModal.tsx` / `FirstServerSelect.tsx`）。大会名・日付ヘッダは `matches/components/MatchesHeader.tsx`（シングルス/マトリクス/ダブルス共有）。スコアボードは `src/features/tournament/scoreboard/`。
+実装: 対戦表本体は `src/features/tournament/matches/`（`index.tsx` が形式に応じ `singles/SinglesList.tsx` の `SinglesList` / `doubles/DoublesList.tsx` の `DoublesList` を出し分け）。試合詳細モーダル・サーブ選択は `matches/components/`（`MatchModal.tsx` / `FirstServerSelect.tsx`）。カード枠と大会名・日付ヘッダは `matches/components/MatchesCard.tsx`（シングルス/マトリクス/ダブルス共有）。スコアボードは `src/features/tournament/scoreboard/`。
 
 ## 対戦表示
 
@@ -17,11 +17,11 @@
   - 終了時は勝者を上・敗者を下に並べ替えて表示する
 - 行右端に `ChevronDownIcon`（`-rotate-90`）を配置
 
-### ダブルス (`DoublesList` — `matches/doubles/index.tsx`)
+### ダブルス (`DoublesList` — `matches/doubles/DoublesList.tsx`)
 
 - 見出し: 「対戦表（ダブルス）」（`matches/index.tsx` の `MatchesView` が出す）
 - 参加者が4人未満の場合は「参加者を4人以上 登録してください。」を表示（見出しのみ残り、試合追加フォーム・試合一覧カードは表示しない）
-- 4人以上の場合は試合追加フォーム（`DoublesList` 内にインライン実装。ペア選択フォームの zod スキーマは `matches/doubles/schema.ts`）を上部に表示
+- 4人以上の場合は試合追加フォーム（`matches/doubles/PairSelectForm.tsx`。zod スキーマは `matches/doubles/schema.ts`）を上部に表示
 - 試合一覧はリスト形式（`<ul>`）で表示。各行に「ペア名 対 ペア名」「ゲーム取得数」「勝者名 の勝ち / 途中」を表示
 - 試合がない場合は「まだ試合がありません。」を表示
 - 対戦表タブに画像保存はない（画像保存は結果タブのみ）
