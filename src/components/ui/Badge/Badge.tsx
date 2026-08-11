@@ -1,11 +1,11 @@
 import type { HTMLAttributes, ReactNode } from "react";
 
-type Tone = "primary" | "success" | "warning" | "danger" | "neutral";
+export type BadgeTone = "primary" | "success" | "warning" | "danger" | "neutral";
 type Appearance = "solid" | "soft" | "outline";
 type Size = "sm" | "md";
 
 type Props = HTMLAttributes<HTMLSpanElement> & {
-  tone?: Tone;
+  tone?: BadgeTone;
   appearance?: Appearance;
   size?: Size;
   children: ReactNode;
@@ -16,7 +16,7 @@ const sizes: Record<Size, string> = {
   md: "px-3 py-1 text-sm",
 };
 
-const styles: Record<Appearance, Record<Tone, string>> = {
+const styles: Record<Appearance, Record<BadgeTone, string>> = {
   solid: {
     primary: "bg-primary text-white",
     success: "bg-success text-white",

@@ -2,15 +2,15 @@ import { matchSummary, SIDE } from "@/domain/match";
 import { pairKey } from "@/domain/side";
 import type { MatrixResult } from "@/features/tournament/matches/components/MatchMatrix";
 import { useMatches, useMatchModal } from "@/features/tournament/matches/hooks";
+import { MATCH_STATE, type MatchState } from "@/features/tournament/matches/matchState";
 import { SIDE_KIND, type Match, type Participant } from "@/store/types";
 import { useAppStore } from "@/store/useAppStore";
 import { useMemo } from "react";
 
-export const MIN_PLAYERS_SINGLES = 2;
-
 export const useSingles = (tournamentId: string) => {
   const { tournament, participants, matchList, players, wins } = useMatches(tournamentId);
   const { openMatchId, openMatch, closeMatch } = useMatchModal();
+  const addManualMatch = useAppStore((state) => state.addManualMatch);
 
   const singlesCellMatch = useMemo(() => {
     const map = new Map<string, Match>();
@@ -32,6 +32,19 @@ export const useSingles = (tournamentId: string) => {
     return pairs;
   }, [players]);
 
+  /** 既存の試合があれば開き、無ければ作成してから開く（リスト行・マトリクスセル共通） */
+  const openOrCreate = (aId: string, bId: string) => {
+    const match = singlesCellMatch.get(pairKey(aId, bId));
+    openMatch(
+      match?.id ??
+        addManualMatch(
+          tournamentId,
+          { kind: SIDE_KIND.SINGLE, participantId: aId },
+          { kind: SIDE_KIND.SINGLE, participantId: bId },
+        ),
+    );
+  };
+
   return {
     tournament,
     participants,
@@ -39,8 +52,8 @@ export const useSingles = (tournamentId: string) => {
     wins,
     allPairs,
     singlesCellMatch,
+    openOrCreate,
     openMatchId,
-    openMatch,
     closeMatch,
   };
 };
@@ -54,9 +67,8 @@ export type SinglesRow = {
   rightName: string;
   leftWins: number | undefined;
   rightWins: number | undefined;
-  hasScore: boolean;
-  finished: boolean;
-  inProgress: boolean;
+  /** 勝者を上段へ寄せるため負け行は生じない（LOST は使わない） */
+  state: MatchState;
   ariaLabel: string;
 };
 
@@ -96,9 +108,11 @@ export const buildSinglesRows = (
       rightName,
       leftWins,
       rightWins,
-      hasScore,
-      finished,
-      inProgress,
+      state: finished
+        ? MATCH_STATE.WON
+        : inProgress
+          ? MATCH_STATE.IN_PROGRESS
+          : MATCH_STATE.UNPLAYED,
       ariaLabel: hasScore
         ? `${leftName} 対 ${rightName} ${leftWins}-${rightWins}${inProgress ? " 途中" : ""} 編集`
         : `${a.name} 対 ${b.name} 対戦追加`,
@@ -106,34 +120,19 @@ export const buildSinglesRows = (
   });
 
 export const useSinglesList = (tournamentId: string) => {
-  const { tournament, participants, players, wins, allPairs, singlesCellMatch, ...modal } =
+  const { tournament, participants, wins, allPairs, singlesCellMatch, openOrCreate, ...modal } =
     useSingles(tournamentId);
-  const addManualMatch = useAppStore((state) => state.addManualMatch);
 
   const rows = useMemo(
     () => buildSinglesRows(allPairs, singlesCellMatch, wins),
     [allPairs, singlesCellMatch, wins],
   );
 
-  const openRow = (row: SinglesRow) => {
-    if (row.matchId) {
-      modal.openMatch(row.matchId);
-      return;
-    }
-    const id = addManualMatch(
-      tournamentId,
-      { kind: SIDE_KIND.SINGLE, participantId: row.aId },
-      { kind: SIDE_KIND.SINGLE, participantId: row.bId },
-    );
-    modal.openMatch(id);
-  };
-
   return {
     tournament,
     participants,
-    players,
     rows,
-    openRow,
+    openOrCreate,
     openMatchId: modal.openMatchId,
     closeMatch: modal.closeMatch,
   };
@@ -146,11 +145,10 @@ export const useSinglesMatrix = (tournamentId: string) => {
     players,
     wins,
     singlesCellMatch,
+    openOrCreate,
     openMatchId,
-    openMatch,
     closeMatch,
   } = useSingles(tournamentId);
-  const addManualMatch = useAppStore((state) => state.addManualMatch);
 
   const results = useMemo(() => {
     const list: MatrixResult[] = [];
@@ -172,19 +170,5 @@ export const useSinglesMatrix = (tournamentId: string) => {
     return list;
   }, [singlesCellMatch, wins]);
 
-  const selectCell = (rowPlayerId: string, columnPlayerId: string) => {
-    const match = singlesCellMatch.get(pairKey(rowPlayerId, columnPlayerId));
-    if (match) {
-      openMatch(match.id);
-      return;
-    }
-    const id = addManualMatch(
-      tournamentId,
-      { kind: SIDE_KIND.SINGLE, participantId: rowPlayerId },
-      { kind: SIDE_KIND.SINGLE, participantId: columnPlayerId },
-    );
-    openMatch(id);
-  };
-
-  return { tournament, participants, players, results, selectCell, openMatchId, closeMatch };
+  return { tournament, participants, players, results, openOrCreate, openMatchId, closeMatch };
 };

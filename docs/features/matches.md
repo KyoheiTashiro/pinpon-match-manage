@@ -8,19 +8,19 @@
 
 ### シングルス (`SinglesList` — `matches/singles/SinglesList.tsx`。行の表示データ導出は `singles/hooks.ts` の `buildSinglesRows`)
 
-- 参加者が2人未満の場合は「参加者を2人以上 登録してください。」を表示
+- 参加者が2人未満の場合は「参加者を2人以上 登録してください。」を表示（リスト／マトリクスに共通。判定・文言は `matches/index.tsx` の `MatchesView` の1箇所。最小人数は `matches/constants.ts` の `MIN_PLAYERS`）
 - 2人以上の場合は全ペアをリスト形式（`<ul>`）で表示する。大会名・日付を上部に表示
-- 各行の構成（`i < j` の全組合せ順）:
+- 各行の構成（`i < j` の全組合せ順）。状態→バッジ・背景の対応は `matches/matchState.ts` の `STATE_BADGE` に集約（マトリクス表示と共通）:
   - 未対戦: Badge「対戦」（`tone="primary"` `appearance="solid"`）を右端に表示。タップで試合を新規作成しモーダルを開く
   - 対戦済（進行中）: ゲーム取得数（例 `1-0`）+ Badge「途中」（`tone="warning"`）。行背景 `bg-warning/10`
-  - 対戦済（終了）: ゲーム取得数 + Badge「終了」（`tone="success"`）。行背景 `bg-winBg`。勝者名の左に金色トロフィーアイコンを表示
+  - 対戦済（終了）: ゲーム取得数 + Badge「終了」（`tone="neutral"`）。行背景 `bg-winBg`。勝者名の左に金色トロフィーアイコンを表示
   - 終了時は勝者を上・敗者を下に並べ替えて表示する
 - 行右端に `ChevronDownIcon`（`-rotate-90`）を配置
 
 ### ダブルス (`DoublesList` — `matches/doubles/index.tsx`)
 
-- 見出し: 「対戦表（ダブルス）」
-- 参加者が4人未満の場合は「参加者を4人以上 登録してください。」を表示
+- 見出し: 「対戦表（ダブルス）」（`matches/index.tsx` の `MatchesView` が出す）
+- 参加者が4人未満の場合は「参加者を4人以上 登録してください。」を表示（見出しのみ残り、試合追加フォーム・試合一覧カードは表示しない）
 - 4人以上の場合は試合追加フォーム（`DoublesList` 内にインライン実装。ペア選択フォームの zod スキーマは `matches/doubles/schema.ts`）を上部に表示
 - 試合一覧はリスト形式（`<ul>`）で表示。各行に「ペア名 対 ペア名」「ゲーム取得数」「勝者名 の勝ち / 途中」を表示
 - 試合がない場合は「まだ試合がありません。」を表示

@@ -56,8 +56,10 @@ src/
 │       │   ├── schema.ts           // 参加者名の zod スキーマ
 │       │   └── PastParticipantModal.tsx  // 過去大会から参加者を一括追加するモーダル
 │       ├── matches/                 // 対戦表タブ・試合詳細
-│       │   ├── index.tsx           // 形式に応じ Singles/Doubles を出し分け
+│       │   ├── index.tsx           // 形式に応じ Singles/Doubles を出し分け＋見出し・参加者数ガード
 │       │   ├── hooks.ts
+│       │   ├── constants.ts        // MIN_PLAYERS（形式ごとの最小参加者数）
+│       │   ├── matchState.ts       // MATCH_STATE / STATE_BADGE（リスト・マトリクス共通の状態→バッジ・背景）
 │       │   ├── components/
 │       │   │   ├── FirstServerSelect.tsx  // 最初のサーブ選択
 │       │   │   ├── MatchesHeader.tsx      // 対戦表カード上部の大会名・日付（シングルス/マトリクス/ダブルス共有）

@@ -4,7 +4,7 @@ import { matchSummary, SIDE } from "@/domain/match";
 import { sideName } from "@/domain/side";
 import { MatchesHeader } from "@/features/tournament/matches/components/MatchesHeader";
 import { MatchModal } from "@/features/tournament/matches/components/MatchModal";
-import { useDoubles, MIN_PLAYERS_DOUBLES } from "@/features/tournament/matches/doubles/hooks";
+import { useDoubles } from "@/features/tournament/matches/doubles/hooks";
 import type { DoublesPairForm } from "@/features/tournament/matches/doubles/schema";
 import { Controller } from "react-hook-form";
 
@@ -69,33 +69,27 @@ export const DoublesList = ({ tournamentId }: { tournamentId: string }) => {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-extrabold">対戦表（ダブルス）</h2>
-
-      {players.length < MIN_PLAYERS_DOUBLES ? (
-        <p className="text-sub">参加者を4人以上 登録してください。</p>
-      ) : (
-        <div className="border-primary space-y-3 rounded-2xl border-4 p-4">
-          <h3 className="text-lg font-extrabold">試合を追加</h3>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <div className="space-y-2">
-              <span className="font-bold">左ペア</span>
-              {LEFT_FIELDS.map((name) => renderField(name))}
-            </div>
-            <div className="space-y-2">
-              <span className="font-bold">右ペア</span>
-              {RIGHT_FIELDS.map((name) => renderField(name))}
-            </div>
+      <div className="border-primary space-y-3 rounded-2xl border-4 p-4">
+        <h3 className="text-lg font-extrabold">試合を追加</h3>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="space-y-2">
+            <span className="font-bold">左ペア</span>
+            {LEFT_FIELDS.map((name) => renderField(name))}
           </div>
-          <Button
-            disabled={!pairForm.formState.isValid}
-            onClick={() => {
-              void submit();
-            }}
-          >
-            試合を追加して入力へ
-          </Button>
+          <div className="space-y-2">
+            <span className="font-bold">右ペア</span>
+            {RIGHT_FIELDS.map((name) => renderField(name))}
+          </div>
         </div>
-      )}
+        <Button
+          disabled={!pairForm.formState.isValid}
+          onClick={() => {
+            void submit();
+          }}
+        >
+          試合を追加して入力へ
+        </Button>
+      </div>
 
       <div ref={ref} className="space-y-2 bg-white p-3">
         <MatchesHeader tournament={tournament} />
@@ -137,7 +131,7 @@ export const DoublesList = ({ tournamentId }: { tournamentId: string }) => {
         </ul>
       </div>
 
-      {players.length >= MIN_PLAYERS_DOUBLES && matchList.length > 0 && (
+      {matchList.length > 0 && (
         <Button className="w-fit" onClick={() => void save()} disabled={saving}>
           <span className="inline-flex items-center justify-center gap-2">
             <DownloadIcon />

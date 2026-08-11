@@ -10,8 +10,6 @@ import { useImageCapture } from "@/utils/imageCapture/useImageCapture";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
-export const MIN_PLAYERS_DOUBLES = 4;
-
 export const useDoubles = (tournamentId: string) => {
   const { tournament, participants, matchList, players, wins } = useMatches(tournamentId);
   const { openMatchId, openMatch, closeMatch } = useMatchModal();

@@ -75,10 +75,3 @@ export const ManyPlayers: Story = {
     results: MANY_RESULTS,
   },
 };
-
-export const TooFewPlayers: Story = {
-  args: {
-    players: [{ id: "p1", name: "田中 太郎" }],
-    results: [],
-  },
-};

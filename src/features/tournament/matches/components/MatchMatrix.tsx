@@ -1,6 +1,11 @@
 import { WinnerBadge } from "@/components/domain";
 import { Badge } from "@/components/ui";
 import { pairKey } from "@/domain/side";
+import {
+  MATCH_STATE,
+  STATE_BADGE,
+  type MatchState,
+} from "@/features/tournament/matches/matchState";
 
 export type MatrixPlayer = {
   id: string;
@@ -24,27 +29,9 @@ type Props = {
   onSelectCell?: (rowPlayerId: string, columnPlayerId: string) => void;
 };
 
-const MIN_PLAYERS = 2;
-
-const CELL_STATE = {
-  UNPLAYED: "unplayed",
-  IN_PROGRESS: "inProgress",
-  WON: "won",
-  LOST: "lost",
-} as const;
-type CellState = (typeof CELL_STATE)[keyof typeof CELL_STATE];
-
-const CELL_BADGE: Record<CellState, { tone: "primary" | "warning" | "neutral"; label: string }> = {
-  [CELL_STATE.UNPLAYED]: { tone: "primary", label: "対戦" },
-  [CELL_STATE.IN_PROGRESS]: { tone: "warning", label: "途中" },
-  [CELL_STATE.WON]: { tone: "neutral", label: "終了" },
-  [CELL_STATE.LOST]: { tone: "neutral", label: "終了" },
-};
-
 type CellView = {
-  state: CellState;
+  state: MatchState;
   scoreLabel: string | null;
-  backgroundClassName: string;
   ariaLabel: string;
 };
 
@@ -55,9 +42,8 @@ const buildCellView = (
 ): CellView => {
   if (!result) {
     return {
-      state: CELL_STATE.UNPLAYED,
+      state: MATCH_STATE.UNPLAYED,
       scoreLabel: null,
-      backgroundClassName: "bg-white",
       ariaLabel: `${rowPlayer.name} 対 ${columnPlayer.name} 対戦追加`,
     };
   }
@@ -69,27 +55,20 @@ const buildCellView = (
 
   if (!result.finished) {
     return {
-      state: CELL_STATE.IN_PROGRESS,
+      state: MATCH_STATE.IN_PROGRESS,
       scoreLabel,
-      backgroundClassName: "bg-warning/10",
       ariaLabel: `${rowPlayer.name} 対 ${columnPlayer.name} ${scoreLabel} 途中 編集`,
     };
   }
 
-  const rowWon = winsRow > winsOpponent;
   return {
-    state: rowWon ? CELL_STATE.WON : CELL_STATE.LOST,
+    state: winsRow > winsOpponent ? MATCH_STATE.WON : MATCH_STATE.LOST,
     scoreLabel,
-    backgroundClassName: rowWon ? "bg-winBg" : "bg-loseBg",
     ariaLabel: `${rowPlayer.name} 対 ${columnPlayer.name} ${scoreLabel} 終了 編集`,
   };
 };
 
 export const MatchMatrix = ({ players, results, onSelectCell }: Props) => {
-  if (players.length < MIN_PLAYERS) {
-    return <p className="text-sub">参加者を2人以上 登録してください。</p>;
-  }
-
   const resultByPairKey = new Map<string, MatrixResult>();
   for (const result of results) {
     resultByPairKey.set(pairKey(result.playerAId, result.playerBId), result);
@@ -141,18 +120,19 @@ export const MatchMatrix = ({ players, results, onSelectCell }: Props) => {
                   columnPlayer,
                   resultByPairKey.get(pairKey(rowPlayer.id, columnPlayer.id)),
                 );
+                const badge = STATE_BADGE[cellView.state];
                 const cellContent = (
                   <span className="flex flex-col items-center justify-center gap-0.5">
                     {cellView.scoreLabel && (
                       <span className="flex items-center gap-1">
-                        {cellView.state === CELL_STATE.WON && <WinnerBadge size="sm" />}
+                        {cellView.state === MATCH_STATE.WON && <WinnerBadge size="sm" />}
                         <span className="text-2xl font-extrabold whitespace-nowrap">
                           {cellView.scoreLabel}
                         </span>
                       </span>
                     )}
-                    <Badge tone={CELL_BADGE[cellView.state].tone} appearance="solid" size="md">
-                      {CELL_BADGE[cellView.state].label}
+                    <Badge tone={badge.tone} appearance="solid" size="md">
+                      {badge.label}
                     </Badge>
                   </span>
                 );
@@ -160,7 +140,7 @@ export const MatchMatrix = ({ players, results, onSelectCell }: Props) => {
                 return (
                   <td
                     key={columnPlayer.id}
-                    className={`h-cell p-0 text-center ${cellBorderClassName} ${cellView.backgroundClassName}`}
+                    className={`h-cell p-0 text-center ${cellBorderClassName} ${badge.backgroundClassName}`}
                   >
                     {onSelectCell ? (
                       <button

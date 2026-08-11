@@ -1,3 +1,4 @@
+import { MATCH_STATE } from "@/features/tournament/matches/matchState";
 import { buildSinglesRows } from "@/features/tournament/matches/singles/hooks";
 import { SIDE_KIND, type Match } from "@/store/types";
 import { makeGame, makeMatch, makeParticipant } from "@/test/factories";
@@ -15,9 +16,7 @@ describe("buildSinglesRows", () => {
       matchId: null,
       leftName: "選手A",
       rightName: "選手B",
-      hasScore: false,
-      finished: false,
-      inProgress: false,
+      state: MATCH_STATE.UNPLAYED,
       ariaLabel: "選手A 対 選手B 対戦追加",
     });
   });
@@ -31,9 +30,7 @@ describe("buildSinglesRows", () => {
       rightName: "選手B",
       leftWins: 1,
       rightWins: 0,
-      hasScore: true,
-      finished: false,
-      inProgress: true,
+      state: MATCH_STATE.IN_PROGRESS,
       ariaLabel: "選手A 対 選手B 1-0 途中 編集",
     });
   });
@@ -51,8 +48,7 @@ describe("buildSinglesRows", () => {
       rightName: "選手A",
       leftWins: 2,
       rightWins: 0,
-      finished: true,
-      inProgress: false,
+      state: MATCH_STATE.WON,
       ariaLabel: "選手B 対 選手A 2-0 編集",
     });
   });
@@ -72,7 +68,7 @@ describe("buildSinglesRows", () => {
       rightName: "選手B",
       leftWins: 2,
       rightWins: 0,
-      finished: true,
+      state: MATCH_STATE.WON,
     });
   });
 });
