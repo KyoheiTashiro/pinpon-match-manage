@@ -1,4 +1,3 @@
-import { DownloadIcon } from "@/components/icons";
 import { Button, EmptyState, Select } from "@/components/ui";
 import { matchSummary, SIDE } from "@/domain/match";
 import { sideName } from "@/domain/side";
@@ -31,9 +30,6 @@ export const DoublesList = ({ tournamentId }: { tournamentId: string }) => {
     closeMatch,
     pairForm,
     submit,
-    ref,
-    saving,
-    save,
   } = useDoubles(tournamentId);
   const values = pairForm.watch();
 
@@ -91,7 +87,7 @@ export const DoublesList = ({ tournamentId }: { tournamentId: string }) => {
         </Button>
       </div>
 
-      <div ref={ref} className="space-y-2 bg-white p-3">
+      <div className="space-y-2 bg-white p-3">
         <MatchesHeader tournament={tournament} />
         <ul className="divide-line border-line divide-y-2 overflow-hidden rounded-2xl border-2">
           {matchList.length === 0 ? (
@@ -130,15 +126,6 @@ export const DoublesList = ({ tournamentId }: { tournamentId: string }) => {
           )}
         </ul>
       </div>
-
-      {matchList.length > 0 && (
-        <Button className="w-fit" onClick={() => void save()} disabled={saving}>
-          <span className="inline-flex items-center justify-center gap-2">
-            <DownloadIcon />
-            {saving ? "保存中…" : "画像で保存"}
-          </span>
-        </Button>
-      )}
 
       {openMatchId && (
         <MatchModal matchId={openMatchId} participants={participants} onClose={closeMatch} />

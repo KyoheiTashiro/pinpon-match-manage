@@ -6,14 +6,12 @@ import {
 import { useMatches, useMatchModal } from "@/features/tournament/matches/hooks";
 import { SIDE_KIND } from "@/store/types";
 import { useAppStore } from "@/store/useAppStore";
-import { useImageCapture } from "@/utils/imageCapture/useImageCapture";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
 export const useDoubles = (tournamentId: string) => {
   const { tournament, participants, matchList, players, wins } = useMatches(tournamentId);
   const { openMatchId, openMatch, closeMatch } = useMatchModal();
-  const { ref, saving, save } = useImageCapture();
   const addManualMatch = useAppStore((state) => state.addManualMatch);
 
   const pairForm = useForm<DoublesPairForm>({
@@ -43,8 +41,5 @@ export const useDoubles = (tournamentId: string) => {
     closeMatch,
     pairForm,
     submit,
-    ref,
-    saving,
-    save,
   };
 };

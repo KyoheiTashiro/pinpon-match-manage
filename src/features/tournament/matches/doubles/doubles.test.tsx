@@ -365,50 +365,7 @@ describe("DoublesList", () => {
   });
 
   // -------------------------------------------------------------------------
-  // 11. SaveImageButton は参加者 4 人以上かつ試合 1 件以上で表示される
-  // -------------------------------------------------------------------------
-  it("参加者 4 人以上かつ試合あり → SaveImageButton が表示される", () => {
-    seedStore({
-      tournaments: {
-        t1: makeTournament({
-          id: "t1",
-          format: FORMAT.DOUBLES,
-          bestOf: 5,
-          participantIds: ["p1", "p2", "p3", "p4"],
-        }),
-      },
-      participants: {
-        p1: makeParticipant({ id: "p1", name: "選手A", tournamentId: "t1" }),
-        p2: makeParticipant({ id: "p2", name: "選手B", tournamentId: "t1" }),
-        p3: makeParticipant({ id: "p3", name: "選手C", tournamentId: "t1" }),
-        p4: makeParticipant({ id: "p4", name: "選手D", tournamentId: "t1" }),
-      },
-      matches: {
-        m1: makeMatch({
-          id: "m1",
-          tournamentId: "t1",
-          leftSide: { kind: SIDE_KIND.PAIR, memberIds: ["p1", "p2"] },
-          rightSide: { kind: SIDE_KIND.PAIR, memberIds: ["p3", "p4"] },
-          games: [],
-          firstServer: "L",
-        }),
-      },
-    });
-
-    renderWithStore(<DoublesList tournamentId="t1" />);
-
-    expect(screen.getByText("画像で保存")).toBeInTheDocument();
-  });
-
-  it("試合 0 件のとき SaveImageButton が表示されない", () => {
-    seedDoublesTournament();
-    renderWithStore(<DoublesList tournamentId="t1" />);
-
-    expect(screen.queryByText("画像で保存")).not.toBeInTheDocument();
-  });
-
-  // -------------------------------------------------------------------------
-  // 12. MatchModal 閉で消える
+  // 11. MatchModal 閉で消える
   // -------------------------------------------------------------------------
   it("MatchModal を閉じると非表示になる", async () => {
     const user = userEvent.setup();

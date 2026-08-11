@@ -2,7 +2,7 @@
 
 ルート: 対戦表タブ (`/#/tournaments/:id/matches`・HashRouter) + 試合詳細モーダル + スコアボード（ポータル） — 総当たり組合せの表示・試合詳細入力・スコアボードを統合する画面群。
 
-実装: 対戦表本体は `src/features/tournament/matches/`（`index.tsx` が形式に応じ `singles/SinglesList.tsx` の `SinglesList` / `doubles/index.tsx` の `DoublesList` を出し分け）。試合詳細モーダル・サーブ選択・画像保存ボタンは `matches/components/`（`MatchModal.tsx` / `FirstServerSelect.tsx` / `SaveImageButton.tsx`）。大会名・日付ヘッダは `matches/components/MatchesHeader.tsx`（シングルス/マトリクス/ダブルス共有）。スコアボードは `src/features/tournament/scoreboard/`。
+実装: 対戦表本体は `src/features/tournament/matches/`（`index.tsx` が形式に応じ `singles/SinglesList.tsx` の `SinglesList` / `doubles/index.tsx` の `DoublesList` を出し分け）。試合詳細モーダル・サーブ選択は `matches/components/`（`MatchModal.tsx` / `FirstServerSelect.tsx`）。大会名・日付ヘッダは `matches/components/MatchesHeader.tsx`（シングルス/マトリクス/ダブルス共有）。スコアボードは `src/features/tournament/scoreboard/`。
 
 ## 対戦表示
 
@@ -24,11 +24,7 @@
 - 4人以上の場合は試合追加フォーム（`DoublesList` 内にインライン実装。ペア選択フォームの zod スキーマは `matches/doubles/schema.ts`）を上部に表示
 - 試合一覧はリスト形式（`<ul>`）で表示。各行に「ペア名 対 ペア名」「ゲーム取得数」「勝者名 の勝ち / 途中」を表示
 - 試合がない場合は「まだ試合がありません。」を表示
-- 試合が1件以上あれば「画像で保存」ボタンを表示
-
-### 共通: 画像保存
-
-- 「画像で保存」ボタンのラベルは「対戦表」（保存処理中は「保存中…」）
+- 対戦表タブに画像保存はない（画像保存は結果タブのみ）
 
 ## 組合せ生成
 
