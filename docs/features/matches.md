@@ -2,11 +2,11 @@
 
 ルート: 対戦表タブ (`/#/tournaments/:id/matches`・HashRouter) + 試合詳細モーダル + スコアボード（ポータル） — 総当たり組合せの表示・試合詳細入力・スコアボードを統合する画面群。
 
-実装: 対戦表本体は `src/features/tournament/matches/`（`index.tsx` が形式に応じ `singles/index.tsx` の `SinglesList` / `doubles/index.tsx` の `DoublesList` を出し分け）。試合詳細モーダル・サーブ選択・画像保存ボタンは `matches/components/`（`MatchModal.tsx` / `FirstServerSelect.tsx` / `SaveImageButton.tsx`）。スコアボードは `src/features/tournament/scoreboard/`。
+実装: 対戦表本体は `src/features/tournament/matches/`（`index.tsx` が形式に応じ `singles/SinglesList.tsx` の `SinglesList` / `doubles/index.tsx` の `DoublesList` を出し分け）。試合詳細モーダル・サーブ選択・画像保存ボタンは `matches/components/`（`MatchModal.tsx` / `FirstServerSelect.tsx` / `SaveImageButton.tsx`）。大会名・日付ヘッダは `matches/components/MatchesHeader.tsx`（シングルス/マトリクス/ダブルス共有）。スコアボードは `src/features/tournament/scoreboard/`。
 
 ## 対戦表示
 
-### シングルス (`SinglesList` — `matches/singles/index.tsx`)
+### シングルス (`SinglesList` — `matches/singles/SinglesList.tsx`。行の表示データ導出は `singles/hooks.ts` の `buildSinglesRows`)
 
 - 参加者が2人未満の場合は「参加者を2人以上 登録してください。」を表示
 - 2人以上の場合は全ペアをリスト形式（`<ul>`）で表示する。大会名・日付を上部に表示

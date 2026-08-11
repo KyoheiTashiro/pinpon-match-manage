@@ -1,7 +1,7 @@
-import { matchSummary, winsNeededForBestOf } from "@/domain/match";
+import { matchSummary, winsNeededForBestOf, SIDE } from "@/domain/match";
 import type { MatrixResult } from "@/features/tournament/matches/components/MatchMatrix";
 import { useMatches, useMatchModal } from "@/features/tournament/matches/hooks";
-import { SIDE_KIND, type Match } from "@/store/types";
+import { SIDE_KIND, type Match, type Participant } from "@/store/types";
 import { useAppStore } from "@/store/useAppStore";
 import { useMemo } from "react";
 
@@ -47,6 +47,101 @@ export const useSingles = (tournamentId: string) => {
     openMatchId,
     openMatch,
     closeMatch,
+  };
+};
+
+export type SinglesRow = {
+  key: string;
+  aId: string;
+  bId: string;
+  matchId: string | null;
+  leftName: string;
+  rightName: string;
+  leftWins: number | undefined;
+  rightWins: number | undefined;
+  hasScore: boolean;
+  finished: boolean;
+  inProgress: boolean;
+  ariaLabel: string;
+};
+
+/** 総当たり組み合わせから1行分の表示データを導出（終了済みは勝者を上段へ寄せる） */
+export const buildSinglesRows = (
+  allPairs: { a: Participant; b: Participant }[],
+  singlesCellMatch: Map<string, Match>,
+  wins: number,
+): SinglesRow[] =>
+  allPairs.map(({ a, b }) => {
+    const key = [a.id, b.id].toSorted().join("|");
+    const match = singlesCellMatch.get(key);
+    const summary = match ? matchSummary(match.games, wins) : null;
+    const hasScore = !!match && (summary?.finished === true || match.games.length > 0);
+    const finished = summary?.finished === true;
+    const inProgress = hasScore && !finished;
+
+    const aIsLeft =
+      !!match && match.leftSide.kind === SIDE_KIND.SINGLE && match.leftSide.participantId === a.id;
+    const aWins = aIsLeft ? summary?.leftWins : summary?.rightWins;
+    const bWins = aIsLeft ? summary?.rightWins : summary?.leftWins;
+    const aWon =
+      finished && (aIsLeft ? summary.winner === SIDE.LEFT : summary.winner === SIDE.RIGHT);
+
+    const swap = finished && !aWon;
+    const leftName = swap ? b.name : a.name;
+    const rightName = swap ? a.name : b.name;
+    const leftWins = swap ? bWins : aWins;
+    const rightWins = swap ? aWins : bWins;
+
+    return {
+      key,
+      aId: a.id,
+      bId: b.id,
+      matchId: match?.id ?? null,
+      leftName,
+      rightName,
+      leftWins,
+      rightWins,
+      hasScore,
+      finished,
+      inProgress,
+      ariaLabel: hasScore
+        ? `${leftName} 対 ${rightName} ${leftWins}-${rightWins}${inProgress ? " 途中" : ""} 編集`
+        : `${a.name} 対 ${b.name} 対戦追加`,
+    };
+  });
+
+export const useSinglesList = (tournamentId: string) => {
+  const { tournament, participants, players, allPairs, singlesCellMatch, ...modal } =
+    useSingles(tournamentId);
+  const addManualMatch = useAppStore((state) => state.addManualMatch);
+  const wins = tournament ? winsNeededForBestOf(tournament.bestOf) : 0;
+
+  const rows = useMemo(
+    () => buildSinglesRows(allPairs, singlesCellMatch, wins),
+    [allPairs, singlesCellMatch, wins],
+  );
+
+  const openRow = (row: SinglesRow) => {
+    if (row.matchId) {
+      modal.openMatch(row.matchId);
+      return;
+    }
+    const id = addManualMatch(
+      tournamentId,
+      { kind: SIDE_KIND.SINGLE, participantId: row.aId },
+      { kind: SIDE_KIND.SINGLE, participantId: row.bId },
+    );
+    modal.openMatch(id);
+  };
+
+  return {
+    tournament,
+    participants,
+    players,
+    rows,
+    openRow,
+    openMatchId: modal.openMatchId,
+    closeMatch: modal.closeMatch,
   };
 };
 

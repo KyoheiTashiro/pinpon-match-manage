@@ -1,6 +1,7 @@
 import { DownloadIcon } from "@/components/icons";
 import { Button, EmptyState, Select } from "@/components/ui";
 import { matchSummary, SIDE } from "@/domain/match";
+import { MatchesHeader } from "@/features/tournament/matches/components/MatchesHeader";
 import { MatchModal } from "@/features/tournament/matches/components/MatchModal";
 import { useDoubles, MIN_PLAYERS_DOUBLES } from "@/features/tournament/matches/doubles/hooks";
 import type { DoublesPairForm } from "@/features/tournament/matches/doubles/schema";
@@ -97,10 +98,7 @@ export const DoublesList = ({ tournamentId }: { tournamentId: string }) => {
       )}
 
       <div ref={ref} className="space-y-2 bg-white p-3">
-        <div className="border-line border-b-2 pb-2">
-          <div className="text-xl font-extrabold">{tournament.name}</div>
-          <div className="text-sub text-sm">{tournament.date}</div>
-        </div>
+        <MatchesHeader tournament={tournament} />
         <ul className="divide-line border-line divide-y-2 overflow-hidden rounded-2xl border-2">
           {matchList.length === 0 ? (
             <EmptyState variant="listItem" message="まだ試合がありません。" />

@@ -60,10 +60,13 @@ src/
 │       │   ├── hooks.ts
 │       │   ├── components/
 │       │   │   ├── FirstServerSelect.tsx  // 最初のサーブ選択
+│       │   │   ├── MatchesHeader.tsx      // 対戦表カード上部の大会名・日付（シングルス/マトリクス/ダブルス共有）
 │       │   │   └── MatchModal.tsx         // 試合詳細モーダル（点数加減UIはScoreboardへ）
 │       │   ├── singles/
-│       │   │   ├── index.tsx       // SinglesList（シングルス対戦表）
-│       │   │   └── hooks.ts
+│       │   │   ├── index.ts        // barrel export
+│       │   │   ├── SinglesList.tsx    // シングルス対戦表（リスト表示）
+│       │   │   ├── SinglesMatrix.tsx  // シングルス対戦表（マトリクス表示）
+│       │   │   └── hooks.ts        // useSinglesList / useSinglesMatrix（行データ導出 buildSinglesRows）
 │       │   └── doubles/
 │       │       ├── index.tsx       // DoublesList（ダブルス対戦表＋試合追加フォーム）
 │       │       ├── hooks.ts
