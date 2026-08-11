@@ -24,23 +24,28 @@ export const SinglesList = ({ tournamentId }: { tournamentId: string }) => {
                 className="hover:bg-bg flex min-h-[64px] w-full items-center justify-between gap-3 p-3 text-left"
               >
                 <span className="flex min-w-0 flex-1 flex-col text-lg font-bold">
-                  <span className="flex min-w-0 items-center gap-1">
+                  <span className="flex min-w-0 items-center gap-2">
                     {row.state === MATCH_STATE.WON && <WinnerBadge size="xs" />}
                     <span className="truncate">{row.leftName}</span>
+                    {row.state !== MATCH_STATE.UNPLAYED && (
+                      <span className="ml-auto text-2xl font-extrabold tabular-nums">
+                        {row.leftWins}
+                      </span>
+                    )}
                   </span>
                   <span className="border-line my-1 border-t" />
-                  <span className="truncate">{row.rightName}</span>
+                  <span className="flex min-w-0 items-center gap-2">
+                    <span className="truncate">{row.rightName}</span>
+                    {row.state !== MATCH_STATE.UNPLAYED && (
+                      <span className="ml-auto text-2xl font-extrabold tabular-nums">
+                        {row.rightWins}
+                      </span>
+                    )}
+                  </span>
                 </span>
-                <span className="flex flex-col items-center gap-1">
-                  {row.state !== MATCH_STATE.UNPLAYED && (
-                    <span className="min-w-[3rem] text-center text-2xl font-extrabold">
-                      {row.leftWins}-{row.rightWins}
-                    </span>
-                  )}
-                  <Badge tone={STATE_BADGE[row.state].tone} appearance="solid">
-                    {STATE_BADGE[row.state].label}
-                  </Badge>
-                </span>
+                <Badge tone={STATE_BADGE[row.state].tone} appearance="solid">
+                  {STATE_BADGE[row.state].label}
+                </Badge>
                 <ChevronDownIcon className="size-7 flex-shrink-0 -rotate-90 text-[#94a3b8]" />
               </button>
             </li>
