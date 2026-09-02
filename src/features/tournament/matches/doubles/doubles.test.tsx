@@ -39,7 +39,7 @@ const seedDoublesTournament = (participantIds = PARTICIPANT_IDS) => {
 
 /**
  * Select の custom listbox を操作するヘルパ。
- * - label prop に対応する表示テキストを持つ trigger button を探してクリック（listbox を開く）
+ * - アクセシブル名で trigger button を探してクリック（listbox を開く）
  * - 次に option の表示名でクリックして選択する
  */
 const selectOption = async (
@@ -47,9 +47,7 @@ const selectOption = async (
   labelText: string,
   optionText: string,
 ) => {
-  // Select の label は <span> で描画される。
-  // trigger button は aria-labelledby で label span と自身の id を参照するが、
-  // getByRole("button", { name: /labelText/ }) で当たる。
+  // Select の ariaLabel が trigger button の aria-label になる。
   const trigger = screen.getByRole("button", { name: new RegExp(labelText, "u") });
   await user.click(trigger);
   // listbox が開いたら option をクリック
@@ -71,11 +69,14 @@ describe("DoublesList", () => {
     renderWithStore(<DoublesList tournamentId="t1" />);
 
     expect(screen.getByText("試合を追加")).toBeInTheDocument();
-    // 左1/左2/右1/右2 のラベルが表示される
-    expect(screen.getByText("左1")).toBeInTheDocument();
-    expect(screen.getByText("左2")).toBeInTheDocument();
-    expect(screen.getByText("右1")).toBeInTheDocument();
-    expect(screen.getByText("右2")).toBeInTheDocument();
+    // ペア区分ラベルが表示される
+    expect(screen.getByText("ペア1")).toBeInTheDocument();
+    expect(screen.getByText("ペア2")).toBeInTheDocument();
+    // 各 Select はアクセシブル名で識別できる
+    expect(screen.getByRole("button", { name: "ペア1 選手1" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "ペア1 選手2" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "ペア2 選手1" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "ペア2 選手2" })).toBeInTheDocument();
   });
 
   // -------------------------------------------------------------------------
@@ -111,14 +112,14 @@ describe("DoublesList", () => {
     const addBtn = screen.getByRole("button", { name: "試合を追加して入力へ" });
     expect(addBtn).toBeDisabled();
 
-    // 左1 → 選手A
-    await selectOption(user, "左1", "選手A");
-    // 左2 → 選手B（左1で選手Aを選んだので選手Bが選択肢に残る）
-    await selectOption(user, "左2", "選手B");
-    // 右1 → 選手C
-    await selectOption(user, "右1", "選手C");
-    // 右2 → 選手D
-    await selectOption(user, "右2", "選手D");
+    // ペア1 選手1 → 選手A
+    await selectOption(user, "ペア1 選手1", "選手A");
+    // ペア1 選手2 → 選手B（ペア1 選手1 で選手Aを選んだので選手Bが選択肢に残る）
+    await selectOption(user, "ペア1 選手2", "選手B");
+    // ペア2 選手1 → 選手C
+    await selectOption(user, "ペア2 選手1", "選手C");
+    // ペア2 選手2 → 選手D
+    await selectOption(user, "ペア2 選手2", "選手D");
 
     // schema refine: 4人全員異なる → isValid=true → ボタン有効化
     await waitFor(() => {
@@ -153,7 +154,7 @@ describe("DoublesList", () => {
   // -------------------------------------------------------------------------
   // 5. 既存 doubles match(PAIR side) を seed → 一覧表示
   // -------------------------------------------------------------------------
-  it("既存 doubles match を seed → 一覧に「左ペア名 対 右ペア名」とスコアが表示される", () => {
+  it("既存 doubles match を seed → 一覧に「ペア名 対 ペア名」とスコアが表示される", () => {
     seedStore({
       tournaments: {
         t1: makeTournament({
@@ -183,10 +184,10 @@ describe("DoublesList", () => {
 
     renderWithStore(<DoublesList tournamentId="t1" />);
 
-    // 試合一覧: 「左ペア名 対 右ペア名」パターン
-    // sideName の実装: PAIR は "選手A・選手B" のような表示を期待
-    // まず「対」が表示されていることを確認
-    expect(screen.getByText("対")).toBeInTheDocument();
+    // 試合一覧: 「ペア名 対 ペア名」パターン（sideName は " / " 区切り）
+    expect(
+      screen.getByRole("button", { name: /選手A \/ 選手B 対 選手C \/ 選手D/u }),
+    ).toBeInTheDocument();
     // スコア 0-0 表示（games 空）
     expect(screen.getByText("0-0")).toBeInTheDocument();
     // 途中表示
@@ -247,13 +248,13 @@ describe("DoublesList", () => {
 
     const addBtn = screen.getByRole("button", { name: "試合を追加して入力へ" });
 
-    // 左1 → 選手A
-    await selectOption(user, "左1", "選手A");
-    // 左2 → 選手A（同じ選手は選択肢から除外されているので、別の選手で試みる）
+    // ペア1 選手1 → 選手A
+    await selectOption(user, "ペア1 選手1", "選手A");
+    // ペア1 選手2 → 選手A（同じ選手は選択肢から除外されているので、別の選手で試みる）
     // refine は 4 つ全選択かつ重複あり で false になる。
     // ここでは「3 つだけ選択」テストも兼ね: left2 を空のままにする
-    await selectOption(user, "右1", "選手B");
-    await selectOption(user, "右2", "選手C");
+    await selectOption(user, "ペア2 選手1", "選手B");
+    await selectOption(user, "ペア2 選手2", "選手C");
     // left2 未入力 → isValid=false → disabled
     expect(addBtn).toBeDisabled();
   });
@@ -268,10 +269,10 @@ describe("DoublesList", () => {
 
     const addBtn = screen.getByRole("button", { name: "試合を追加して入力へ" });
 
-    await selectOption(user, "左1", "選手A");
-    await selectOption(user, "左2", "選手B");
-    await selectOption(user, "右1", "選手C");
-    // 右2 は未選択
+    await selectOption(user, "ペア1 選手1", "選手A");
+    await selectOption(user, "ペア1 選手2", "選手B");
+    await selectOption(user, "ペア2 選手1", "選手C");
+    // ペア2 選手2 は未選択
     expect(addBtn).toBeDisabled();
   });
 
@@ -285,10 +286,10 @@ describe("DoublesList", () => {
 
     const addBtn = screen.getByRole("button", { name: "試合を追加して入力へ" });
 
-    await selectOption(user, "左1", "選手A");
-    await selectOption(user, "左2", "選手B");
-    await selectOption(user, "右1", "選手C");
-    await selectOption(user, "右2", "選手D");
+    await selectOption(user, "ペア1 選手1", "選手A");
+    await selectOption(user, "ペア1 選手2", "選手B");
+    await selectOption(user, "ペア2 選手1", "選手C");
+    await selectOption(user, "ペア2 選手2", "選手D");
 
     await waitFor(() => {
       expect(addBtn).not.toBeDisabled();

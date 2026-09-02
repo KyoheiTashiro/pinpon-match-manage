@@ -72,7 +72,7 @@ src/
 │       │   └── doubles/
 │       │       ├── index.ts        // barrel export
 │       │       ├── DoublesList.tsx    // ダブルス対戦表（試合一覧）
-│       │       ├── PairSelectForm.tsx // 試合追加フォーム（左右ペアの選手選択）
+│       │       ├── PairSelectForm.tsx // 試合追加フォーム（2組のペアの選手選択）
 │       │       ├── hooks.ts
 │       │       └── schema.ts       // ダブルス試合追加フォームの zod スキーマ
 │       ├── scoreboard/             // スコアボード（試合進行中・横向き前提）
