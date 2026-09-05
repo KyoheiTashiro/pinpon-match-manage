@@ -280,6 +280,36 @@ describe("DoublesList", () => {
   });
 
   // -------------------------------------------------------------------------
+  // 6b. 「リセット」で選択済みペアが空に戻る
+  // -------------------------------------------------------------------------
+  it("選択後に「リセット」を押すと Select が未選択に戻る", async () => {
+    const user = userEvent.setup();
+    seedDoublesTournament();
+    renderWithStore(<DoublesList tournamentId="t1" />);
+
+    const clearBtn = screen.getByRole("button", { name: "リセット" });
+    // 未選択のうちは押せない
+    expect(clearBtn).toBeDisabled();
+
+    await selectOption(user, "ペア1 選手1", "選手A");
+    await selectOption(user, "ペア2 選手1", "選手C");
+    expect(screen.getByRole("button", { name: "ペア1 選手1" })).toHaveTextContent("選手A");
+
+    await waitFor(() => {
+      expect(clearBtn).not.toBeDisabled();
+    });
+    await user.click(clearBtn);
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "ペア1 選手1" })).toHaveTextContent(
+        "選んでください",
+      );
+    });
+    expect(screen.getByRole("button", { name: "ペア2 選手1" })).toHaveTextContent("選んでください");
+    expect(screen.getByRole("button", { name: "試合を追加" })).toBeDisabled();
+  });
+
+  // -------------------------------------------------------------------------
   // 7. 同一選手重複選択でボタン disabled (refine バリデーション)
   // -------------------------------------------------------------------------
   it("同一選手を複数フィールドで選択するとボタンが disabled のまま", async () => {

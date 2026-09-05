@@ -69,9 +69,18 @@ export const PairSelectForm = ({
           {PAIR2_FIELDS.map((name) => renderField(name))}
         </div>
       </div>
-      <Button disabled={!pairForm.formState.isValid} onClick={onSubmit}>
-        試合を追加
-      </Button>
+      <div className="flex flex-wrap gap-3">
+        <Button disabled={!pairForm.formState.isValid} onClick={onSubmit}>
+          試合を追加
+        </Button>
+        <Button
+          variant="secondary"
+          disabled={!Object.values(values).some(Boolean)}
+          onClick={() => pairForm.reset()}
+        >
+          リセット
+        </Button>
+      </div>
     </div>
   );
 };
