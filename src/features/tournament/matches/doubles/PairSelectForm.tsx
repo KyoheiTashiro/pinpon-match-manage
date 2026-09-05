@@ -59,12 +59,11 @@ export const PairSelectForm = ({
   return (
     <div className="border-primary space-y-3 rounded-2xl border-4 p-4">
       <h3 className="text-lg font-extrabold">試合を追加</h3>
-      <div className="grid grid-cols-1 items-center gap-3 sm:grid-cols-[1fr_auto_1fr]">
+      <div className="grid grid-cols-1 items-center gap-3 sm:grid-cols-2">
         <div className="space-y-2">
           <span className="block font-bold">ペア1</span>
           {PAIR1_FIELDS.map((name) => renderField(name))}
         </div>
-        <span className="text-sub text-center font-bold">対</span>
         <div className="space-y-2">
           <span className="block font-bold">ペア2</span>
           {PAIR2_FIELDS.map((name) => renderField(name))}
