@@ -154,7 +154,7 @@ describe("DoublesList", () => {
   // -------------------------------------------------------------------------
   // 5. 既存 doubles match(PAIR side) を seed → 一覧表示
   // -------------------------------------------------------------------------
-  it("既存 doubles match を seed → 一覧に「ペア名 対 ペア名」とスコアが表示される", () => {
+  it("既存 doubles match を seed → 一覧に上下2段のペア名とスコアが表示される", () => {
     seedStore({
       tournaments: {
         t1: makeTournament({
@@ -184,20 +184,18 @@ describe("DoublesList", () => {
 
     renderWithStore(<DoublesList tournamentId="t1" />);
 
-    // 試合一覧: 「ペア名 対 ペア名」パターン（sideName は " / " 区切り）
+    // 試合一覧: 上下2段（上段=ペア1 / 下段=ペア2）とスコアが aria-label に載る
     expect(
-      screen.getByRole("button", { name: /選手A \/ 選手B 対 選手C \/ 選手D/u }),
+      screen.getByRole("button", { name: "選手A / 選手B 対 選手C / 選手D 0-0 途中 編集" }),
     ).toBeInTheDocument();
-    // スコア 0-0 表示（games 空）
-    expect(screen.getByText("0-0")).toBeInTheDocument();
-    // 途中表示
+    // 途中バッジ
     expect(screen.getByText("途中")).toBeInTheDocument();
   });
 
   // -------------------------------------------------------------------------
-  // 6. 既存 doubles match に勝利スコアを seed → 勝者表示
+  // 6. 既存 doubles match に勝利スコアを seed → 勝者を上段へ
   // -------------------------------------------------------------------------
-  it("試合が完了した match を seed → 「〇〇 の勝ち」と勝者が表示される", () => {
+  it("試合が完了した match を seed → 勝ったペアが上段に表示される", () => {
     // bestOf=3 → winsNeeded=2。2ゲーム先取で決着
     const leftPoints: ("L" | "R")[] = Array.from({ length: 11 }, (): "L" => "L");
     const wonGame = gameFromLog(leftPoints);
@@ -231,11 +229,13 @@ describe("DoublesList", () => {
 
     renderWithStore(<DoublesList tournamentId="t1" />);
 
-    // 2-0 スコア表示
-    expect(screen.getByText("2-0")).toBeInTheDocument();
-    // 「〇〇 の勝ち」が表示される（「途中」は表示されない）
+    // 勝ったペアが上段・スコアつきで表示される
+    expect(
+      screen.getByRole("button", { name: "選手A / 選手B 対 選手C / 選手D 2-0 編集" }),
+    ).toBeInTheDocument();
+    // 終了バッジ（「途中」は表示されない）
     expect(screen.queryByText("途中")).not.toBeInTheDocument();
-    expect(screen.getByText(/の勝ち/u)).toBeInTheDocument();
+    expect(screen.getByText("終了")).toBeInTheDocument();
   });
 
   // -------------------------------------------------------------------------

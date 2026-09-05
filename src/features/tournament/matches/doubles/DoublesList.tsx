@@ -1,10 +1,14 @@
-import { EmptyState } from "@/components/ui";
+import { WinnerBadge } from "@/components/domain";
+import { ChevronDownIcon } from "@/components/icons/ChevronDownIcon";
+import { Badge, EmptyState } from "@/components/ui";
 import { matchSummary, SIDE } from "@/domain/match";
-import { sideName } from "@/domain/side";
+import { sideMembers, sideName } from "@/domain/side";
 import { MatchesCard } from "@/features/tournament/matches/components/MatchesCard";
 import { MatchModal } from "@/features/tournament/matches/components/MatchModal";
 import { useDoubles } from "@/features/tournament/matches/doubles/hooks";
 import { PairSelectForm } from "@/features/tournament/matches/doubles/PairSelectForm";
+import { MATCH_STATE, STATE_BADGE } from "@/features/tournament/matches/matchState";
+import type { MatchSide } from "@/store/types";
 
 export const DoublesList = ({ tournamentId }: { tournamentId: string }) => {
   const {
@@ -21,6 +25,10 @@ export const DoublesList = ({ tournamentId }: { tournamentId: string }) => {
   } = useDoubles(tournamentId);
 
   if (!tournament) return null;
+
+  /** ペアを名前の配列で返す（名前単位で折り返しを禁止するため連結しない） */
+  const memberNames = (side: MatchSide) =>
+    sideMembers(side).map((id) => ({ id, name: participants[id]?.name ?? "?" }));
 
   return (
     <div className="space-y-4">
@@ -39,30 +47,40 @@ export const DoublesList = ({ tournamentId }: { tournamentId: string }) => {
           ) : (
             matchList.map((match) => {
               const summary = matchSummary(match.games, wins);
-              const inProgress = !summary.finished;
-              const leftName = sideName(match.leftSide, participants);
-              const rightName = sideName(match.rightSide, participants);
+              const state = summary.finished ? MATCH_STATE.WON : MATCH_STATE.IN_PROGRESS;
+              // 終了済みは勝者を上段へ寄せる
+              const swap = summary.finished && summary.winner === SIDE.RIGHT;
+              const topSide = swap ? match.rightSide : match.leftSide;
+              const bottomSide = swap ? match.leftSide : match.rightSide;
+              const topWins = swap ? summary.rightWins : summary.leftWins;
+              const bottomWins = swap ? summary.leftWins : summary.rightWins;
               return (
-                <li key={match.id} className={inProgress ? "bg-warning/10" : ""}>
+                <li key={match.id} className={STATE_BADGE[state].backgroundClassName}>
                   <button
                     onClick={() => openMatch(match.id)}
+                    aria-label={`${sideName(topSide, participants)} 対 ${sideName(bottomSide, participants)} ${topWins}-${bottomWins}${summary.finished ? "" : " 途中"} 編集`}
                     className="hover:bg-bg flex min-h-[64px] w-full items-center justify-between gap-3 p-3 text-left"
                   >
-                    <span className="flex-1 text-lg font-bold">
-                      {leftName} <span className="text-sub">対</span> {rightName}
-                    </span>
-                    <span className="flex flex-col items-end text-xl font-extrabold">
-                      <span>
-                        {summary.leftWins}-{summary.rightWins}
-                      </span>
-                      {summary.finished ? (
-                        <span className="text-success text-sm">
-                          {summary.winner === SIDE.LEFT ? leftName : rightName} の勝ち
+                    <span className="flex min-w-0 flex-1 flex-col text-lg font-bold">
+                      <span className="flex min-w-0 items-center gap-2">
+                        {summary.finished && <WinnerBadge size="xs" />}
+                        <PairNames members={memberNames(topSide)} />
+                        <span className="ml-auto text-2xl font-extrabold tabular-nums">
+                          {topWins}
                         </span>
-                      ) : (
-                        <span className="text-warning text-sm">途中</span>
-                      )}
+                      </span>
+                      <span className="border-line my-1 border-t" />
+                      <span className="flex min-w-0 items-center gap-2">
+                        <PairNames members={memberNames(bottomSide)} />
+                        <span className="ml-auto text-2xl font-extrabold tabular-nums">
+                          {bottomWins}
+                        </span>
+                      </span>
                     </span>
+                    <Badge tone={STATE_BADGE[state].tone} appearance="solid">
+                      {STATE_BADGE[state].label}
+                    </Badge>
+                    <ChevronDownIcon className="size-7 flex-shrink-0 -rotate-90 text-[#94a3b8]" />
                   </button>
                 </li>
               );
@@ -77,3 +95,15 @@ export const DoublesList = ({ tournamentId }: { tournamentId: string }) => {
     </div>
   );
 };
+
+/** 狭い画面では1人1行に積み、sm 以上で「A / B」の横1行に戻す */
+const PairNames = ({ members }: { members: { id: string; name: string }[] }) => (
+  <span className="flex min-w-0 flex-col sm:flex-row sm:items-center">
+    {members.map((member, index) => (
+      <span key={member.id} className="whitespace-nowrap">
+        {index > 0 && <span className="text-sub mx-2 hidden sm:inline">/</span>}
+        {member.name}
+      </span>
+    ))}
+  </span>
+);
