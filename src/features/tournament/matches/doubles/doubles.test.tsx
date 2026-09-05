@@ -154,7 +154,7 @@ describe("DoublesList", () => {
   // -------------------------------------------------------------------------
   // 5. 既存 doubles match(PAIR side) を seed → 一覧表示
   // -------------------------------------------------------------------------
-  it("既存 doubles match を seed → 一覧に上下2段のペア名とスコアが表示される", () => {
+  it("ゲーム未入力の match を seed → 一覧に上下2段のペア名と「対戦」バッジが表示される", () => {
     seedStore({
       tournaments: {
         t1: makeTournament({
@@ -184,11 +184,52 @@ describe("DoublesList", () => {
 
     renderWithStore(<DoublesList tournamentId="t1" />);
 
-    // 試合一覧: 上下2段（上段=ペア1 / 下段=ペア2）とスコアが aria-label に載る
+    // 試合一覧: 上下2段（上段=ペア1 / 下段=ペア2）。ゲーム未入力なのでスコアは出さない
     expect(
-      screen.getByRole("button", { name: "選手A / 選手B 対 選手C / 選手D 0-0 途中 編集" }),
+      screen.getByRole("button", { name: "選手A / 選手B 対 選手C / 選手D 編集" }),
     ).toBeInTheDocument();
-    // 途中バッジ
+    // 対戦バッジ
+    expect(screen.getByText("対戦")).toBeInTheDocument();
+  });
+
+  // -------------------------------------------------------------------------
+  // 5b. ゲームを1つ入力済みの match を seed → 「途中」バッジ
+  // -------------------------------------------------------------------------
+  it("ゲーム入力済みで未決着の match を seed → 「途中」バッジとスコアが表示される", () => {
+    // bestOf=5 → winsNeeded=3。1ゲームだけ取った状態は未決着
+    const wonGame = gameFromLog(Array.from({ length: 11 }, (): "L" => "L"));
+    seedStore({
+      tournaments: {
+        t1: makeTournament({
+          id: "t1",
+          format: FORMAT.DOUBLES,
+          bestOf: 5,
+          participantIds: ["p1", "p2", "p3", "p4"],
+        }),
+      },
+      participants: {
+        p1: makeParticipant({ id: "p1", name: "選手A", tournamentId: "t1" }),
+        p2: makeParticipant({ id: "p2", name: "選手B", tournamentId: "t1" }),
+        p3: makeParticipant({ id: "p3", name: "選手C", tournamentId: "t1" }),
+        p4: makeParticipant({ id: "p4", name: "選手D", tournamentId: "t1" }),
+      },
+      matches: {
+        m1: makeMatch({
+          id: "m1",
+          tournamentId: "t1",
+          leftSide: { kind: SIDE_KIND.PAIR, memberIds: ["p1", "p2"] },
+          rightSide: { kind: SIDE_KIND.PAIR, memberIds: ["p3", "p4"] },
+          games: [wonGame],
+          firstServer: "L",
+        }),
+      },
+    });
+
+    renderWithStore(<DoublesList tournamentId="t1" />);
+
+    expect(
+      screen.getByRole("button", { name: "選手A / 選手B 対 選手C / 選手D 1-0 途中 編集" }),
+    ).toBeInTheDocument();
     expect(screen.getByText("途中")).toBeInTheDocument();
   });
 

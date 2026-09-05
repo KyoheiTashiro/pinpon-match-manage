@@ -47,7 +47,13 @@ export const DoublesList = ({ tournamentId }: { tournamentId: string }) => {
           ) : (
             matchList.map((match) => {
               const summary = matchSummary(match.games, wins);
-              const state = summary.finished ? MATCH_STATE.WON : MATCH_STATE.IN_PROGRESS;
+              // ゲームが1つも入力されていない試合は「対戦」扱い（シングルス一覧と同基準）
+              const hasScore = match.games.length > 0;
+              const state = summary.finished
+                ? MATCH_STATE.WON
+                : hasScore
+                  ? MATCH_STATE.IN_PROGRESS
+                  : MATCH_STATE.UNPLAYED;
               // 終了済みは勝者を上段へ寄せる
               const swap = summary.finished && summary.winner === SIDE.RIGHT;
               const topSide = swap ? match.rightSide : match.leftSide;
@@ -58,23 +64,27 @@ export const DoublesList = ({ tournamentId }: { tournamentId: string }) => {
                 <li key={match.id} className={STATE_BADGE[state].backgroundClassName}>
                   <button
                     onClick={() => openMatch(match.id)}
-                    aria-label={`${sideName(topSide, participants)} 対 ${sideName(bottomSide, participants)} ${topWins}-${bottomWins}${summary.finished ? "" : " 途中"} 編集`}
+                    aria-label={`${sideName(topSide, participants)} 対 ${sideName(bottomSide, participants)}${hasScore ? ` ${topWins}-${bottomWins}${summary.finished ? "" : " 途中"}` : ""} 編集`}
                     className="hover:bg-bg flex min-h-[64px] w-full items-center justify-between gap-3 p-3 text-left"
                   >
                     <span className="flex min-w-0 flex-1 flex-col text-lg font-bold">
                       <span className="flex min-w-0 items-center gap-2">
                         {summary.finished && <WinnerBadge size="xs" />}
                         <PairNames members={memberNames(topSide)} />
-                        <span className="ml-auto text-2xl font-extrabold tabular-nums">
-                          {topWins}
-                        </span>
+                        {hasScore && (
+                          <span className="ml-auto text-2xl font-extrabold tabular-nums">
+                            {topWins}
+                          </span>
+                        )}
                       </span>
                       <span className="border-line my-1 border-t" />
                       <span className="flex min-w-0 items-center gap-2">
                         <PairNames members={memberNames(bottomSide)} />
-                        <span className="ml-auto text-2xl font-extrabold tabular-nums">
-                          {bottomWins}
-                        </span>
+                        {hasScore && (
+                          <span className="ml-auto text-2xl font-extrabold tabular-nums">
+                            {bottomWins}
+                          </span>
+                        )}
                       </span>
                     </span>
                     <Badge tone={STATE_BADGE[state].tone} appearance="solid">
