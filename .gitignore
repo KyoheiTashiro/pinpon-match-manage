@@ -10,3 +10,6 @@ storybook-static
 .env
 .env.*
 !.env.example
+
+# ローカル専用ドキュメント(共有しない作業メモ)
+docs/_local/
