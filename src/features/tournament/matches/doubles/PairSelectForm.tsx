@@ -70,7 +70,7 @@ export const PairSelectForm = ({
         </div>
       </div>
       <Button disabled={!pairForm.formState.isValid} onClick={onSubmit}>
-        試合を追加して入力へ
+        試合を追加
       </Button>
     </div>
   );

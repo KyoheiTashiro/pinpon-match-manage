@@ -68,7 +68,7 @@ describe("DoublesList", () => {
     seedDoublesTournament();
     renderWithStore(<DoublesList tournamentId="t1" />);
 
-    expect(screen.getByText("試合を追加")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "試合を追加" })).toBeInTheDocument();
     // ペア区分ラベルが表示される
     expect(screen.getByText("ペア1")).toBeInTheDocument();
     expect(screen.getByText("ペア2")).toBeInTheDocument();
@@ -92,11 +92,11 @@ describe("DoublesList", () => {
   // -------------------------------------------------------------------------
   // 3. 未選択時 → 追加ボタン disabled
   // -------------------------------------------------------------------------
-  it("Select 未選択時 → 「試合を追加して入力へ」ボタンが disabled", () => {
+  it("Select 未選択時 → 「試合を追加」ボタンが disabled", () => {
     seedDoublesTournament();
     renderWithStore(<DoublesList tournamentId="t1" />);
 
-    const addBtn = screen.getByRole("button", { name: "試合を追加して入力へ" });
+    const addBtn = screen.getByRole("button", { name: "試合を追加" });
     expect(addBtn).toBeDisabled();
   });
 
@@ -109,7 +109,7 @@ describe("DoublesList", () => {
     renderWithStore(<DoublesList tournamentId="t1" />);
 
     // 初期状態: ボタン disabled
-    const addBtn = screen.getByRole("button", { name: "試合を追加して入力へ" });
+    const addBtn = screen.getByRole("button", { name: "試合を追加" });
     expect(addBtn).toBeDisabled();
 
     // ペア1 選手1 → 選手A
@@ -246,7 +246,7 @@ describe("DoublesList", () => {
     seedDoublesTournament();
     renderWithStore(<DoublesList tournamentId="t1" />);
 
-    const addBtn = screen.getByRole("button", { name: "試合を追加して入力へ" });
+    const addBtn = screen.getByRole("button", { name: "試合を追加" });
 
     // ペア1 選手1 → 選手A
     await selectOption(user, "ペア1 選手1", "選手A");
@@ -267,7 +267,7 @@ describe("DoublesList", () => {
     seedDoublesTournament();
     renderWithStore(<DoublesList tournamentId="t1" />);
 
-    const addBtn = screen.getByRole("button", { name: "試合を追加して入力へ" });
+    const addBtn = screen.getByRole("button", { name: "試合を追加" });
 
     await selectOption(user, "ペア1 選手1", "選手A");
     await selectOption(user, "ペア1 選手2", "選手B");
@@ -284,7 +284,7 @@ describe("DoublesList", () => {
     seedDoublesTournament();
     renderWithStore(<DoublesList tournamentId="t1" />);
 
-    const addBtn = screen.getByRole("button", { name: "試合を追加して入力へ" });
+    const addBtn = screen.getByRole("button", { name: "試合を追加" });
 
     await selectOption(user, "ペア1 選手1", "選手A");
     await selectOption(user, "ペア1 選手2", "選手B");
@@ -353,7 +353,7 @@ describe("DoublesList", () => {
     renderWithStore(<DoublesList tournamentId="t1" />);
 
     // 試合一覧のボタンをクリック（match listのli内のbutton）
-    // 「試合を追加して入力へ」以外の対戦ボタンを選択する
+    // 「試合を追加」以外の対戦ボタンを選択する
     const allButtons = screen.getAllByRole("button", { name: /対/u });
     const matchBtn = allButtons.find((el) => !el.textContent?.includes("試合を追加"))!;
     expect(matchBtn).toBeDefined();
