@@ -24,15 +24,13 @@ const GUIDE_VIDEOS = {
 
 export const InstallAppButton = () => {
   const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(null);
-  const [installed, setInstalled] = useState(false);
+  // effect 内 setState を避けるため初期値で standalone 判定
+  const [installed, setInstalled] = useState(isStandalone);
   const [showGuide, setShowGuide] = useState(false);
 
   useEffect(() => {
-    if (isStandalone()) {
-      setInstalled(true);
-      // クリーンアップ不要だが consistent-return のため空クリーンアップ関数を返す
-      return () => {};
-    }
+    // クリーンアップ不要だが consistent-return のため空クリーンアップ関数を返す
+    if (isStandalone()) return () => {};
     const onBeforeInstall = (event: Event) => {
       event.preventDefault();
       // beforeinstallprompt イベントは必ず BeforeInstallPromptEvent。DOM 境界のためキャスト不可避。

@@ -160,7 +160,9 @@ export const useResult = (tournamentId: string) => {
     tournament,
     rows,
     matchResults,
-    capture,
+    // capture オブジェクトをそのまま渡すと react/refs が render 中の ref アクセスと誤検知するため分解して返す
+    captureRef: capture.ref,
+    saveImage: capture.save,
     mode,
     setMode,
     chartMatches,

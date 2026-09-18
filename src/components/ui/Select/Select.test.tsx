@@ -203,7 +203,7 @@ describe("Select", () => {
     expect(trigger).toHaveFocus();
   });
 
-  it("listbox 上で Tab を押すと閉じるがトリガーにはフォーカスが戻らない", async () => {
+  it("listbox 上で Tab を押すと閉じる", async () => {
     const user = userEvent.setup();
     render(
       <Select
@@ -217,7 +217,9 @@ describe("Select", () => {
     await user.click(trigger);
     await user.keyboard("{Tab}");
     expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
-    expect(trigger).not.toHaveFocus();
+    // フォーカス先は検証しない: user-event 14.6.5+ は Tab のデフォルト動作を keydown 後の
+    // activeElement（listbox unmount 済 → body）起点で解決するため、jsdom では先頭の tabbable
+    // であるトリガーに戻る。実ブラウザは除去位置を起点に次要素へ進むため挙動が一致しない。
   });
 
   it("外部 pointerdown で listbox が閉じる", async () => {
