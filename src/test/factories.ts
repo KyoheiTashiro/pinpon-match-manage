@@ -63,5 +63,6 @@ export const makeAppState = (overrides: Partial<AppState> = {}): AppState => ({
   currentTournamentId: null,
   fontSize: FONT_SIZE.NORMAL,
   matchesView: MATCHES_VIEW.MATRIX,
+  defaultBestOf: 3,
   ...overrides,
 });

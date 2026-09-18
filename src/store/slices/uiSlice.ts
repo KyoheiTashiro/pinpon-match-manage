@@ -1,4 +1,10 @@
-import { FONT_SIZE, MATCHES_VIEW, type FontSize, type MatchesView } from "@/store/types";
+import {
+  FONT_SIZE,
+  MATCHES_VIEW,
+  type BestOf,
+  type FontSize,
+  type MatchesView,
+} from "@/store/types";
 import type { StoreState } from "@/store/useAppStore";
 import type { StateCreator } from "zustand";
 
@@ -7,6 +13,8 @@ export type UiSlice = {
   setFontSize: (size: FontSize) => void;
   matchesView: MatchesView;
   setMatchesView: (view: MatchesView) => void;
+  defaultBestOf: BestOf;
+  setDefaultBestOf: (bestOf: BestOf) => void;
 };
 
 export const createUiSlice: StateCreator<StoreState, [["zustand/immer", never]], [], UiSlice> = (
@@ -21,5 +29,10 @@ export const createUiSlice: StateCreator<StoreState, [["zustand/immer", never]],
   setMatchesView: (view) =>
     set((state) => {
       state.matchesView = view;
+    }),
+  defaultBestOf: 3,
+  setDefaultBestOf: (bestOf) =>
+    set((state) => {
+      state.defaultBestOf = bestOf;
     }),
 });

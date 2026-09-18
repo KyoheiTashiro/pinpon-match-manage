@@ -14,6 +14,7 @@ const emptyState: AppState = {
   currentTournamentId: null,
   fontSize: FONT_SIZE.NORMAL,
   matchesView: MATCHES_VIEW.MATRIX,
+  defaultBestOf: 3,
 };
 
 const validTournament = {
@@ -162,6 +163,39 @@ describe("salvageAppState: 部分的に壊れた状態", () => {
     const result = salvageAppState(persisted, currentWithList);
 
     expect(result.matchesView).toBe(MATCHES_VIEW.LIST);
+  });
+
+  it("defaultBestOf が無効な値なら current の defaultBestOf にフォールバックする", () => {
+    const persisted = {
+      tournaments: { t1: validTournament },
+      participants: {},
+      matches: {},
+      currentTournamentId: null,
+      fontSize: FONT_SIZE.NORMAL,
+      matchesView: MATCHES_VIEW.MATRIX,
+      defaultBestOf: 4,
+    };
+
+    const currentWithSeven: AppState = { ...emptyState, defaultBestOf: 7 };
+    const result = salvageAppState(persisted, currentWithSeven);
+
+    expect(result.defaultBestOf).toBe(7);
+  });
+
+  it("defaultBestOf が有効な値ならそのまま残る", () => {
+    const persisted = {
+      tournaments: { t1: validTournament },
+      participants: {},
+      matches: {},
+      currentTournamentId: null,
+      fontSize: FONT_SIZE.NORMAL,
+      matchesView: MATCHES_VIEW.MATRIX,
+      defaultBestOf: 7,
+    };
+
+    const result = salvageAppState(persisted, emptyState);
+
+    expect(result.defaultBestOf).toBe(7);
   });
 
   it("currentTournamentId が存在しない tournament を指していたら null になる", () => {

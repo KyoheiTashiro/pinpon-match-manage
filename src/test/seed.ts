@@ -273,6 +273,7 @@ export const buildSeedState = (): AppState => {
     currentTournamentId: "t-s5",
     fontSize: FONT_SIZE.NORMAL,
     matchesView: MATCHES_VIEW.MATRIX,
+    defaultBestOf: 3,
   };
 
   // 参照整合性を最終チェック

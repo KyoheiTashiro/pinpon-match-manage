@@ -13,7 +13,7 @@ export const Home = () => {
   const navigate = useNavigate();
   const [settingsOpen, setSettingsOpen] = useState(false);
 
-  const { list, creating, setCreating, closeForm, form, submit } = useHome((id) => {
+  const { list, creating, openForm, closeForm, form, submit } = useHome((id) => {
     void navigate(tournamentPath(id));
   });
 
@@ -41,7 +41,7 @@ export const Home = () => {
             onCancel={closeForm}
           />
         ) : (
-          <Button variant="primary" onClick={() => setCreating(true)}>
+          <Button variant="primary" onClick={openForm}>
             ＋ 新しい大会
           </Button>
         )}

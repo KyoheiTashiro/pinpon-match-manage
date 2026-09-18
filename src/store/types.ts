@@ -59,4 +59,5 @@ export type AppState = {
   currentTournamentId: string | null;
   fontSize: FontSize;
   matchesView: MatchesView;
+  defaultBestOf: BestOf;
 };

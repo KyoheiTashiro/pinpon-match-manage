@@ -69,6 +69,7 @@ export const appStateSchema = z.object({
     FONT_SIZE.XLARGE,
   ]),
   matchesView: z.enum([MATCHES_VIEW.LIST, MATCHES_VIEW.MATRIX]),
+  defaultBestOf: z.literal(BEST_OF_OPTIONS),
 });
 
 // 型整合チェック: appStateSchema の infer が types.ts の AppState と構造一致することを
@@ -115,5 +116,6 @@ export const sanitizeAppState = (state: AppState): AppState => {
     currentTournamentId,
     fontSize: state.fontSize,
     matchesView: state.matchesView,
+    defaultBestOf: state.defaultBestOf,
   };
 };
