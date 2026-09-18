@@ -1,4 +1,4 @@
-import { SegmentedControl } from "@/components/ui";
+import { Select } from "@/components/ui";
 import { FONT_SIZE, type FontSize } from "@/store/types";
 import { useAppStore } from "@/store/useAppStore";
 import { useEffect } from "react";
@@ -9,7 +9,7 @@ const FONT_SIZE_OPTIONS = [
   { value: FONT_SIZE.NORMAL, label: "標準" },
   { value: FONT_SIZE.LARGE, label: "大" },
   { value: FONT_SIZE.XLARGE, label: "特大" },
-] as const satisfies { value: FontSize; label: string }[];
+] satisfies { value: FontSize; label: string }[];
 
 export const FontSizeControl = () => {
   const fontSize = useAppStore((state) => state.fontSize);
@@ -23,12 +23,14 @@ export const FontSizeControl = () => {
   return (
     <>
       <span className="text-base font-bold">文字サイズ</span>
-      <SegmentedControl
-        ariaLabel="文字サイズ"
-        value={fontSize}
-        options={FONT_SIZE_OPTIONS}
-        onChange={setFontSize}
-      />
+      <div className="w-full">
+        <Select
+          ariaLabel="文字サイズ"
+          value={fontSize}
+          options={FONT_SIZE_OPTIONS}
+          onChange={setFontSize}
+        />
+      </div>
     </>
   );
 };

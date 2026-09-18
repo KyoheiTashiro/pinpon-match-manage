@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form";
 export const useHome = (onCreated: (id: string) => void) => {
   const tournaments = useAppStore((state) => state.tournaments);
   const createTournament = useAppStore((state) => state.createTournament);
+  const defaultBestOf = useAppStore((state) => state.defaultBestOf);
 
   const list = Object.values(tournaments).toSorted(
     (tournamentA, tournamentB) =>
@@ -19,8 +20,13 @@ export const useHome = (onCreated: (id: string) => void) => {
   const form = useForm<FormType>({
     resolver: zodResolver(Schema),
     mode: "onChange",
-    defaultValues,
+    defaultValues: { ...defaultValues, bestOf: defaultBestOf },
   });
+
+  const openForm = () => {
+    form.reset({ ...defaultValues, bestOf: defaultBestOf });
+    setCreating(true);
+  };
 
   const submit = form.handleSubmit((data) => {
     const id = createTournament(data.name, data.format, data.date, data.bestOf);
@@ -34,5 +40,5 @@ export const useHome = (onCreated: (id: string) => void) => {
     setCreating(false);
   };
 
-  return { list, creating, setCreating, closeForm, form, submit };
+  return { list, creating, openForm, closeForm, form, submit };
 };

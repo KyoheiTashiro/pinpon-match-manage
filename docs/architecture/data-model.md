@@ -55,6 +55,7 @@ type AppState = {
   matches: Record<string, Match>;
   currentTournamentId: string | null;
   fontSize: FontSize;
+  defaultBestOf: BestOf; // 新規大会フォームのゲーム数初期値
 };
 ```
 

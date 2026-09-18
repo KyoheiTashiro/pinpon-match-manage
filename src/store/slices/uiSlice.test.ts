@@ -90,6 +90,26 @@ describe("setMatchesView", () => {
 });
 
 // ---------------------------------------------------------------------------
+// defaultBestOf
+// ---------------------------------------------------------------------------
+
+describe("defaultBestOf", () => {
+  it("初期 defaultBestOf は 3 である", () => {
+    expect(useAppStore.getState().defaultBestOf).toBe(3);
+  });
+
+  it("5 に変更できる", () => {
+    useAppStore.getState().setDefaultBestOf(5);
+    expect(useAppStore.getState().defaultBestOf).toBe(5);
+  });
+
+  it("7 に変更できる", () => {
+    useAppStore.getState().setDefaultBestOf(7);
+    expect(useAppStore.getState().defaultBestOf).toBe(7);
+  });
+});
+
+// ---------------------------------------------------------------------------
 // resetAll との関係
 // ---------------------------------------------------------------------------
 
@@ -99,6 +119,12 @@ describe("resetAll との関係", () => {
     useAppStore.getState().resetAll();
     // resetAll はトーナメント/参加者/試合のみリセット。fontSize は永続化ユーザー設定なので保持。
     expect(useAppStore.getState().fontSize).toBe(FONT_SIZE.XLARGE);
+  });
+
+  it("resetAll を呼んでも defaultBestOf はリセットされない (UI 設定は保持される)", () => {
+    useAppStore.getState().setDefaultBestOf(7);
+    useAppStore.getState().resetAll();
+    expect(useAppStore.getState().defaultBestOf).toBe(7);
   });
 
   it("resetAll を呼んでも matchesView はリセットされない (UI 設定は保持される)", () => {

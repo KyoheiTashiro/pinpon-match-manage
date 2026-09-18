@@ -10,7 +10,7 @@ import { createMatchSlice, type MatchSlice } from "@/store/slices/matchSlice";
 import { createParticipantSlice, type ParticipantSlice } from "@/store/slices/participantSlice";
 import { createTournamentSlice, type TournamentSlice } from "@/store/slices/tournamentSlice";
 import { createUiSlice, type UiSlice } from "@/store/slices/uiSlice";
-import { FONT_SIZE, MATCHES_VIEW, type AppState } from "@/store/types";
+import { BEST_OF_OPTIONS, FONT_SIZE, MATCHES_VIEW, type AppState } from "@/store/types";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
@@ -43,6 +43,10 @@ const migrateV2ToV3: Migration = (persisted) =>
     ? { ...persisted, matchesView: MATCHES_VIEW.MATRIX }
     : persisted;
 
+/** v3 → v4: defaultBestOf を補完。 */
+const migrateV3ToV4: Migration = (persisted) =>
+  persisted.defaultBestOf === undefined ? { ...persisted, defaultBestOf: 3 } : persisted;
+
 /**
  * fromVersion → fromVersion+1 の変換テーブル。キー = 変換元バージョン。
  * 将来スキーマ変更時は migrateVNToVN+1 を追加・登録し STORAGE_VERSION を上げる。
@@ -52,6 +56,7 @@ const migrateV2ToV3: Migration = (persisted) =>
 const migrations: Readonly<Record<number, Migration>> = {
   1: migrateV1ToV2,
   2: migrateV2ToV3,
+  3: migrateV3ToV4,
 };
 
 /**
@@ -122,6 +127,13 @@ export const salvageAppState = (persisted: unknown, current: AppState): AppState
     ? raw.matchesView
     : current.matchesView;
 
+  const validBestOfs: readonly number[] = BEST_OF_OPTIONS;
+  const isValidBestOf = (value: unknown): value is AppState["defaultBestOf"] =>
+    typeof value === "number" && validBestOfs.includes(value);
+  const defaultBestOf: AppState["defaultBestOf"] = isValidBestOf(raw.defaultBestOf)
+    ? raw.defaultBestOf
+    : current.defaultBestOf;
+
   const partial: AppState = {
     tournaments,
     participants,
@@ -129,6 +141,7 @@ export const salvageAppState = (persisted: unknown, current: AppState): AppState
     currentTournamentId,
     fontSize,
     matchesView,
+    defaultBestOf,
   };
   return { ...current, ...sanitizeAppState(partial) };
 };
@@ -151,6 +164,7 @@ export const useAppStore = create<StoreState>()(
         currentTournamentId: state.currentTournamentId,
         fontSize: state.fontSize,
         matchesView: state.matchesView,
+        defaultBestOf: state.defaultBestOf,
       }),
       migrate: migratePersistedState,
       merge: (persisted, current) => {

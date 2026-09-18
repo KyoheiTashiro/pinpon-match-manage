@@ -141,7 +141,7 @@ describe("migratePersistedState: fromVersion=2 (変換不要)", () => {
     expect(result.tournaments.t1.bestOf).toBe(3);
   });
 
-  it("fromVersion=2: 入力オブジェクトがそのまま返る", () => {
+  it("fromVersion=2: bestOf の補完は行われない", () => {
     const persisted = {
       tournaments: { t1: v2Tournament },
       participants: {},
@@ -153,7 +153,7 @@ describe("migratePersistedState: fromVersion=2 (変換不要)", () => {
 
     const result = migratePersistedState(persisted, 2);
 
-    expect(result).toEqual(persisted);
+    expect(result).toEqual({ ...persisted, defaultBestOf: 3 });
   });
 });
 
@@ -220,6 +220,44 @@ describe("migratePersistedState: v2 → v3 (matchesView 補完)", () => {
 });
 
 // ---------------------------------------------------------------------------
+// v3 → v4 マイグレーション: defaultBestOf フィールドの補完
+// ---------------------------------------------------------------------------
+
+describe("migratePersistedState: v3 → v4 (defaultBestOf 補完)", () => {
+  it("fromVersion=3: defaultBestOf が未定義なら 3 に補完される", () => {
+    const persisted = {
+      tournaments: {},
+      participants: {},
+      matches: {},
+      currentTournamentId: null,
+      fontSize: FONT_SIZE.NORMAL,
+      matchesView: MATCHES_VIEW.MATRIX,
+      // defaultBestOf が存在しない (v3 のデータ)
+    };
+
+    const result = asAppState(migratePersistedState(persisted, 3));
+
+    expect(result.defaultBestOf).toBe(3);
+  });
+
+  it("fromVersion=3: defaultBestOf が既にあればそのまま保持される", () => {
+    const persisted = {
+      tournaments: {},
+      participants: {},
+      matches: {},
+      currentTournamentId: null,
+      fontSize: FONT_SIZE.NORMAL,
+      matchesView: MATCHES_VIEW.MATRIX,
+      defaultBestOf: 7,
+    };
+
+    const result = asAppState(migratePersistedState(persisted, 3));
+
+    expect(result.defaultBestOf).toBe(7);
+  });
+});
+
+// ---------------------------------------------------------------------------
 // 不正入力・境界ケース
 // ---------------------------------------------------------------------------
 
@@ -242,7 +280,7 @@ describe("migratePersistedState: 不正入力・境界ケース", () => {
     expect(result).toEqual(arr);
   });
 
-  it("fromVersion=1: tournaments フィールドが undefined の場合は変換をスキップする", () => {
+  it("fromVersion=1: tournaments フィールドが undefined の場合は bestOf 変換をスキップする", () => {
     const persisted = {
       participants: {},
       matches: {},
@@ -254,7 +292,7 @@ describe("migratePersistedState: 不正入力・境界ケース", () => {
 
     const result = migratePersistedState(persisted, 1);
 
-    expect(result).toEqual(persisted);
+    expect(result).toEqual({ ...persisted, defaultBestOf: 3 });
   });
 
   it("fromVersion=1: tournaments が空オブジェクトのとき、そのまま返る", () => {

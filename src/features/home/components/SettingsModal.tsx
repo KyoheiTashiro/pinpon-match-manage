@@ -1,5 +1,6 @@
-import { Button, InfoModal } from "@/components/ui";
+import { Button, InfoModal, Select } from "@/components/ui";
 import { FontSizeControl } from "@/features/home/components/FontSizeControl";
+import { BEST_OF_OPTIONS } from "@/store/types";
 import { useAppStore } from "@/store/useAppStore";
 import { useState } from "react";
 
@@ -10,6 +11,8 @@ type Props = {
 
 export const SettingsModal = ({ open, onClose }: Props) => {
   const resetAll = useAppStore((state) => state.resetAll);
+  const defaultBestOf = useAppStore((state) => state.defaultBestOf);
+  const setDefaultBestOf = useAppStore((state) => state.setDefaultBestOf);
   const [confirmReset, setConfirmReset] = useState(false);
 
   const close = () => {
@@ -26,6 +29,17 @@ export const SettingsModal = ({ open, onClose }: Props) => {
       <div className="flex flex-col gap-6">
         <div className="flex flex-col items-start gap-2">
           <FontSizeControl />
+        </div>
+        <div className="flex flex-col items-start gap-2">
+          <span className="text-base font-bold">ゲーム数の初期値</span>
+          <div className="w-full">
+            <Select
+              ariaLabel="ゲーム数の初期値"
+              value={defaultBestOf}
+              options={BEST_OF_OPTIONS.map((value) => ({ value, label: String(value) }))}
+              onChange={setDefaultBestOf}
+            />
+          </div>
         </div>
         <div className="border-line flex flex-col items-start gap-2 border-t-2 pt-6">
           <span className="text-base font-bold">データ管理</span>
