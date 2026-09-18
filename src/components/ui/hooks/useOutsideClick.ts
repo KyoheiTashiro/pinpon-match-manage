@@ -1,4 +1,4 @@
-import { useEffect, useRef, type RefObject } from "react";
+import { useEffect, useEffectEvent, type RefObject } from "react";
 
 // 外部イベント購読は本質的に effect が必要なため、ここに集約して
 // 利用側コンポーネント本体からは effect を排除する。
@@ -7,16 +7,15 @@ export const useOutsideClick = (
   onOutside: () => void,
   enabled: boolean,
 ): void => {
-  // onOutside を毎レンダー張り替えず最新参照を保つ。
-  const callbackRef = useRef(onOutside);
-  callbackRef.current = onOutside;
+  // onOutside を deps に含めず最新参照で呼ぶ（毎レンダーのリスナー張り替えを回避）。
+  const onOutsideEvent = useEffectEvent(onOutside);
 
   useEffect(() => {
     if (!enabled) return () => {};
     const handlePointerDown = (event: PointerEvent) => {
       const element = ref.current;
       if (element && event.target instanceof Node && !element.contains(event.target)) {
-        callbackRef.current();
+        onOutsideEvent();
       }
     };
     document.addEventListener("pointerdown", handlePointerDown);

@@ -19,7 +19,8 @@ const ResultView = ({ tournamentId }: { tournamentId: string }) => {
     tournament,
     rows,
     matchResults,
-    capture,
+    captureRef,
+    saveImage,
     mode,
     setMode,
     chartMatches,
@@ -99,7 +100,7 @@ const ResultView = ({ tournamentId }: { tournamentId: string }) => {
           {/* 画像保存対象コンテンツ */}
           <div className="overflow-x-auto">
             <div
-              ref={capture.ref}
+              ref={captureRef}
               className="inline-block min-w-full space-y-2 bg-white p-3 align-top"
             >
               {/* 大会名・日付ヘッダ（両モード共通） */}
@@ -112,10 +113,10 @@ const ResultView = ({ tournamentId }: { tournamentId: string }) => {
           </div>
 
           {/* 保存ボタン（画像対象外） */}
-          <Button className="w-fit" onClick={() => void capture.save()} disabled={isSaving}>
+          <Button className="w-fit" onClick={() => void saveImage()} disabled={isSaving}>
             <span className="inline-flex items-center justify-center gap-2">
               <DownloadIcon />
-              {capture.saving ? "保存中…" : "画像で保存"}
+              {isSaving ? "保存中…" : "画像で保存"}
             </span>
           </Button>
         </>
