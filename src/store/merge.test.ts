@@ -15,6 +15,7 @@ const emptyState: AppState = {
   fontSize: FONT_SIZE.NORMAL,
   matchesView: MATCHES_VIEW.MATRIX,
   defaultBestOf: 3,
+  keepScreenOn: true,
 };
 
 const validTournament = {
@@ -196,6 +197,19 @@ describe("salvageAppState: 部分的に壊れた状態", () => {
     const result = salvageAppState(persisted, emptyState);
 
     expect(result.defaultBestOf).toBe(7);
+  });
+
+  it("keepScreenOn が boolean でなければ current の keepScreenOn にフォールバックする", () => {
+    const persisted = { ...emptyState, tournaments: { t1: validTournament }, keepScreenOn: "yes" };
+    const currentOff: AppState = { ...emptyState, keepScreenOn: false };
+
+    expect(salvageAppState(persisted, currentOff).keepScreenOn).toBe(false);
+  });
+
+  it("keepScreenOn が boolean ならそのまま残る", () => {
+    const persisted = { ...emptyState, tournaments: { t1: validTournament }, keepScreenOn: false };
+
+    expect(salvageAppState(persisted, emptyState).keepScreenOn).toBe(false);
   });
 
   it("currentTournamentId が存在しない tournament を指していたら null になる", () => {

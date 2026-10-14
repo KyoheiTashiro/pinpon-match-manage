@@ -1,4 +1,5 @@
 import { Button, InfoModal, Select } from "@/components/ui";
+import { isWakeLockSupported } from "@/components/ui/hooks/useWakeLock";
 import { FontSizeControl } from "@/features/home/components/FontSizeControl";
 import { BEST_OF_OPTIONS } from "@/store/types";
 import { useAppStore } from "@/store/useAppStore";
@@ -13,6 +14,9 @@ export const SettingsModal = ({ open, onClose }: Props) => {
   const resetAll = useAppStore((state) => state.resetAll);
   const defaultBestOf = useAppStore((state) => state.defaultBestOf);
   const setDefaultBestOf = useAppStore((state) => state.setDefaultBestOf);
+  const keepScreenOn = useAppStore((state) => state.keepScreenOn);
+  const setKeepScreenOn = useAppStore((state) => state.setKeepScreenOn);
+  const wakeLockSupported = isWakeLockSupported();
   const [confirmReset, setConfirmReset] = useState(false);
 
   const close = () => {
@@ -40,6 +44,25 @@ export const SettingsModal = ({ open, onClose }: Props) => {
               onChange={setDefaultBestOf}
             />
           </div>
+        </div>
+        <div className="flex flex-col items-start gap-2">
+          <label
+            className={`min-h-btn flex items-center gap-3 text-base font-bold ${wakeLockSupported ? "cursor-pointer" : "text-sub cursor-not-allowed"}`}
+          >
+            <input
+              type="checkbox"
+              checked={keepScreenOn}
+              disabled={!wakeLockSupported}
+              onChange={(event) => setKeepScreenOn(event.target.checked)}
+              className="accent-primary h-7 w-7 disabled:cursor-not-allowed"
+            />
+            画面を常にオン
+          </label>
+          {!wakeLockSupported && (
+            <p className="text-sub text-base">
+              この端末では使えません。画面を消したくない場合は端末の「自動ロック」設定を変更してください。
+            </p>
+          )}
         </div>
         <div className="border-line flex flex-col items-start gap-2 border-t-2 pt-6">
           <span className="text-base font-bold">データ管理</span>

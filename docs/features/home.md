@@ -11,6 +11,7 @@
   - `SettingsModal` 内に文字サイズ切替（`FontSizeControl`）を配置。
     - 選択肢: 極小 / 小 / 標準 / 大 / 特大（`Select` のプルダウン）。
     - 選択値は `fontSize` ストアに保存される。
+  - 「画面を常にオン」チェックボックス（初期値オン）。`keepScreenOn` ストアに保存し、`main.tsx` 直下の `WakeLock`（`components/system`）が `useWakeLock` で Screen Wake Lock を取得/解放する。Wake Lock 非対応端末ではチェックボックスを無効化し、端末の自動ロック設定変更を案内。
 
 ### メインエリア
 

@@ -47,6 +47,10 @@ const migrateV2ToV3: Migration = (persisted) =>
 const migrateV3ToV4: Migration = (persisted) =>
   persisted.defaultBestOf === undefined ? { ...persisted, defaultBestOf: 3 } : persisted;
 
+/** v4 → v5: keepScreenOn を補完（初期値 ON）。 */
+const migrateV4ToV5: Migration = (persisted) =>
+  persisted.keepScreenOn === undefined ? { ...persisted, keepScreenOn: true } : persisted;
+
 /**
  * fromVersion → fromVersion+1 の変換テーブル。キー = 変換元バージョン。
  * 将来スキーマ変更時は migrateVNToVN+1 を追加・登録し STORAGE_VERSION を上げる。
@@ -57,6 +61,7 @@ const migrations: Readonly<Record<number, Migration>> = {
   1: migrateV1ToV2,
   2: migrateV2ToV3,
   3: migrateV3ToV4,
+  4: migrateV4ToV5,
 };
 
 /**
@@ -134,6 +139,9 @@ export const salvageAppState = (persisted: unknown, current: AppState): AppState
     ? raw.defaultBestOf
     : current.defaultBestOf;
 
+  const keepScreenOn: AppState["keepScreenOn"] =
+    typeof raw.keepScreenOn === "boolean" ? raw.keepScreenOn : current.keepScreenOn;
+
   const partial: AppState = {
     tournaments,
     participants,
@@ -142,6 +150,7 @@ export const salvageAppState = (persisted: unknown, current: AppState): AppState
     fontSize,
     matchesView,
     defaultBestOf,
+    keepScreenOn,
   };
   return { ...current, ...sanitizeAppState(partial) };
 };
@@ -165,6 +174,7 @@ export const useAppStore = create<StoreState>()(
         fontSize: state.fontSize,
         matchesView: state.matchesView,
         defaultBestOf: state.defaultBestOf,
+        keepScreenOn: state.keepScreenOn,
       }),
       migrate: migratePersistedState,
       merge: (persisted, current) => {

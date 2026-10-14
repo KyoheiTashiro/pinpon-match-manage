@@ -1,6 +1,6 @@
 import "@/test/seedInject";
 import App from "@/App";
-import { ErrorBoundary } from "@/components/system";
+import { ErrorBoundary, WakeLock } from "@/components/system";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { HashRouter } from "react-router-dom";
@@ -29,6 +29,7 @@ if (navigator.serviceWorker.controller) {
 ReactDOM.createRoot(document.querySelector("#root")!).render(
   <React.StrictMode>
     <ErrorBoundary>
+      <WakeLock />
       <HashRouter>
         <App />
       </HashRouter>

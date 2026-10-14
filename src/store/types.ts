@@ -60,4 +60,5 @@ export type AppState = {
   fontSize: FontSize;
   matchesView: MatchesView;
   defaultBestOf: BestOf;
+  keepScreenOn: boolean;
 };

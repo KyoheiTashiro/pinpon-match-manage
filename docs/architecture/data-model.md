@@ -56,6 +56,7 @@ type AppState = {
   currentTournamentId: string | null;
   fontSize: FontSize;
   defaultBestOf: BestOf; // 新規大会フォームのゲーム数初期値
+  keepScreenOn: boolean; // Screen Wake Lock で画面常時オン（初期値 true）
 };
 ```
 
@@ -68,7 +69,7 @@ type AppState = {
 
 データは zustand persist で LocalStorage へ保存。
 
-- ストアキー: `pinpon-match-manage:v1` ／ スキーマ `version`: `2`
+- ストアキー: `pinpon-match-manage:v1` ／ スキーマ `version`: `5`
 - 読込時に `migrate`（バージョン変換）→ `merge`（検証・サニタイズ・サルベージ）を通す
 
 ストア構成・スライス・アクション・migrate / merge / sanitize の詳細 → **[store.md](store.md)**。

@@ -153,7 +153,7 @@ describe("migratePersistedState: fromVersion=2 (変換不要)", () => {
 
     const result = migratePersistedState(persisted, 2);
 
-    expect(result).toEqual({ ...persisted, defaultBestOf: 3 });
+    expect(result).toEqual({ ...persisted, defaultBestOf: 3, keepScreenOn: true });
   });
 });
 
@@ -258,6 +258,31 @@ describe("migratePersistedState: v3 → v4 (defaultBestOf 補完)", () => {
 });
 
 // ---------------------------------------------------------------------------
+// v4 → v5 マイグレーション: keepScreenOn フィールドの補完
+// ---------------------------------------------------------------------------
+
+describe("migratePersistedState: v4 → v5 (keepScreenOn 補完)", () => {
+  const v4 = {
+    tournaments: {},
+    participants: {},
+    matches: {},
+    currentTournamentId: null,
+    fontSize: FONT_SIZE.NORMAL,
+    matchesView: MATCHES_VIEW.MATRIX,
+    defaultBestOf: 3,
+  };
+
+  it("fromVersion=4: keepScreenOn が未定義なら true に補完される", () => {
+    expect(asAppState(migratePersistedState(v4, 4)).keepScreenOn).toBe(true);
+  });
+
+  it("fromVersion=4: keepScreenOn が既にあればそのまま保持される", () => {
+    const result = asAppState(migratePersistedState({ ...v4, keepScreenOn: false }, 4));
+    expect(result.keepScreenOn).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
 // 不正入力・境界ケース
 // ---------------------------------------------------------------------------
 
@@ -292,7 +317,7 @@ describe("migratePersistedState: 不正入力・境界ケース", () => {
 
     const result = migratePersistedState(persisted, 1);
 
-    expect(result).toEqual({ ...persisted, defaultBestOf: 3 });
+    expect(result).toEqual({ ...persisted, defaultBestOf: 3, keepScreenOn: true });
   });
 
   it("fromVersion=1: tournaments が空オブジェクトのとき、そのまま返る", () => {

@@ -110,6 +110,21 @@ describe("defaultBestOf", () => {
 });
 
 // ---------------------------------------------------------------------------
+// keepScreenOn
+// ---------------------------------------------------------------------------
+
+describe("keepScreenOn", () => {
+  it("初期 keepScreenOn は true である", () => {
+    expect(useAppStore.getState().keepScreenOn).toBe(true);
+  });
+
+  it("false に変更できる", () => {
+    useAppStore.getState().setKeepScreenOn(false);
+    expect(useAppStore.getState().keepScreenOn).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
 // resetAll との関係
 // ---------------------------------------------------------------------------
 

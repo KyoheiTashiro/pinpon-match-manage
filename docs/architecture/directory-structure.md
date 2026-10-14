@@ -8,8 +8,9 @@ src/
 ├── main.tsx                         // エントリ。HashRouter + ErrorBoundary + SW登録（virtual:pwa-register）
 ├── components/
 │   ├── icons/index.ts              // SVGアイコン群（barrel export）
-│   ├── system/                     // アプリ基盤コンポーネント
-│   │   └── ErrorBoundary.tsx       // 例外捕捉境界
+│   ├── system/                     // アプリ基盤コンポーネント（ErrorBoundary・WakeLock）
+│   │   ├── ErrorBoundary.tsx       // 例外捕捉境界
+│   │   └── WakeLock.tsx            // keepScreenOn 設定を Screen Wake Lock に反映（描画なし）
 │   ├── domain/                     // ドメイン固有の複合UIコンポーネント（各コンポーネントはサブディレクトリ + barrel）
 │   │   ├── WinnerBadge/            // 勝者トロフィーバッジ（xs/sm/sm-xs/lg サイズ）
 │   │   └── index.ts                // barrel export
@@ -25,7 +26,8 @@ src/
 │       ├── Tabs/                   // セグメント型タブ（点数表/グラフ 切替等）
 │       ├── hooks/                  // 汎用UI共有フック（effect を集約し利用側から排除）
 │       │   ├── useDialog.ts        // <dialog> showModal/close を open prop に同期
-│       │   └── useOutsideClick.ts  // 外側クリック購読（callback ref で onOutside 安定化）
+│       │   ├── useOutsideClick.ts  // 外側クリック購読（callback ref で onOutside 安定化）
+│       │   └── useWakeLock.ts      // Screen Wake Lock 取得/解放（visibilitychange で再取得）
 │       └── index.ts                // barrel export
 ├── constants/
 │   ├── routes.ts                   // ルートパス定数（ROUTES / TAB_PATH）

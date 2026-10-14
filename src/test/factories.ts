@@ -64,5 +64,6 @@ export const makeAppState = (overrides: Partial<AppState> = {}): AppState => ({
   fontSize: FONT_SIZE.NORMAL,
   matchesView: MATCHES_VIEW.MATRIX,
   defaultBestOf: 3,
+  keepScreenOn: true,
   ...overrides,
 });

@@ -15,6 +15,8 @@ export type UiSlice = {
   setMatchesView: (view: MatchesView) => void;
   defaultBestOf: BestOf;
   setDefaultBestOf: (bestOf: BestOf) => void;
+  keepScreenOn: boolean;
+  setKeepScreenOn: (on: boolean) => void;
 };
 
 export const createUiSlice: StateCreator<StoreState, [["zustand/immer", never]], [], UiSlice> = (
@@ -34,5 +36,10 @@ export const createUiSlice: StateCreator<StoreState, [["zustand/immer", never]],
   setDefaultBestOf: (bestOf) =>
     set((state) => {
       state.defaultBestOf = bestOf;
+    }),
+  keepScreenOn: true,
+  setKeepScreenOn: (on) =>
+    set((state) => {
+      state.keepScreenOn = on;
     }),
 });

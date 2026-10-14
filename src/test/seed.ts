@@ -274,6 +274,7 @@ export const buildSeedState = (): AppState => {
     fontSize: FONT_SIZE.NORMAL,
     matchesView: MATCHES_VIEW.MATRIX,
     defaultBestOf: 3,
+    keepScreenOn: true,
   };
 
   // 参照整合性を最終チェック

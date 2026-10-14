@@ -70,6 +70,7 @@ export const appStateSchema = z.object({
   ]),
   matchesView: z.enum([MATCHES_VIEW.LIST, MATCHES_VIEW.MATRIX]),
   defaultBestOf: z.literal(BEST_OF_OPTIONS),
+  keepScreenOn: z.boolean(),
 });
 
 // 型整合チェック: appStateSchema の infer が types.ts の AppState と構造一致することを
@@ -117,5 +118,6 @@ export const sanitizeAppState = (state: AppState): AppState => {
     fontSize: state.fontSize,
     matchesView: state.matchesView,
     defaultBestOf: state.defaultBestOf,
+    keepScreenOn: state.keepScreenOn,
   };
 };
