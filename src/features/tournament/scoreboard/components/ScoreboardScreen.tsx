@@ -28,7 +28,7 @@ export const ScoreboardScreen = (props: UseScoreboardProps) => {
       role="dialog"
       aria-modal="true"
       tabIndex={-1}
-      className="fixed inset-0 z-[60] flex touch-none flex-col overflow-x-hidden bg-black pt-[env(safe-area-inset-top)] pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] text-white select-none"
+      className="fixed inset-0 z-[60] flex touch-none flex-col overflow-x-hidden bg-blue-800 pt-[env(safe-area-inset-top)] pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] text-white select-none"
       onClick={(event) => event.stopPropagation()}
       onKeyDown={(event) => event.stopPropagation()}
     >

@@ -33,7 +33,7 @@ const meta = {
   parameters: { layout: "fullscreen", backgrounds: { default: "dark" } },
   decorators: [
     (Story) => (
-      <div className="flex min-h-screen flex-col bg-black text-white">
+      <div className="flex min-h-screen flex-col bg-blue-800 text-white">
         <Story />
       </div>
     ),

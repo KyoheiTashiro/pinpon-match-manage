@@ -18,7 +18,7 @@ const meta = {
   parameters: { layout: "fullscreen", backgrounds: { default: "dark" } },
   decorators: [
     (Story) => (
-      <div className="bg-black text-white">
+      <div className="bg-blue-800 text-white">
         <Story />
       </div>
     ),
