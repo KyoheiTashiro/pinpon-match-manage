@@ -13,6 +13,7 @@
 ### setup（`vitest.setup.ts`）
 
 - `@testing-library/jest-dom/vitest` の matcher を読み込み
+  - matcher の型は `src/jest-dom-vitest.d.ts` で自前宣言（vitest 5 の `Assertion<R, T>` と jest-dom 7.0.1 の `Assertion<T>` が型マージ不能なため。jest-dom が vitest 5 対応したら削除）
 - `afterEach` で `cleanup()`（テスト間の DOM 汚染防止）
 - jsdom は `HTMLDialogElement` のモーダル API（`showModal` / `close`）未実装のため polyfill
 
