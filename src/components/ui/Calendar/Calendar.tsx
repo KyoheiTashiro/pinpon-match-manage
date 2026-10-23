@@ -1,5 +1,5 @@
 import { CalendarIcon, ChevronDownIcon } from "@/components/icons";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 
 const WEEKDAYS = ["日", "月", "火", "水", "木", "金", "土"];
 
@@ -50,10 +50,10 @@ export const Calendar = ({
   const triggerRef = useRef<HTMLButtonElement>(null);
   const gridRef = useRef<HTMLTableElement>(null);
 
-  const today = useMemo(() => {
+  const [today] = useState(() => {
     const now = new Date();
     return { year: now.getFullYear(), month: now.getMonth(), day: now.getDate() };
-  }, []);
+  });
 
   const selected = parseISO(value);
 
