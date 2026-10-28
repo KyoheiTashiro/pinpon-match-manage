@@ -1,6 +1,7 @@
 import path from "path";
 
 import tailwindcss from "@tailwindcss/vite";
+import { redact } from "@tanstack/redact/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
@@ -15,6 +16,7 @@ export default defineConfig({
   plugins: [
     tailwindcss(),
     react(),
+    redact(),
     VitePWA({
       registerType: "autoUpdate",
       includeAssets: ["og-image.png", "icons/icon-192.png", "icons/icon-512.png"],

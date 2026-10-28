@@ -6,6 +6,7 @@
 | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | フロント     | React 19 + TypeScript                                                                                                                                         |
 | ビルド       | Vite 8                                                                                                                                                        |
+| ランタイム   | TanStack Redact（`@tanstack/redact/vite`。ビルド時に react/react-dom を同期レンダラへ差し替え・バンドル縮小。Vitest は upstream React のまま）                |
 | ルーティング | React Router v7 (`HashRouter` — GH Pages対応)                                                                                                                 |
 | 状態管理     | Zustand v5 + `immer` ミドルウェア + `persist`（LocalStorage永続化）                                                                                           |
 | フォーム     | React Hook Form + Zod（`@hookform/resolvers/zod`）                                                                                                            |
