@@ -91,7 +91,7 @@ Lint/Format は **oxlint + oxfmt**（ESLint/Prettier ではない）。多くは
   ```
 - **action 内ガードは early-return**（`const x = state.matches[id]; if (!x) return;`）。
 - **横断 selector（複数エンティティ導出）は `src/store/selectors.ts` に純関数で**（store を引数に取りテスト可能に）。
-- **ローカル state vs store**: 永続化対象（tournaments/participants/matches 等、`partialize` で限定）は store。UI 一時状態（編集中 id・モーダル開閉・選択 Set）は `useState`。試合進行・勝敗・順位は**永続化せず純関数で派生**。
+- **ローカル state vs store**: 永続化対象（tournaments/participants/matches 等、`partialize` で限定）は store。UI 一時状態（編集中 id・モーダル開閉・選択 Set）は `useState`。1 操作で複数 state を同時に動かし、組み合わせに守るべき条件がある場合のみ `useReducer`（reducer は別ファイルの純関数にしてテスト。例: `components/ui/Calendar/calendarReducer.ts`）。試合進行・勝敗・順位は**永続化せず純関数で派生**。
 
 ## 6. import
 

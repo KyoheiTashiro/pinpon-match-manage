@@ -1,5 +1,6 @@
 import { CalendarIcon, ChevronDownIcon } from "@/components/icons";
-import { useCallback, useRef, useState } from "react";
+import { calendarReducer } from "@/components/ui/Calendar/calendarReducer";
+import { useCallback, useReducer, useRef, useState } from "react";
 
 const WEEKDAYS = ["日", "月", "火", "水", "木", "金", "土"];
 
@@ -45,7 +46,6 @@ export const Calendar = ({
   placeholder = "日付を選択",
   disabled = false,
 }: Props) => {
-  const [isOpen, setIsOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const gridRef = useRef<HTMLTableElement>(null);
@@ -57,11 +57,10 @@ export const Calendar = ({
 
   const selected = parseISO(value);
 
-  const [view, setView] = useState(() => ({
-    year: selected?.year ?? today.year,
-    month: selected?.month ?? today.month,
-  }));
-  const [cursor, setCursor] = useState(selected?.day ?? today.day);
+  const [{ isOpen, cursor, ...view }, dispatch] = useReducer(calendarReducer, null, () => {
+    const base = selected ?? today;
+    return { isOpen: false, year: base.year, month: base.month, cursor: base.day };
+  });
 
   // open 時にグリッドへフォーカス（条件レンダーのマウント時のみ発火する callback ref）。
   // 外クリックは全画面オーバーレイの onPointerDown が担うため、document 購読は不要。
@@ -81,34 +80,22 @@ export const Calendar = ({
   for (let index = 0; index < cells.length; index += 7) weeks.push(cells.slice(index, index + 7));
 
   const openCalendar = () => {
-    const base = selected ?? today;
-    setView({ year: base.year, month: base.month });
-    setCursor(base.day);
-    setIsOpen(true);
+    dispatch({ type: "open", ...(selected ?? today) });
   };
 
   const close = (returnFocus = true) => {
-    setIsOpen(false);
+    dispatch({ type: "close" });
     if (returnFocus) triggerRef.current?.focus();
   };
 
-  const goMonth = (delta: number) => {
-    setView((prev) => {
-      const next = new Date(prev.year, prev.month + delta, 1);
-      return { year: next.getFullYear(), month: next.getMonth() };
-    });
-  };
+  const goMonth = (delta: number) => dispatch({ type: "goMonth", delta });
 
   const selectDay = (day: number) => {
     onChange(toISO(view.year, view.month, day));
     close();
   };
 
-  const moveCursor = (delta: number) => {
-    const next = new Date(view.year, view.month, cursor + delta);
-    setView({ year: next.getFullYear(), month: next.getMonth() });
-    setCursor(next.getDate());
-  };
+  const moveCursor = (delta: number) => dispatch({ type: "moveCursor", delta });
 
   const handleGridKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
     switch (event.key) {

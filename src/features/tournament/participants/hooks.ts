@@ -5,6 +5,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
+const EMPTY_SELECTION: ReadonlySet<string> = new Set();
+
 export const useParticipants = (tournamentId: string) => {
   const tournament = useAppStore((state) => state.tournaments[tournamentId]);
   const participants = useAppStore((state) => state.participants);
@@ -24,8 +26,8 @@ export const useParticipants = (tournamentId: string) => {
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [removeTarget, setRemoveTarget] = useState<string | null>(null);
-  const [pastPickerOpen, setPastPickerOpen] = useState(false);
-  const [pastSelected, setPastSelected] = useState<Set<string>>(new Set());
+  // null = 過去参加者ピッカーが閉じている
+  const [pastSelected, setPastSelected] = useState<Set<string> | null>(null);
 
   const addForm = useForm<FormType>({
     resolver: zodResolver(Schema),
@@ -61,13 +63,11 @@ export const useParticipants = (tournamentId: string) => {
   };
   const cancelRemove = () => setRemoveTarget(null);
 
-  const openPastPicker = () => setPastPickerOpen(true);
-  const closePastPicker = () => {
-    setPastPickerOpen(false);
-    setPastSelected(new Set());
-  };
+  const openPastPicker = () => setPastSelected(new Set());
+  const closePastPicker = () => setPastSelected(null);
   const togglePast = (name: string) => {
     setPastSelected((prev) => {
+      if (!prev) return prev;
       const next = new Set(prev);
       if (next.has(name)) {
         next.delete(name);
@@ -78,7 +78,7 @@ export const useParticipants = (tournamentId: string) => {
     });
   };
   const confirmAddPast = () => {
-    addParticipants(tournamentId, [...pastSelected]);
+    if (pastSelected) addParticipants(tournamentId, [...pastSelected]);
     closePastPicker();
   };
 
@@ -96,8 +96,8 @@ export const useParticipants = (tournamentId: string) => {
     doRemove,
     cancelRemove,
     pastCandidates,
-    pastPickerOpen,
-    pastSelected,
+    pastPickerOpen: pastSelected !== null,
+    pastSelected: pastSelected ?? EMPTY_SELECTION,
     openPastPicker,
     closePastPicker,
     togglePast,
