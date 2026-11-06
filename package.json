@@ -21,7 +21,7 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "@hookform/resolvers": "5.9.1",
+    "@hookform/resolvers": "6.0.0",
     "@tanstack/redact": "0.2.2",
     "html-to-image": "1.11.13",
     "immer": "11.1.21",
