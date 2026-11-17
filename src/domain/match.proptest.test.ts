@@ -1,10 +1,11 @@
 import { DEUCE_FROM } from "@/domain/constants";
-import { SIDE, type Side } from "@/domain/match";
+import { GAME_KIND, SIDE, type Game, type Side } from "@/domain/match";
 import {
   addPointToGame,
   currentServer,
   flip,
   gameFirstServer,
+  gameScore,
   gameWinner,
   isGameEmpty,
   isGameFinished,
@@ -16,6 +17,7 @@ import {
   winsNeededForBestOf,
 } from "@/domain/match";
 import { finishedGameArb, gameArb, gameFromLogArb, sideArb } from "@/test/arbitraries";
+import { gameFromLog, makeGame } from "@/test/factories";
 import * as fc from "fast-check";
 import { describe, expect, it } from "vitest";
 
@@ -37,6 +39,7 @@ describe("matchSummary プロパティテスト", () => {
       fc.property(
         fc.array(
           fc.record({
+            kind: fc.constant(GAME_KIND.MANUAL),
             leftScore: fc.integer({ min: 11, max: 21 }),
             rightScore: fc.integer({ min: 0, max: 9 }),
           }),
@@ -69,16 +72,28 @@ describe("matchSummary プロパティテスト", () => {
     );
   });
 
-  it("leftPoints は全ゲームの leftScore の合計、rightPoints も同様", () => {
-    // ポイント合計はゲームスコアの単純合算と一致する
+  it("勝敗未確定なら leftPoints / rightPoints は全ゲームのスコア合計", () => {
     fc.assert(
       fc.property(fc.array(gameArb, { minLength: 0, maxLength: 7 }), (games) => {
-        const { leftPoints, rightPoints } = matchSummary(games);
-        const expectedLeft = games.reduce((acc, g) => acc + g.leftScore, 0);
-        const expectedRight = games.reduce((acc, g) => acc + g.rightScore, 0);
-        expect(leftPoints).toBe(expectedLeft);
-        expect(rightPoints).toBe(expectedRight);
+        const { leftPoints, rightPoints, finished } = matchSummary(games, 8);
+        expect(finished).toBe(false);
+        expect(leftPoints).toBe(games.reduce((sum, game) => sum + gameScore(game).leftScore, 0));
+        expect(rightPoints).toBe(games.reduce((sum, game) => sum + gameScore(game).rightScore, 0));
       }),
+    );
+  });
+
+  it("勝敗確定後に続くゲームは集計に影響しない", () => {
+    fc.assert(
+      fc.property(
+        fc.array(gameArb, { minLength: 0, maxLength: 7 }),
+        fc.array(gameArb, { minLength: 1, maxLength: 3 }),
+        (games, extra) => {
+          const summary = matchSummary(games);
+          fc.pre(summary.finished);
+          expect(matchSummary([...games, ...extra])).toEqual(summary);
+        },
+      ),
     );
   });
 });
@@ -97,7 +112,7 @@ describe("gameWinner プロパティテスト", () => {
   it("スコアが 0-0 のゲームは未終了で gameWinner は null", () => {
     // 0-0 ゲームは必ず未終了
     fc.assert(
-      fc.property(fc.constant({ leftScore: 0, rightScore: 0 }), (game) => {
+      fc.property(fc.constantFrom<Game>(makeGame(), gameFromLog([])), (game) => {
         expect(isGameFinished(game)).toBe(false);
         expect(gameWinner(game)).toBeNull();
       }),
@@ -117,30 +132,25 @@ describe("gameWinner プロパティテスト", () => {
 });
 
 describe("addPointToGame / removePointFromGame プロパティテスト", () => {
-  it("addPoint → removePoint(同じ side) でスコア・pointLog が元に戻る（ラウンドトリップ）", () => {
-    // 得点追加後に同じ side を減点すると完全に元の状態へ復元される
-    // gameFromLogArb は必ず pointLog を持つため非 null アクセスが安全
+  it("addPoint → removePoint(同じ side) で元のゲームに戻る（履歴・直書きとも）", () => {
     fc.assert(
-      fc.property(gameFromLogArb, sideArb, (game, side) => {
-        const after = addPointToGame(game, side);
-        const removed = removePointFromGame(after, side);
-        expect(removed.leftScore).toBe(game.leftScore);
-        expect(removed.rightScore).toBe(game.rightScore);
-        expect(removed.pointLog).toEqual(game.pointLog);
+      fc.property(fc.oneof(gameArb, gameFromLogArb), sideArb, (game, side) => {
+        expect(removePointFromGame(addPointToGame(game, side), side)).toEqual(game);
       }),
     );
   });
 
-  it("addPoint で pointLog が 1 増え、removePoint で 1 減る", () => {
-    // ログの長さが正確に+1/-1される
-    // gameFromLogArb は必ず pointLog を持つため非 null アクセスが安全
+  it("addPoint は該当 side を +1 し、相手スコアとゲーム種別を変えない", () => {
     fc.assert(
-      fc.property(gameFromLogArb, sideArb, (game, side) => {
-        const before = game.pointLog!.length;
+      fc.property(fc.oneof(gameArb, gameFromLogArb), sideArb, (game, side) => {
+        const before = gameScore(game);
         const after = addPointToGame(game, side);
-        const removed = removePointFromGame(after, side);
-        expect(after.pointLog!.length).toBe(before + 1);
-        expect(removed.pointLog!.length).toBe(before);
+        const expected =
+          side === SIDE.LEFT
+            ? { leftScore: before.leftScore + 1, rightScore: before.rightScore }
+            : { leftScore: before.leftScore, rightScore: before.rightScore + 1 };
+        expect(gameScore(after)).toEqual(expected);
+        expect(after.kind).toBe(game.kind);
       }),
     );
   });
@@ -148,44 +158,27 @@ describe("addPointToGame / removePointFromGame プロパティテスト", () => 
 
 describe("removePointFromGame プロパティテスト", () => {
   it("該当 side のスコアは max(0, 元-1) になり、相手スコアは不変", () => {
-    // 減点対象側のスコアだけが変化し、相手側のスコアは常に維持される
     fc.assert(
-      fc.property(gameArb, sideArb, (game, side) => {
-        const before = side === SIDE.LEFT ? game.leftScore : game.rightScore;
-        const opponentBefore = side === SIDE.LEFT ? game.rightScore : game.leftScore;
-        const result = removePointFromGame(game, side);
-        const after = side === SIDE.LEFT ? result.leftScore : result.rightScore;
-        const opponentAfter = side === SIDE.LEFT ? result.rightScore : result.leftScore;
-        expect(after).toBe(Math.max(0, before - 1));
-        expect(opponentAfter).toBe(opponentBefore);
+      fc.property(fc.oneof(gameArb, gameFromLogArb), sideArb, (game, side) => {
+        const before = gameScore(game);
+        const after = gameScore(removePointFromGame(game, side));
+        const expected =
+          side === SIDE.LEFT
+            ? { leftScore: Math.max(0, before.leftScore - 1), rightScore: before.rightScore }
+            : { leftScore: before.leftScore, rightScore: Math.max(0, before.rightScore - 1) };
+        expect(after).toEqual(expected);
       }),
     );
   });
 
   it("該当 side のスコアが 0 なら同一参照が返る", () => {
-    // スコアが既に 0 の側は減点不可であり参照同一性が保たれる
     fc.assert(
       fc.property(fc.integer({ min: 0, max: 21 }), sideArb, (opponentScore, side) => {
-        const game =
+        const game: Game =
           side === SIDE.LEFT
-            ? { leftScore: 0, rightScore: opponentScore }
-            : { leftScore: opponentScore, rightScore: 0 };
+            ? { kind: "manual", leftScore: 0, rightScore: opponentScore }
+            : { kind: "manual", leftScore: opponentScore, rightScore: 0 };
         expect(removePointFromGame(game, side)).toBe(game);
-      }),
-    );
-  });
-
-  it("pointLog を持つゲームで該当 side のスコアが正なら pointLog の長さも 1 減る", () => {
-    // pointLog がある場合はスコアと pointLog の整合性が保たれる
-    fc.assert(
-      fc.property(gameFromLogArb, sideArb, (game, side) => {
-        const score = side === SIDE.LEFT ? game.leftScore : game.rightScore;
-        const result = removePointFromGame(game, side);
-        if (score > 0) {
-          expect(result.pointLog!.length).toBe(game.pointLog!.length - 1);
-        } else {
-          expect(result.pointLog).toEqual(game.pointLog);
-        }
       }),
     );
   });
@@ -230,8 +223,14 @@ describe("currentServer プロパティテスト", () => {
     // total=20: switches=DEUCE_SERVE_BASE+(20-20)=10(偶数) → firstServer  ← 切替ルール変更後も整合
     fc.assert(
       fc.property(sideArb, (firstServer) => {
-        const server19 = currentServer({ leftScore: 10, rightScore: 9 }, firstServer);
-        const server20 = currentServer({ leftScore: 10, rightScore: 10 }, firstServer);
+        const server19 = currentServer(
+          { kind: "manual", leftScore: 10, rightScore: 9 },
+          firstServer,
+        );
+        const server20 = currentServer(
+          { kind: "manual", leftScore: 10, rightScore: 10 },
+          firstServer,
+        );
         // 合計19点(奇数回交代) → opposite
         expect(server19).toBe(opposite(firstServer));
         // 合計20点(デュース開始、偶数回交代) → firstServer
@@ -244,7 +243,10 @@ describe("currentServer プロパティテスト", () => {
     // total=21: switches=10+1=11(奇数) → opposite
     fc.assert(
       fc.property(sideArb, (firstServer) => {
-        const server21 = currentServer({ leftScore: 11, rightScore: 10 }, firstServer);
+        const server21 = currentServer(
+          { kind: "manual", leftScore: 11, rightScore: 10 },
+          firstServer,
+        );
         expect(server21).toBe(opposite(firstServer));
       }),
     );
@@ -257,7 +259,10 @@ describe("currentServer プロパティテスト", () => {
         const total = DEUCE_FROM + k;
         const left = Math.ceil(total / 2);
         const right = Math.floor(total / 2);
-        const server = currentServer({ leftScore: left, rightScore: right }, firstServer);
+        const server = currentServer(
+          { kind: "manual", leftScore: left, rightScore: right },
+          firstServer,
+        );
         const expected = k % 2 === 0 ? firstServer : opposite(firstServer);
         expect(server).toBe(expected);
       }),
@@ -270,7 +275,8 @@ describe("isGameEmpty / realGames プロパティテスト", () => {
     fc.assert(
       fc.property(gameArb, (game) => {
         const result = isGameEmpty(game);
-        expect(result).toBe(game.leftScore === 0 && game.rightScore === 0);
+        const { leftScore, rightScore } = gameScore(game);
+        expect(result).toBe(leftScore === 0 && rightScore === 0);
       }),
     );
   });
@@ -389,6 +395,7 @@ describe("matchSummary 勝者確定境界プロパティテスト", () => {
         fc.property(
           fc.array(
             fc.record({
+              kind: fc.constant(GAME_KIND.MANUAL),
               leftScore: fc.integer({ min: 11, max: 15 }),
               rightScore: fc.integer({ min: 0, max: 9 }),
             }),
@@ -410,6 +417,7 @@ describe("matchSummary 勝者確定境界プロパティテスト", () => {
         fc.property(
           fc.array(
             fc.record({
+              kind: fc.constant(GAME_KIND.MANUAL),
               leftScore: fc.integer({ min: 0, max: 9 }),
               rightScore: fc.integer({ min: 11, max: 15 }),
             }),

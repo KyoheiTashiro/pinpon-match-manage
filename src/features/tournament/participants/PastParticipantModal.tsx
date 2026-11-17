@@ -11,7 +11,7 @@ type Candidate = {
 type Props = {
   open: boolean;
   candidates: Candidate[];
-  selected: Set<string>;
+  selected: ReadonlySet<string>;
   onToggle: (name: string) => void;
   onConfirm: () => void;
   onCancel: () => void;

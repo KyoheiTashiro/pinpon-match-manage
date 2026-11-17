@@ -44,7 +44,6 @@ describe("migratePersistedState: v1 → v2 (bestOf 補完)", () => {
       tournaments: { t1: { ...v1Tournament } },
       participants: {},
       matches: {},
-      currentTournamentId: null,
       fontSize: FONT_SIZE.NORMAL,
       matchesView: MATCHES_VIEW.MATRIX,
     };
@@ -60,7 +59,6 @@ describe("migratePersistedState: v1 → v2 (bestOf 補完)", () => {
       tournaments: { t1: tournamentWithBestOf },
       participants: {},
       matches: {},
-      currentTournamentId: null,
       fontSize: FONT_SIZE.NORMAL,
       matchesView: MATCHES_VIEW.MATRIX,
     };
@@ -79,7 +77,6 @@ describe("migratePersistedState: v1 → v2 (bestOf 補完)", () => {
       },
       participants: {},
       matches: {},
-      currentTournamentId: null,
       fontSize: FONT_SIZE.NORMAL,
       matchesView: MATCHES_VIEW.MATRIX,
     };
@@ -106,7 +103,6 @@ describe("migratePersistedState: v1 → v2 (bestOf 補完)", () => {
     const result = asAppState(migratePersistedState(persisted, 1));
 
     expect(result.participants.p1).toBeDefined();
-    expect(result.currentTournamentId).toBe("t1");
     expect(result.fontSize).toBe(FONT_SIZE.LARGE);
   });
 });
@@ -131,7 +127,6 @@ describe("migratePersistedState: fromVersion=2 (変換不要)", () => {
       tournaments: { t1: { ...v2Tournament, bestOf: 3 } },
       participants: {},
       matches: {},
-      currentTournamentId: null,
       fontSize: FONT_SIZE.NORMAL,
       matchesView: MATCHES_VIEW.MATRIX,
     };
@@ -146,7 +141,6 @@ describe("migratePersistedState: fromVersion=2 (変換不要)", () => {
       tournaments: { t1: v2Tournament },
       participants: {},
       matches: {},
-      currentTournamentId: null,
       fontSize: FONT_SIZE.NORMAL,
       matchesView: MATCHES_VIEW.MATRIX,
     };
@@ -167,7 +161,6 @@ describe("migratePersistedState: v2 → v3 (matchesView 補完)", () => {
       tournaments: {},
       participants: {},
       matches: {},
-      currentTournamentId: null,
       fontSize: FONT_SIZE.NORMAL,
       // matchesView が存在しない (v2 のデータ)
     };
@@ -182,7 +175,6 @@ describe("migratePersistedState: v2 → v3 (matchesView 補完)", () => {
       tournaments: {},
       participants: {},
       matches: {},
-      currentTournamentId: null,
       fontSize: FONT_SIZE.NORMAL,
       matchesView: MATCHES_VIEW.LIST,
     };
@@ -207,7 +199,6 @@ describe("migratePersistedState: v2 → v3 (matchesView 補完)", () => {
       },
       participants: {},
       matches: {},
-      currentTournamentId: null,
       fontSize: FONT_SIZE.NORMAL,
       // matchesView が存在しない (v1 のデータ)
     };
@@ -229,7 +220,6 @@ describe("migratePersistedState: v3 → v4 (defaultBestOf 補完)", () => {
       tournaments: {},
       participants: {},
       matches: {},
-      currentTournamentId: null,
       fontSize: FONT_SIZE.NORMAL,
       matchesView: MATCHES_VIEW.MATRIX,
       // defaultBestOf が存在しない (v3 のデータ)
@@ -245,7 +235,6 @@ describe("migratePersistedState: v3 → v4 (defaultBestOf 補完)", () => {
       tournaments: {},
       participants: {},
       matches: {},
-      currentTournamentId: null,
       fontSize: FONT_SIZE.NORMAL,
       matchesView: MATCHES_VIEW.MATRIX,
       defaultBestOf: 7,
@@ -266,7 +255,6 @@ describe("migratePersistedState: v4 → v5 (keepScreenOn 補完)", () => {
     tournaments: {},
     participants: {},
     matches: {},
-    currentTournamentId: null,
     fontSize: FONT_SIZE.NORMAL,
     matchesView: MATCHES_VIEW.MATRIX,
     defaultBestOf: 3,
@@ -279,6 +267,96 @@ describe("migratePersistedState: v4 → v5 (keepScreenOn 補完)", () => {
   it("fromVersion=4: keepScreenOn が既にあればそのまま保持される", () => {
     const result = asAppState(migratePersistedState({ ...v4, keepScreenOn: false }, 4));
     expect(result.keepScreenOn).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// v5 → v6 マイグレーション: Game / Match のユニオン化・currentTournamentId 廃止
+// ---------------------------------------------------------------------------
+
+const v5Match = (overrides: Record<string, unknown>) => ({
+  id: "m1",
+  tournamentId: "t1",
+  leftSide: { kind: "single", participantId: "p1" },
+  rightSide: { kind: "single", participantId: "p2" },
+  games: [],
+  firstServer: "L",
+  ...overrides,
+});
+const migrateV5 = (matches: Record<string, unknown>) =>
+  asAppState(migratePersistedState({ matches, currentTournamentId: "t1" }, 5));
+
+describe("migratePersistedState: v5 → v6 (Game/Match ユニオン化)", () => {
+  it("シングルスの leftSide/rightSide を kind/left/right へ変換する", () => {
+    expect(migrateV5({ m1: v5Match({}) }).matches.m1).toEqual({
+      id: "m1",
+      tournamentId: "t1",
+      kind: FORMAT.SINGLES,
+      left: "p1",
+      right: "p2",
+      games: [],
+      firstServer: "L",
+    });
+  });
+
+  it("ダブルスの memberIds をタプルへ変換する", () => {
+    const match = migrateV5({
+      m1: v5Match({
+        leftSide: { kind: "pair", memberIds: ["p1", "p2"] },
+        rightSide: { kind: "pair", memberIds: ["p3", "p4"] },
+      }),
+    }).matches.m1;
+    expect(match).toMatchObject({ kind: FORMAT.DOUBLES, left: ["p1", "p2"], right: ["p3", "p4"] });
+  });
+
+  it("履歴がスコアと一致するゲームは logged、食い違う・履歴なしのゲームは manual になる", () => {
+    const match = migrateV5({
+      m1: v5Match({
+        games: [
+          { leftScore: 2, rightScore: 1, pointLog: ["L", "R", "L"] },
+          { leftScore: 11, rightScore: 5, pointLog: ["L"] },
+          { leftScore: 11, rightScore: 9 },
+          { leftScore: 0, rightScore: 0 },
+        ],
+      }),
+    }).matches.m1;
+    expect(match.games).toEqual([
+      { kind: "logged", pointLog: ["L", "R", "L"] },
+      { kind: "manual", leftScore: 11, rightScore: 5 },
+      { kind: "manual", leftScore: 11, rightScore: 9 },
+      { kind: "logged", pointLog: [] },
+    ]);
+  });
+
+  it("片側だけペアの試合・壊れた試合は変換せず残す（後段の検証で落ちる）", () => {
+    const mixed = v5Match({ rightSide: { kind: "pair", memberIds: ["p2", "p3"] } });
+    const broken = { id: "m2", leftSide: "x" };
+    const result = migrateV5({ m1: mixed, m2: broken, m3: null });
+    expect(result.matches).toEqual({ m1: mixed, m2: broken, m3: null });
+  });
+
+  it("変換済み（kind あり）の試合・ゲームには触らない", () => {
+    const migrated = {
+      id: "m1",
+      tournamentId: "t1",
+      kind: FORMAT.SINGLES,
+      left: "p1",
+      right: "p2",
+      games: [{ kind: "logged", pointLog: ["L"] }],
+      firstServer: "L",
+    };
+    expect(migrateV5({ m1: migrated }).matches.m1).toEqual(migrated);
+    const legacyWithNewGame = v5Match({ games: [{ kind: "logged", pointLog: ["L"] }, "x"] });
+    expect(migrateV5({ m1: legacyWithNewGame }).matches.m1.games).toEqual([
+      { kind: "logged", pointLog: ["L"] },
+      "x",
+    ]);
+  });
+
+  it("currentTournamentId を捨てる。matches が無くても落ちない", () => {
+    expect(migrateV5({})).not.toHaveProperty("currentTournamentId");
+    const result = migratePersistedState({ currentTournamentId: "t1", fontSize: "normal" }, 5);
+    expect(result).toEqual({ fontSize: "normal" });
   });
 });
 
@@ -309,7 +387,6 @@ describe("migratePersistedState: 不正入力・境界ケース", () => {
     const persisted = {
       participants: {},
       matches: {},
-      currentTournamentId: null,
       fontSize: FONT_SIZE.NORMAL,
       matchesView: MATCHES_VIEW.MATRIX,
       // tournaments なし
@@ -325,7 +402,6 @@ describe("migratePersistedState: 不正入力・境界ケース", () => {
       tournaments: {},
       participants: {},
       matches: {},
-      currentTournamentId: null,
       fontSize: FONT_SIZE.NORMAL,
       matchesView: MATCHES_VIEW.MATRIX,
     };
@@ -349,7 +425,6 @@ describe("migratePersistedState: 不正入力・境界ケース", () => {
       },
       participants: {},
       matches: {},
-      currentTournamentId: null,
       fontSize: FONT_SIZE.NORMAL,
       matchesView: MATCHES_VIEW.MATRIX,
     };

@@ -25,7 +25,7 @@ Lint/Format は **oxlint + oxfmt**（ESLint/Prettier ではない）。多くは
   export const BEST_OF_OPTIONS = [3, 5, 7] as const;
   export type BestOf = (typeof BEST_OF_OPTIONS)[number];
   ```
-  根拠: 値と型を 1 箇所で同期。`SIDE`/`SIDE_KIND`/`FONT_SIZE`/`ROUTES` 等で一貫。
+  根拠: 値と型を 1 箇所で同期。`SIDE`/`FORMAT`/`FONT_SIZE`/`ROUTES` 等で一貫。
 - **zustand スライス**: 型 `XxxSlice` + ファクトリ `createXxxSlice` + 初期値 `xxxInitial`。
 - **selector 関数**: `xxxOf` 形（`matchesOf`, `pastParticipantNamesOf`）。`src/store/selectors.ts`。
 - **省略形を使わない**: 識別子（変数・引数・関数・プロパティ・型）は完全な英単語で綴る。短縮形・頭文字省略・単文字いずれも不可。
@@ -63,7 +63,7 @@ Lint/Format は **oxlint + oxfmt**（ESLint/Prettier ではない）。多くは
 - **React props 型はコンポーネント内ローカルに `type Props = { ... }`**。HTML 要素拡張は交差型（`ButtonHTMLAttributes<HTMLButtonElement> & { ... }`）。
 - **React 19 流儀**: `forwardRef` を使わず `ref?: Ref<T>` を props に含める。
 - 単一 prop の `View` はインライン注釈可（`({ tournamentId }: { tournamentId: string })`）。複数 prop は `type Props`。
-- **型のみ import は必ず `type` 修飾**（`import { SIDE_KIND, type Match } from ...` の混在形も可）。
+- **型のみ import は必ず `type` 修飾**（`import { FORMAT, type Match } from ...` の混在形も可）。
 
 ## 4. React / コンポーネント
 
@@ -91,7 +91,7 @@ Lint/Format は **oxlint + oxfmt**（ESLint/Prettier ではない）。多くは
   ```
 - **action 内ガードは early-return**（`const x = state.matches[id]; if (!x) return;`）。
 - **横断 selector（複数エンティティ導出）は `src/store/selectors.ts` に純関数で**（store を引数に取りテスト可能に）。
-- **ローカル state vs store**: 永続化対象（tournaments/participants/matches 等、`partialize` で限定）は store。UI 一時状態（編集中 id・モーダル開閉・選択 Set）は `useState`。試合進行・勝敗・順位は**永続化せず純関数で派生**。
+- **ローカル state vs store**: 永続化対象（tournaments/participants/matches 等、`partialize` で限定）は store。UI 一時状態（編集中 id・モーダル開閉・選択 Set）は `useState`。1 操作で複数 state を同時に動かし、組み合わせに守るべき条件がある場合のみ `useReducer`（reducer は別ファイルの純関数にしてテスト。例: `components/ui/Calendar/calendarReducer.ts`）。試合進行・勝敗・順位は**永続化せず純関数で派生**。
 
 ## 6. import
 

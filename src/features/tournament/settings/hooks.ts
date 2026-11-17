@@ -4,8 +4,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
-export const DIALOG = { reset: "reset", delete: "delete" } as const;
-type Dialog = (typeof DIALOG)[keyof typeof DIALOG];
+export const SETTINGS_MODE = {
+  VIEW: "view",
+  EDITING: "editing",
+  CONFIRM_RESET: "confirmReset",
+  CONFIRM_DELETE: "confirmDelete",
+} as const;
+type SettingsMode = (typeof SETTINGS_MODE)[keyof typeof SETTINGS_MODE];
 
 export const useSettings = (tournamentId: string, onDeleted: () => void) => {
   const tournament = useAppStore((state) => state.tournaments[tournamentId]);
@@ -13,9 +18,11 @@ export const useSettings = (tournamentId: string, onDeleted: () => void) => {
   const resetTournament = useAppStore((state) => state.resetTournament);
   const deleteTournament = useAppStore((state) => state.deleteTournament);
 
-  const [editing, setEditing] = useState(false);
-  const [dialog, setDialog] = useState<Dialog | null>(null);
-  const closeDialog = () => setDialog(null);
+  const [mode, setMode] = useState<SettingsMode>(SETTINGS_MODE.VIEW);
+  const backToView = () => setMode(SETTINGS_MODE.VIEW);
+  // 編集中に削除ダイアログへ移ると入力途中の値が確認なしで消えるため、閲覧状態からのみ開く
+  const openFromView = (next: SettingsMode) =>
+    setMode((current) => (current === SETTINGS_MODE.VIEW ? next : current));
 
   const form = useForm<FormType>({
     resolver: zodResolver(Schema),
@@ -27,35 +34,33 @@ export const useSettings = (tournamentId: string, onDeleted: () => void) => {
     if (!tournament) return;
     form.reset({ name: tournament.name, date: tournament.date });
     void form.trigger(); // プリフィル値で isValid を即時確定（保存ボタンの初期 disabled 回避）
-    setEditing(true);
+    setMode(SETTINGS_MODE.EDITING);
   };
-  const cancelEdit = () => setEditing(false);
   const saveEdit = form.handleSubmit((data) => {
     updateTournament(tournamentId, { name: data.name, date: data.date });
-    setEditing(false);
+    backToView();
   });
 
   const doReset = () => {
     resetTournament(tournamentId);
-    closeDialog();
+    backToView();
   };
   const doDelete = () => {
     deleteTournament(tournamentId);
-    closeDialog();
+    backToView();
     onDeleted();
   };
 
   return {
     tournament,
     form,
-    editing,
+    mode,
     startEdit,
-    cancelEdit,
+    cancelEdit: backToView,
     saveEdit,
-    dialog,
-    openReset: () => setDialog(DIALOG.reset),
-    openDelete: () => setDialog(DIALOG.delete),
-    closeDialog,
+    openReset: () => openFromView(SETTINGS_MODE.CONFIRM_RESET),
+    openDelete: () => openFromView(SETTINGS_MODE.CONFIRM_DELETE),
+    closeDialog: backToView,
     doReset,
     doDelete,
   };

@@ -95,6 +95,15 @@ describe("Calendar", () => {
     expect(onChange).toHaveBeenCalledWith("2026-06-28");
   });
 
+  it("31日から PageDown で30日の月へ移ると月末日に丸めて選択される", async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn<(v: string) => void>();
+    render(<Calendar value="2026-05-31" onChange={onChange} ariaLabel="開催日" />);
+    await user.click(screen.getByRole("button", { name: "開催日" }));
+    await user.keyboard("{PageDown}{Enter}");
+    expect(onChange).toHaveBeenCalledWith("2026-06-30");
+  });
+
   it("Escape で閉じてトリガーにフォーカスが戻る", async () => {
     const user = userEvent.setup();
     render(<Calendar value="2026-06-21" onChange={vi.fn<() => void>()} ariaLabel="開催日" />);

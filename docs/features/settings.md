@@ -27,6 +27,7 @@
 - **大会名**: テキスト入力（最大20文字、必須）。バリデーションエラー時は赤字でメッセージ表示。
 - **開催日**: date入力（必須）。バリデーションエラー時は赤字でメッセージ表示。
 - 「キャンセル」ボタン: 編集を破棄して表示モードに戻る。
+- 編集モードの間は「試合結果を削除」「大会を削除」ボタンを disabled にする。編集と確認ダイアログは同時に開かない（`useSettings` の `mode`: `view` / `editing` / `confirmReset` / `confirmDelete` の1値で管理）。
 - 「保存」ボタン: バリデーションが通ったときのみ活性（`isValid` が true）。押すと `updateTournament` を呼び出して変更を保存し、表示モードに戻る。
 
 バリデーション（`src/features/tournament/settings/schema.ts`）:

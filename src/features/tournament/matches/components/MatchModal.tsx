@@ -1,13 +1,16 @@
 import { ChevronDownIcon } from "@/components/icons";
 import { Button, ConfirmModal } from "@/components/ui";
-import type { Game, Side } from "@/domain/match";
-import { SIDE, gameWinner, isGameFinished, winsNeededForBestOf } from "@/domain/match";
+import type { Game } from "@/domain/match";
 import {
-  padGames,
-  trimTrailingEmptyGames,
-  lockedGameStartIndex,
-  firstPlayableGameIndex,
-} from "@/domain/matchGames";
+  MATCH_PHASE,
+  SIDE,
+  gameScore,
+  gameWinner,
+  isGameEmpty,
+  matchPhase,
+  winsNeededForBestOf,
+} from "@/domain/match";
+import { padGames, trimTrailingEmptyGames } from "@/domain/matchGames";
 import { sideName } from "@/domain/side";
 import { FirstServerSelect } from "@/features/tournament/matches/components/FirstServerSelect";
 import { ScoreboardScreen } from "@/features/tournament/scoreboard";
@@ -15,6 +18,9 @@ import type { Participant } from "@/store/types";
 import { useAppStore } from "@/store/useAppStore";
 import { useId, useState } from "react";
 import { createPortal } from "react-dom";
+
+const VIEW = { LIST: "list", SCOREBOARD: "scoreboard", CONFIRM_DELETE: "confirmDelete" } as const;
+type View = (typeof VIEW)[keyof typeof VIEW];
 
 type Props = {
   matchId: string;
@@ -24,33 +30,25 @@ type Props = {
 
 export const MatchModal = ({ matchId, participants, onClose }: Props) => {
   const match = useAppStore((state) => state.matches[matchId]);
-  const updateMatch = useAppStore((state) => state.updateMatch);
+  const setGames = useAppStore((state) => state.setGames);
+  const setFirstServer = useAppStore((state) => state.setFirstServer);
   const deleteMatch = useAppStore((state) => state.deleteMatch);
   const bestOf = useAppStore((state) =>
     match ? (state.tournaments[match.tournamentId]?.bestOf ?? 5) : 5,
   );
-  const wins = winsNeededForBestOf(bestOf);
-  const [games, setGames] = useState<Game[]>(() => padGames(match?.games ?? [], bestOf));
-  const [confirmDelete, setConfirmDelete] = useState(false);
-  const [scoreboardOpen, setScoreboardOpen] = useState(false);
+  const [view, setView] = useState<View>(VIEW.LIST);
   const titleId = useId();
 
   if (!match) return null;
 
-  const leftName = sideName(match.leftSide, participants);
-  const rightName = sideName(match.rightSide, participants);
-  const firstServer: Side = match.firstServer;
-  const lockedFromIndex = lockedGameStartIndex(games, wins, bestOf);
+  const wins = winsNeededForBestOf(bestOf);
+  // ストアの値から毎回導出する（ローカルコピーを持つと別経路の更新で食い違う）
+  const games = padGames(match.games, bestOf);
+  const phase = matchPhase(games, wins);
+  const leftName = sideName(match.left, participants);
+  const rightName = sideName(match.right, participants);
 
-  const persistGames = (next: Game[]) => {
-    setGames(next);
-    const lockedStartIndex = lockedGameStartIndex(next, wins, bestOf);
-    updateMatch(match.id, { games: trimTrailingEmptyGames(next, lockedStartIndex) });
-  };
-
-  const setFirstServer = (side: Side) => {
-    updateMatch(match.id, { firstServer: side });
-  };
+  const persistGames = (next: Game[]) => setGames(match.id, trimTrailingEmptyGames(next));
 
   return createPortal(
     <div
@@ -92,12 +90,12 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
         <FirstServerSelect
           leftName={leftName}
           rightName={rightName}
-          value={firstServer}
-          onChange={setFirstServer}
+          value={match.firstServer}
+          onChange={(side) => setFirstServer(match.id, side)}
         />
 
         <div className="mb-4">
-          <Button variant="primary" className="w-full" onClick={() => setScoreboardOpen(true)}>
+          <Button variant="primary" className="w-full" onClick={() => setView(VIEW.SCOREBOARD)}>
             <span className="inline-flex items-center justify-center gap-2">
               <ChevronDownIcon className="-rotate-90" />
               スコアボードを開く
@@ -107,9 +105,10 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
 
         <ul className="divide-line border-line mb-4 space-y-2 divide-y-2 overflow-hidden rounded-xl border-2">
           {games.map((game, gameIndex) => {
-            const locked = gameIndex >= lockedFromIndex;
-            const empty = game.leftScore === 0 && game.rightScore === 0;
+            const locked = phase.kind === MATCH_PHASE.DECIDED && gameIndex > phase.gameIndex;
+            const empty = isGameEmpty(game);
             const winner = gameWinner(game);
+            const { leftScore, rightScore } = gameScore(game);
             return (
               <li
                 // oxlint-disable-next-line react/no-array-index-key -- ゲーム配列はbestOf固定長・順序不変
@@ -127,15 +126,13 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
                   ) : (
                     <>
                       <span className={winner === SIDE.LEFT ? "text-success" : ""}>
-                        {game.leftScore}
+                        {leftScore}
                       </span>
                       <span className="text-sub mx-2">-</span>
                       <span className={winner === SIDE.RIGHT ? "text-success" : ""}>
-                        {game.rightScore}
+                        {rightScore}
                       </span>
-                      {!winner && !empty && !isGameFinished(game) && (
-                        <span className="text-sub ml-2 text-sm font-bold">(進行中)</span>
-                      )}
+                      {!winner && <span className="text-sub ml-2 text-sm font-bold">(進行中)</span>}
                     </>
                   )}
                 </span>
@@ -145,29 +142,27 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
         </ul>
 
         <div className="flex flex-wrap justify-end gap-3">
-          <Button variant="danger" onClick={() => setConfirmDelete(true)}>
+          <Button variant="danger" onClick={() => setView(VIEW.CONFIRM_DELETE)}>
             試合結果を削除
           </Button>
         </div>
       </div>
 
-      {scoreboardOpen && (
+      {view === VIEW.SCOREBOARD && (
         <ScoreboardScreen
           leftName={leftName}
           rightName={rightName}
           games={games}
           setGames={persistGames}
-          lockedFromIndex={lockedFromIndex}
           winsNeeded={wins}
-          matchFirstServer={firstServer}
-          initialGameIndex={firstPlayableGameIndex(games, lockedFromIndex, bestOf)}
-          onBack={() => setScoreboardOpen(false)}
+          matchFirstServer={match.firstServer}
+          onBack={() => setView(VIEW.LIST)}
           onCloseAll={onClose}
         />
       )}
 
       <ConfirmModal
-        open={confirmDelete}
+        open={view === VIEW.CONFIRM_DELETE}
         title="試合結果を削除"
         message="この試合結果を削除します。取り消せません。"
         confirmLabel="削除する"
@@ -178,9 +173,8 @@ export const MatchModal = ({ matchId, participants, onClose }: Props) => {
           // return null でアンマウントされ、以降の onClose 到達が保証されないため。
           onClose();
           deleteMatch(match.id);
-          setConfirmDelete(false);
         }}
-        onCancel={() => setConfirmDelete(false)}
+        onCancel={() => setView(VIEW.LIST)}
       />
     </div>,
     document.body,

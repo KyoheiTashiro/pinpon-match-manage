@@ -1,9 +1,8 @@
-import type { Game, Side } from "@/domain/match";
+import { GAME_KIND, type Game, type Score, type Side } from "@/domain/match";
 import {
   FONT_SIZE,
   FORMAT,
   MATCHES_VIEW,
-  SIDE_KIND,
   type AppState,
   type Match,
   type Participant,
@@ -33,34 +32,37 @@ export const makeParticipant = (overrides: Partial<Participant> = {}): Participa
   ...overrides,
 });
 
-export const makeMatch = (overrides: Partial<Match> = {}): Match => ({
-  id: "m1",
-  tournamentId: "t1",
-  leftSide: { kind: SIDE_KIND.SINGLE, participantId: "p1" },
-  rightSide: { kind: SIDE_KIND.SINGLE, participantId: "p2" },
-  games: [],
-  firstServer: "L",
-  ...overrides,
-});
+// ダブルスにするときは kind / left / right を揃えて上書きする（spread では判別を型で追えないため as）
+export const makeMatch = (overrides: Partial<Match> = {}): Match => {
+  const match = {
+    id: "m1",
+    tournamentId: "t1",
+    kind: FORMAT.SINGLES,
+    left: "p1",
+    right: "p2",
+    games: [],
+    firstServer: "L",
+    ...overrides,
+  };
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+  return match as Match;
+};
 
-export const makeGame = (overrides: Partial<Game> = {}): Game => ({
+/** スコア直書き（履歴なし）の Game。 */
+export const makeGame = (overrides: Partial<Score> = {}): Game => ({
+  kind: GAME_KIND.MANUAL,
   leftScore: 0,
   rightScore: 0,
   ...overrides,
 });
 
 /** point ログから Game を組む(進行ロジックのテスト用)。 */
-export const gameFromLog = (log: Side[]): Game => ({
-  leftScore: log.filter((point) => point === "L").length,
-  rightScore: log.filter((point) => point === "R").length,
-  pointLog: log,
-});
+export const gameFromLog = (log: Side[]): Game => ({ kind: GAME_KIND.LOGGED, pointLog: log });
 
 export const makeAppState = (overrides: Partial<AppState> = {}): AppState => ({
   tournaments: {},
   participants: {},
   matches: {},
-  currentTournamentId: null,
   fontSize: FONT_SIZE.NORMAL,
   matchesView: MATCHES_VIEW.MATRIX,
   defaultBestOf: 3,

@@ -1,6 +1,6 @@
 import { Button, Calendar, ConfirmModal } from "@/components/ui";
 import { ROUTES } from "@/constants/routes";
-import { DIALOG, useSettings } from "@/features/tournament/settings/hooks";
+import { SETTINGS_MODE, useSettings } from "@/features/tournament/settings/hooks";
 import { matchesOf } from "@/store/selectors";
 import { FORMAT } from "@/store/types";
 import { useAppStore } from "@/store/useAppStore";
@@ -19,11 +19,10 @@ const SettingsView = ({ tournamentId }: { tournamentId: string }) => {
   const {
     tournament,
     form,
-    editing,
+    mode,
     startEdit,
     cancelEdit,
     saveEdit,
-    dialog,
     openReset,
     openDelete,
     closeDialog,
@@ -35,6 +34,7 @@ const SettingsView = ({ tournamentId }: { tournamentId: string }) => {
   const matches = useAppStore((state) => state.matches);
 
   if (!tournament) return null;
+  const editing = mode === SETTINGS_MODE.EDITING;
 
   return (
     <div className="space-y-4">
@@ -104,21 +104,21 @@ const SettingsView = ({ tournamentId }: { tournamentId: string }) => {
       )}
 
       <div className="border-line space-y-3 border-t-2 pt-4">
-        <Button variant="dangerOutline" onClick={openReset}>
+        <Button variant="dangerOutline" onClick={openReset} disabled={editing}>
           試合結果を削除
         </Button>
         <p className="text-sub text-sm">大会・参加者は残し、試合の記録だけを削除します。</p>
       </div>
 
       <div className="border-line space-y-3 border-t-2 pt-4">
-        <Button variant="danger" onClick={openDelete}>
+        <Button variant="danger" onClick={openDelete} disabled={editing}>
           大会を削除
         </Button>
         <p className="text-sub text-sm">大会・参加者・試合を全て削除します。</p>
       </div>
 
       <ConfirmModal
-        open={dialog === DIALOG.reset}
+        open={mode === SETTINGS_MODE.CONFIRM_RESET}
         title="試合結果を削除"
         message="この大会の試合記録を全て削除します。参加者は残ります。"
         confirmLabel="削除する"
@@ -129,7 +129,7 @@ const SettingsView = ({ tournamentId }: { tournamentId: string }) => {
       />
 
       <ConfirmModal
-        open={dialog === DIALOG.delete}
+        open={mode === SETTINGS_MODE.CONFIRM_DELETE}
         title="大会を削除"
         message="大会・参加者・試合を全て削除します。取り消せません。"
         confirmLabel="削除する"

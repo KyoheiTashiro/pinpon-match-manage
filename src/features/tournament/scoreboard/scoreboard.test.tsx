@@ -14,8 +14,6 @@ installMatchMediaMock();
 type ScoreboardProps = {
   leftName: string;
   rightName: string;
-  lockedFromIndex: number;
-  initialGameIndex: number;
   winsNeeded: number;
   matchFirstServer: Side;
   onBack: () => void;
@@ -32,8 +30,6 @@ const ScoreboardWrapper = ({ initialGames, ...props }: WrapperProps) => {
 const defaultProps: ScoreboardProps = {
   leftName: "選手A",
   rightName: "選手B",
-  lockedFromIndex: 1,
-  initialGameIndex: 0,
   winsNeeded: 1,
   matchFirstServer: "L",
   onBack: vi.fn<() => void>(),
@@ -43,14 +39,7 @@ describe("ScoreboardScreen", () => {
   beforeEach(setupStoreIsolation);
 
   it("初期スコア 0-0 が表示される", () => {
-    render(
-      <ScoreboardWrapper
-        {...defaultProps}
-        initialGames={[makeGame()]}
-        winsNeeded={3}
-        lockedFromIndex={1}
-      />,
-    );
+    render(<ScoreboardWrapper {...defaultProps} initialGames={[makeGame()]} winsNeeded={3} />);
 
     // スコアが 0 で表示されること（両側）
     const scores = screen.getAllByText("0");
@@ -59,14 +48,7 @@ describe("ScoreboardScreen", () => {
 
   it("左加点ボタンで左スコアがインクリメントされる", async () => {
     const user = userEvent.setup();
-    render(
-      <ScoreboardWrapper
-        {...defaultProps}
-        initialGames={[makeGame()]}
-        winsNeeded={3}
-        lockedFromIndex={1}
-      />,
-    );
+    render(<ScoreboardWrapper {...defaultProps} initialGames={[makeGame()]} winsNeeded={3} />);
 
     await user.click(screen.getByRole("button", { name: "選手A を1増やす" }));
 
@@ -77,14 +59,7 @@ describe("ScoreboardScreen", () => {
 
   it("右加点後に減点できる", async () => {
     const user = userEvent.setup();
-    render(
-      <ScoreboardWrapper
-        {...defaultProps}
-        initialGames={[makeGame()]}
-        winsNeeded={3}
-        lockedFromIndex={1}
-      />,
-    );
+    render(<ScoreboardWrapper {...defaultProps} initialGames={[makeGame()]} winsNeeded={3} />);
 
     await user.click(screen.getByRole("button", { name: "選手B を1増やす" }));
 
@@ -109,8 +84,6 @@ describe("ScoreboardScreen", () => {
         {...defaultProps}
         initialGames={[gameFromLog(initialLog)]}
         winsNeeded={1}
-        lockedFromIndex={1}
-        initialGameIndex={0}
       />,
     );
 
@@ -126,25 +99,30 @@ describe("ScoreboardScreen", () => {
     });
   });
 
-  it("locked 時に加点ボタンが disabled かつ 入力不可 が表示される", () => {
+  it("決着済みの過去ゲームは加点・減点とも disabled で 入力不可 が表示される", async () => {
+    const user = userEvent.setup();
+    const wonGame = gameFromLog(Array.from({ length: 11 }, (): Side => "L"));
     render(
       <ScoreboardWrapper
         {...defaultProps}
-        initialGames={[makeGame()]}
-        winsNeeded={3}
-        lockedFromIndex={0}
-        initialGameIndex={0}
+        initialGames={[wonGame, wonGame, makeGame()]}
+        winsNeeded={2}
       />,
     );
 
-    const addLeftBtn = screen.getByRole("button", { name: "選手A を1増やす" });
-    const addRightBtn = screen.getByRole("button", { name: "選手B を1増やす" });
-    expect(addLeftBtn).toBeDisabled();
-    expect(addRightBtn).toBeDisabled();
+    // 決着ゲーム(G2)は取り消しだけできる
+    expect(screen.getByRole("button", { name: "選手A を1増やす" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "選手A を1減らす" })).not.toBeDisabled();
+    // 決着後は未使用の G3 へ切り替えられない
+    expect(screen.getByRole("button", { name: "G3" })).toBeDisabled();
 
+    await user.click(screen.getByRole("button", { name: "G1" }));
+
+    expect(screen.getByRole("button", { name: "選手A を1増やす" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "選手B を1増やす" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "選手A を1減らす" })).toBeDisabled();
     // "入力不可" テキストが表示される（ScoreColumn と ScoreInputView の両方から出る可能性がある）
-    const locked = screen.getAllByText("入力不可");
-    expect(locked.length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("入力不可").length).toBeGreaterThanOrEqual(1);
   });
 
   it("入替ボタンで左右スコアが反転表示される", async () => {
@@ -152,13 +130,7 @@ describe("ScoreboardScreen", () => {
     // 左3点、右1点の状態
     const log: Side[] = ["L", "L", "L", "R"];
     render(
-      <ScoreboardWrapper
-        {...defaultProps}
-        initialGames={[gameFromLog(log)]}
-        winsNeeded={3}
-        lockedFromIndex={1}
-        initialGameIndex={0}
-      />,
+      <ScoreboardWrapper {...defaultProps} initialGames={[gameFromLog(log)]} winsNeeded={3} />,
     );
 
     // swap 前: 左=3, 右=1
@@ -188,8 +160,6 @@ describe("ScoreboardScreen", () => {
         rightName="選手B"
         initialGames={[gameFromLog(initialLog)]}
         winsNeeded={1}
-        lockedFromIndex={1}
-        initialGameIndex={0}
       />,
     );
 
@@ -217,7 +187,6 @@ describe("ScoreboardScreen", () => {
         initialGames={[makeGame()]}
         matchFirstServer="L"
         winsNeeded={3}
-        lockedFromIndex={1}
       />,
     );
 
@@ -233,8 +202,6 @@ describe("ScoreboardScreen", () => {
         {...defaultProps}
         initialGames={[gameFromLog(initialLog), makeGame()]}
         winsNeeded={2}
-        lockedFromIndex={2}
-        initialGameIndex={0}
       />,
     );
 
@@ -253,28 +220,14 @@ describe("ScoreboardScreen", () => {
   // -----------------------------------------------------------------------
 
   it("スコア 0 で減点ボタンが disabled", () => {
-    render(
-      <ScoreboardWrapper
-        {...defaultProps}
-        initialGames={[makeGame()]}
-        winsNeeded={3}
-        lockedFromIndex={1}
-      />,
-    );
+    render(<ScoreboardWrapper {...defaultProps} initialGames={[makeGame()]} winsNeeded={3} />);
     expect(screen.getByRole("button", { name: "選手A を1減らす" })).toBeDisabled();
     expect(screen.getByRole("button", { name: "選手B を1減らす" })).toBeDisabled();
   });
 
   it("相手が直前に得点していても自側の減点ができる", async () => {
     const user = userEvent.setup();
-    render(
-      <ScoreboardWrapper
-        {...defaultProps}
-        initialGames={[makeGame()]}
-        winsNeeded={3}
-        lockedFromIndex={1}
-      />,
-    );
+    render(<ScoreboardWrapper {...defaultProps} initialGames={[makeGame()]} winsNeeded={3} />);
 
     await user.click(screen.getByRole("button", { name: "選手B を1増やす" }));
     await waitFor(() => {
@@ -307,8 +260,6 @@ describe("ScoreboardScreen", () => {
         {...defaultProps}
         initialGames={[gameFromLog(initialLog), makeGame()]}
         winsNeeded={2}
-        lockedFromIndex={2}
-        initialGameIndex={0}
       />,
     );
 
@@ -323,29 +274,15 @@ describe("ScoreboardScreen", () => {
 
   it("スコア 50(MAX_SCORE)到達で加点ボタンが disabled", () => {
     // MAX_SCORE=50: score >= MAX_SCORE で disabled
-    const game: Game = { leftScore: 50, rightScore: 0 };
-    render(
-      <ScoreboardWrapper
-        {...defaultProps}
-        initialGames={[game]}
-        winsNeeded={3}
-        lockedFromIndex={1}
-      />,
-    );
+    const game: Game = { kind: "manual", leftScore: 50, rightScore: 0 };
+    render(<ScoreboardWrapper {...defaultProps} initialGames={[game]} winsNeeded={3} />);
     expect(screen.getByRole("button", { name: "選手A を1増やす" })).toBeDisabled();
   });
 
   it("マッチポイント時スコア表示色が text-yellow-400 になる", () => {
     // winsNeeded=1, 10-0 → isGamePoint(10, 0)=true → leftMatchPoint=true
-    const game: Game = { leftScore: 10, rightScore: 0 };
-    render(
-      <ScoreboardWrapper
-        {...defaultProps}
-        initialGames={[game]}
-        winsNeeded={1}
-        lockedFromIndex={1}
-      />,
-    );
+    const game: Game = { kind: "manual", leftScore: 10, rightScore: 0 };
+    render(<ScoreboardWrapper {...defaultProps} initialGames={[game]} winsNeeded={1} />);
     const scoreEl = screen.getByText("10");
     expect(scoreEl.className).toMatch(/text-yellow-400/u);
   });
@@ -354,14 +291,7 @@ describe("ScoreboardScreen", () => {
     // matchMedia を portrait=true に上書き
     installMatchMediaMock((query) => query.includes("portrait"));
 
-    render(
-      <ScoreboardWrapper
-        {...defaultProps}
-        initialGames={[makeGame()]}
-        winsNeeded={3}
-        lockedFromIndex={1}
-      />,
-    );
+    render(<ScoreboardWrapper {...defaultProps} initialGames={[makeGame()]} winsNeeded={3} />);
     expect(screen.getByText("端末を横向きにしてください")).toBeInTheDocument();
 
     // 元に戻す
@@ -377,7 +307,6 @@ describe("ScoreboardScreen", () => {
         rightName="選手B"
         initialGames={[makeGame()]}
         winsNeeded={3}
-        lockedFromIndex={1}
       />,
     );
 
@@ -408,7 +337,6 @@ describe("ScoreboardScreen", () => {
         onCloseAll={onCloseAll}
         initialGames={[gameFromLog(initialLog)]}
         winsNeeded={1}
-        lockedFromIndex={1}
       />,
     );
 
@@ -424,34 +352,55 @@ describe("ScoreboardScreen", () => {
     expect(onCloseAll).toHaveBeenCalledOnce();
   });
 
-  it("G2 タブクリックでゲームが 2 ゲーム目に切り替わる", async () => {
+  it("進行中ゲームから開始し、G1 タブで過去ゲームへ切り替わる（加点は不可）", async () => {
     const user = userEvent.setup();
-    // G1 は 10-0 の未終了状態、G2 は 0-0
-    const game1 = gameFromLog(Array.from({ length: 10 }, (): Side => "L")); // 10-0
+    const game1 = gameFromLog(Array.from({ length: 11 }, (): Side => "L")); // 11-0
     render(
       <ScoreboardWrapper
         {...defaultProps}
-        initialGames={[game1, makeGame()]}
+        initialGames={[game1, gameFromLog(["R", "R", "R"]), makeGame()]}
         winsNeeded={2}
-        lockedFromIndex={2}
-        initialGameIndex={0}
       />,
     );
 
-    // G1 のスコアが "10" と "0"
-    expect(screen.getByText("10")).toBeInTheDocument();
+    // 最初の未終了ゲーム(G2: 0-3)が開く
+    expect(screen.getByText("3")).toBeInTheDocument();
+    expect(screen.queryByText("11")).not.toBeInTheDocument();
 
-    // G2 ボタンをクリック
-    const g2Btn = screen.getByRole("button", { name: "G2" });
-    await user.click(g2Btn);
+    await user.click(screen.getByRole("button", { name: "G1" }));
 
-    // G2 の 0-0 スコアが表示される
+    expect(await screen.findByText("11")).toBeInTheDocument();
+    // 過去ゲームは訂正できない（最新ゲームのみ）
+    expect(screen.getByRole("button", { name: "選手B を1増やす" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "選手A を1減らす" })).toBeDisabled();
+  });
+
+  it("未終了ゲームより先の空ゲームには切り替えられない", () => {
+    const game1 = gameFromLog(Array.from({ length: 10 }, (): Side => "L")); // 10-0
+    render(
+      <ScoreboardWrapper {...defaultProps} initialGames={[game1, makeGame()]} winsNeeded={2} />,
+    );
+
+    expect(screen.getByRole("button", { name: "G2" })).toBeDisabled();
+  });
+
+  it("決着ゲームの得点を取り消すと 結果を見る が消えて再開できる", async () => {
+    const user = userEvent.setup();
+    render(
+      <ScoreboardWrapper
+        {...defaultProps}
+        initialGames={[gameFromLog(Array.from({ length: 11 }, (): Side => "L"))]}
+        winsNeeded={1}
+      />,
+    );
+
+    expect(screen.getByRole("button", { name: "結果を見る" })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "選手A を1減らす" }));
+
     await waitFor(() => {
-      const zeros = screen.getAllByText("0");
-      expect(zeros.length).toBeGreaterThanOrEqual(2);
+      expect(screen.queryByRole("button", { name: "結果を見る" })).not.toBeInTheDocument();
     });
-    // G1 のスコア "10" は消えている
-    expect(screen.queryByText("10")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "選手A を1増やす" })).not.toBeDisabled();
   });
 
   it("デュース境界: 10-10 は未終了、11-10 も未終了、12-10 で終了", async () => {
@@ -466,7 +415,6 @@ describe("ScoreboardScreen", () => {
         {...defaultProps}
         initialGames={[gameFromLog(tenTenLog)]}
         winsNeeded={1}
-        lockedFromIndex={1}
       />,
     );
 

@@ -62,7 +62,7 @@
 
 - `<fieldset>` 見出し: 「最初のサーブ」
 - 左右それぞれのラジオボタンをカード型で表示。選択中は `border-orange-500 bg-orange-50`、非選択は `border-line bg-white`
-- 選択は即時 `updateMatch` で永続化される
+- 選択は即時 `setFirstServer` で永続化される
 
 ### スコアボードへの誘導
 
@@ -72,11 +72,11 @@
 
 - ゲーム1〜N（`bestOf` の本数分）をリスト表示
 - 各行: 「ゲーム{N}」ラベル + 点数
-  - ロック済かつ未入力: 「入力不可」（`text-sub text-base font-bold`）
-  - 未入力（ロックなし）: 「未入力」（`text-sub text-base font-bold`）
-  - 入力済（進行中）: `leftScore - rightScore (進行中)`（`(進行中)` は `text-sm text-sub`）
-  - 入力済（ゲーム終了）: `leftScore - rightScore`（勝者側を `text-success` で強調）
-- ロック済行は `bg-bg opacity-60`
+  - 勝敗確定後の未使用ゲーム: 「入力不可」（`text-sub text-base font-bold`）
+  - 未入力（上記以外）: 「未入力」（`text-sub text-base font-bold`）
+  - 入力済（進行中）: `左スコア - 右スコア (進行中)`（`(進行中)` は `text-sm text-sub`）
+  - 入力済（ゲーム終了）: `左スコア - 右スコア`（勝者側を `text-success` で強調）
+- 勝敗確定後の未使用ゲームの行は `bg-bg opacity-60`
 
 ### フッターボタン
 
@@ -128,7 +128,7 @@
 2. ゲーム切替ボタン群（G1〜G{bestOf}）。結果画面表示中は非表示
    - 現在選択中: `bg-white text-black border-white`
    - 完了済: `border-success text-green-500`
-   - ロック済かつ未入力（空）: `border-white/20 text-white/30`、disabled（タップ不可）
+   - まだ始められないゲーム（進行位置より先の空ゲーム、勝敗確定後の空ゲーム）: `border-white/20 text-white/30`、disabled（タップ不可）
    - それ以外: `border-white/60 text-white`
 3. 右端に状況に応じたアクションボタン（いずれも `border-success bg-success text-white`）:
    - 現在ゲームが決着し次ゲームへ進める場合: 「次に進む」ボタン。タップでゲームインデックスを+1
@@ -155,23 +155,25 @@
   - 点数色: ゲーム勝者または試合勝者 → `text-green-500`、マッチポイント状態（`isGamePoint` が true）またはスコアが10以上 → `text-yellow-400`、通常 → `text-white`
   - 試合勝者カラムは背景が `bg-success/20 border-success`、それ以外は `bg-neutral-900 border-white/30`
   - スコアカード中央に横線（黒・3px）を挟んで上下半分を視覚的に分割
-  - +1 ボタン: `score >= 50`（`MAX_SCORE`）のときも disabled。ゲーム勝者側はすでにゲーム終了しているため disabled（`disableAdd={winner === side}`）
-  - −1 ボタン: `score <= 0` の場合のみ disabled。スコアが0より大きければ直前の得点者に関わらず常に減点可能
-  - ロック済の場合は全ボタン disabled、「入力不可」テキストを下部に表示（`text-white/50`）
+  - +1 ボタン: `score >= 50`（`MAX_SCORE`）のときも disabled。表示中のゲームに加点できないとき（`canAddPoint` が false）は左右とも disabled
+  - −1 ボタン: `score <= 0`、または表示中のゲームが取り消し対象でないとき（`canRemovePoint` が false）は disabled。取り消せるゲームでは直前の得点者に関わらず減点可能
+  - 加点も取り消しもできないゲームでは全ボタン disabled、「入力不可」テキストを下部に表示（`text-white/50`）
 - 下部: サーブ権インジケーター（`h-2 sm:h-3 rounded-full`）。サーブ権あり → `bg-orange-500`、なし → 透明
 
 **中央カラム:**
 
 - ゲーム取得数（例 `2-1`）を大型表示（`text-[clamp(3rem,12vw,9rem)]`）。試合勝者側を `text-green-500`
-- ロック済の場合は「入力不可」（`text-amber-300`）を表示
+- 加点も取り消しもできないゲームでは「入力不可」（`text-amber-300`）を表示
 - 「⇄ 入替」ボタン: 左右の表示を反転（`swapped` 状態トグル）。`aria-pressed={swapped}`
 
 ### スコアボード操作ロジック
 
-- **+1 操作**: `addPointToGame(game, side)` → `pointLog` に `side` を追記 → `leftScore`/`rightScore` を `pointLog` から再計算
-- **−1 操作**: `removePointFromGame(game, side)` を実行。スコアが0より大きければ常に減点可能（直前の得点者との一致は問わない）。`pointLog` から該当 `side` の最後の出現を1つ削除して再計算（`pointLog` に無い場合はスコアのみ減算）
-- **swapped 状態**: 表示上の左右を反転する。実際の `leftSide`/`rightSide` への書き込みは常に論理側で行う
-- **ゲームのロック**: `lockedGameStartIndex` 以降のゲームはすべて入力不可。`lockedGameStartIndex` は試合勝者が確定した次のゲームインデックス
+- **+1 操作**: `addPoint(games, winsNeeded, gameIndex, side)`。`pointLog` に `side` を追記する。スコアは `pointLog` から導出するので別途保持しない
+- **−1 操作**: `removePoint(games, gameIndex, side)`。`pointLog` から該当 `side` の最後の出現を1つ削除する（直前の得点者との一致は問わない）。得点履歴の無い `manual` ゲームはスコアを直接増減する
+- **swapped 状態**: 表示上の左右を反転する。実際の左右（`left` / `right`）への書き込みは常に論理側で行う
+- **入力できるゲーム**: 加点は進行中のゲーム（最初の未終了ゲーム）だけ。取り消しは最後に得点が入ったゲームだけで、勝敗確定後も決着ゲームなら取り消せる。過去のゲームは閲覧のみ。判定は `canAddPoint` / `canRemovePoint`（[data-model.md](../architecture/data-model.md)「得点入力の可否」）
+- **開始位置**: 開いたときは進行中のゲーム、勝敗確定済みなら決着ゲームを表示する
+- **ゲーム切替**: 得点のあるゲームと進行中のゲームへ切り替えられる。まだ始められない先のゲームのボタンは disabled
 
 ### サーブ交代ロジック（`domain/match.ts`）
 
@@ -191,7 +193,7 @@
 - ゲーム勝敗: `isGameFinished`: `max(left, right) >= 11 && |left - right| >= 2`
 - 試合勝敗: `winsNeededForBestOf(bestOf) = Math.floor(bestOf / 2) + 1` ゲーム先取で確定
   - bestOf=3 → 2先取、bestOf=5 → 3先取、bestOf=7 → 4先取
-- `lockedGameStartIndex`: 勝敗確定ゲームの次のインデックスを返す。確定していない場合は `gameCount`
+- 勝敗確定後のゲームは集計に含めない（`matchSummary`）
 
 ### 結果画面（共有 `MatchResultBoard`）
 
@@ -205,8 +207,8 @@
 
 ### スコアボード入力の永続化
 
-- `addPoint` / `undoPoint` の呼び出しが `persistGames`（`MatchModal`）を通じて `updateMatch` を呼ぶことで LocalStorage へ即時反映
-- モーダルに戻った際に追加の同期処理は不要
+- 加点・取り消しのたびに `persistGames`（`MatchModal`）が末尾の空ゲームを除いて `setGames` を呼び、LocalStorage へ即時反映する
+- `MatchModal` は `games` のコピーを持たず、ストアの試合から毎回導出する。モーダルに戻った際の同期処理は不要
 
 **ワイヤー（横向き前提）:**
 

@@ -1,5 +1,5 @@
-import type { Side } from "@/domain/match";
 import {
+  type Game,
   isGameEmpty,
   realGames,
   isGameFinished,
@@ -14,44 +14,45 @@ import {
   addPointToGame,
   removePointFromGame,
 } from "@/domain/match";
+import { gameFromLog, makeGame } from "@/test/factories";
 import { describe, it, expect } from "vitest";
 
 describe("isGameFinished", () => {
   it("11-9 は終了", () => {
-    expect(isGameFinished({ leftScore: 11, rightScore: 9 })).toBe(true);
+    expect(isGameFinished({ kind: "manual", leftScore: 11, rightScore: 9 })).toBe(true);
   });
   it("11-10 は未終了", () => {
-    expect(isGameFinished({ leftScore: 11, rightScore: 10 })).toBe(false);
+    expect(isGameFinished({ kind: "manual", leftScore: 11, rightScore: 10 })).toBe(false);
   });
   it("12-10 は終了（デュース2点差）", () => {
-    expect(isGameFinished({ leftScore: 12, rightScore: 10 })).toBe(true);
+    expect(isGameFinished({ kind: "manual", leftScore: 12, rightScore: 10 })).toBe(true);
   });
   it("15-13 は終了", () => {
-    expect(isGameFinished({ leftScore: 15, rightScore: 13 })).toBe(true);
+    expect(isGameFinished({ kind: "manual", leftScore: 15, rightScore: 13 })).toBe(true);
   });
   it("5-3 は未終了", () => {
-    expect(isGameFinished({ leftScore: 5, rightScore: 3 })).toBe(false);
+    expect(isGameFinished({ kind: "manual", leftScore: 5, rightScore: 3 })).toBe(false);
   });
 });
 
 describe("gameWinner", () => {
   it("左の勝ち", () => {
-    expect(gameWinner({ leftScore: 11, rightScore: 7 })).toBe("L");
+    expect(gameWinner({ kind: "manual", leftScore: 11, rightScore: 7 })).toBe("L");
   });
   it("右の勝ち", () => {
-    expect(gameWinner({ leftScore: 9, rightScore: 11 })).toBe("R");
+    expect(gameWinner({ kind: "manual", leftScore: 9, rightScore: 11 })).toBe("R");
   });
   it("未終了なら null", () => {
-    expect(gameWinner({ leftScore: 10, rightScore: 10 })).toBeNull();
+    expect(gameWinner({ kind: "manual", leftScore: 10, rightScore: 10 })).toBeNull();
   });
 });
 
 describe("matchSummary", () => {
   it("3-0 で終了", () => {
     const summary = matchSummary([
-      { leftScore: 11, rightScore: 5 },
-      { leftScore: 11, rightScore: 8 },
-      { leftScore: 11, rightScore: 9 },
+      { kind: "manual", leftScore: 11, rightScore: 5 },
+      { kind: "manual", leftScore: 11, rightScore: 8 },
+      { kind: "manual", leftScore: 11, rightScore: 9 },
     ]);
     expect(summary.finished).toBe(true);
     expect(summary.winner).toBe("L");
@@ -59,11 +60,11 @@ describe("matchSummary", () => {
   });
   it("3-2 で終了", () => {
     const summary = matchSummary([
-      { leftScore: 11, rightScore: 9 },
-      { leftScore: 8, rightScore: 11 },
-      { leftScore: 11, rightScore: 7 },
-      { leftScore: 6, rightScore: 11 },
-      { leftScore: 11, rightScore: 9 },
+      { kind: "manual", leftScore: 11, rightScore: 9 },
+      { kind: "manual", leftScore: 8, rightScore: 11 },
+      { kind: "manual", leftScore: 11, rightScore: 7 },
+      { kind: "manual", leftScore: 6, rightScore: 11 },
+      { kind: "manual", leftScore: 11, rightScore: 9 },
     ]);
     expect(summary.winner).toBe("L");
     expect(summary.leftWins).toBe(3);
@@ -71,10 +72,10 @@ describe("matchSummary", () => {
   });
   it("2-2 は進行中", () => {
     const summary = matchSummary([
-      { leftScore: 11, rightScore: 9 },
-      { leftScore: 8, rightScore: 11 },
-      { leftScore: 11, rightScore: 7 },
-      { leftScore: 6, rightScore: 11 },
+      { kind: "manual", leftScore: 11, rightScore: 9 },
+      { kind: "manual", leftScore: 8, rightScore: 11 },
+      { kind: "manual", leftScore: 11, rightScore: 7 },
+      { kind: "manual", leftScore: 6, rightScore: 11 },
     ]);
     expect(summary.finished).toBe(false);
     expect(summary.winner).toBeNull();
@@ -94,95 +95,73 @@ describe("scoresFromLog", () => {
 });
 
 describe("addPointToGame", () => {
-  it("pointLog に追加しスコア再計算", () => {
-    const game = { leftScore: 1, rightScore: 0, pointLog: ["L" as const] };
-    const result = addPointToGame(game, "R");
-    expect(result.pointLog).toEqual(["L", "R"]);
-    expect(result.leftScore).toBe(1);
-    expect(result.rightScore).toBe(1);
+  it("履歴つきゲームは pointLog に追記する", () => {
+    expect(addPointToGame(gameFromLog(["L"]), "R")).toEqual(gameFromLog(["L", "R"]));
   });
-  it("pointLog 未定義なら空ログから開始", () => {
-    const game = { leftScore: 0, rightScore: 0 };
-    const result = addPointToGame(game, "L");
-    expect(result.pointLog).toEqual(["L"]);
-    expect(result.leftScore).toBe(1);
-    expect(result.rightScore).toBe(0);
+  it("直書きゲームはスコアだけ増やし直書きのまま", () => {
+    expect(addPointToGame(makeGame({ leftScore: 3, rightScore: 2 }), "L")).toEqual(
+      makeGame({ leftScore: 4, rightScore: 2 }),
+    );
   });
 });
 
 describe("removePointFromGame", () => {
-  it("得点済み側を減点するとスコアが1減り、pointLog から該当 side の最後の出現が消える", () => {
-    const game = { leftScore: 2, rightScore: 1, pointLog: ["L", "R", "L"] as Side[] };
-    const result = removePointFromGame(game, "L");
-    expect(result.leftScore).toBe(1);
-    expect(result.rightScore).toBe(1);
-    expect(result.pointLog).toEqual(["L", "R"]);
+  it("履歴つきゲームは該当 side の最後の出現を消す", () => {
+    expect(removePointFromGame(gameFromLog(["L", "R", "L"]), "L")).toEqual(gameFromLog(["L", "R"]));
   });
 
   it("相手が最後に得点した後でも、自側の減点ができる", () => {
-    const game = { leftScore: 1, rightScore: 1, pointLog: ["L", "R"] as Side[] };
-    const result = removePointFromGame(game, "L");
-    expect(result.leftScore).toBe(0);
-    expect(result.rightScore).toBe(1);
-    expect(result.pointLog).toEqual(["R"]);
+    expect(removePointFromGame(gameFromLog(["L", "R"]), "L")).toEqual(gameFromLog(["R"]));
   });
 
   it("スコア 0 の側を減点しても同一オブジェクトが返る", () => {
-    const game = { leftScore: 0, rightScore: 2, pointLog: ["R", "R"] as Side[] };
-    expect(removePointFromGame(game, "L")).toBe(game);
+    const logged = gameFromLog(["R", "R"]);
+    expect(removePointFromGame(logged, "L")).toBe(logged);
+    const manual = makeGame({ leftScore: 0, rightScore: 2 });
+    expect(removePointFromGame(manual, "L")).toBe(manual);
   });
 
-  it("pointLog が未定義でもスコアが正なら減点できる", () => {
-    const game = { leftScore: 3, rightScore: 2 };
-    const result = removePointFromGame(game, "R");
-    expect(result.leftScore).toBe(3);
-    expect(result.rightScore).toBe(1);
-    expect(result.pointLog).toBeUndefined();
-  });
-
-  it("pointLog に該当 side が無い場合はスコアのみ減り pointLog は変わらない", () => {
-    const game = { leftScore: 1, rightScore: 2, pointLog: ["R", "R"] as Side[] };
-    const result = removePointFromGame(game, "L");
-    expect(result.leftScore).toBe(0);
-    expect(result.rightScore).toBe(2);
-    expect(result.pointLog).toEqual(["R", "R"]);
+  it("直書きゲームはスコアだけ減らす", () => {
+    expect(removePointFromGame(makeGame({ leftScore: 3, rightScore: 2 }), "R")).toEqual(
+      makeGame({ leftScore: 3, rightScore: 1 }),
+    );
   });
 });
 
 describe("isGameEmpty", () => {
   it("両スコアが 0 のとき true", () => {
-    expect(isGameEmpty({ leftScore: 0, rightScore: 0 })).toBe(true);
+    expect(isGameEmpty({ kind: "manual", leftScore: 0, rightScore: 0 })).toBe(true);
   });
   it("左スコアが 0 でないとき false", () => {
-    expect(isGameEmpty({ leftScore: 1, rightScore: 0 })).toBe(false);
+    expect(isGameEmpty({ kind: "manual", leftScore: 1, rightScore: 0 })).toBe(false);
   });
   it("右スコアが 0 でないとき false", () => {
-    expect(isGameEmpty({ leftScore: 0, rightScore: 1 })).toBe(false);
+    expect(isGameEmpty({ kind: "manual", leftScore: 0, rightScore: 1 })).toBe(false);
   });
   it("両スコアが非ゼロのとき false", () => {
-    expect(isGameEmpty({ leftScore: 5, rightScore: 3 })).toBe(false);
+    expect(isGameEmpty({ kind: "manual", leftScore: 5, rightScore: 3 })).toBe(false);
   });
 });
 
 describe("realGames", () => {
   it("空ゲームを除外する", () => {
-    const games = [
-      { leftScore: 11, rightScore: 5 },
-      { leftScore: 0, rightScore: 0 },
-      { leftScore: 8, rightScore: 11 },
+    const games: Game[] = [
+      { kind: "manual", leftScore: 11, rightScore: 5 },
+      { kind: "manual", leftScore: 0, rightScore: 0 },
+      { kind: "manual", leftScore: 8, rightScore: 11 },
     ];
     expect(realGames(games)).toHaveLength(2);
-    expect(realGames(games)).not.toContainEqual({ leftScore: 0, rightScore: 0 });
+    expect(realGames(games)).not.toContainEqual({ kind: "manual", leftScore: 0, rightScore: 0 });
   });
   it("空ゲームがなければ全件返す", () => {
-    const games = [
-      { leftScore: 11, rightScore: 5 },
-      { leftScore: 8, rightScore: 11 },
+    const games: Game[] = [
+      { kind: "manual", leftScore: 11, rightScore: 5 },
+      { kind: "manual", leftScore: 8, rightScore: 11 },
     ];
     expect(realGames(games)).toHaveLength(2);
   });
   it("全て空ゲームなら空配列", () => {
-    expect(realGames([{ leftScore: 0, rightScore: 0 }])).toHaveLength(0);
+    expect(realGames([{ kind: "manual", leftScore: 0, rightScore: 0 }])).toHaveLength(0);
   });
   it("空配列を渡すと空配列を返す", () => {
     expect(realGames([])).toEqual([]);
@@ -248,63 +227,63 @@ describe("currentServer", () => {
   // デュース以降(total>=20): switches = 10 + (total - 20); 偶数→firstServer, 奇数→opposite
 
   it("0-0(total=0, switches=0)→ firstServer", () => {
-    expect(currentServer({ leftScore: 0, rightScore: 0 }, "L")).toBe("L");
+    expect(currentServer({ kind: "manual", leftScore: 0, rightScore: 0 }, "L")).toBe("L");
   });
   it("1-0(total=1, switches=0)→ firstServer", () => {
-    expect(currentServer({ leftScore: 1, rightScore: 0 }, "L")).toBe("L");
+    expect(currentServer({ kind: "manual", leftScore: 1, rightScore: 0 }, "L")).toBe("L");
   });
   it("1-1(total=2, switches=1)→ opposite", () => {
-    expect(currentServer({ leftScore: 1, rightScore: 1 }, "L")).toBe("R");
+    expect(currentServer({ kind: "manual", leftScore: 1, rightScore: 1 }, "L")).toBe("R");
   });
   it("2-1(total=3, switches=1)→ opposite", () => {
-    expect(currentServer({ leftScore: 2, rightScore: 1 }, "L")).toBe("R");
+    expect(currentServer({ kind: "manual", leftScore: 2, rightScore: 1 }, "L")).toBe("R");
   });
   it("2-2(total=4, switches=2)→ firstServer", () => {
-    expect(currentServer({ leftScore: 2, rightScore: 2 }, "L")).toBe("L");
+    expect(currentServer({ kind: "manual", leftScore: 2, rightScore: 2 }, "L")).toBe("L");
   });
   it("5-4(total=9, switches=4)→ firstServer", () => {
-    expect(currentServer({ leftScore: 5, rightScore: 4 }, "L")).toBe("L");
+    expect(currentServer({ kind: "manual", leftScore: 5, rightScore: 4 }, "L")).toBe("L");
   });
   it("5-5(total=10, switches=5)→ opposite", () => {
-    expect(currentServer({ leftScore: 5, rightScore: 5 }, "L")).toBe("R");
+    expect(currentServer({ kind: "manual", leftScore: 5, rightScore: 5 }, "L")).toBe("R");
   });
   it("firstServer が R でも同様に機能する(total=0, switches=0)→ R", () => {
-    expect(currentServer({ leftScore: 0, rightScore: 0 }, "R")).toBe("R");
+    expect(currentServer({ kind: "manual", leftScore: 0, rightScore: 0 }, "R")).toBe("R");
   });
   it("firstServer が R で total=2(switches=1)→ opposite=L", () => {
-    expect(currentServer({ leftScore: 1, rightScore: 1 }, "R")).toBe("L");
+    expect(currentServer({ kind: "manual", leftScore: 1, rightScore: 1 }, "R")).toBe("L");
   });
 
   // デュース境界: total=19(switches=9, 奇数)→ opposite
   it("デュース直前: total=19(switches=9)→ opposite", () => {
-    expect(currentServer({ leftScore: 10, rightScore: 9 }, "L")).toBe("R");
+    expect(currentServer({ kind: "manual", leftScore: 10, rightScore: 9 }, "L")).toBe("R");
   });
 
   // デュース開始: total=20 → switches = DEUCE_SERVE_BASE + (20-20) = 10, 偶数 → firstServer
   it("デュース開始: 10-10(total=20, switches=10)→ firstServer", () => {
-    expect(currentServer({ leftScore: 10, rightScore: 10 }, "L")).toBe("L");
+    expect(currentServer({ kind: "manual", leftScore: 10, rightScore: 10 }, "L")).toBe("L");
   });
 
   // total=21 → switches = 10 + 1 = 11, 奇数 → opposite (1点ごとに交代)
   it("デュース: 11-10(total=21, switches=11)→ opposite", () => {
-    expect(currentServer({ leftScore: 11, rightScore: 10 }, "L")).toBe("R");
+    expect(currentServer({ kind: "manual", leftScore: 11, rightScore: 10 }, "L")).toBe("R");
   });
 
   // total=22 → switches = 10 + 2 = 12, 偶数 → firstServer
   it("デュース: 11-11(total=22, switches=12)→ firstServer", () => {
-    expect(currentServer({ leftScore: 11, rightScore: 11 }, "L")).toBe("L");
+    expect(currentServer({ kind: "manual", leftScore: 11, rightScore: 11 }, "L")).toBe("L");
   });
 
   // total=23 → switches = 10 + 3 = 13, 奇数 → opposite
   it("デュース: 12-11(total=23, switches=13)→ opposite", () => {
-    expect(currentServer({ leftScore: 12, rightScore: 11 }, "L")).toBe("R");
+    expect(currentServer({ kind: "manual", leftScore: 12, rightScore: 11 }, "L")).toBe("R");
   });
 
   // デュース中に firstServer=R の場合
   it("デュース: firstServer=R, 10-10(total=20, switches=10)→ R", () => {
-    expect(currentServer({ leftScore: 10, rightScore: 10 }, "R")).toBe("R");
+    expect(currentServer({ kind: "manual", leftScore: 10, rightScore: 10 }, "R")).toBe("R");
   });
   it("デュース: firstServer=R, 11-10(total=21, switches=11)→ L", () => {
-    expect(currentServer({ leftScore: 11, rightScore: 10 }, "R")).toBe("L");
+    expect(currentServer({ kind: "manual", leftScore: 11, rightScore: 10 }, "R")).toBe("L");
   });
 });

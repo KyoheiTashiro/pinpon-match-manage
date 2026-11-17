@@ -1,5 +1,5 @@
 import { pairKey, sideMembers, sideName } from "@/domain/side";
-import { SIDE_KIND, type MatchSide, type Participant } from "@/store/types";
+import type { Participant } from "@/store/types";
 import { describe, it, expect } from "vitest";
 
 // ---------------------------------------------------------------------------
@@ -11,10 +11,10 @@ const participants: Record<string, Participant> = {
   p2: { id: "p2", tournamentId: "t1", name: "鈴木" },
 };
 
-const singleSide: MatchSide = { kind: SIDE_KIND.SINGLE, participantId: "p1" };
-const pairSide: MatchSide = { kind: SIDE_KIND.PAIR, memberIds: ["p1", "p2"] };
-const unknownSingleSide: MatchSide = { kind: SIDE_KIND.SINGLE, participantId: "unknown" };
-const unknownPairSide: MatchSide = { kind: SIDE_KIND.PAIR, memberIds: ["p1", "unknown"] };
+const singleSide = "p1";
+const pairSide: [string, string] = ["p1", "p2"];
+const unknownSingleSide = "unknown";
+const unknownPairSide: [string, string] = ["p1", "unknown"];
 
 // ---------------------------------------------------------------------------
 // sideMembers
@@ -38,9 +38,7 @@ describe("sideMembers", () => {
   });
 
   it("ペアの返り値は memberIds のコピー（参照が異なる）", () => {
-    const side: MatchSide = { kind: SIDE_KIND.PAIR, memberIds: ["p1", "p2"] };
-    const result = sideMembers(side);
-    expect(result).not.toBe((side as { memberIds: string[] }).memberIds);
+    expect(sideMembers(pairSide)).not.toBe(pairSide);
   });
 });
 
@@ -80,7 +78,7 @@ describe("sideName", () => {
   });
 
   it("ペア: 両方が未知IDなら '? / ?'", () => {
-    const bothUnknown: MatchSide = { kind: SIDE_KIND.PAIR, memberIds: ["x", "y"] };
+    const bothUnknown: [string, string] = ["x", "y"];
     expect(sideName(bothUnknown, participants)).toBe("? / ?");
   });
 

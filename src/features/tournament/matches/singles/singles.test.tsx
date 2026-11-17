@@ -1,3 +1,4 @@
+import type { Game } from "@/domain/match";
 import { MatchesTab } from "@/features/tournament/matches";
 import { MATCHES_VIEW } from "@/store/types";
 import { useAppStore } from "@/store/useAppStore";
@@ -94,9 +95,8 @@ describe("MatchesTab（シングルス）", () => {
 
   it("既存 match seed → セルにスコア表示", () => {
     // bestOf=3 → winsNeeded=2 なのでゲーム2本勝ちで試合終了
-    const wonGame = {
-      leftScore: 11,
-      rightScore: 0,
+    const wonGame: Game = {
+      kind: "logged",
       pointLog: Array.from({ length: 11 }, (): "L" | "R" => "L"),
     };
     seedStore({
@@ -116,8 +116,8 @@ describe("MatchesTab（シングルス）", () => {
         m1: makeMatch({
           id: "m1",
           tournamentId: "t1",
-          leftSide: { kind: "single", participantId: "p1" },
-          rightSide: { kind: "single", participantId: "p2" },
+          left: "p1",
+          right: "p2",
           // 左が2ゲーム連取 → match finished
           games: [wonGame, wonGame],
           firstServer: "L",
@@ -137,9 +137,8 @@ describe("MatchesTab（シングルス）", () => {
 
   it("進行中試合セルに「途中」ラベルが表示される", () => {
     // 1ゲーム途中（scores あり、finished=false）
-    const inProgressGame = {
-      leftScore: 5,
-      rightScore: 3,
+    const inProgressGame: Game = {
+      kind: "logged",
       pointLog: Array.from({ length: 8 }, (_, index): "L" | "R" => (index < 5 ? "L" : "R")),
     };
     seedStore({
@@ -159,8 +158,8 @@ describe("MatchesTab（シングルス）", () => {
         m1: makeMatch({
           id: "m1",
           tournamentId: "t1",
-          leftSide: { kind: "single", participantId: "p1" },
-          rightSide: { kind: "single", participantId: "p2" },
+          left: "p1",
+          right: "p2",
           games: [inProgressGame],
           firstServer: "L",
         }),
@@ -181,9 +180,8 @@ describe("MatchesTab（シングルス）", () => {
 
   it("既存 match セルクリックで MatchModal が開く (onOpen パス)", async () => {
     const user = userEvent.setup();
-    const wonGame = {
-      leftScore: 11,
-      rightScore: 0,
+    const wonGame: Game = {
+      kind: "logged",
       pointLog: Array.from({ length: 11 }, (): "L" | "R" => "L"),
     };
     seedStore({
@@ -203,8 +201,8 @@ describe("MatchesTab（シングルス）", () => {
         m1: makeMatch({
           id: "m1",
           tournamentId: "t1",
-          leftSide: { kind: "single", participantId: "p1" },
-          rightSide: { kind: "single", participantId: "p2" },
+          left: "p1",
+          right: "p2",
           games: [wonGame, wonGame],
           firstServer: "L",
         }),

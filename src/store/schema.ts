@@ -1,43 +1,43 @@
-import { SIDE } from "@/domain/match";
-import {
-  BEST_OF_OPTIONS,
-  FONT_SIZE,
-  FORMAT,
-  MATCHES_VIEW,
-  SIDE_KIND,
-  type AppState,
-} from "@/store/types";
+import { GAME_KIND, SIDE } from "@/domain/match";
+import { sideMembers } from "@/domain/side";
+import { BEST_OF_OPTIONS, FONT_SIZE, FORMAT, MATCHES_VIEW, type AppState } from "@/store/types";
 import { z } from "zod";
 
 const sideSchema = z.enum([SIDE.LEFT, SIDE.RIGHT]);
 
-export const gameSchema = z.object({
-  leftScore: z.number().int().min(0),
-  rightScore: z.number().int().min(0),
-  pointLog: z.array(sideSchema).optional(),
-});
+export const gameSchema = z.discriminatedUnion("kind", [
+  z.object({ kind: z.literal(GAME_KIND.LOGGED), pointLog: z.array(sideSchema) }),
+  z.object({
+    kind: z.literal(GAME_KIND.MANUAL),
+    leftScore: z.number().int().min(0),
+    rightScore: z.number().int().min(0),
+  }),
+]);
 
-const singleSideSchema = z.object({
-  kind: z.literal(SIDE_KIND.SINGLE),
-  participantId: z.string(),
-});
-
-const pairSideSchema = z.object({
-  kind: z.literal(SIDE_KIND.PAIR),
-  memberIds: z.tuple([z.string(), z.string()]),
-});
-
-export const matchSideSchema = z.discriminatedUnion("kind", [singleSideSchema, pairSideSchema]);
-
-export const matchSchema = z.object({
+const matchBaseShape = {
   id: z.string(),
   tournamentId: z.string(),
-  leftSide: matchSideSchema,
-  rightSide: matchSideSchema,
   games: z.array(gameSchema),
   note: z.string().optional(),
   firstServer: sideSchema,
-});
+};
+
+const pairSchema = z.tuple([z.string(), z.string()]);
+
+export const matchSchema = z.discriminatedUnion("kind", [
+  z.object({
+    ...matchBaseShape,
+    kind: z.literal(FORMAT.SINGLES),
+    left: z.string(),
+    right: z.string(),
+  }),
+  z.object({
+    ...matchBaseShape,
+    kind: z.literal(FORMAT.DOUBLES),
+    left: pairSchema,
+    right: pairSchema,
+  }),
+]);
 
 export const participantSchema = z.object({
   id: z.string(),
@@ -60,7 +60,6 @@ export const appStateSchema = z.object({
   tournaments: z.record(z.string(), tournamentSchema),
   participants: z.record(z.string(), participantSchema),
   matches: z.record(z.string(), matchSchema),
-  currentTournamentId: z.string().nullable(),
   fontSize: z.enum([
     FONT_SIZE.XSMALL,
     FONT_SIZE.SMALL,
@@ -83,11 +82,6 @@ void schemaMatchesAppState;
 export const sanitizeAppState = (state: AppState): AppState => {
   const tournamentIds = new Set(Object.keys(state.tournaments));
 
-  const matches: AppState["matches"] = {};
-  for (const [id, match] of Object.entries(state.matches)) {
-    if (tournamentIds.has(match.tournamentId)) matches[id] = match;
-  }
-
   const participants: AppState["participants"] = {};
   for (const [id, participant] of Object.entries(state.participants)) {
     if (tournamentIds.has(participant.tournamentId)) participants[id] = participant;
@@ -105,16 +99,20 @@ export const sanitizeAppState = (state: AppState): AppState => {
     };
   }
 
-  const currentTournamentId =
-    state.currentTournamentId !== null && tournamentIds.has(state.currentTournamentId)
-      ? state.currentTournamentId
-      : null;
+  // 大会形式と食い違う試合・大会に所属しない参加者を含む試合は集計を壊すため落とす
+  const matches: AppState["matches"] = {};
+  for (const [id, match] of Object.entries(state.matches)) {
+    const tournament = tournaments[match.tournamentId];
+    if (!tournament || tournament.format !== match.kind) continue;
+    const members = [...sideMembers(match.left), ...sideMembers(match.right)];
+    if (members.every((memberId) => tournament.participantIds.includes(memberId)))
+      matches[id] = match;
+  }
 
   return {
     tournaments,
     participants,
     matches,
-    currentTournamentId,
     fontSize: state.fontSize,
     matchesView: state.matchesView,
     defaultBestOf: state.defaultBestOf,

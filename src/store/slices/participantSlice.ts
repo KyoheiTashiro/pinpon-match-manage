@@ -1,5 +1,6 @@
+import { sideMembers } from "@/domain/side";
 import { matchesOf } from "@/store/selectors";
-import { SIDE_KIND, type MatchSide, type Participant } from "@/store/types";
+import type { Participant } from "@/store/types";
 import type { StoreState } from "@/store/useAppStore";
 import { generateId } from "@/utils/id";
 import type { StateCreator } from "zustand";
@@ -67,9 +68,7 @@ export const createParticipantSlice: StateCreator<
       if (!tournament) return;
       delete state.participants[id];
       for (const match of matchesOf(state.matches, tournamentId)) {
-        const involves = (side: MatchSide) =>
-          side.kind === SIDE_KIND.SINGLE ? side.participantId === id : side.memberIds.includes(id);
-        if (involves(match.leftSide) || involves(match.rightSide)) {
+        if (sideMembers(match.left).includes(id) || sideMembers(match.right).includes(id)) {
           delete state.matches[match.id];
         }
       }

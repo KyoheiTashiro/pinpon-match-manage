@@ -1,4 +1,13 @@
-import { SIDE, matchSummary, realGames, winsNeededForBestOf } from "@/domain/match";
+import {
+  GAME_KIND,
+  MATCH_STATUS,
+  SIDE,
+  gameScore,
+  matchStatus,
+  matchSummary,
+  realGames,
+  winsNeededForBestOf,
+} from "@/domain/match";
 import type { Game, Side } from "@/domain/match";
 import { computeRanking } from "@/domain/ranking";
 import { sideMembers, sideName } from "@/domain/side";
@@ -51,10 +60,10 @@ const buildMatchResult = (
   const summary = matchSummary(games, winsNeeded);
   return {
     id: match.id,
-    leftName: sideName(match.leftSide, participants),
-    rightName: sideName(match.rightSide, participants),
-    leftMembers: sideMembers(match.leftSide),
-    rightMembers: sideMembers(match.rightSide),
+    leftName: sideName(match.left, participants),
+    rightName: sideName(match.right, participants),
+    leftMembers: sideMembers(match.left),
+    rightMembers: sideMembers(match.right),
     games,
     leftWins: summary.leftWins,
     rightWins: summary.rightWins,
@@ -81,11 +90,10 @@ export const useResult = (tournamentId: string) => {
 
   const matchResults = useMemo<MatchResultRow[]>(() => {
     if (!tournament) return [];
+    const winsNeeded = winsNeededForBestOf(tournament.bestOf);
     return matchesOf(matches, tournamentId)
-      .filter((match) => realGames(match.games).length > 0)
-      .map((match) =>
-        buildMatchResult(match, participants, winsNeededForBestOf(tournament.bestOf)),
-      );
+      .filter((match) => matchStatus(match.games, winsNeeded) !== MATCH_STATUS.UNPLAYED)
+      .map((match) => buildMatchResult(match, participants, winsNeeded));
   }, [tournament, tournamentId, matches, participants]);
 
   const capture = useImageCapture();
@@ -129,10 +137,13 @@ export const useResult = (tournamentId: string) => {
           opponentName: selfIsLeft ? match.rightName : match.leftName,
           selfWins: selfIsLeft ? match.leftWins : match.rightWins,
           opponentWins: selfIsLeft ? match.rightWins : match.leftWins,
-          games: match.games.map((game) => ({
-            selfScore: selfIsLeft ? game.leftScore : game.rightScore,
-            opponentScore: selfIsLeft ? game.rightScore : game.leftScore,
-          })),
+          games: match.games.map((game) => {
+            const { leftScore, rightScore } = gameScore(game);
+            return {
+              selfScore: selfIsLeft ? leftScore : rightScore,
+              opponentScore: selfIsLeft ? rightScore : leftScore,
+            };
+          }),
           result:
             match.winner === null
               ? null
@@ -147,9 +158,7 @@ export const useResult = (tournamentId: string) => {
   const chartMatches = useMemo(
     () =>
       myMatches
-        .filter(({ row: match }) =>
-          match.games.some((game) => game.pointLog && game.pointLog.length > 0),
-        )
+        .filter(({ row: match }) => match.games.some((game) => game.kind === GAME_KIND.LOGGED))
         .map(({ row: match, selfSide }) => ({ match, selfSide })),
     [myMatches],
   );

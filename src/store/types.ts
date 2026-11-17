@@ -23,22 +23,27 @@ export type Participant = {
   affiliation?: string;
 };
 
-export const SIDE_KIND = { SINGLE: "single", PAIR: "pair" } as const;
-export type SideKind = (typeof SIDE_KIND)[keyof typeof SIDE_KIND];
-
-export type SingleSide = { kind: typeof SIDE_KIND.SINGLE; participantId: string };
-export type PairSide = { kind: typeof SIDE_KIND.PAIR; memberIds: [string, string] };
-export type MatchSide = SingleSide | PairSide;
-
-export type Match = {
+type MatchBase = {
   id: string;
   tournamentId: string;
-  leftSide: MatchSide;
-  rightSide: MatchSide;
   games: Game[];
   note?: string;
   firstServer: Side;
 };
+
+/** kind が左右両方の形を決める（片側だけペアの試合を表現不能にする）。大会の format と一致させる。 */
+export type Match =
+  | (MatchBase & { kind: typeof FORMAT.SINGLES; left: string; right: string })
+  | (MatchBase & {
+      kind: typeof FORMAT.DOUBLES;
+      left: [string, string];
+      right: [string, string];
+    });
+
+/** 試合の対戦者だけを取り出した形（試合作成の入力）。 */
+export type MatchSides =
+  | { kind: typeof FORMAT.SINGLES; left: string; right: string }
+  | { kind: typeof FORMAT.DOUBLES; left: [string, string]; right: [string, string] };
 
 export const FONT_SIZE = {
   XSMALL: "xsmall",
@@ -56,7 +61,6 @@ export type AppState = {
   tournaments: Record<string, Tournament>;
   participants: Record<string, Participant>;
   matches: Record<string, Match>;
-  currentTournamentId: string | null;
   fontSize: FontSize;
   matchesView: MatchesView;
   defaultBestOf: BestOf;

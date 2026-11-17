@@ -1,14 +1,13 @@
 import { WinnerBadge } from "@/components/domain";
 import { ChevronDownIcon } from "@/components/icons/ChevronDownIcon";
 import { Badge, EmptyState } from "@/components/ui";
-import { matchSummary, SIDE } from "@/domain/match";
+import { MATCH_STATUS, matchStatus, matchSummary, SIDE } from "@/domain/match";
 import { sideMembers, sideName } from "@/domain/side";
 import { MatchesCard } from "@/features/tournament/matches/components/MatchesCard";
 import { MatchModal } from "@/features/tournament/matches/components/MatchModal";
 import { useDoubles } from "@/features/tournament/matches/doubles/hooks";
 import { PairSelectForm } from "@/features/tournament/matches/doubles/PairSelectForm";
 import { MATCH_STATE, STATE_BADGE } from "@/features/tournament/matches/matchState";
-import type { MatchSide } from "@/store/types";
 
 export const DoublesList = ({ tournamentId }: { tournamentId: string }) => {
   const {
@@ -27,7 +26,7 @@ export const DoublesList = ({ tournamentId }: { tournamentId: string }) => {
   if (!tournament) return null;
 
   /** ペアを名前の配列で返す（名前単位で折り返しを禁止するため連結しない） */
-  const memberNames = (side: MatchSide) =>
+  const memberNames = (side: string | [string, string]) =>
     sideMembers(side).map((id) => ({ id, name: participants[id]?.name ?? "?" }));
 
   return (
@@ -47,8 +46,7 @@ export const DoublesList = ({ tournamentId }: { tournamentId: string }) => {
           ) : (
             matchList.map((match) => {
               const summary = matchSummary(match.games, wins);
-              // ゲームが1つも入力されていない試合は「対戦」扱い（シングルス一覧と同基準）
-              const hasScore = match.games.length > 0;
+              const hasScore = matchStatus(match.games, wins) !== MATCH_STATUS.UNPLAYED;
               const state = summary.finished
                 ? MATCH_STATE.WON
                 : hasScore
@@ -56,8 +54,8 @@ export const DoublesList = ({ tournamentId }: { tournamentId: string }) => {
                   : MATCH_STATE.UNPLAYED;
               // 終了済みは勝者を上段へ寄せる
               const swap = summary.finished && summary.winner === SIDE.RIGHT;
-              const topSide = swap ? match.rightSide : match.leftSide;
-              const bottomSide = swap ? match.leftSide : match.rightSide;
+              const topSide = swap ? match.right : match.left;
+              const bottomSide = swap ? match.left : match.right;
               const topWins = swap ? summary.rightWins : summary.leftWins;
               const bottomWins = swap ? summary.leftWins : summary.rightWins;
               return (

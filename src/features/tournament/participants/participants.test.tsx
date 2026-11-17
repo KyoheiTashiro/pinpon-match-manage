@@ -287,6 +287,34 @@ describe("ParticipantsTab", () => {
     });
   });
 
+  it("編集中は他の行の編集・削除と履歴が無効になり、やめると戻る", async () => {
+    seedStore({
+      tournaments: {
+        t1: makeTournament({ id: "t1", participantIds: ["p1", "p2"] }),
+        t2: makeTournament({ id: "t2", participantIds: ["p3"] }),
+      },
+      participants: {
+        p1: makeParticipant({ id: "p1", tournamentId: "t1", name: "選手A" }),
+        p2: makeParticipant({ id: "p2", tournamentId: "t1", name: "選手B" }),
+        p3: makeParticipant({ id: "p3", tournamentId: "t2", name: "選手X" }),
+      },
+    });
+    renderParticipants();
+    const user = userEvent.setup();
+
+    await user.click(screen.getAllByRole("button", { name: "編集" })[0]);
+
+    // 残るのは選手Bの行のボタンだけ
+    expect(screen.getByRole("button", { name: "編集" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "削除" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "履歴" })).toBeDisabled();
+
+    await user.click(screen.getByRole("button", { name: "やめる" }));
+
+    expect(screen.getAllByRole("button", { name: "編集" })[0]).not.toBeDisabled();
+    expect(screen.getByRole("button", { name: "履歴" })).not.toBeDisabled();
+  });
+
   it("tournamentId がない場合は null を返す（何も描画されない）", () => {
     // routePath を指定せず、useParams が tournamentId を解決できない状態
     renderWithStore(<ParticipantsTab />, {

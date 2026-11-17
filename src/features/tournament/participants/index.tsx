@@ -14,12 +14,13 @@ const ParticipantsView = ({ tournamentId }: { tournamentId: string }) => {
     list,
     addForm,
     addSubmit,
+    isIdle,
     editingId,
     startEdit,
     cancelEdit,
     editForm,
     submitEdit,
-    removeTarget,
+    removeConfirmOpen,
     askRemove,
     doRemove,
     cancelRemove,
@@ -60,7 +61,7 @@ const ParticipantsView = ({ tournamentId }: { tournamentId: string }) => {
           type="button"
           variant="secondary"
           onClick={openPastPicker}
-          disabled={pastCandidates.length === 0}
+          disabled={!isIdle || pastCandidates.length === 0}
         >
           履歴
         </Button>
@@ -110,10 +111,16 @@ const ParticipantsView = ({ tournamentId }: { tournamentId: string }) => {
                     variant="secondary"
                     size="sm"
                     onClick={() => startEdit(participant.id, participant.name)}
+                    disabled={!isIdle}
                   >
                     編集
                   </Button>
-                  <Button variant="danger" size="sm" onClick={() => askRemove(participant.id)}>
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    onClick={() => askRemove(participant.id)}
+                    disabled={!isIdle}
+                  >
                     削除
                   </Button>
                 </>
@@ -124,7 +131,7 @@ const ParticipantsView = ({ tournamentId }: { tournamentId: string }) => {
       )}
 
       <ConfirmModal
-        open={!!removeTarget}
+        open={removeConfirmOpen}
         title="参加者を削除"
         message="この参加者と関連する試合を削除します。よろしいですか?"
         confirmLabel="削除する"

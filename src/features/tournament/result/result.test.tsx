@@ -1,5 +1,4 @@
 import { ResultTab } from "@/features/tournament/result";
-import { SIDE_KIND } from "@/store/types";
 import {
   makeTournament,
   makeParticipant,
@@ -196,16 +195,16 @@ describe("ResultTab", () => {
         m1: makeMatch({
           id: "m1",
           tournamentId: "t1",
-          leftSide: { kind: SIDE_KIND.SINGLE, participantId: "p1" },
-          rightSide: { kind: SIDE_KIND.SINGLE, participantId: "p2" },
+          left: "p1",
+          right: "p2",
           games: [log1],
         }),
         // p3 vs p4 の対戦（pointLog あり）
         m2: makeMatch({
           id: "m2",
           tournamentId: "t1",
-          leftSide: { kind: SIDE_KIND.SINGLE, participantId: "p3" },
-          rightSide: { kind: SIDE_KIND.SINGLE, participantId: "p4" },
+          left: "p3",
+          right: "p4",
           games: [log2],
         }),
       },

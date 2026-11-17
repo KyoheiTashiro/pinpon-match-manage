@@ -7,8 +7,10 @@ export type SideView = {
   isMatchWinner: boolean;
   isMatchPoint: boolean;
   isServing: boolean;
+  /** 加点も取り消しもできない（「入力不可」表示） */
   disabled: boolean;
   disableAdd: boolean;
+  disableSub: boolean;
   onAdd: () => void;
   onSub: () => void;
 };
