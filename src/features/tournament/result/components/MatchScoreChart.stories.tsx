@@ -1,5 +1,5 @@
 import type { Game, Side } from "@/domain/match";
-import { SIDE, scoresFromLog } from "@/domain/match";
+import { GAME_KIND, SIDE } from "@/domain/match";
 import type { MatchResultRow } from "@/features/tournament/result/hooks";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
@@ -24,11 +24,11 @@ const buildLog = (left: number, right: number): Side[] => {
   return log;
 };
 
-// pointLog とスコアを整合させた Game を作る。
-const game = (left: number, right: number): Game => {
-  const pointLog = buildLog(left, right);
-  return { ...scoresFromLog(pointLog), pointLog };
-};
+// 得点履歴つきの Game を作る。
+const game = (left: number, right: number): Game => ({
+  kind: GAME_KIND.LOGGED,
+  pointLog: buildLog(left, right),
+});
 
 const match: MatchResultRow = {
   id: "m1",
@@ -80,7 +80,7 @@ export const NoPointLog: Story = {
   args: {
     match: {
       ...match,
-      games: [{ leftScore: 11, rightScore: 8 }],
+      games: [{ kind: "manual", leftScore: 11, rightScore: 8 }],
     },
   },
 };

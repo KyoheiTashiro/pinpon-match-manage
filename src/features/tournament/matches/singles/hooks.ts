@@ -1,11 +1,13 @@
-import { matchSummary, SIDE } from "@/domain/match";
+import { MATCH_STATUS, matchStatus, matchSummary, SIDE } from "@/domain/match";
 import { pairKey } from "@/domain/side";
 import type { MatrixResult } from "@/features/tournament/matches/components/MatchMatrix";
 import { useMatches, useMatchModal } from "@/features/tournament/matches/hooks";
 import { MATCH_STATE, type MatchState } from "@/features/tournament/matches/matchState";
-import { SIDE_KIND, type Match, type Participant } from "@/store/types";
+import { FORMAT, type Match, type Participant } from "@/store/types";
 import { useAppStore } from "@/store/useAppStore";
 import { useMemo } from "react";
+
+type SinglesMatch = Extract<Match, { kind: typeof FORMAT.SINGLES }>;
 
 export const useSingles = (tournamentId: string) => {
   const { tournament, participants, matchList, players, wins } = useMatches(tournamentId);
@@ -13,11 +15,9 @@ export const useSingles = (tournamentId: string) => {
   const addManualMatch = useAppStore((state) => state.addManualMatch);
 
   const singlesCellMatch = useMemo(() => {
-    const map = new Map<string, Match>();
+    const map = new Map<string, SinglesMatch>();
     for (const match of matchList) {
-      if (match.leftSide.kind !== SIDE_KIND.SINGLE || match.rightSide.kind !== SIDE_KIND.SINGLE)
-        continue;
-      map.set(pairKey(match.leftSide.participantId, match.rightSide.participantId), match);
+      if (match.kind === FORMAT.SINGLES) map.set(pairKey(match.left, match.right), match);
     }
     return map;
   }, [matchList]);
@@ -35,14 +35,9 @@ export const useSingles = (tournamentId: string) => {
   /** 既存の試合があれば開き、無ければ作成してから開く（リスト行・マトリクスセル共通） */
   const openOrCreate = (aId: string, bId: string) => {
     const match = singlesCellMatch.get(pairKey(aId, bId));
-    openMatch(
-      match?.id ??
-        addManualMatch(
-          tournamentId,
-          { kind: SIDE_KIND.SINGLE, participantId: aId },
-          { kind: SIDE_KIND.SINGLE, participantId: bId },
-        ),
-    );
+    const id =
+      match?.id ?? addManualMatch(tournamentId, { kind: FORMAT.SINGLES, left: aId, right: bId });
+    if (id !== null) openMatch(id);
   };
 
   return {
@@ -75,19 +70,19 @@ export type SinglesRow = {
 /** 総当たり組み合わせから1行分の表示データを導出（終了済みは勝者を上段へ寄せる） */
 export const buildSinglesRows = (
   allPairs: { a: Participant; b: Participant }[],
-  singlesCellMatch: Map<string, Match>,
+  singlesCellMatch: Map<string, SinglesMatch>,
   wins: number,
 ): SinglesRow[] =>
   allPairs.map(({ a, b }) => {
     const key = pairKey(a.id, b.id);
     const match = singlesCellMatch.get(key);
     const summary = match ? matchSummary(match.games, wins) : null;
-    const hasScore = !!match && (summary?.finished === true || match.games.length > 0);
+    const status = match ? matchStatus(match.games, wins) : MATCH_STATUS.UNPLAYED;
+    const hasScore = status !== MATCH_STATUS.UNPLAYED;
     const finished = summary?.finished === true;
-    const inProgress = hasScore && !finished;
+    const inProgress = status === MATCH_STATUS.IN_PROGRESS;
 
-    const aIsLeft =
-      !!match && match.leftSide.kind === SIDE_KIND.SINGLE && match.leftSide.participantId === a.id;
+    const aIsLeft = match?.left === a.id;
     const aWins = aIsLeft ? summary?.leftWins : summary?.rightWins;
     const bWins = aIsLeft ? summary?.rightWins : summary?.leftWins;
     const aWon =
@@ -153,15 +148,12 @@ export const useSinglesMatrix = (tournamentId: string) => {
   const results = useMemo(() => {
     const list: MatrixResult[] = [];
     for (const match of singlesCellMatch.values()) {
-      // 型ガード（singlesCellMatch は SINGLE 同士のみ格納だが Match 型では絞れない）
-      if (match.leftSide.kind !== SIDE_KIND.SINGLE || match.rightSide.kind !== SIDE_KIND.SINGLE)
-        continue;
-      // ゲーム未入力の試合はリスト表示同様「対戦」扱い（セル押下で既存試合を開く）
-      if (match.games.length === 0) continue;
+      // 未対戦の試合はリスト表示同様「対戦」扱い（セル押下で既存試合を開く）
+      if (matchStatus(match.games, wins) === MATCH_STATUS.UNPLAYED) continue;
       const summary = matchSummary(match.games, wins);
       list.push({
-        playerAId: match.leftSide.participantId,
-        playerBId: match.rightSide.participantId,
+        playerAId: match.left,
+        playerBId: match.right,
         winsA: summary.leftWins,
         winsB: summary.rightWins,
         finished: summary.finished,

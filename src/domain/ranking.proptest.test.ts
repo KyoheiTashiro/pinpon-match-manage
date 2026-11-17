@@ -1,29 +1,15 @@
 import { computeRanking, type RankingRow } from "@/domain/ranking";
-import { SIDE_KIND, type Match } from "@/store/types";
+import { sideMembers } from "@/domain/side";
+import { FORMAT, type Match } from "@/store/types";
 import { matchArb, matchWithPairArb, sideArb } from "@/test/arbitraries";
 import * as fc from "fast-check";
 import { describe, expect, it } from "vitest";
 
-/** matchArb の leftSide/rightSide から全参加者 ID を集め participantNames を作る */
+/** matchArb の left/right から全参加者 ID を集め participantNames を作る */
 function buildParticipantNames(matches: Match[]): Record<string, string> {
   const names: Record<string, string> = {};
   for (const match of matches) {
-    if (match.leftSide.kind === SIDE_KIND.SINGLE) {
-      names[match.leftSide.participantId] = match.leftSide.participantId;
-    }
-    if (match.rightSide.kind === SIDE_KIND.SINGLE) {
-      names[match.rightSide.participantId] = match.rightSide.participantId;
-    }
-    if (match.leftSide.kind === SIDE_KIND.PAIR) {
-      for (const id of match.leftSide.memberIds) {
-        names[id] = id;
-      }
-    }
-    if (match.rightSide.kind === SIDE_KIND.PAIR) {
-      for (const id of match.rightSide.memberIds) {
-        names[id] = id;
-      }
-    }
+    for (const id of [...sideMembers(match.left), ...sideMembers(match.right)]) names[id] = id;
   }
   return names;
 }
@@ -159,8 +145,9 @@ describe("computeRanking プロパティテスト", () => {
           const emptyMatch: Match = {
             id: "empty",
             tournamentId: "t1",
-            leftSide: { kind: SIDE_KIND.SINGLE, participantId: leftId },
-            rightSide: { kind: SIDE_KIND.SINGLE, participantId: rightId },
+            kind: "singles",
+            left: leftId,
+            right: rightId,
             games: [],
             firstServer,
           };
@@ -216,8 +203,8 @@ describe("computeRanking — PAIR(ダブルス)プロパティテスト", () => 
           const single = [match];
           const rows = computeRanking(single, buildParticipantNames(single));
           const rowMap = new Map(rows.map((r) => [r.participantId, r]));
-          if (match.leftSide.kind === SIDE_KIND.PAIR) {
-            const [idA, idB] = match.leftSide.memberIds;
+          if (match.kind === FORMAT.DOUBLES) {
+            const [idA, idB] = match.left;
             const rowA = rowMap.get(idA);
             const rowB = rowMap.get(idB);
             if (rowA && rowB) {
@@ -226,8 +213,8 @@ describe("computeRanking — PAIR(ダブルス)プロパティテスト", () => 
               expect(rowA.played).toBe(rowB.played);
             }
           }
-          if (match.rightSide.kind === SIDE_KIND.PAIR) {
-            const [idC, idD] = match.rightSide.memberIds;
+          if (match.kind === FORMAT.DOUBLES) {
+            const [idC, idD] = match.right;
             const rowC = rowMap.get(idC);
             const rowD = rowMap.get(idD);
             if (rowC && rowD) {
@@ -294,12 +281,13 @@ describe("computeRanking — 同順位飛び(1,1,3形式)プロパティテス�
       {
         id: "m1",
         tournamentId: "t",
-        leftSide: { kind: SIDE_KIND.SINGLE, participantId: "A" },
-        rightSide: { kind: SIDE_KIND.SINGLE, participantId: "D" },
+        kind: "singles",
+        left: "A",
+        right: "D",
         games: [
-          { leftScore: 11, rightScore: 5 },
-          { leftScore: 11, rightScore: 5 },
-          { leftScore: 11, rightScore: 5 },
+          { kind: "manual", leftScore: 11, rightScore: 5 },
+          { kind: "manual", leftScore: 11, rightScore: 5 },
+          { kind: "manual", leftScore: 11, rightScore: 5 },
         ],
         firstServer: "L",
       },

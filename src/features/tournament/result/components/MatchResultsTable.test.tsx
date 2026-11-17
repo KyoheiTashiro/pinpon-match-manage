@@ -1,15 +1,9 @@
 import { SIDE } from "@/domain/match";
-import type { Game } from "@/domain/match";
 import { MatchResultsTable } from "@/features/tournament/result/components/MatchResultsTable";
 import type { MatchResultRow } from "@/features/tournament/result/hooks";
+import { makeGame } from "@/test/factories";
 import { render, screen } from "@testing-library/react";
 import { describe, it, expect } from "vitest";
-
-const makeGame = (overrides: Partial<Game> = {}): Game => ({
-  leftScore: 0,
-  rightScore: 0,
-  ...overrides,
-});
 
 const makeMatchResult = (overrides: Partial<MatchResultRow> = {}): MatchResultRow => ({
   id: "m1",

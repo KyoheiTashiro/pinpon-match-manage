@@ -8,10 +8,9 @@ export const ScoreboardScreen = (props: UseScoreboardProps) => {
   const {
     gameIndex,
     setGameIndex,
+    isGameSelectable,
     showResult,
-    showNextGameBtn,
-    showResultBtn,
-    showBackBtn,
+    action,
     nextGameIndex,
     isPortrait,
     scoreInputProps,
@@ -36,11 +35,9 @@ export const ScoreboardScreen = (props: UseScoreboardProps) => {
         games={props.games}
         gameIndex={gameIndex}
         setGameIndex={setGameIndex}
-        lockedFromIndex={props.lockedFromIndex}
+        isGameSelectable={isGameSelectable}
         showResult={showResult}
-        showNextGameBtn={showNextGameBtn}
-        showResultBtn={showResultBtn}
-        showBackBtn={showBackBtn}
+        action={action}
         nextGameIndex={nextGameIndex}
         onBack={onBack}
         onShowResult={onShowResult}

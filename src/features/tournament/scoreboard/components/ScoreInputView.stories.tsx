@@ -14,6 +14,7 @@ const baseLeft: SideView = {
   isServing: true,
   disabled: false,
   disableAdd: false,
+  disableSub: false,
   onAdd: fn<() => void>(),
   onSub: fn<() => void>(),
 };

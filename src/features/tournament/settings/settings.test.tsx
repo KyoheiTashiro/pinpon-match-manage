@@ -95,6 +95,21 @@ describe("SettingsTab", () => {
   // 追加テスト
   // -----------------------------------------------------------------------
 
+  it("編集中は削除系ボタンが無効になり、キャンセルで戻る", async () => {
+    renderSettings();
+    const user = userEvent.setup();
+
+    await user.click(screen.getByRole("button", { name: "編集" }));
+
+    expect(screen.getByRole("button", { name: "試合結果を削除" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "大会を削除" })).toBeDisabled();
+
+    await user.click(screen.getByRole("button", { name: "キャンセル" }));
+
+    expect(screen.getByRole("button", { name: "試合結果を削除" })).not.toBeDisabled();
+    expect(screen.getByRole("button", { name: "大会を削除" })).not.toBeDisabled();
+  });
+
   it("大会名を空にすると「大会名を入力してください」エラーと保存 disabled", async () => {
     renderSettings();
     const user = userEvent.setup();

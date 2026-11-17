@@ -1,13 +1,14 @@
 import { MATCH_STATE } from "@/features/tournament/matches/matchState";
 import { buildSinglesRows } from "@/features/tournament/matches/singles/hooks";
-import { SIDE_KIND, type Match } from "@/store/types";
+import type { Match } from "@/store/types";
 import { makeGame, makeMatch, makeParticipant } from "@/test/factories";
 import { describe, expect, it } from "vitest";
 
 const a = makeParticipant({ id: "p1", name: "選手A" });
 const b = makeParticipant({ id: "p2", name: "選手B" });
 const pairs = [{ a, b }];
-const cellMap = (match: Match) => new Map([["p1|p2", match]]);
+const cellMap = (match: Match) =>
+  new Map(match.kind === "singles" ? [["p1|p2", match] as const] : []);
 
 describe("buildSinglesRows", () => {
   it("試合未作成なら「対戦追加」扱いで組み合わせ順のまま", () => {
@@ -55,8 +56,8 @@ describe("buildSinglesRows", () => {
 
   it("試合の左右が組み合わせと逆でも勝者が上段", () => {
     const match = makeMatch({
-      leftSide: { kind: SIDE_KIND.SINGLE, participantId: "p2" },
-      rightSide: { kind: SIDE_KIND.SINGLE, participantId: "p1" },
+      left: "p2",
+      right: "p1",
       games: [
         makeGame({ leftScore: 5, rightScore: 11 }),
         makeGame({ leftScore: 7, rightScore: 11 }),

@@ -25,12 +25,12 @@ useAppStore = create<StoreState>()(
 
 `StoreState = UiSlice & TournamentSlice & ParticipantSlice & MatchSlice`。各スライスは `StateCreator` で定義し、ルートで合成。
 
-| スライス           | 状態                                                       | アクション                                                                                                             | 実装                         |
-| ------------------ | ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | ---------------------------- |
-| `uiSlice`          | `fontSize`, `matchesView`, `defaultBestOf`, `keepScreenOn` | `setFontSize`, `setMatchesView`, `setDefaultBestOf`, `setKeepScreenOn`                                                 | `slices/uiSlice.ts`          |
-| `tournamentSlice`  | `tournaments`, `currentTournamentId`                       | `createTournament` / `updateTournament` / `deleteTournament` / `setCurrentTournament` / `resetTournament` / `resetAll` | `slices/tournamentSlice.ts`  |
-| `participantSlice` | `participants`                                             | `addParticipant` / `addParticipants` / `updateParticipant` / `removeParticipant`                                       | `slices/participantSlice.ts` |
-| `matchSlice`       | `matches`                                                  | `addManualMatch` / `updateMatch` / `deleteMatch`                                                                       | `slices/matchSlice.ts`       |
+| スライス           | 状態                                                       | アクション                                                                                    | 実装                         |
+| ------------------ | ---------------------------------------------------------- | --------------------------------------------------------------------------------------------- | ---------------------------- |
+| `uiSlice`          | `fontSize`, `matchesView`, `defaultBestOf`, `keepScreenOn` | `setFontSize`, `setMatchesView`, `setDefaultBestOf`, `setKeepScreenOn`                        | `slices/uiSlice.ts`          |
+| `tournamentSlice`  | `tournaments`                                              | `createTournament` / `updateTournament` / `deleteTournament` / `resetTournament` / `resetAll` | `slices/tournamentSlice.ts`  |
+| `participantSlice` | `participants`                                             | `addParticipant` / `addParticipants` / `updateParticipant` / `removeParticipant`              | `slices/participantSlice.ts` |
+| `matchSlice`       | `matches`                                                  | `addManualMatch` / `setGames` / `setFirstServer` / `deleteMatch`                              | `slices/matchSlice.ts`       |
 
 - スライスは互いの状態へ `StoreState` 経由で到達可能（`set` は全ストアのドラフト、`get()` は全状態）。例: `addParticipant` は `participantSlice` だが `tournaments[id].participantIds` も更新。
 - スライス内では `state.xxx[id] = ...` / `delete state.xxx[id]` の破壊的記法を使用（Immer が不変更新へ変換）。
@@ -39,15 +39,16 @@ useAppStore = create<StoreState>()(
 
 データ整合は各アクションが手続き的に維持。参照を壊さない設計。
 
-- `createTournament(name, format, date, bestOf)` → `id` 採番、`tournaments[id]` 追加、`currentTournamentId` を新 id へ。`createdAt = now()`、`participantIds: []`。
-- `deleteTournament(id)` → 配下 `matches`（`tournamentId === id`）と `participantIds` の各 `participant` を**カスケード削除**。`currentTournamentId === id` なら `null`。
+- `createTournament(name, format, date, bestOf)` → `id` 採番、`tournaments[id]` 追加。`createdAt = now()`、`participantIds: []`。
+- `deleteTournament(id)` → 配下 `matches`（`tournamentId === id`）と `participantIds` の各 `participant` を**カスケード削除**。
 - `resetTournament(id)` → 配下 `matches` のみ削除。参加者・大会は残す（再戦用）。
 - `resetAll()` → 3スライスを初期値へ一括リセット（`Object.assign(state, tournamentInitial, participantInitial, matchInitial)`）。`fontSize` は維持。
 - `addParticipant(tournamentId, name, affiliation?)` → `name.trim()`。`participants[id]` 追加 + 親 `participantIds.push(id)`。対象大会が無ければ no-op。
 - `addParticipants(tournamentId, names)` → 複数名を一括追加。各 `name` を `trim()` し、空文字・既存名（重複）はスキップ。対象大会が無ければ no-op。
-- `removeParticipant(tournamentId, id)` → 当該 participant 削除 + その参加者が絡む `matches` を**カスケード削除**（single/pair 双方を判定）+ `participantIds` から除去。
-- `addManualMatch(tournamentId, left, right)` → **シングルス同士は重複ガード**: 同一2人（左右入替含む）の既存試合があれば新規作成せず既存 `id` を返す。新規時 `games: []`・`firstServer: SIDE.LEFT`。
-- `updateTournament` / `updateParticipant` / `updateMatch` → 対象が無ければ no-op。`Object.assign` でパッチ。`updateParticipant` は `name` を常に `trim()`。
+- `removeParticipant(tournamentId, id)` → 当該 participant 削除 + その参加者が絡む `matches` を**カスケード削除**（シングルス/ダブルス双方を `sideMembers` で判定）+ `participantIds` から除去。
+- `addManualMatch(tournamentId, sides)` → `sides` は `MatchSides`（`kind` と左右の対戦者）。次のいずれかに当たれば作成せず `null` を返す: 大会が無い／`sides.kind` が大会の `format` と違う／同じ参加者が重複している／大会の `participantIds` に無い参加者を含む。**シングルスは重複ガード**: 同一2人（左右入替含む）の既存試合があれば新規作成せず既存 `id` を返す。新規時 `games: []`・`firstServer: SIDE.LEFT`。
+- `setGames(id, games)` / `setFirstServer(id, side)` → 試合の更新はこの2つに限る。`kind`・対戦者・`tournamentId` を後から書き換える経路は無い。対象が無ければ no-op。
+- `updateTournament` / `updateParticipant` → 対象が無ければ no-op。`Object.assign` でパッチ。`updateParticipant` は `name` を常に `trim()`。
 
 カスケード対象一覧:
 
@@ -58,8 +59,8 @@ useAppStore = create<StoreState>()(
 ## 永続化（zustand persist）
 
 - ストアキー（`name`）: `pinpon-match-manage:v1`（`STORAGE_KEY`）
-- スキーマ `version`: `5`（`STORAGE_VERSION`）。両定数 `src/constants/storage.ts`。
-- `partialize`: 永続化対象は `tournaments` / `participants` / `matches` / `currentTournamentId` / `fontSize` / `matchesView` / `defaultBestOf` / `keepScreenOn` のみ。アクション関数や派生値は保存しない。
+- スキーマ `version`: `6`（`STORAGE_VERSION`）。両定数 `src/constants/storage.ts`。
+- `partialize`: 永続化対象は `tournaments` / `participants` / `matches` / `fontSize` / `matchesView` / `defaultBestOf` / `keepScreenOn` のみ。アクション関数や派生値は保存しない。
 - 読込パイプライン: LocalStorage → `migrate`（バージョン変換）→ `merge`（検証・サニタイズ・結合）→ ストア。
 
 ### migrate
@@ -73,6 +74,10 @@ useAppStore = create<StoreState>()(
 - v2→v3 (`migrateV2ToV3`): `matchesView` を補完（v2 以前はマトリクス表示固定 → `matchesView ?? MATRIX`）。
 - v3→v4 (`migrateV3ToV4`): `defaultBestOf` を補完（`defaultBestOf ?? 3`）。
 - v4→v5 (`migrateV4ToV5`): `keepScreenOn` を補完（`keepScreenOn ?? true`）。
+- v5→v6 (`migrateV5ToV6`): 次の3点を変換する。
+  - `Game`: `pointLog` が1件以上あれば `{ kind: "logged", pointLog }`、無ければ `{ kind: "manual", leftScore, rightScore }`。旧データでスコアと `pointLog` が食い違っていた場合は `pointLog` を採る。
+  - `Match`: `leftSide` / `rightSide` を `kind` + `left` / `right` へ。両側 single → `singles`、両側 pair → `doubles`。片側だけペアの試合は新しい型で表せないため変換せず、後段の `merge` が落とす。
+  - `currentTournamentId` を削除（どこからも読まれていなかった）。
 
 将来スキーマ変更時: `migrateVNToVN+1` を追加 → `migrations` に登録 → `STORAGE_VERSION` をインクリメント。
 
@@ -81,7 +86,7 @@ useAppStore = create<StoreState>()(
 `merge(persisted, current)` は壊れたデータを全捨てせず可能な限り救う3段構え:
 
 1. **ハッピーパス**: `appStateSchema.safeParse(persisted)` 成功 → `sanitizeAppState` で参照整合修復 → `current` に結合。
-2. **部分破損**: パース失敗かつ persisted がオブジェクト → `salvageAppState`。`tournaments`/`participants`/`matches` を**1エントリずつ**各エンティティスキーマで `safeParse`、成功分のみ保持。`currentTournamentId`（`string | null`）・`fontSize` / `matchesView` / `defaultBestOf` / `keepScreenOn`（有効な値か）も個別検証しフォールバック。最後に `sanitizeAppState`。
+2. **部分破損**: パース失敗かつ persisted がオブジェクト → `salvageAppState`。`tournaments`/`participants`/`matches` を**1エントリずつ**各エンティティスキーマで `safeParse`、成功分のみ保持。`fontSize` / `matchesView` / `defaultBestOf` / `keepScreenOn`（有効な値か）も個別検証しフォールバック。最後に `sanitizeAppState`。
 3. **最終手段**: persisted がオブジェクトですらない（null / 配列 / プリミティブ）→ `current`（空初期状態）を返す。
 
 `isRecord(value)`: 配列・null を除外した「プレーンなレコード」型述語。migrate / salvage の入口ガード。
@@ -93,7 +98,7 @@ useAppStore = create<StoreState>()(
 - `sanitizeAppState(state)`: 参照整合性の純粋関数。
   - `participantIds` の dangling 参照除去
   - 所属 tournament 不在の match / participant 除去
-  - `currentTournamentId` が無効なら `null`
+  - 大会の `format` と `kind` が違う match、大会の `participantIds` に無い参加者を含む match を除去（順位集計を壊すため）
   - migrate / merge / salvage の各経路が最終的に通る整合ゲート。
 
 ## 派生（永続化しない）
@@ -101,8 +106,8 @@ useAppStore = create<StoreState>()(
 ストアに置かず導出する値:
 
 - 大会所属 match: `matchesOf(matches, tournamentId)`（`src/store/selectors.ts`）。`Tournament` は match の配列を持たず `Match.tournamentId`（FK）から導出。挿入順 = `matches` レコードのキー順。
-- 過去参加者名一覧: `pastParticipantNamesOf(participants, currentTournamentId)`（`src/store/selectors.ts`）。現在の大会以外の参加者名を trim・重複除去・名前順ソートして返す（過去参加者一括追加機能用）。
-- 試合進行状態・勝敗: `matchSummary(games, winsNeeded)`（`src/domain/match.ts`）。
+- 過去参加者名一覧: `pastParticipantNamesOf(participants, tournamentId)`（`src/store/selectors.ts`）。現在の大会以外の参加者名を trim・重複除去・名前順ソートして返す（過去参加者一括追加機能用）。
+- 試合進行状態・勝敗: `matchSummary` / `matchPhase` / `matchStatus`（`src/domain/match.ts`）。仕様は [data-model.md](data-model.md)。
 - 順位: [features/ranking-overall.md](../features/ranking-overall.md) 参照。
 
 ## テスト

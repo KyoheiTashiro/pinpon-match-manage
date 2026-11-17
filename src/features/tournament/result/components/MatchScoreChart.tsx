@@ -1,6 +1,6 @@
 import { WinnerBadge } from "@/components/domain";
 import type { Side } from "@/domain/match";
-import { SIDE, gameFirstServer } from "@/domain/match";
+import { GAME_KIND, SIDE, gameFirstServer } from "@/domain/match";
 import { gameProgress, type ProgressPoint } from "@/domain/scoreProgress";
 import type { MatchResultRow } from "@/features/tournament/result/hooks";
 
@@ -80,9 +80,9 @@ export const MatchScoreChart = ({ match, selfSide }: Props) => {
   const opponentWins = selfSide === SIDE.LEFT ? match.rightWins : match.leftWins;
 
   // hooks 側で既に realGames() 適用済みの match.games から pointLog あるゲームだけ抽出
-  const chartGames = match.games
-    .map((game, realIndex) => ({ game, realIndex }))
-    .filter(({ game }) => game.pointLog?.length);
+  const chartGames = match.games.flatMap((game, realIndex) =>
+    game.kind === GAME_KIND.LOGGED ? [{ pointLog: game.pointLog, realIndex }] : [],
+  );
 
   return (
     <div className="border-line border-t-2 pt-4 font-bold first:border-t-0 first:pt-2">
@@ -102,11 +102,8 @@ export const MatchScoreChart = ({ match, selfSide }: Props) => {
         <p className="text-sub">得点記録なし</p>
       ) : (
         <div className="mt-2 flex w-full flex-col gap-2 px-2">
-          {chartGames.map(({ game, realIndex }) => {
-            const points = gameProgress(
-              game.pointLog!,
-              gameFirstServer(match.firstServer, realIndex),
-            );
+          {chartGames.map(({ pointLog, realIndex }) => {
+            const points = gameProgress(pointLog, gameFirstServer(match.firstServer, realIndex));
             const svgWidth = points.length * COL_WIDTH;
             const final = points.at(-1);
             const finalTop = selfSide === SIDE.LEFT ? (final?.left ?? 0) : (final?.right ?? 0);

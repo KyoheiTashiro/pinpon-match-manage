@@ -46,8 +46,8 @@ export const computeRanking = (
   for (const match of matches) {
     const summary = matchSummary(match.games, winsNeeded);
     if (!summary.finished) continue;
-    const leftIds = sideMembers(match.leftSide);
-    const rightIds = sideMembers(match.rightSide);
+    const leftIds = sideMembers(match.left);
+    const rightIds = sideMembers(match.right);
     const leftWon = summary.winner === SIDE.LEFT;
 
     for (const id of leftIds) {

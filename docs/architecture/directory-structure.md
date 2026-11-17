@@ -34,11 +34,11 @@ src/
 │   └── storage.ts                  // localStorage キー定数
 ├── domain/                         // ビジネスロジック（純粋関数。各 *.test.ts / 一部 *.proptest.test.ts）
 │   ├── constants.ts                // 卓球ルール定数（GAME_POINT / WIN_DIFF 等）
-│   ├── match.ts                    // 勝敗判定・サーブ・pointLog操作・opposite/flip
-│   ├── matchGames.ts               // ゲーム配列の pad/trim・入力ロック算出
+│   ├── match.ts                    // Game型・勝敗/進行状態・サーブ・opposite/flip
+│   ├── matchGames.ts               // ゲーム配列の pad/trim・得点入力の可否と適用
 │   ├── ranking.ts                  // 順位算出
 │   ├── scoreProgress.ts            // 点数進行グラフ導出ロジック
-│   └── side.ts                     // MatchSide → participantId配列/表示名（sideMembers/sideName）
+│   └── side.ts                     // 対戦者 → participantId配列/表示名（sideMembers/sideName）
 ├── features/
 │   ├── home/                       // 大会一覧・新規作成
 │   │   ├── index.tsx

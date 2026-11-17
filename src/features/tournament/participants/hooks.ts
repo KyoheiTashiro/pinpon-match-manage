@@ -7,6 +7,22 @@ import { useForm } from "react-hook-form";
 
 const EMPTY_SELECTION: ReadonlySet<string> = new Set();
 
+export const PARTICIPANTS_MODE = {
+  IDLE: "idle",
+  EDITING: "editing",
+  REMOVING: "removing",
+  PICKING: "picking",
+} as const;
+
+// 編集・削除確認・履歴選択は同時に一つしか成り立たない
+type ParticipantsMode =
+  | { kind: typeof PARTICIPANTS_MODE.IDLE }
+  | { kind: typeof PARTICIPANTS_MODE.EDITING; id: string }
+  | { kind: typeof PARTICIPANTS_MODE.REMOVING; id: string }
+  | { kind: typeof PARTICIPANTS_MODE.PICKING; selected: ReadonlySet<string> };
+
+const IDLE: ParticipantsMode = { kind: PARTICIPANTS_MODE.IDLE };
+
 export const useParticipants = (tournamentId: string) => {
   const tournament = useAppStore((state) => state.tournaments[tournamentId]);
   const participants = useAppStore((state) => state.participants);
@@ -24,10 +40,9 @@ export const useParticipants = (tournamentId: string) => {
     alreadyAdded: currentNames.has(name),
   }));
 
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [removeTarget, setRemoveTarget] = useState<string | null>(null);
-  // null = 過去参加者ピッカーが閉じている
-  const [pastSelected, setPastSelected] = useState<Set<string> | null>(null);
+  const [mode, setMode] = useState<ParticipantsMode>(IDLE);
+  const backToIdle = () => setMode(IDLE);
+  const isIdle = mode.kind === PARTICIPANTS_MODE.IDLE;
 
   const addForm = useForm<FormType>({
     resolver: zodResolver(Schema),
@@ -46,60 +61,63 @@ export const useParticipants = (tournamentId: string) => {
   });
 
   const startEdit = (id: string, currentName: string) => {
-    setEditingId(id);
+    if (!isIdle) return;
+    setMode({ kind: PARTICIPANTS_MODE.EDITING, id });
     editForm.reset({ name: currentName });
     void editForm.trigger();
   };
-  const cancelEdit = () => setEditingId(null);
   const submitEdit = editForm.handleSubmit((data) => {
-    if (editingId) updateParticipant(editingId, { name: data.name });
-    setEditingId(null);
+    if (mode.kind === PARTICIPANTS_MODE.EDITING) updateParticipant(mode.id, { name: data.name });
+    backToIdle();
   });
 
-  const askRemove = (id: string) => setRemoveTarget(id);
-  const doRemove = () => {
-    if (removeTarget) removeParticipant(tournamentId, removeTarget);
-    setRemoveTarget(null);
+  const askRemove = (id: string) => {
+    if (isIdle) setMode({ kind: PARTICIPANTS_MODE.REMOVING, id });
   };
-  const cancelRemove = () => setRemoveTarget(null);
+  const doRemove = () => {
+    if (mode.kind === PARTICIPANTS_MODE.REMOVING) removeParticipant(tournamentId, mode.id);
+    backToIdle();
+  };
 
-  const openPastPicker = () => setPastSelected(new Set());
-  const closePastPicker = () => setPastSelected(null);
+  const openPastPicker = () => {
+    if (isIdle) setMode({ kind: PARTICIPANTS_MODE.PICKING, selected: new Set() });
+  };
   const togglePast = (name: string) => {
-    setPastSelected((prev) => {
-      if (!prev) return prev;
-      const next = new Set(prev);
-      if (next.has(name)) {
-        next.delete(name);
+    setMode((previous) => {
+      if (previous.kind !== PARTICIPANTS_MODE.PICKING) return previous;
+      const selected = new Set(previous.selected);
+      if (selected.has(name)) {
+        selected.delete(name);
       } else {
-        next.add(name);
+        selected.add(name);
       }
-      return next;
+      return { kind: PARTICIPANTS_MODE.PICKING, selected };
     });
   };
   const confirmAddPast = () => {
-    if (pastSelected) addParticipants(tournamentId, [...pastSelected]);
-    closePastPicker();
+    if (mode.kind === PARTICIPANTS_MODE.PICKING) addParticipants(tournamentId, [...mode.selected]);
+    backToIdle();
   };
 
   return {
     list,
     addForm,
     addSubmit,
-    editingId,
+    isIdle,
+    editingId: mode.kind === PARTICIPANTS_MODE.EDITING ? mode.id : null,
     startEdit,
-    cancelEdit,
+    cancelEdit: backToIdle,
     editForm,
     submitEdit,
-    removeTarget,
+    removeConfirmOpen: mode.kind === PARTICIPANTS_MODE.REMOVING,
     askRemove,
     doRemove,
-    cancelRemove,
+    cancelRemove: backToIdle,
     pastCandidates,
-    pastPickerOpen: pastSelected !== null,
-    pastSelected: pastSelected ?? EMPTY_SELECTION,
+    pastPickerOpen: mode.kind === PARTICIPANTS_MODE.PICKING,
+    pastSelected: mode.kind === PARTICIPANTS_MODE.PICKING ? mode.selected : EMPTY_SELECTION,
     openPastPicker,
-    closePastPicker,
+    closePastPicker: backToIdle,
     togglePast,
     confirmAddPast,
   };

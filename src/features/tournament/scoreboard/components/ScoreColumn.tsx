@@ -13,6 +13,7 @@ export const ScoreColumn = ({
   isServing,
   disabled,
   disableAdd,
+  disableSub,
   onAdd,
   onSub,
 }: SideView) => {
@@ -48,14 +49,14 @@ export const ScoreColumn = ({
             type="button"
             aria-label={`${name} を1増やす`}
             onClick={onAdd}
-            disabled={disabled || disableAdd || score >= MAX_SCORE}
+            disabled={disableAdd || score >= MAX_SCORE}
             className="absolute inset-x-0 top-0 h-1/2 w-full transition hover:bg-white/5 active:bg-white/10 disabled:opacity-40 disabled:hover:bg-transparent"
           />
           <button
             type="button"
             aria-label={`${name} を1減らす`}
             onClick={onSub}
-            disabled={disabled || score <= 0}
+            disabled={disableSub || score <= 0}
             className="absolute inset-x-0 bottom-0 h-1/2 w-full transition hover:bg-white/5 active:bg-white/10 disabled:opacity-40 disabled:hover:bg-transparent"
           />
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center">

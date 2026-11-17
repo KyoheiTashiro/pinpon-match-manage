@@ -1,4 +1,4 @@
-import { FONT_SIZE, FORMAT, MATCHES_VIEW, SIDE_KIND, type AppState } from "@/store/types";
+import { FONT_SIZE, FORMAT, MATCHES_VIEW, type AppState } from "@/store/types";
 import { describe, expect, it } from "vitest";
 
 import { salvageAppState } from "./useAppStore";
@@ -11,7 +11,6 @@ const emptyState: AppState = {
   tournaments: {},
   participants: {},
   matches: {},
-  currentTournamentId: null,
   fontSize: FONT_SIZE.NORMAL,
   matchesView: MATCHES_VIEW.MATRIX,
   defaultBestOf: 3,
@@ -25,7 +24,7 @@ const validTournament = {
   bestOf: 5,
   date: "2026-01-01",
   createdAt: "2026-01-01T00:00:00.000Z",
-  participantIds: [],
+  participantIds: ["p1", "p2"],
 };
 
 const validParticipant = {
@@ -33,12 +32,14 @@ const validParticipant = {
   tournamentId: "t1",
   name: "選手A",
 };
+const validParticipants = { p1: validParticipant, p2: { ...validParticipant, id: "p2" } };
 
 const validMatch = {
   id: "m1",
   tournamentId: "t1",
-  leftSide: { kind: SIDE_KIND.SINGLE, participantId: "p1" },
-  rightSide: { kind: SIDE_KIND.SINGLE, participantId: "p2" },
+  kind: FORMAT.SINGLES,
+  left: "p1",
+  right: "p2",
   games: [],
   firstServer: "L" as const,
 };
@@ -51,7 +52,7 @@ describe("salvageAppState: 有効な永続化データ", () => {
   it("全エンティティが有効なら全て保持される", () => {
     const persisted = {
       tournaments: { t1: validTournament },
-      participants: { p1: validParticipant },
+      participants: validParticipants,
       matches: { m1: validMatch },
       currentTournamentId: "t1",
       fontSize: FONT_SIZE.LARGE,
@@ -63,8 +64,8 @@ describe("salvageAppState: 有効な永続化データ", () => {
     expect(result.tournaments.t1).toBeDefined();
     expect(result.participants.p1).toBeDefined();
     expect(result.matches.m1).toBeDefined();
-    // currentTournamentId: t1 は tournaments に存在するので保持
-    expect(result.currentTournamentId).toBe("t1");
+    // 廃止済みフィールドは持ち越さない
+    expect(result).not.toHaveProperty("currentTournamentId");
     expect(result.fontSize).toBe(FONT_SIZE.LARGE);
     expect(result.matchesView).toBe(MATCHES_VIEW.LIST);
   });
@@ -79,15 +80,15 @@ describe("salvageAppState: 部分的に壊れた状態", () => {
     const corruptMatch = {
       id: "m_corrupt",
       // tournamentId が欠落 → matchSchema 失敗
-      leftSide: { kind: SIDE_KIND.SINGLE, participantId: "p1" },
-      rightSide: { kind: SIDE_KIND.SINGLE, participantId: "p2" },
+      left: "p1",
+      right: "p2",
       games: [],
       firstServer: "L",
     };
 
     const persisted = {
       tournaments: { t1: validTournament },
-      participants: { p1: validParticipant },
+      participants: validParticipants,
       matches: {
         m1: validMatch,
         m_corrupt: corruptMatch,
@@ -121,7 +122,7 @@ describe("salvageAppState: 部分的に壊れた状態", () => {
         t1: validTournament,
         t_corrupt: corruptTournament,
       },
-      participants: { p1: validParticipant },
+      participants: validParticipants,
       matches: { m1: validMatch },
       currentTournamentId: "t1",
       fontSize: FONT_SIZE.NORMAL,
@@ -139,7 +140,6 @@ describe("salvageAppState: 部分的に壊れた状態", () => {
       tournaments: { t1: validTournament },
       participants: {},
       matches: {},
-      currentTournamentId: null,
       fontSize: "invalid-size",
       matchesView: MATCHES_VIEW.MATRIX,
     };
@@ -155,7 +155,6 @@ describe("salvageAppState: 部分的に壊れた状態", () => {
       tournaments: { t1: validTournament },
       participants: {},
       matches: {},
-      currentTournamentId: null,
       fontSize: FONT_SIZE.NORMAL,
       matchesView: "invalid-view",
     };
@@ -171,7 +170,6 @@ describe("salvageAppState: 部分的に壊れた状態", () => {
       tournaments: { t1: validTournament },
       participants: {},
       matches: {},
-      currentTournamentId: null,
       fontSize: FONT_SIZE.NORMAL,
       matchesView: MATCHES_VIEW.MATRIX,
       defaultBestOf: 4,
@@ -188,7 +186,6 @@ describe("salvageAppState: 部分的に壊れた状態", () => {
       tournaments: { t1: validTournament },
       participants: {},
       matches: {},
-      currentTournamentId: null,
       fontSize: FONT_SIZE.NORMAL,
       matchesView: MATCHES_VIEW.MATRIX,
       defaultBestOf: 7,
@@ -212,19 +209,27 @@ describe("salvageAppState: 部分的に壊れた状態", () => {
     expect(salvageAppState(persisted, emptyState).keepScreenOn).toBe(false);
   });
 
-  it("currentTournamentId が存在しない tournament を指していたら null になる", () => {
+  it("大会形式と食い違う試合・大会に所属しない参加者を含む試合は除去される", () => {
     const persisted = {
       tournaments: { t1: validTournament },
-      participants: {},
-      matches: {},
-      currentTournamentId: "non-existent",
-      fontSize: FONT_SIZE.NORMAL,
-      matchesView: MATCHES_VIEW.MATRIX,
+      participants: validParticipants,
+      matches: {
+        m1: validMatch,
+        doubles: {
+          ...validMatch,
+          id: "doubles",
+          kind: FORMAT.DOUBLES,
+          left: ["p1", "p2"],
+          right: ["p1", "p2"],
+        },
+        outsider: { ...validMatch, id: "outsider", right: "ghost" },
+        orphan: { ...validMatch, id: "orphan", tournamentId: "ghost" },
+      },
     };
 
     const result = salvageAppState(persisted, emptyState);
 
-    expect(result.currentTournamentId).toBeNull();
+    expect(Object.keys(result.matches)).toEqual(["m1"]);
   });
 });
 

@@ -1,4 +1,5 @@
 import { STORAGE_KEY, STORAGE_VERSION } from "@/constants/storage";
+import { GAME_KIND, SIDE } from "@/domain/match";
 import {
   appStateSchema,
   matchSchema,
@@ -10,7 +11,7 @@ import { createMatchSlice, type MatchSlice } from "@/store/slices/matchSlice";
 import { createParticipantSlice, type ParticipantSlice } from "@/store/slices/participantSlice";
 import { createTournamentSlice, type TournamentSlice } from "@/store/slices/tournamentSlice";
 import { createUiSlice, type UiSlice } from "@/store/slices/uiSlice";
-import { BEST_OF_OPTIONS, FONT_SIZE, MATCHES_VIEW, type AppState } from "@/store/types";
+import { BEST_OF_OPTIONS, FONT_SIZE, FORMAT, MATCHES_VIEW, type AppState } from "@/store/types";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
@@ -51,6 +52,58 @@ const migrateV3ToV4: Migration = (persisted) =>
 const migrateV4ToV5: Migration = (persisted) =>
   persisted.keepScreenOn === undefined ? { ...persisted, keepScreenOn: true } : persisted;
 
+const migrateGameV5ToV6 = (game: unknown): unknown => {
+  if (!isRecord(game) || game.kind !== undefined) return game;
+  const { leftScore, rightScore, pointLog } = game;
+  const log = Array.isArray(pointLog) ? pointLog : [];
+  const logMatchesScore =
+    log.filter((side) => side === SIDE.LEFT).length === leftScore &&
+    log.filter((side) => side === SIDE.RIGHT).length === rightScore;
+  // 履歴がスコアと一致するときだけ履歴を真実源にする。食い違う場合は表示されていたスコアを残す。
+  return logMatchesScore
+    ? { kind: GAME_KIND.LOGGED, pointLog: log }
+    : { kind: GAME_KIND.MANUAL, leftScore, rightScore };
+};
+
+const migrateMatchV5ToV6 = (match: unknown): unknown => {
+  if (!isRecord(match) || match.kind !== undefined) return match;
+  const { leftSide, rightSide, games, ...rest } = match;
+  if (!isRecord(leftSide) || !isRecord(rightSide)) return match;
+  const migratedGames = Array.isArray(games)
+    ? games.map((game: unknown) => migrateGameV5ToV6(game))
+    : games;
+  // 片側だけペアの試合は新形式で表現できない。変換せず残し、後段の検証で落とす。
+  if (leftSide.kind !== rightSide.kind) return match;
+  return leftSide.kind === "single"
+    ? {
+        ...rest,
+        kind: FORMAT.SINGLES,
+        left: leftSide.participantId,
+        right: rightSide.participantId,
+        games: migratedGames,
+      }
+    : {
+        ...rest,
+        kind: FORMAT.DOUBLES,
+        left: leftSide.memberIds,
+        right: rightSide.memberIds,
+        games: migratedGames,
+      };
+};
+
+/**
+ * v5 → v6: Game を logged/manual のユニオンへ、Match の leftSide/rightSide を kind/left/right へ変換し、
+ * 未使用の currentTournamentId を捨てる。
+ */
+const migrateV5ToV6: Migration = (persisted) => {
+  const { currentTournamentId: _unused, ...rest } = persisted;
+  if (!isRecord(rest.matches)) return rest;
+  const matches = Object.fromEntries(
+    Object.entries(rest.matches).map(([id, match]) => [id, migrateMatchV5ToV6(match)]),
+  );
+  return { ...rest, matches };
+};
+
 /**
  * fromVersion → fromVersion+1 の変換テーブル。キー = 変換元バージョン。
  * 将来スキーマ変更時は migrateVNToVN+1 を追加・登録し STORAGE_VERSION を上げる。
@@ -62,6 +115,7 @@ const migrations: Readonly<Record<number, Migration>> = {
   2: migrateV2ToV3,
   3: migrateV3ToV4,
   4: migrateV4ToV5,
+  5: migrateV5ToV6,
 };
 
 /**
@@ -113,11 +167,6 @@ export const salvageAppState = (persisted: unknown, current: AppState): AppState
     }
   }
 
-  const currentTournamentId =
-    raw.currentTournamentId === null || typeof raw.currentTournamentId === "string"
-      ? raw.currentTournamentId
-      : null;
-
   const validFontSizes: readonly string[] = Object.values(FONT_SIZE);
   const isValidFontSize = (value: unknown): value is AppState["fontSize"] =>
     typeof value === "string" && validFontSizes.includes(value);
@@ -146,7 +195,6 @@ export const salvageAppState = (persisted: unknown, current: AppState): AppState
     tournaments,
     participants,
     matches,
-    currentTournamentId,
     fontSize,
     matchesView,
     defaultBestOf,
@@ -170,7 +218,6 @@ export const useAppStore = create<StoreState>()(
         tournaments: state.tournaments,
         participants: state.participants,
         matches: state.matches,
-        currentTournamentId: state.currentTournamentId,
         fontSize: state.fontSize,
         matchesView: state.matchesView,
         defaultBestOf: state.defaultBestOf,

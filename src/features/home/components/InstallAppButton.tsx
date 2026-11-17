@@ -22,11 +22,31 @@ const GUIDE_VIDEOS = {
   android: "https://www.youtube.com/embed/RGQRNjhP7mk?si=mj_8ys1vmjxE0be3",
 } as const;
 
+const INSTALL_STATUS = {
+  INSTALLED: "installed",
+  PROMPTABLE: "promptable",
+  PROMPTING: "prompting",
+  GUIDE: "guide",
+  UNAVAILABLE: "unavailable",
+} as const;
+
+type InstallStatus =
+  | { kind: typeof INSTALL_STATUS.INSTALLED }
+  | { kind: typeof INSTALL_STATUS.PROMPTABLE; event: BeforeInstallPromptEvent }
+  | { kind: typeof INSTALL_STATUS.PROMPTING }
+  | { kind: typeof INSTALL_STATUS.GUIDE; open: boolean }
+  | { kind: typeof INSTALL_STATUS.UNAVAILABLE };
+
+// ネイティブ prompt が使えないときの状態。モバイルは手動手順ガイド、PC は手段なし
+// (beforeinstallprompt 無しでは prompt をプログラムから呼べないため)。
+const withoutPrompt = (): InstallStatus =>
+  isMobile() ? { kind: INSTALL_STATUS.GUIDE, open: false } : { kind: INSTALL_STATUS.UNAVAILABLE };
+
 export const InstallAppButton = () => {
-  const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(null);
   // effect 内 setState を避けるため初期値で standalone 判定
-  const [installed, setInstalled] = useState(isStandalone);
-  const [showGuide, setShowGuide] = useState(false);
+  const [status, setStatus] = useState<InstallStatus>(() =>
+    isStandalone() ? { kind: INSTALL_STATUS.INSTALLED } : withoutPrompt(),
+  );
 
   useEffect(() => {
     // クリーンアップ不要だが consistent-return のため空クリーンアップ関数を返す
@@ -35,12 +55,9 @@ export const InstallAppButton = () => {
       event.preventDefault();
       // beforeinstallprompt イベントは必ず BeforeInstallPromptEvent。DOM 境界のためキャスト不可避。
       // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-      setDeferred(event as BeforeInstallPromptEvent);
+      setStatus({ kind: INSTALL_STATUS.PROMPTABLE, event: event as BeforeInstallPromptEvent });
     };
-    const onInstalled = () => {
-      setInstalled(true);
-      setDeferred(null);
-    };
+    const onInstalled = () => setStatus({ kind: INSTALL_STATUS.INSTALLED });
     window.addEventListener("beforeinstallprompt", onBeforeInstall);
     window.addEventListener("appinstalled", onInstalled);
     return () => {
@@ -49,34 +66,48 @@ export const InstallAppButton = () => {
     };
   }, []);
 
-  if (installed) return null;
+  if (status.kind === INSTALL_STATUS.INSTALLED || status.kind === INSTALL_STATUS.UNAVAILABLE) {
+    return null;
+  }
 
-  const handleClick = async () => {
-    if (deferred) {
-      await deferred.prompt();
-      const { outcome } = await deferred.userChoice;
-      if (outcome === "accepted") setInstalled(true);
-      setDeferred(null);
-      return;
+  const showGuide = status.kind === INSTALL_STATUS.GUIDE && status.open;
+  const setGuideOpen = (open: boolean) =>
+    setStatus((current) =>
+      current.kind === INSTALL_STATUS.GUIDE ? { kind: INSTALL_STATUS.GUIDE, open } : current,
+    );
+
+  // prompt() は 1 イベントにつき 1 回しか呼べないため、結果待ちの間は prompting に移して再実行を防ぐ。
+  const runPrompt = async (event: BeforeInstallPromptEvent) => {
+    setStatus({ kind: INSTALL_STATUS.PROMPTING });
+    let next = withoutPrompt();
+    try {
+      await event.prompt();
+      const { outcome } = await event.userChoice;
+      if (outcome === "accepted") next = { kind: INSTALL_STATUS.INSTALLED };
+    } catch {
+      // prompt 失敗時は手動手順へフォールバック
     }
-    // deferred 非対応はモバイルのみ手動手順ガイド。PC はネイティブ install prompt 専用で
-    // フォールバックなし(beforeinstallprompt 無しでは prompt をプログラムから呼べないため)。
-    if (isMobile()) setShowGuide(true);
+    // 待機中に appinstalled 等で遷移済みなら上書きしない
+    setStatus((current) => (current.kind === INSTALL_STATUS.PROMPTING ? next : current));
+  };
+
+  const handleClick = () => {
+    if (status.kind === INSTALL_STATUS.PROMPTABLE) void runPrompt(status.event);
+    else setGuideOpen(true);
   };
 
   return (
     <>
       <Button
         variant="secondary"
-        onClick={() => {
-          void handleClick();
-        }}
+        onClick={handleClick}
+        disabled={status.kind === INSTALL_STATUS.PROMPTING}
       >
         <HelpIcon className="mr-2 inline-block align-[-0.125em]" />
         ホーム画面に追加
       </Button>
 
-      <InfoModal open={showGuide} title="ホーム画面に追加" onClose={() => setShowGuide(false)}>
+      <InfoModal open={showGuide} title="ホーム画面に追加" onClose={() => setGuideOpen(false)}>
         <div className="space-y-4">
           <div className="aspect-video w-full overflow-hidden rounded-xl">
             {/* 閉じると iframe をアンマウントして再生を停止する(InfoModal は children を常時 DOM 保持するため)。 */}

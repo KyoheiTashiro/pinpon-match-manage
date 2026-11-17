@@ -1,5 +1,5 @@
 import { DoublesList } from "@/features/tournament/matches/doubles";
-import { FORMAT, SIDE_KIND } from "@/store/types";
+import { FORMAT } from "@/store/types";
 import { useAppStore } from "@/store/useAppStore";
 import { makeTournament, makeParticipant, makeMatch, gameFromLog } from "@/test/factories";
 import { renderWithStore, seedStore, setupStoreIsolation } from "@/test/renderWithStore";
@@ -103,7 +103,7 @@ describe("DoublesList", () => {
   // -------------------------------------------------------------------------
   // 4. 4 つの Select で別々の選手を選ぶ → ボタン有効化 → クリックで match 追加 & Modal 開く
   // -------------------------------------------------------------------------
-  it("4 つの Select で別々の選手を選択 → ボタン有効化 → 追加で store に PAIR match が増え MatchModal が開く", async () => {
+  it("4 つの Select で別々の選手を選択 → ボタン有効化 → 追加で store に ダブルス match が増え MatchModal が開く", async () => {
     const user = userEvent.setup();
     seedDoublesTournament();
     renderWithStore(<DoublesList tournamentId="t1" />);
@@ -132,16 +132,15 @@ describe("DoublesList", () => {
     // ボタンクリック
     await user.click(addBtn);
 
-    // store に PAIR match が 1 件追加される
+    // store に ダブルス match が 1 件追加される
     await waitFor(() => {
       const matchesAfter = Object.keys(useAppStore.getState().matches);
       expect(matchesAfter.length).toBe(matchesBefore + 1);
-      // 追加された match が PAIR side を持つ
+      // 追加された match がダブルス
       const newMatch = Object.values(useAppStore.getState().matches).find(
         (m) => m.tournamentId === "t1",
       );
-      expect(newMatch?.leftSide.kind).toBe(SIDE_KIND.PAIR);
-      expect(newMatch?.rightSide.kind).toBe(SIDE_KIND.PAIR);
+      expect(newMatch?.kind).toBe(FORMAT.DOUBLES);
     });
 
     // MatchModal が開く（createPortal → document.body に描画）
@@ -174,8 +173,8 @@ describe("DoublesList", () => {
         m1: makeMatch({
           id: "m1",
           tournamentId: "t1",
-          leftSide: { kind: SIDE_KIND.PAIR, memberIds: ["p1", "p2"] },
-          rightSide: { kind: SIDE_KIND.PAIR, memberIds: ["p3", "p4"] },
+          left: ["p1", "p2"],
+          right: ["p3", "p4"],
           games: [],
           firstServer: "L",
         }),
@@ -217,8 +216,8 @@ describe("DoublesList", () => {
         m1: makeMatch({
           id: "m1",
           tournamentId: "t1",
-          leftSide: { kind: SIDE_KIND.PAIR, memberIds: ["p1", "p2"] },
-          rightSide: { kind: SIDE_KIND.PAIR, memberIds: ["p3", "p4"] },
+          left: ["p1", "p2"],
+          right: ["p3", "p4"],
           games: [wonGame],
           firstServer: "L",
         }),
@@ -260,8 +259,8 @@ describe("DoublesList", () => {
         m1: makeMatch({
           id: "m1",
           tournamentId: "t1",
-          leftSide: { kind: SIDE_KIND.PAIR, memberIds: ["p1", "p2"] },
-          rightSide: { kind: SIDE_KIND.PAIR, memberIds: ["p3", "p4"] },
+          left: ["p1", "p2"],
+          right: ["p3", "p4"],
           games: [wonGame, wonGame],
           firstServer: "L",
         }),
@@ -413,8 +412,8 @@ describe("DoublesList", () => {
         m1: makeMatch({
           id: "m1",
           tournamentId: "t1",
-          leftSide: { kind: SIDE_KIND.PAIR, memberIds: ["p1", "p2"] },
-          rightSide: { kind: SIDE_KIND.PAIR, memberIds: ["p3", "p4"] },
+          left: ["p1", "p2"],
+          right: ["p3", "p4"],
           games: [],
           firstServer: "L",
         }),
@@ -460,8 +459,8 @@ describe("DoublesList", () => {
         m1: makeMatch({
           id: "m1",
           tournamentId: "t1",
-          leftSide: { kind: SIDE_KIND.PAIR, memberIds: ["p1", "p2"] },
-          rightSide: { kind: SIDE_KIND.PAIR, memberIds: ["p3", "p4"] },
+          left: ["p1", "p2"],
+          right: ["p3", "p4"],
           games: [],
           firstServer: "L",
         }),

@@ -1,14 +1,17 @@
-import { SIDE } from "@/domain/match";
+import { SIDE, type Game, type Side } from "@/domain/match";
+import { pairKey, sideMembers } from "@/domain/side";
 import { matchesOf } from "@/store/selectors";
-import { SIDE_KIND, type Match, type MatchSide } from "@/store/types";
+import { FORMAT, type Match, type MatchSides } from "@/store/types";
 import type { StoreState } from "@/store/useAppStore";
 import { generateId } from "@/utils/id";
 import type { StateCreator } from "zustand";
 
 export type MatchSlice = {
   matches: Record<string, Match>;
-  addManualMatch: (tournamentId: string, left: MatchSide, right: MatchSide) => string;
-  updateMatch: (id: string, patch: Partial<Match>) => void;
+  /** 作成した（または既存の同一対戦の）試合 ID。大会形式・所属・重複の検証に落ちたら null。 */
+  addManualMatch: (tournamentId: string, sides: MatchSides) => string | null;
+  setGames: (id: string, games: Game[]) => void;
+  setFirstServer: (id: string, side: Side) => void;
   deleteMatch: (id: string) => void;
 };
 
@@ -24,53 +27,40 @@ export const createMatchSlice: StateCreator<
 > = (set, get) => ({
   ...matchInitial,
 
-  addManualMatch: (tournamentId, left, right) => {
-    if (left.kind === SIDE_KIND.SINGLE && right.kind === SIDE_KIND.SINGLE) {
-      const tournament = get().tournaments[tournamentId];
-      if (tournament) {
-        const leftParticipantId = left.participantId;
-        const rightParticipantId = right.participantId;
-        for (const match of matchesOf(get().matches, tournamentId)) {
-          if (match.leftSide.kind !== SIDE_KIND.SINGLE || match.rightSide.kind !== SIDE_KIND.SINGLE)
-            continue;
-          const existingLeftId = match.leftSide.participantId;
-          const existingRightId = match.rightSide.participantId;
-          if (
-            (existingLeftId === leftParticipantId && existingRightId === rightParticipantId) ||
-            (existingLeftId === rightParticipantId && existingRightId === leftParticipantId)
-          )
-            return match.id;
-        }
-      }
+  addManualMatch: (tournamentId, sides) => {
+    const tournament = get().tournaments[tournamentId];
+    if (!tournament || tournament.format !== sides.kind) return null;
+    const members = [...sideMembers(sides.left), ...sideMembers(sides.right)];
+    if (new Set(members).size !== members.length) return null;
+    if (!members.every((memberId) => tournament.participantIds.includes(memberId))) return null;
+
+    if (sides.kind === FORMAT.SINGLES) {
+      const key = pairKey(sides.left, sides.right);
+      const existing = matchesOf(get().matches, tournamentId).find(
+        (match) => match.kind === FORMAT.SINGLES && pairKey(match.left, match.right) === key,
+      );
+      if (existing) return existing.id;
     }
+
     const id = generateId();
-    const match: Match = {
-      id,
-      tournamentId,
-      leftSide: left,
-      rightSide: right,
-      games: [],
-      firstServer: SIDE.LEFT,
-    };
     set((state) => {
-      const tournament = state.tournaments[tournamentId];
-      if (!tournament) return;
-      state.matches[id] = match;
+      state.matches[id] = { id, tournamentId, ...sides, games: [], firstServer: SIDE.LEFT };
     });
     return id;
   },
 
-  updateMatch: (id, patch) =>
+  setGames: (id, games) =>
     set((state) => {
-      const current = state.matches[id];
-      if (!current) return;
-      Object.assign(state.matches[id], patch);
+      if (state.matches[id]) state.matches[id].games = games;
+    }),
+
+  setFirstServer: (id, side) =>
+    set((state) => {
+      if (state.matches[id]) state.matches[id].firstServer = side;
     }),
 
   deleteMatch: (id) =>
     set((state) => {
-      const match = state.matches[id];
-      if (!match) return;
       delete state.matches[id];
     }),
 });

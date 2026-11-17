@@ -1,295 +1,183 @@
-import { isGameFinished } from "@/domain/match";
 import {
-  firstPlayableGameIndex,
-  lockedGameStartIndex,
+  MATCH_PHASE,
+  MATCH_STATUS,
+  gameScore,
+  isGameEmpty,
+  isGameFinished,
+  matchPhase,
+  matchStatus,
+  matchSummary,
+} from "@/domain/match";
+import {
+  addPoint,
+  canAddPoint,
+  canRemovePoint,
+  lastScoredGameIndex,
   padGames,
+  removePoint,
   trimTrailingEmptyGames,
 } from "@/domain/matchGames";
-import { gameArb, finishedGameArb } from "@/test/arbitraries";
+import { gameArb, gameFromLogArb, sideArb } from "@/test/arbitraries";
 import * as fc from "fast-check";
 import { describe, expect, it } from "vitest";
 
+const gamesArb = fc.array(fc.oneof(gameArb, gameFromLogArb), { minLength: 0, maxLength: 7 });
+const winsNeededArb = fc.integer({ min: 1, max: 4 });
+const indexArb = fc.integer({ min: -1, max: 8 });
+
 describe("padGames プロパティテスト", () => {
-  it("出力の長さは常に max(totalCount, 0) と一致する（パディング・トリミング両対応）", () => {
-    // 不足分は空ゲームで埋め、超過分は切り詰めた結果として正確な長さになる
+  it("出力の長さは常に totalCount と一致する（パディング・トリミング両対応）", () => {
     fc.assert(
-      fc.property(
-        fc.array(gameArb, { minLength: 0, maxLength: 10 }),
-        fc.integer({ min: 0, max: 10 }),
-        (games, totalCount) => {
-          const result = padGames(games, totalCount);
-          expect(result.length).toBe(Math.max(totalCount, 0));
-        },
-      ),
-    );
-  });
-});
-
-describe("lockedGameStartIndex プロパティテスト", () => {
-  it("戻り値は常に 0 以上、かつ gameCount または games.length 以下", () => {
-    // 勝敗確定時は games 配列内のインデックス+1、未確定時は gameCount を返す
-    fc.assert(
-      fc.property(
-        fc.array(gameArb, { minLength: 0, maxLength: 10 }),
-        fc.integer({ min: 1, max: 5 }),
-        fc.integer({ min: 1, max: 10 }),
-        (games, winsNeeded, gameCount) => {
-          const result = lockedGameStartIndex(games, winsNeeded, gameCount);
-          // 未確定時は必ず gameCount を返す
-          // 確定時は games 配列の範囲内のインデックス+1（1以上、games.length以下）
-          expect(result).toBeGreaterThanOrEqual(0);
-          const upperBound = Math.max(gameCount, games.length);
-          expect(result).toBeLessThanOrEqual(upperBound);
-        },
-      ),
+      fc.property(gamesArb, fc.integer({ min: 0, max: 10 }), (games, totalCount) => {
+        expect(padGames(games, totalCount)).toHaveLength(totalCount);
+      }),
     );
   });
 
-  it("games が空配列のとき lockedGameStartIndex === gameCount", () => {
-    // 試合結果がなければ勝敗は確定せず gameCount を返す
+  it("元のゲームは先頭にそのまま残り、追加分は全て空ゲーム", () => {
     fc.assert(
-      fc.property(
-        fc.integer({ min: 1, max: 5 }),
-        fc.integer({ min: 1, max: 10 }),
-        (winsNeeded, gameCount) => {
-          const index = lockedGameStartIndex([], winsNeeded, gameCount);
-          expect(index).toBe(gameCount);
-        },
-      ),
-    );
-  });
-
-  it("勝敗確定時: 戻り値は確定したゲームの index+1 (具体値検証)", () => {
-    // winsNeeded=2: 左が11-0,11-0の2連勝 → lockedGameStartIndex=2
-    expect(
-      lockedGameStartIndex(
-        [
-          { leftScore: 11, rightScore: 0 },
-          { leftScore: 11, rightScore: 0 },
-        ],
-        2,
-        5,
-      ),
-    ).toBe(2);
-    // winsNeeded=3: 右が0-11,0-11,0-11の3連勝 → lockedGameStartIndex=3
-    expect(
-      lockedGameStartIndex(
-        [
-          { leftScore: 0, rightScore: 11 },
-          { leftScore: 0, rightScore: 11 },
-          { leftScore: 0, rightScore: 11 },
-        ],
-        3,
-        7,
-      ),
-    ).toBe(3);
-  });
-
-  it("途中の空ゲームはカウントされず、確定後のインデックスに影響しない", () => {
-    // 空ゲーム→完了→空ゲーム→完了: 空ゲームはスキップ、確定は最後の完了ゲームで決まる
-    expect(
-      lockedGameStartIndex(
-        [
-          { leftScore: 0, rightScore: 0 }, // 空(skip)
-          { leftScore: 11, rightScore: 0 }, // 左勝ち(leftWins=1)
-          { leftScore: 0, rightScore: 0 }, // 空(skip)
-          { leftScore: 11, rightScore: 0 }, // 左勝ち(leftWins=2=winsNeeded) → index+1=4
-        ],
-        2,
-        7,
-      ),
-    ).toBe(4);
-  });
-
-  it("未完了ゲームが挟まっていても確定判定はスキップされる", () => {
-    // 完了→未完了→完了: 未完了はスキップ、3つ目で確定
-    expect(
-      lockedGameStartIndex(
-        [
-          { leftScore: 11, rightScore: 0 }, // 左勝ち(leftWins=1)
-          { leftScore: 5, rightScore: 3 }, // 未完了(skip)
-          { leftScore: 11, rightScore: 0 }, // 左勝ち(leftWins=2=winsNeeded) → index+1=3
-        ],
-        2,
-        5,
-      ),
-    ).toBe(3);
-  });
-
-  it("lockedStartIndex=0 相当: winsNeeded > ゲーム数なら必ず gameCount を返す", () => {
-    fc.assert(
-      fc.property(
-        fc.array(finishedGameArb, { minLength: 0, maxLength: 3 }),
-        fc.integer({ min: 1, max: 10 }),
-        (games, gameCount) => {
-          // winsNeeded をゲーム数より大きくすると勝敗確定不可
-          const winsNeeded = games.length + 1;
-          const result = lockedGameStartIndex(games, winsNeeded, gameCount);
-          expect(result).toBe(gameCount);
-        },
-      ),
+      fc.property(gamesArb, fc.integer({ min: 0, max: 10 }), (games, totalCount) => {
+        const result = padGames(games, totalCount);
+        expect(result.slice(0, games.length)).toEqual(games.slice(0, totalCount));
+        expect(result.slice(games.length).every((game) => isGameEmpty(game))).toBe(true);
+      }),
     );
   });
 });
 
 describe("trimTrailingEmptyGames プロパティテスト", () => {
-  it("lockedStartIndex 未満のゲームは空でも必ず保持される", () => {
+  it("結果は元配列の先頭部分で、末尾が空ゲームにならない", () => {
     fc.assert(
-      fc.property(
-        fc.array(gameArb, { minLength: 0, maxLength: 8 }),
-        fc.integer({ min: 0, max: 8 }),
-        (games, lockedStartIndex) => {
-          const result = trimTrailingEmptyGames(games, lockedStartIndex);
-          // lockedStartIndex 未満のゲームは全て保持される（空でも）
-          const beforeLock = games.slice(0, lockedStartIndex);
-          expect(result.slice(0, beforeLock.length)).toEqual(beforeLock);
-        },
-      ),
-    );
-  });
-
-  it("lockedStartIndex 以降の非空ゲームは保持される", () => {
-    fc.assert(
-      fc.property(
-        fc.array(gameArb, { minLength: 0, maxLength: 8 }),
-        fc.integer({ min: 0, max: 8 }),
-        (games, lockedStartIndex) => {
-          const result = trimTrailingEmptyGames(games, lockedStartIndex);
-          // 結果の中に lockedStartIndex 以降の空ゲームが存在しない
-          for (let index = 0; index < result.length; index++) {
-            const originalIndex = games.indexOf(result[index]);
-            if (originalIndex >= lockedStartIndex) {
-              expect(result[index].leftScore !== 0 || result[index].rightScore !== 0).toBe(true);
-            }
-          }
-        },
-      ),
-    );
-  });
-
-  it("lockedStartIndex 以降の空ゲームは全て除去される", () => {
-    fc.assert(
-      fc.property(
-        fc.array(gameArb, { minLength: 0, maxLength: 8 }),
-        fc.integer({ min: 0, max: 8 }),
-        (games, lockedStartIndex) => {
-          const result = trimTrailingEmptyGames(games, lockedStartIndex);
-          const afterLock = result.filter((_, index) => index >= lockedStartIndex);
-          for (const g of afterLock) {
-            expect(g.leftScore !== 0 || g.rightScore !== 0).toBe(true);
-          }
-        },
-      ),
-    );
-  });
-});
-
-describe("padGames 境界値プロパティテスト", () => {
-  it("totalCount=0 のとき常に空配列を返す", () => {
-    fc.assert(
-      fc.property(fc.array(gameArb, { minLength: 0, maxLength: 5 }), (games) => {
-        expect(padGames(games, 0)).toEqual([]);
+      fc.property(gamesArb, (games) => {
+        const result = trimTrailingEmptyGames(games);
+        const last = result.at(-1);
+        expect(result).toEqual(games.slice(0, result.length));
+        expect(last === undefined || !isGameEmpty(last)).toBe(true);
+        expect(games.slice(result.length).every((game) => isGameEmpty(game))).toBe(true);
       }),
     );
   });
 
-  it("パディングで追加されたゲームは全て leftScore===0 && rightScore===0", () => {
+  it("pad → trim は試合の集計を変えない", () => {
     fc.assert(
-      fc.property(
-        fc.array(gameArb, { minLength: 0, maxLength: 5 }),
-        fc.integer({ min: 0, max: 10 }),
-        (games, totalCount) => {
-          const result = padGames(games, totalCount);
-          // gamesの長さを超えた部分は空ゲームで埋まっている
-          for (let index = games.length; index < totalCount; index++) {
-            expect(result[index]).toEqual({ leftScore: 0, rightScore: 0 });
-          }
-        },
-      ),
+      fc.property(gamesArb, winsNeededArb, (games, winsNeeded) => {
+        const roundTripped = trimTrailingEmptyGames(padGames(games, 7));
+        expect(matchSummary(roundTripped, winsNeeded)).toEqual(matchSummary(games, winsNeeded));
+      }),
     );
   });
 });
 
-describe("firstPlayableGameIndex プロパティテスト", () => {
-  it("戻り値は常に 0 以上", () => {
-    // 結果が負にならないことを保証する
+describe("matchPhase / matchStatus プロパティテスト", () => {
+  it("decided ⟺ matchSummary に勝者あり、勝者も一致する", () => {
     fc.assert(
-      fc.property(
-        fc.array(gameArb, { minLength: 0, maxLength: 10 }),
-        fc.integer({ min: 0, max: 10 }),
-        fc.integer({ min: 1, max: 10 }),
-        (games, lockedStartIndex, gameCount) => {
-          const result = firstPlayableGameIndex(games, lockedStartIndex, gameCount);
-          expect(result).toBeGreaterThanOrEqual(0);
-        },
-      ),
+      fc.property(gamesArb, winsNeededArb, (games, winsNeeded) => {
+        const phase = matchPhase(games, winsNeeded);
+        const summary = matchSummary(games, winsNeeded);
+        expect(phase.kind === MATCH_PHASE.DECIDED).toBe(summary.finished);
+        expect(phase.kind === MATCH_PHASE.DECIDED ? phase.winner : null).toBe(summary.winner);
+      }),
     );
   });
 
-  it("lockedStartIndex 未満に未完了ゲームがない場合: Math.min(gameCount-1, ...) の上限が効く", () => {
-    // fallback パス: 結果は gameCount-1 以下になる
+  it("decided の gameIndex は終了済みゲームを指す", () => {
     fc.assert(
-      fc.property(
-        fc.array(finishedGameArb, { minLength: 0, maxLength: 5 }),
-        fc.integer({ min: 0, max: 3 }),
-        fc.integer({ min: 1, max: 10 }),
-        (games, lockedStartIndex, gameCount) => {
-          const result = firstPlayableGameIndex(games, lockedStartIndex, gameCount);
-          // 全ゲームが完了しているので fallback パスを通る
-          expect(result).toBeLessThanOrEqual(gameCount - 1);
-        },
-      ),
+      fc.property(gamesArb, winsNeededArb, (games, winsNeeded) => {
+        const phase = matchPhase(games, winsNeeded);
+        fc.pre(phase.kind === MATCH_PHASE.DECIDED);
+        expect(isGameFinished(games[phase.gameIndex])).toBe(true);
+      }),
     );
   });
 
-  it("未完了ゲームが lockedStartIndex 未満に存在すれば最初の未完了 index を返す", () => {
-    // 全ゲームが完了済みでない場合、最初の未完了ゲームのインデックスが返される
+  it("playing の gameIndex より前は全て終了済みで、指すゲームは未終了（または配列の次）", () => {
     fc.assert(
-      fc.property(
-        fc.array(gameArb, { minLength: 1, maxLength: 7 }),
-        fc.integer({ min: 5, max: 10 }),
-        fc.integer({ min: 5, max: 10 }),
-        (games, lockedStartIndex, gameCount) => {
-          const result = firstPlayableGameIndex(games, lockedStartIndex, gameCount);
-          // ゲームが全て完了していなければ未完了の最初インデックスが返される可能性がある
-          const firstUnfinished = games.findIndex((g) => !isGameFinished(g));
-          if (firstUnfinished !== -1 && firstUnfinished < lockedStartIndex) {
-            expect(result).toBe(firstUnfinished);
-          }
-        },
-      ),
+      fc.property(gamesArb, winsNeededArb, (games, winsNeeded) => {
+        const phase = matchPhase(games, winsNeeded);
+        fc.pre(phase.kind === MATCH_PHASE.PLAYING);
+        expect(games.slice(0, phase.gameIndex).every((game) => isGameFinished(game))).toBe(true);
+        expect(phase.gameIndex === games.length || !isGameFinished(games[phase.gameIndex])).toBe(
+          true,
+        );
+      }),
     );
   });
 
-  it("全ゲームが完了済み: Math.min(gameCount-1, Math.max(0, lockedStartIndex-1)) を返す", () => {
+  it("matchStatus は finished / unplayed / inProgress を排他的に返す", () => {
     fc.assert(
-      fc.property(
-        fc.array(finishedGameArb, { minLength: 1, maxLength: 5 }),
-        fc.integer({ min: 1, max: 10 }),
-        fc.integer({ min: 1, max: 10 }),
-        (games, lockedStartIndex, gameCount) => {
-          // lockedStartIndex がゲーム数より大きければ全ゲーム完了を見て fallback
-          const effectiveLocked = Math.min(lockedStartIndex, games.length + 1);
-          const result = firstPlayableGameIndex(games, effectiveLocked, gameCount);
-          expect(result).toBeGreaterThanOrEqual(0);
-          expect(result).toBeLessThanOrEqual(gameCount - 1);
-        },
-      ),
+      fc.property(gamesArb, winsNeededArb, (games, winsNeeded) => {
+        const finished = matchSummary(games, winsNeeded).finished;
+        const expected = finished
+          ? MATCH_STATUS.FINISHED
+          : games.every((game) => isGameEmpty(game))
+            ? MATCH_STATUS.UNPLAYED
+            : MATCH_STATUS.IN_PROGRESS;
+        expect(matchStatus(games, winsNeeded)).toBe(expected);
+      }),
+    );
+  });
+});
+
+describe("addPoint / removePoint プロパティテスト", () => {
+  it("加点できるゲームは高々 1 つで、勝敗確定後は 0", () => {
+    fc.assert(
+      fc.property(gamesArb, winsNeededArb, (games, winsNeeded) => {
+        const addable = games.filter((_, index) => canAddPoint(games, winsNeeded, index));
+        expect(addable.length).toBeLessThanOrEqual(1);
+        if (matchSummary(games, winsNeeded).finished) expect(addable).toHaveLength(0);
+      }),
     );
   });
 
-  it("lockedStartIndex=0 のとき未完了ループが回らず fallback が返る", () => {
+  it("取り消せるのは最後に得点が入ったゲームだけ", () => {
     fc.assert(
-      fc.property(
-        fc.array(gameArb, { minLength: 0, maxLength: 5 }),
-        fc.integer({ min: 1, max: 10 }),
-        (games, gameCount) => {
-          // lockedStartIndex=0: ループ条件 index<0 が偽なので即 fallback
-          const result = firstPlayableGameIndex(games, 0, gameCount);
-          const expected = Math.min(gameCount - 1, Math.max(0, 0 - 1));
-          expect(result).toBe(expected); // Math.min(gameCount-1, 0) = 0
-        },
-      ),
+      fc.property(gamesArb, indexArb, (games, gameIndex) => {
+        expect(canRemovePoint(games, gameIndex)).toBe(
+          gameIndex >= 0 && gameIndex === lastScoredGameIndex(games),
+        );
+      }),
+    );
+  });
+
+  it("許可されない操作は同じ配列を返す", () => {
+    fc.assert(
+      fc.property(gamesArb, winsNeededArb, indexArb, sideArb, (games, winsNeeded, index, side) => {
+        if (!canAddPoint(games, winsNeeded, index)) {
+          expect(addPoint(games, winsNeeded, index, side)).toBe(games);
+        }
+        if (!canRemovePoint(games, index)) expect(removePoint(games, index, side)).toBe(games);
+      }),
+    );
+  });
+
+  it("加点は対象ゲームの合計点を 1 増やし、他のゲームを変えない", () => {
+    fc.assert(
+      fc.property(gamesArb, winsNeededArb, sideArb, (games, winsNeeded, side) => {
+        const padded = padGames(games, 7);
+        const phase = matchPhase(padded, winsNeeded);
+        fc.pre(phase.kind === MATCH_PHASE.PLAYING && phase.gameIndex < padded.length);
+        const next = addPoint(padded, winsNeeded, phase.gameIndex, side);
+        const total = (index: number, list: typeof padded) =>
+          gameScore(list[index]).leftScore + gameScore(list[index]).rightScore;
+        expect(total(phase.gameIndex, next)).toBe(total(phase.gameIndex, padded) + 1);
+        expect(next.filter((_, index) => index !== phase.gameIndex)).toEqual(
+          padded.filter((_, index) => index !== phase.gameIndex),
+        );
+      }),
+    );
+  });
+
+  it("加点直後の同じ側の取り消しで元に戻る", () => {
+    fc.assert(
+      fc.property(gamesArb, winsNeededArb, sideArb, (games, winsNeeded, side) => {
+        const padded = padGames(games, 7);
+        const phase = matchPhase(padded, winsNeeded);
+        fc.pre(phase.kind === MATCH_PHASE.PLAYING && phase.gameIndex < padded.length);
+        // 後続ゲームに得点が残る旧データでは、加点したゲームが「最後に得点が入ったゲーム」にならない
+        fc.pre(lastScoredGameIndex(padded) <= phase.gameIndex);
+        const added = addPoint(padded, winsNeeded, phase.gameIndex, side);
+        expect(removePoint(added, phase.gameIndex, side)).toEqual(padded);
+      }),
     );
   });
 });

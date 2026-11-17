@@ -1,15 +1,16 @@
 import type { Game } from "@/domain/match";
+import { SCOREBOARD_ACTION } from "@/features/tournament/scoreboard/hooks";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { fn } from "storybook/test";
 
 import { ScoreboardHeader } from "./ScoreboardHeader";
 
 const games: Game[] = [
-  { leftScore: 11, rightScore: 8 },
-  { leftScore: 9, rightScore: 11 },
-  { leftScore: 5, rightScore: 3 },
-  { leftScore: 0, rightScore: 0 },
-  { leftScore: 0, rightScore: 0 },
+  { kind: "manual", leftScore: 11, rightScore: 8 },
+  { kind: "manual", leftScore: 9, rightScore: 11 },
+  { kind: "manual", leftScore: 5, rightScore: 3 },
+  { kind: "manual", leftScore: 0, rightScore: 0 },
+  { kind: "manual", leftScore: 0, rightScore: 0 },
 ];
 
 const meta = {
@@ -27,11 +28,9 @@ const meta = {
     games,
     gameIndex: 2,
     setGameIndex: fn<(index: number) => void>(),
-    lockedFromIndex: 3,
+    isGameSelectable: (index: number) => index <= 2,
     showResult: false,
-    showNextGameBtn: false,
-    showResultBtn: false,
-    showBackBtn: false,
+    action: null,
     nextGameIndex: 3,
     onBack: fn<() => void>(),
     onShowResult: fn<() => void>(),
@@ -45,13 +44,13 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {};
 
 export const WithNextGameButton: Story = {
-  args: { showNextGameBtn: true },
+  args: { action: SCOREBOARD_ACTION.NEXT },
 };
 
 export const WithResultButton: Story = {
-  args: { showResultBtn: true },
+  args: { action: SCOREBOARD_ACTION.SHOW_RESULT },
 };
 
 export const ResultView: Story = {
-  args: { showResult: true, showBackBtn: true },
+  args: { showResult: true, action: SCOREBOARD_ACTION.CLOSE },
 };

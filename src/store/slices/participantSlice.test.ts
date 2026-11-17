@@ -1,9 +1,16 @@
 import { matchesOf } from "@/store/selectors";
-import { FORMAT, SIDE_KIND, type Format } from "@/store/types";
+import { FORMAT, type Format, type MatchSides } from "@/store/types";
 import { useAppStore } from "@/store/useAppStore";
 import { beforeEach, describe, expect, it } from "vitest";
 
 const matchIdsOf = (tId: string) => matchesOf(useAppStore.getState().matches, tId).map((m) => m.id);
+
+/** 検証を通る前提で試合を作る（null は前提崩れなので落とす） */
+const addMatch = (tournamentId: string, sides: MatchSides): string => {
+  const id = useAppStore.getState().addManualMatch(tournamentId, sides);
+  if (id === null) throw new Error("試合を作成できない");
+  return id;
+};
 
 beforeEach(() => {
   useAppStore.getState().resetAll();
@@ -88,13 +95,7 @@ describe("removeParticipant", () => {
     const tId = setupTournament();
     const pId1 = useAppStore.getState().addParticipant(tId, "A");
     const pId2 = useAppStore.getState().addParticipant(tId, "B");
-    const mId = useAppStore
-      .getState()
-      .addManualMatch(
-        tId,
-        { kind: SIDE_KIND.SINGLE, participantId: pId1 },
-        { kind: SIDE_KIND.SINGLE, participantId: pId2 },
-      );
+    const mId = addMatch(tId, { kind: FORMAT.SINGLES, left: pId1, right: pId2 });
 
     useAppStore.getState().removeParticipant(tId, pId1);
     const state = useAppStore.getState();
@@ -107,13 +108,7 @@ describe("removeParticipant", () => {
     const tId = setupTournament();
     const pId1 = useAppStore.getState().addParticipant(tId, "A");
     const pId2 = useAppStore.getState().addParticipant(tId, "B");
-    const mId = useAppStore
-      .getState()
-      .addManualMatch(
-        tId,
-        { kind: SIDE_KIND.SINGLE, participantId: pId1 },
-        { kind: SIDE_KIND.SINGLE, participantId: pId2 },
-      );
+    const mId = addMatch(tId, { kind: FORMAT.SINGLES, left: pId1, right: pId2 });
 
     useAppStore.getState().removeParticipant(tId, pId2);
     const state = useAppStore.getState();
@@ -128,13 +123,7 @@ describe("removeParticipant", () => {
     const pId2 = useAppStore.getState().addParticipant(tId, "B");
     const pId3 = useAppStore.getState().addParticipant(tId, "C");
     const pId4 = useAppStore.getState().addParticipant(tId, "D");
-    const mId = useAppStore
-      .getState()
-      .addManualMatch(
-        tId,
-        { kind: SIDE_KIND.PAIR, memberIds: [pId1, pId2] },
-        { kind: SIDE_KIND.PAIR, memberIds: [pId3, pId4] },
-      );
+    const mId = addMatch(tId, { kind: FORMAT.DOUBLES, left: [pId1, pId2], right: [pId3, pId4] });
 
     // pId2 を削除 → ペアに含まれるため match も削除
     useAppStore.getState().removeParticipant(tId, pId2);
@@ -150,21 +139,9 @@ describe("removeParticipant", () => {
     const pId2 = useAppStore.getState().addParticipant(tId, "B");
     const pId3 = useAppStore.getState().addParticipant(tId, "C");
     // A vs B を追加
-    const mId_ab = useAppStore
-      .getState()
-      .addManualMatch(
-        tId,
-        { kind: SIDE_KIND.SINGLE, participantId: pId1 },
-        { kind: SIDE_KIND.SINGLE, participantId: pId2 },
-      );
+    const mId_ab = addMatch(tId, { kind: FORMAT.SINGLES, left: pId1, right: pId2 });
     // B vs C を追加
-    const mId_bc = useAppStore
-      .getState()
-      .addManualMatch(
-        tId,
-        { kind: SIDE_KIND.SINGLE, participantId: pId2 },
-        { kind: SIDE_KIND.SINGLE, participantId: pId3 },
-      );
+    const mId_bc = addMatch(tId, { kind: FORMAT.SINGLES, left: pId2, right: pId3 });
 
     // A を削除 → A vs B は消えるが B vs C は残る
     useAppStore.getState().removeParticipant(tId, pId1);

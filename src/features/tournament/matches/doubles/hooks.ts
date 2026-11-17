@@ -4,7 +4,7 @@ import {
   doublesPairDefaults,
 } from "@/features/tournament/matches/doubles/schema";
 import { useMatches, useMatchModal } from "@/features/tournament/matches/hooks";
-import { SIDE_KIND } from "@/store/types";
+import { FORMAT } from "@/store/types";
 import { useAppStore } from "@/store/useAppStore";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -21,11 +21,12 @@ export const useDoubles = (tournamentId: string) => {
   });
 
   const submit = pairForm.handleSubmit((data) => {
-    const id = addManualMatch(
-      tournamentId,
-      { kind: SIDE_KIND.PAIR, memberIds: [data.left1, data.left2] },
-      { kind: SIDE_KIND.PAIR, memberIds: [data.right1, data.right2] },
-    );
+    const id = addManualMatch(tournamentId, {
+      kind: FORMAT.DOUBLES,
+      left: [data.left1, data.left2],
+      right: [data.right1, data.right2],
+    });
+    if (id === null) return;
     pairForm.reset();
     openMatch(id);
   });

@@ -17,16 +17,14 @@
 
 ```ts
 // src/domain/match.ts
-export type Game = {
-  leftScore: number;
-  rightScore: number;
-  pointLog?: Side[]; // 得点順。例: ['R','R','L','R', ...]
-};
+export type Game =
+  | { kind: "logged"; pointLog: Side[] } // 得点順。例: ['R','R','L','R', ...]
+  | { kind: "manual"; leftScore: number; rightScore: number };
 ```
 
-- `pointLog` は **optional**。スコアボードを使わず手入力した試合には付かない。
-- `pointLog` が `undefined` またはゲーム単位で `pointLog.length === 0` のゲームは **グラフを描画しない**（進行順が不明なため）。
-- グラフ表示可否はゲーム単位で判定: `game.pointLog && game.pointLog.length > 0`。
+- `pointLog` を持つのは `logged` のゲームだけ。スコアボードで入力したゲームは常に `logged` になる。
+- `manual` のゲーム（v5 以前のデータで得点履歴が無かったもの）は **グラフを描画しない**（進行順が不明なため）。
+- グラフ表示可否はゲーム単位で判定: `game.kind === "logged"`（空のゲームは `realGames` が先に除く）。
 
 ---
 
@@ -47,7 +45,7 @@ export const gameProgress = (pointLog: Side[], firstServerOfGame: Side): Progres
 ```
 
 - `pointLog` の各要素を prefix 集計して `left`/`right` を算出する。
-- サーバーは `currentServer({ leftScore: left_before, rightScore: right_before }, firstServerOfGame)` で算出（2本交代・デュース後1本交代ルール）。
+- サーバーは、そのラリー直前のスコアを `currentServer` に渡して算出（2本交代・デュース後1本交代ルール）。
 - ゲームの先サーバーは `gameFirstServer(match.firstServer, gameIndex)` で算出（偶数ゲームは match 先サーバー、奇数ゲームは逆）。
 
 ---
@@ -57,10 +55,10 @@ export const gameProgress = (pointLog: Side[], firstServerOfGame: Side): Progres
 **配置先**: 結果タブ（`/#/tournaments/:id/result`）の**グラフモード**。
 
 - `ResultView` 上部の参加者選択ドロップダウン（`Select` `label="参加者を選択"`）で参加者を1人選択する。
-- `useResult` の `chartMatches` が、選択した参加者が関わる対戦のうち `pointLog` を持つゲームが1本以上ある対戦を抽出し、選択者を `selfSide` として正規化する（`chartMatches: { match: MatchResultRow, selfSide: Side }[]`）。
+- `useResult` の `chartMatches` が、選択した参加者が関わる対戦のうち `logged` のゲームが1本以上ある対戦を抽出し、選択者を `selfSide` として正規化する（`chartMatches: { match: MatchResultRow, selfSide: Side }[]`）。
 - 該当対戦が1件もない場合は「対戦結果がありません。」を表示する。
 - 該当対戦がある場合は対戦ごとに `MatchScoreChart match={match} selfSide={selfSide}` を縦に並べて表示する。
-- `MatchScoreChart` は内部で `realGames(match.games)` を `pointLog` ありで絞り込み、ゲームごとに `gameProgress` と SVG 描画を行う（グラフ本体は同コンポーネントに統合）。
+- `MatchScoreChart` は内部で `realGames(match.games)` を `logged` で絞り込み、ゲームごとに `gameProgress` と SVG 描画を行う（グラフ本体は同コンポーネントに統合）。
 
 ---
 
@@ -82,7 +80,7 @@ G2
 - 各ブロックは **上下2段**（上段=選択参加者 `selfSide` / 下段=相手）。`selfSide` が `SIDE.LEFT` なら左選手が上段、`SIDE.RIGHT` なら右選手が上段。
 - プレイヤー名は各ゲームブロックの左端（右揃え）に表示。ゲームの勝者にはトロフィーアイコンを付加する。
 - **横軸 = ラリー番号**（1本ごとに1列）。列数 = `pointLog.length`。
-- `pointLog` のないゲームはブロックを描画しない（`MatchScoreChart` が内部でフィルタリング）。`pointLog` を持つゲームが1本もない場合は「得点記録なし」と表示する。
+- `manual` のゲームはブロックを描画しない（`MatchScoreChart` が内部でフィルタリング）。`logged` のゲームが1本もない場合は「得点記録なし」と表示する。
 
 ### 4.2 スコアノード（丸）
 

@@ -1,6 +1,7 @@
 import { ChevronDownIcon } from "@/components/icons";
 import { useOutsideClick } from "@/components/ui/hooks/useOutsideClick";
-import { useCallback, useId, useRef, useState } from "react";
+import { selectInitial, selectReducer } from "@/components/ui/Select/selectReducer";
+import { useCallback, useId, useReducer, useRef } from "react";
 
 // 汎用カスタムセレクト（listbox パターン）。native <select> ではなく
 // スタイル統一・キーボード操作のため独自実装。
@@ -30,8 +31,10 @@ export const Select = <T extends string | number>({
   disabled = false,
   id,
 }: Props<T>) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [focusedIndex, setFocusedIndex] = useState<number>(-1);
+  const [state, dispatch] = useReducer(selectReducer, selectInitial);
+  const isOpen = state.open;
+  // 開いている間に options が減っても範囲外を指さない
+  const focusedIndex = state.open ? Math.min(state.focused, options.length - 1) : -1;
   const wrapperRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const autoId = useId();
@@ -42,21 +45,18 @@ export const Select = <T extends string | number>({
 
   const selectedOption = options.find((option) => option.value === value) ?? null;
 
-  useOutsideClick(wrapperRef, () => setIsOpen(false), isOpen);
+  useOutsideClick(wrapperRef, () => dispatch({ type: "close" }), isOpen);
 
   // listbox マウント時にフォーカス（条件レンダーのマウント時のみ発火する callback ref）。
   const setListboxRef = useCallback((node: HTMLDivElement | null) => {
     node?.focus();
   }, []);
 
-  const open = () => {
-    const index = options.findIndex((option) => option.value === value);
-    setFocusedIndex(Math.max(index, 0));
-    setIsOpen(true);
-  };
+  const open = () =>
+    dispatch({ type: "open", focused: options.findIndex((option) => option.value === value) });
 
   const close = (returnFocus = true) => {
-    setIsOpen(false);
+    dispatch({ type: "close" });
     if (returnFocus) {
       triggerRef.current?.focus();
     }
@@ -80,10 +80,10 @@ export const Select = <T extends string | number>({
   const handleListKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.key === "ArrowDown") {
       event.preventDefault();
-      setFocusedIndex((prev) => Math.min(prev + 1, options.length - 1));
+      dispatch({ type: "move", delta: 1, optionCount: options.length });
     } else if (event.key === "ArrowUp") {
       event.preventDefault();
-      setFocusedIndex((prev) => Math.max(prev - 1, 0));
+      dispatch({ type: "move", delta: -1, optionCount: options.length });
     } else if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
       selectByIndex(focusedIndex);
@@ -151,7 +151,7 @@ export const Select = <T extends string | number>({
                   aria-selected={isSelected}
                   tabIndex={-1}
                   onClick={() => selectByIndex(index)}
-                  onMouseEnter={() => setFocusedIndex(index)}
+                  onMouseEnter={() => dispatch({ type: "focus", index })}
                   className={`block w-full px-4 py-3 text-left text-base font-bold ${
                     isSelected ? "bg-primary/10 text-primary" : "text-ink"
                   } ${isFocused && !isSelected ? "bg-line/10" : ""}`}

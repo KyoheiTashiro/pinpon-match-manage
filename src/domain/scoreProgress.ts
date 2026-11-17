@@ -1,5 +1,5 @@
 import type { Side } from "@/domain/match";
-import { SIDE, currentServer } from "@/domain/match";
+import { GAME_KIND, SIDE, currentServer } from "@/domain/match";
 
 export type ProgressPoint = {
   index: number;
@@ -14,7 +14,10 @@ export const gameProgress = (pointLog: Side[], firstServerOfGame: Side): Progres
     const preLog = pointLog.slice(0, index);
     const left = preLog.filter((side) => side === SIDE.LEFT).length;
     const right = preLog.filter((side) => side === SIDE.RIGHT).length;
-    const server = currentServer({ leftScore: left, rightScore: right }, firstServerOfGame);
+    const server = currentServer(
+      { kind: GAME_KIND.MANUAL, leftScore: left, rightScore: right },
+      firstServerOfGame,
+    );
     return {
       index: index + 1,
       scorer,

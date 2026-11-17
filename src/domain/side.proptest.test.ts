@@ -1,5 +1,5 @@
 import { sideMembers, sideName } from "@/domain/side";
-import { SIDE_KIND, type Participant } from "@/store/types";
+import type { Participant } from "@/store/types";
 import * as fc from "fast-check";
 import { describe, expect, it } from "vitest";
 
@@ -8,7 +8,7 @@ describe("sideMembers プロパティテスト", () => {
     // シングル参加者は必ず 1 名のみ返される
     fc.assert(
       fc.property(fc.string({ minLength: 1, maxLength: 16 }), (participantId) => {
-        const side = { kind: SIDE_KIND.SINGLE, participantId };
+        const side = participantId;
         expect(sideMembers(side)).toHaveLength(1);
       }),
     );
@@ -21,7 +21,7 @@ describe("sideMembers プロパティテスト", () => {
         fc.string({ minLength: 1, maxLength: 16 }),
         fc.string({ minLength: 1, maxLength: 16 }),
         (a, b) => {
-          const side = { kind: SIDE_KIND.PAIR, memberIds: [a, b] as [string, string] };
+          const side = [a, b] as [string, string];
           expect(sideMembers(side)).toHaveLength(2);
         },
       ),
@@ -33,15 +33,13 @@ describe("sideMembers プロパティテスト", () => {
     fc.assert(
       fc.property(
         fc.oneof(
-          fc
-            .string({ minLength: 1, maxLength: 16 })
-            .map((id) => ({ kind: SIDE_KIND.SINGLE, participantId: id })),
+          fc.string({ minLength: 1, maxLength: 16 }).map((id) => id),
           fc
             .tuple(
               fc.string({ minLength: 1, maxLength: 16 }),
               fc.string({ minLength: 1, maxLength: 16 }),
             )
-            .map(([a, b]) => ({ kind: SIDE_KIND.PAIR, memberIds: [a, b] as [string, string] })),
+            .map(([a, b]) => [a, b] as [string, string]),
         ),
         (side) => {
           const members = sideMembers(side);
@@ -56,7 +54,7 @@ describe("sideMembers プロパティテスト", () => {
   it("SINGLE: sideMembers が返す唯一の要素は participantId と一致する", () => {
     fc.assert(
       fc.property(fc.string({ minLength: 1, maxLength: 16 }), (id) => {
-        const side = { kind: SIDE_KIND.SINGLE, participantId: id };
+        const side = id;
         expect(sideMembers(side)).toEqual([id]);
       }),
     );
@@ -68,7 +66,7 @@ describe("sideMembers プロパティテスト", () => {
         fc.string({ minLength: 1, maxLength: 16 }),
         fc.string({ minLength: 1, maxLength: 16 }),
         (a, b) => {
-          const side = { kind: SIDE_KIND.PAIR, memberIds: [a, b] as [string, string] };
+          const side = [a, b] as [string, string];
           expect(sideMembers(side)).toEqual([a, b]);
         },
       ),
@@ -83,7 +81,7 @@ describe("sideName プロパティテスト", () => {
         fc.string({ minLength: 1, maxLength: 16 }),
         fc.string({ minLength: 1, maxLength: 16 }),
         (id, name) => {
-          const side = { kind: SIDE_KIND.SINGLE, participantId: id };
+          const side = id;
           const participants: Record<string, Participant> = {
             [id]: { id, tournamentId: "t", name },
           };
@@ -99,7 +97,7 @@ describe("sideName プロパティテスト", () => {
       fc.property(
         fc.string({ minLength: 1, maxLength: 16 }).filter((id) => !(id in Object.prototype)),
         (id) => {
-          const side = { kind: SIDE_KIND.SINGLE, participantId: id };
+          const side = id;
           expect(sideName(side, {})).toBe("?");
         },
       ),
@@ -116,7 +114,7 @@ describe("sideName プロパティテスト", () => {
         (idA, nameA, idB, nameB) => {
           // idA === idB だと participants[id] が後勝ちで上書きされ name が一意に定まらないため除外
           fc.pre(idA !== idB);
-          const side = { kind: SIDE_KIND.PAIR, memberIds: [idA, idB] as [string, string] };
+          const side = [idA, idB] as [string, string];
           const participants: Record<string, Participant> = {
             [idA]: { id: idA, tournamentId: "t", name: nameA },
             [idB]: { id: idB, tournamentId: "t", name: nameB },
@@ -137,7 +135,7 @@ describe("sideName プロパティテスト", () => {
         (idA, nameA, idB) => {
           // idA === idB だと未登録のはずの idB が participants[idA] で解決され "?" にならないため除外
           fc.pre(idA !== idB);
-          const side = { kind: SIDE_KIND.PAIR, memberIds: [idA, idB] as [string, string] };
+          const side = [idA, idB] as [string, string];
           const participants: Record<string, Participant> = {
             [idA]: { id: idA, tournamentId: "t", name: nameA },
           };
@@ -154,7 +152,7 @@ describe("sideName プロパティテスト", () => {
         fc.string({ minLength: 1, maxLength: 8 }).filter((id) => !(id in Object.prototype)),
         fc.string({ minLength: 1, maxLength: 8 }).filter((id) => !(id in Object.prototype)),
         (idA, idB) => {
-          const side = { kind: SIDE_KIND.PAIR, memberIds: [idA, idB] as [string, string] };
+          const side = [idA, idB] as [string, string];
           expect(sideName(side, {})).toBe("? / ?");
         },
       ),

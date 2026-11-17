@@ -1,5 +1,7 @@
 import {
   addPointToGame,
+  emptyGame,
+  GAME_KIND,
   opposite,
   SIDE,
   winsNeededForBestOf,
@@ -11,12 +13,10 @@ import {
   FONT_SIZE,
   FORMAT,
   MATCHES_VIEW,
-  SIDE_KIND,
   type AppState,
   type BestOf,
   type Format,
   type Match,
-  type MatchSide,
   type Participant,
   type Tournament,
 } from "@/store/types";
@@ -27,7 +27,7 @@ import { makeMatch, makeParticipant, makeTournament } from "@/test/factories";
 
 // pointLog の配列から addPointToGame を逐次適用して Game を組む
 const buildGameFromLog = (log: Side[]): Game =>
-  log.reduce<Game>((built, side) => addPointToGame(built, side), { leftScore: 0, rightScore: 0 });
+  log.reduce<Game>((built, side) => addPointToGame(built, side), emptyGame());
 
 // 11点先取(loserScore は 0〜9)。loserScore 回交互に加点 → 残りを winner が連取。
 const finishedLog = (winner: Side, loserScore: number): Side[] => {
@@ -46,8 +46,8 @@ const deuceLog = (winner: Side): Side[] => {
 // 完了ゲームのスコア(pointLog なし)。winner が 11、loser が loserScore。
 const scoreGame = (winner: Side, loserScore: number): Game =>
   winner === SIDE.LEFT
-    ? { leftScore: 11, rightScore: loserScore }
-    : { leftScore: loserScore, rightScore: 11 };
+    ? { kind: GAME_KIND.MANUAL, leftScore: 11, rightScore: loserScore }
+    : { kind: GAME_KIND.MANUAL, leftScore: loserScore, rightScore: 11 };
 
 // 完了試合のゲーム勝者パターン。winner が winsNeeded 勝ち / loser が loserWins 勝ち。
 // 最終ゲームは必ず winner(そこで試合決着)。loser の勝ちは前半(奇数番目優先)に分散。
@@ -85,7 +85,10 @@ const completedGames = (
 };
 
 // 進行中試合: 1ゲーム完了(右 11-9) + 1ゲーム途中(7-5)
-const inProgressGames = (): Game[] => [scoreGame(SIDE.RIGHT, 9), { leftScore: 7, rightScore: 5 }];
+const inProgressGames = (): Game[] => [
+  scoreGame(SIDE.RIGHT, 9),
+  { kind: GAME_KIND.MANUAL, leftScore: 7, rightScore: 5 },
+];
 
 // 選手名プール — 大会ごとに offset でずらして割り当てる(重複は許容)。
 const NAME_POOL =
@@ -124,11 +127,6 @@ type BuiltTournament = {
   matches: Match[];
 };
 
-const sideOf = (format: Format, ids: string[]): MatchSide =>
-  format === FORMAT.SINGLES
-    ? { kind: SIDE_KIND.SINGLE, participantId: ids[0] }
-    : { kind: SIDE_KIND.PAIR, memberIds: [ids[0], ids[1]] };
-
 const buildTournament = (spec: TournamentSpec): BuiltTournament => {
   const winsNeeded = winsNeededForBestOf(spec.bestOf);
   const pIds = spec.players.map((_, index) => `p-${spec.prefix}${index + 1}`);
@@ -163,8 +161,9 @@ const buildTournament = (spec: TournamentSpec): BuiltTournament => {
     makeMatch({
       id: `m-${spec.prefix}${matchNumber}`,
       tournamentId: spec.id,
-      leftSide: sideOf(spec.format, left),
-      rightSide: sideOf(spec.format, right),
+      ...(spec.format === FORMAT.SINGLES
+        ? { kind: FORMAT.SINGLES, left: left[0], right: right[0] }
+        : { kind: FORMAT.DOUBLES, left: [left[0], left[1]], right: [right[0], right[1]] }),
       firstServer: SIDE.LEFT,
       games,
     });
@@ -270,7 +269,6 @@ export const buildSeedState = (): AppState => {
     tournaments: byId(built.map((t) => t.tournament)),
     participants: byId(built.flatMap((t) => t.participants)),
     matches: byId(built.flatMap((t) => t.matches)),
-    currentTournamentId: "t-s5",
     fontSize: FONT_SIZE.NORMAL,
     matchesView: MATCHES_VIEW.MATRIX,
     defaultBestOf: 3,

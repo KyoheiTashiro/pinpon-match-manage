@@ -1,17 +1,14 @@
+import type { Game } from "@/domain/match";
 import { computeRanking } from "@/domain/ranking";
 import type { Match } from "@/store/types";
 import { describe, it, expect } from "vitest";
 
-const make = (
-  id: string,
-  leftId: string,
-  rightId: string,
-  games: { leftScore: number; rightScore: number }[],
-): Match => ({
+const make = (id: string, leftId: string, rightId: string, games: Game[]): Match => ({
   id,
   tournamentId: "t",
-  leftSide: { kind: "single", participantId: leftId },
-  rightSide: { kind: "single", participantId: rightId },
+  kind: "singles",
+  left: leftId,
+  right: rightId,
   games,
   firstServer: "L",
 });
@@ -20,19 +17,19 @@ describe("computeRanking", () => {
   it("勝数→ゲーム差→得失点差の順で並ぶ", () => {
     const matches: Match[] = [
       make("1", "A", "B", [
-        { leftScore: 11, rightScore: 5 },
-        { leftScore: 11, rightScore: 6 },
-        { leftScore: 11, rightScore: 7 },
+        { kind: "manual", leftScore: 11, rightScore: 5 },
+        { kind: "manual", leftScore: 11, rightScore: 6 },
+        { kind: "manual", leftScore: 11, rightScore: 7 },
       ]),
       make("2", "A", "C", [
-        { leftScore: 11, rightScore: 9 },
-        { leftScore: 11, rightScore: 9 },
-        { leftScore: 11, rightScore: 9 },
+        { kind: "manual", leftScore: 11, rightScore: 9 },
+        { kind: "manual", leftScore: 11, rightScore: 9 },
+        { kind: "manual", leftScore: 11, rightScore: 9 },
       ]),
       make("3", "B", "C", [
-        { leftScore: 11, rightScore: 9 },
-        { leftScore: 11, rightScore: 9 },
-        { leftScore: 11, rightScore: 9 },
+        { kind: "manual", leftScore: 11, rightScore: 9 },
+        { kind: "manual", leftScore: 11, rightScore: 9 },
+        { kind: "manual", leftScore: 11, rightScore: 9 },
       ]),
     ];
     const rows = computeRanking(matches, { A: "A", B: "B", C: "C" });
@@ -45,7 +42,9 @@ describe("computeRanking", () => {
   });
 
   it("未完了 match は無視", () => {
-    const matches: Match[] = [make("1", "A", "B", [{ leftScore: 11, rightScore: 9 }])];
+    const matches: Match[] = [
+      make("1", "A", "B", [{ kind: "manual", leftScore: 11, rightScore: 9 }]),
+    ];
     const rows = computeRanking(matches, { A: "A", B: "B" });
     expect(rows.every((row) => row.wins === 0)).toBe(true);
     expect(rows.every((row) => row.losses === 0)).toBe(true);
@@ -63,17 +62,17 @@ describe("computeRanking — タイブレーク・同順位", () => {
     // A: 1勝 3-1(gameDiff=+2), B: 1勝 3-2(gameDiff=+1)
     const matches: Match[] = [
       make("1", "A", "C", [
-        { leftScore: 11, rightScore: 5 },
-        { leftScore: 11, rightScore: 5 },
-        { leftScore: 5, rightScore: 11 },
-        { leftScore: 11, rightScore: 5 },
+        { kind: "manual", leftScore: 11, rightScore: 5 },
+        { kind: "manual", leftScore: 11, rightScore: 5 },
+        { kind: "manual", leftScore: 5, rightScore: 11 },
+        { kind: "manual", leftScore: 11, rightScore: 5 },
       ]),
       make("2", "B", "D", [
-        { leftScore: 11, rightScore: 9 },
-        { leftScore: 9, rightScore: 11 },
-        { leftScore: 11, rightScore: 9 },
-        { leftScore: 9, rightScore: 11 },
-        { leftScore: 11, rightScore: 9 },
+        { kind: "manual", leftScore: 11, rightScore: 9 },
+        { kind: "manual", leftScore: 9, rightScore: 11 },
+        { kind: "manual", leftScore: 11, rightScore: 9 },
+        { kind: "manual", leftScore: 9, rightScore: 11 },
+        { kind: "manual", leftScore: 11, rightScore: 9 },
       ]),
     ];
     const rows = computeRanking(matches, { A: "A", B: "B", C: "C", D: "D" });
@@ -89,14 +88,14 @@ describe("computeRanking — タイブレーク・同順位", () => {
     // A: 1勝 3-0, 合計点差+10, B: 1勝 3-0, 合計点差+3
     const matches: Match[] = [
       make("1", "A", "C", [
-        { leftScore: 11, rightScore: 5 },
-        { leftScore: 11, rightScore: 4 },
-        { leftScore: 11, rightScore: 3 },
+        { kind: "manual", leftScore: 11, rightScore: 5 },
+        { kind: "manual", leftScore: 11, rightScore: 4 },
+        { kind: "manual", leftScore: 11, rightScore: 3 },
       ]),
       make("2", "B", "D", [
-        { leftScore: 11, rightScore: 9 },
-        { leftScore: 11, rightScore: 9 },
-        { leftScore: 11, rightScore: 9 },
+        { kind: "manual", leftScore: 11, rightScore: 9 },
+        { kind: "manual", leftScore: 11, rightScore: 9 },
+        { kind: "manual", leftScore: 11, rightScore: 9 },
       ]),
     ];
     const rows = computeRanking(matches, { A: "A", B: "B", C: "C", D: "D" });
@@ -121,14 +120,14 @@ describe("computeRanking — タイブレーク・同順位", () => {
     // B と C が同勝数・同gameDiff・同pointDiff → 同 rank 2
     const matches: Match[] = [
       make("1", "A", "B", [
-        { leftScore: 11, rightScore: 5 },
-        { leftScore: 11, rightScore: 5 },
-        { leftScore: 11, rightScore: 5 },
+        { kind: "manual", leftScore: 11, rightScore: 5 },
+        { kind: "manual", leftScore: 11, rightScore: 5 },
+        { kind: "manual", leftScore: 11, rightScore: 5 },
       ]),
       make("2", "A", "C", [
-        { leftScore: 11, rightScore: 5 },
-        { leftScore: 11, rightScore: 5 },
-        { leftScore: 11, rightScore: 5 },
+        { kind: "manual", leftScore: 11, rightScore: 5 },
+        { kind: "manual", leftScore: 11, rightScore: 5 },
+        { kind: "manual", leftScore: 11, rightScore: 5 },
       ]),
     ];
     const rows = computeRanking(matches, { A: "A", B: "B", C: "C" });
@@ -144,9 +143,9 @@ describe("computeRanking — タイブレーク・同順位", () => {
   it("右側プレイヤーが勝った場合も正しく集計される", () => {
     const matches: Match[] = [
       make("1", "A", "B", [
-        { leftScore: 5, rightScore: 11 },
-        { leftScore: 5, rightScore: 11 },
-        { leftScore: 5, rightScore: 11 },
+        { kind: "manual", leftScore: 5, rightScore: 11 },
+        { kind: "manual", leftScore: 5, rightScore: 11 },
+        { kind: "manual", leftScore: 5, rightScore: 11 },
       ]),
     ];
     const rows = computeRanking(matches, { A: "A", B: "B" });
@@ -165,8 +164,8 @@ describe("computeRanking — タイブレーク・同順位", () => {
   it("winsNeeded=2 でも正しく集計される", () => {
     const matches: Match[] = [
       make("1", "A", "B", [
-        { leftScore: 11, rightScore: 5 },
-        { leftScore: 11, rightScore: 5 },
+        { kind: "manual", leftScore: 11, rightScore: 5 },
+        { kind: "manual", leftScore: 11, rightScore: 5 },
       ]),
     ];
     const rows = computeRanking(matches, { A: "A", B: "B" }, 2);

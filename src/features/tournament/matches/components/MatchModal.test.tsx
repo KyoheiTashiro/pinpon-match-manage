@@ -1,3 +1,4 @@
+import type { Game } from "@/domain/match";
 import { MatchModal } from "@/features/tournament/matches/components/MatchModal";
 import type { Participant } from "@/store/types";
 import { useAppStore } from "@/store/useAppStore";
@@ -136,7 +137,7 @@ describe("MatchModal", () => {
     expect(onClose).toHaveBeenCalled();
   });
 
-  it("firstServer を変更すると updateMatch が { firstServer } で呼ばれる", async () => {
+  it("firstServer を変更するとストアの firstServer が更新される", async () => {
     const user = userEvent.setup();
     const onClose = vi.fn<() => void>();
     render(<MatchModal matchId="m1" participants={participants} onClose={onClose} />);
@@ -172,9 +173,8 @@ describe("MatchModal", () => {
 
   it("勝敗確定後のゲームには「入力不可」ラベルが表示される", () => {
     // bestOf=3, winsNeeded=2。ゲーム1・2 で左が勝利済み → ゲーム3 は locked
-    const wonGame = {
-      leftScore: 11,
-      rightScore: 0,
+    const wonGame: Game = {
+      kind: "logged",
       pointLog: Array.from({ length: 11 }, (): "L" | "R" => "L"),
     };
     useAppStore.getState().resetAll();
@@ -199,9 +199,8 @@ describe("MatchModal", () => {
   });
 
   it("進行中ゲームには数字スコアと「(進行中)」が表示される", () => {
-    const inProgressGame = {
-      leftScore: 5,
-      rightScore: 3,
+    const inProgressGame: Game = {
+      kind: "logged",
       pointLog: Array.from({ length: 8 }, (_, index): "L" | "R" => (index < 5 ? "L" : "R")),
     };
     useAppStore.getState().resetAll();

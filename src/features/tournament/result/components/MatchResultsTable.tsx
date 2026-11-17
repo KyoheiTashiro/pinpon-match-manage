@@ -1,6 +1,6 @@
 import { WinnerBadge } from "@/components/domain";
 import { EmptyState } from "@/components/ui";
-import { SIDE } from "@/domain/match";
+import { SIDE, gameScore } from "@/domain/match";
 import type { MatchResultRow } from "@/features/tournament/result/hooks";
 
 type Props = {
@@ -72,14 +72,15 @@ export const MatchResultsTable = ({ matchResults, bestOf }: Props) => {
                         </td>
                       );
                     }
+                    const { leftScore, rightScore } = gameScore(game);
                     return (
                       <td
                         key={gameIndex}
                         className={`border-line border-r-2 p-2 text-center text-base whitespace-nowrap ${rowBorder}`}
                       >
-                        <span>{game.leftScore}</span>
+                        <span>{leftScore}</span>
                         <span className="text-sub">-</span>
-                        <span>{game.rightScore}</span>
+                        <span>{rightScore}</span>
                       </td>
                     );
                   })}
